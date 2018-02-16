@@ -5,12 +5,12 @@ function Scanner(source) {
   let _currentIndex = -1;
   let _source = source;
   
-  let _makeChar = (c) => {
+  let _makeChar = (c, line, col, idx) => {
     return {
       c: c,
-      line: _lineIdx,
-      col: _col,
-      index: _currentIndex
+      line: line || _line,
+      col: col || _col,
+      index: idx || _currentIndex
     };
   };
   
