@@ -4,7 +4,7 @@ function Scanner(source) {
   let _lastIndex = source.length - 1;
   let _currentIndex = -1;
   let _source = source;
-  
+
   let _makeChar = (c, line, col, idx) => {
     return {
       c: c,
@@ -13,37 +13,35 @@ function Scanner(source) {
       index: idx || _currentIndex
     };
   };
-  
+
   this.get = function get() {
-    ++_currentIndex;
-    
-    
-    if (_currentIndex > 0 && _source[_currentIndex - 1] == "\n") {
-      ++_line;
+    _currentIndex += 1;
+
+    if (_currentIndex > 0 && _source[_currentIndex - 1] === '\n') {
+      _line += 1;
       _col = -1;
     }
-    ++_col;
-    
-    
+    _col += 1;
+
     let char = null;
     if (_currentIndex <= _lastIndex) {
       char = _source[_currentIndex];
     }
-    
+
     return _makeChar(char);
-  }
-  
+  };
+
   this.lookahead = function lookahead() {
     let lookaheadIdx = _currentIndex + 1;
     let lookaheadLine = _line;
     let lookaheadCol = _col;
-    
-    if (lookaheadIdx > 0 && _source[lookaheadIdx - 1] == "\n") {
-      ++lookaheadLine;
+
+    if (lookaheadIdx > 0 && _source[lookaheadIdx - 1] === '\n') {
+      lookaheadLine += 1;
       lookaheadCol = -1;
     }
-    ++lookaheadCol;
-    
+    lookaheadCol += 1;
+
     let char = null;
     if (lookaheadIdx <= _lastIndex) {
       char = _source[lookaheadIdx];
