@@ -1,5 +1,5 @@
 module.exports = {
-  whitespace: '\n\t '.split(),
+  whitespaces: '\n\t '.split(''),
   comments: [
     ['/*', '*/'],
     ['%', '\n'],
