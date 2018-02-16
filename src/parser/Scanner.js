@@ -16,7 +16,7 @@ function Scanner(source) {
 
   this.get = function get() {
     _currentIndex += 1;
-    
+
     if (_currentIndex > _lastIndex) {
       _currentIndex = _lastIndex + 1;
       return _makeChar(null);
