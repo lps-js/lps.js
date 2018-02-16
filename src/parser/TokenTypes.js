@@ -1,10 +1,10 @@
 module.exports = {
-  Variable: Symbol(),
-  Symbol: Symbol(),
-  Constant: Symbol(),
-  Number: Symbol(),
-  Eof: Symbol(),
-  Whitespace: Symbol(),
-  Comment: Symbol(),
-  Error: Symbol()
+  Variable: Symbol('Variable'),
+  Symbol: Symbol('Symbol'),
+  Constant: Symbol('Constant'),
+  Number: Symbol('Number'),
+  Eof: Symbol('Eof'),
+  Whitespace: Symbol('Whitespace'),
+  Comment: Symbol('Comment'),
+  Error: Symbol('Error')
 };
