@@ -16,19 +16,18 @@ function Scanner(source) {
 
   this.get = function get() {
     _currentIndex += 1;
-
+    
+    if (_currentIndex > _lastIndex) {
+      _currentIndex = _lastIndex + 1;
+      return _makeChar(null);
+    }
     if (_currentIndex > 0 && _source[_currentIndex - 1] === '\n') {
       _line += 1;
       _col = -1;
     }
     _col += 1;
 
-    let char = null;
-    if (_currentIndex <= _lastIndex) {
-      char = _source[_currentIndex];
-    }
-
-    return _makeChar(char);
+    return _makeChar(_source[_currentIndex]);
   };
 
   this.lookahead = function lookahead() {
