@@ -3,10 +3,13 @@ module.exports = {
   Clause: Symbol('Clause'),
   LiteralSet: Symbol('LiteralSet'),
   Literal: Symbol('Literal'),
-  LiteralArguments: Symbol('LiteralArguments'),
+  LiteralName: Symbol('LiteralName'),
   Constant: Symbol('Constant'),
   Variable: Symbol('Variable'),
   Function: Symbol('Function'),
-  FunctionArguments: Symbol('FunctionArguments'),
+  Number: Symbol('Number'),
+  FunctionName: Symbol('FunctionName'),
+  Arguments: Symbol('Arguments'),
+  Expression: Symbol('Expression'),
   Symbol: Symbol('Symbol')
 };
