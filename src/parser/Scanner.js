@@ -25,11 +25,12 @@ function Scanner(source) {
     ++_col;
     
     
-    if (_currentIndex > _lastIndex) {
-      return makeChar(null);
+    let char = null;
+    if (_currentIndex <= _lastIndex) {
+      char = _source[_currentIndex];
     }
     
-    return _makeChar(_source[_currentIndex]);
+    return _makeChar(char);
   }
 }
 
