@@ -32,6 +32,24 @@ function Scanner(source) {
     
     return _makeChar(char);
   }
+  
+  this.lookahead = function lookahead() {
+    let lookaheadIdx = _currentIndex + 1;
+    let lookaheadLine = _line;
+    let lookaheadCol = _col;
+    
+    if (lookaheadIdx > 0 && _source[lookaheadIdx - 1] == "\n") {
+      ++lookaheadLine;
+      lookaheadCol = -1;
+    }
+    ++lookaheadCol;
+    
+    let char = null;
+    if (lookaheadIdx <= _lastIndex) {
+      char = _source[lookaheadIdx];
+    }
+    return _makeChar(char, lookaheadLine, lookaheadCol, lookaheadIdx);
+  };
 }
 
 module.exports = Scanner;
