@@ -22,6 +22,16 @@ function AstNode(type, token) {
   this.addChild = function addChild(childNode) {
     _children.push(childNode);
   };
+
+  this.print = function print(n) {
+    if (!n) {
+      n = 0;
+    }
+    console.log(' '.repeat(n) + String(_type) + (_token ? (': ' + _token.value) : ''));
+    _children.forEach((child) => {
+      child.print(n + 1);
+    });
+  };
 }
 
 module.exports = AstNode;
