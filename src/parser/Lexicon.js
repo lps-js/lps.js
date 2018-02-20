@@ -14,7 +14,7 @@ module.exports = {
     '-', // subtraction / binary or negation / unary
     '+', // addition / binary
     '*', // multiplication / binary
-    '=', // equality / binary
+    '=', // unify / binary
     '/', // division / binary
     '^', // power to / binary
     '>', // more than / binary
@@ -25,7 +25,9 @@ module.exports = {
     '->', // implies / binary
     '<-', // implied by / binary
     '<=', // less than or equal / binary
-    '>=' // more than or equal / binary
+    '>=', // more than or equal / binary
+    '!=', // not equals / binary
+    '==' // equals
   ],
   constantDelimiters: [
     '\'',
@@ -37,5 +39,5 @@ module.exports = {
   variableStartTest: /^[A-Z_]$/,
   variableBodyTest: /^[0-9a-zA-Z_]$/,
   numberStartTest: /^[0-9]$/,
-  numberBodyTest: /^[0-9.]$/
+  decimalSymbol: '.'
 };

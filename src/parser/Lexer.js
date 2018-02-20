@@ -16,6 +16,8 @@ function Lexer(source) {
     return [c1.c, c2, c1];
   };
 
+  let lastChars = _nextChar();
+
   let _skipWhitespaces = function _skipWhitespaces(charsArg) {
     let chars = charsArg;
     let c1 = chars[0];
@@ -99,19 +101,49 @@ function Lexer(source) {
   let _extractContentByRegexTest = function _extractContentByTest(charsArg, regex) {
     let chars = charsArg;
     let buffer = chars[0];
-    while (chars[1] != null && regex.test(chars[1][1])) {
+    while (chars[1] !== null && regex.test(chars[1][1])) {
       chars = _nextChar();
       buffer += chars[0];
     }
     return buffer;
   };
 
-  let _extractNumber = function _extractNumber(chars) {
+  let _extractNumber = function _extractNumber(charsArg) {
     // keep record of where the token starts
+    let chars = charsArg;
     let line = chars[2].line;
     let col = chars[2].col;
-    let content = _extractContentByRegexTest(chars, Lexicon.numberBodyTest);
-    return _makeToken(TokenTypes.Number, content, line, col);
+    let buffer = chars[0];
+    let advanceLast = true;
+    let testNumber = () => {
+      if (chars[1] === null) {
+        return false
+      }
+      if (/[0-9]/.test(chars[1][1])) {
+        return true;
+      }
+
+      if (chars[1][1] === Lexicon.decimalSymbol) {
+        chars = _nextChar();
+        if (chars[1] !== null && /[0-9]/.test(chars[1][1])) {
+          buffer += Lexicon.decimalSymbol;
+          return true;
+        } else {
+          lastChars = chars;
+          advanceLast = false;
+        }
+      }
+      return false;
+    }
+    while (testNumber()) {
+      chars = _nextChar();
+      buffer += chars[0];
+    }
+    let result = _makeToken(TokenTypes.Number, buffer, line, col);
+    if (advanceLast) {
+      lastChars = _nextChar();
+    }
+    return result;
   };
 
   let _extractVariable = function _extractVariable(chars) {
@@ -119,7 +151,9 @@ function Lexer(source) {
     let line = chars[2].line;
     let col = chars[2].col;
     let content = _extractContentByRegexTest(chars, Lexicon.variableBodyTest);
-    return _makeToken(TokenTypes.Variable, content, line, col);
+    let result = _makeToken(TokenTypes.Variable, content, line, col);
+    lastChars = _nextChar();
+    return result;
   };
 
   let _extractUnquotedConstant = function _extractUnquotedConstant(chars) {
@@ -127,7 +161,9 @@ function Lexer(source) {
     let line = chars[2].line;
     let col = chars[2].col;
     let content = _extractContentByRegexTest(chars, Lexicon.unquotedConstantBodyTest);
-    return _makeToken(TokenTypes.Constant, content, line, col);
+    result = _makeToken(TokenTypes.Constant, content, line, col);
+    lastChars = _nextChar();
+    return result;
   };
 
   let _extractQuotedConstant = function _extractQuotedConstant(charsArg) {
@@ -150,21 +186,26 @@ function Lexer(source) {
       // skip over the closing delimiter
       _nextChar();
     }
-    return _makeToken(TokenTypes.Constant, buffer, line, col);
+    result = _makeToken(TokenTypes.Constant, buffer, line, col);
+    lastChars = _nextChar();
+    return result;
   };
 
   let _extractDoubleSymbol = function _extractDoubleSymbol(charsArg) {
     _nextChar();
-    return _makeToken(TokenTypes.Symbol, charsArg[1], charsArg[2].line, charsArg[2].col);
+    let result = _makeToken(TokenTypes.Symbol, charsArg[1], charsArg[2].line, charsArg[2].col);
+    lastChars = _nextChar();
+    return result;
   };
 
   let _extractSingleSymbol = function _extractSingleSymbol(charsArg) {
-    return _makeToken(TokenTypes.Symbol, charsArg[0], charsArg[2].line, charsArg[2].col);
+    let result = _makeToken(TokenTypes.Symbol, charsArg[0], charsArg[2].line, charsArg[2].col);
+    lastChars = _nextChar();
+    return result;
   };
 
   this.get = function get() {
-    let chars = _nextChar();
-    chars = _skipWhitespaceAndComments(chars);
+    chars = _skipWhitespaceAndComments(lastChars);
     let c1 = chars[0];
     let c2 = chars[1];
 
