@@ -15,6 +15,10 @@ function AstNode(type, token) {
     return _children;
   };
 
+  this.setToken = function setToken(token) {
+    _token = token;
+  };
+
   this.isLeaf = function isLeaf() {
     return _children.length === 0;
   };
