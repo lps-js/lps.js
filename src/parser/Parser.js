@@ -111,8 +111,21 @@ function Parser(source) {
     return expr;
   };
 
+  let _comparisonExpression = function _comparisonExpression() {
+    let expr = _additionExpression();
+    while (_foundOneOf(TokenTypes.Symbol, ['==', '<=', '>=', '!=', '<', '>'])) {
+      let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
+      _expect(TokenTypes.Symbol);
+      node.addChild(expr);
+      let rightExpr = _additionExpression();
+      node.addChild(rightExpr);
+      expr = node;
+    }
+    return expr;
+  };
+
   let _expression = function _expression() {
-    return _additionExpression();
+    return _comparisonExpression();
   };
 
   let _argument = function _argument() {
@@ -129,7 +142,7 @@ function Parser(source) {
   };
 
   let _literal = function _literal() {
-    return _functorOrConstantExpression();
+    return _expression();
   };
 
   let _literalSet = function _literalSet() {
