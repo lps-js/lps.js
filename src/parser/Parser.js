@@ -24,8 +24,8 @@ function Parser(source) {
     return currentToken.type === type && currentToken.value === content;
   };
 
-  let _foundOneOf = function _foundOneOf(types) {
-    return types.indexOf(currentToken.type) > -1;
+  let _foundOneOf = function _foundOneOf(type, contents) {
+    return currentToken.type === type && contents.indexOf(currentToken.value) > -1;
   };
 
   let _expect = function _expect(type) {
@@ -45,79 +45,91 @@ function Parser(source) {
     _nextToken();
   };
 
-  let _expression = function _expression() {
-    // an expression could be just a single number
-    let node = new AstNode(NodeTypes.Expression);
+  let _functorOrConstantExpression = function _functorOrConstantExpression() {
+    let nameToken = currentToken;
+    _expect(TokenTypes.Constant);
     if (_foundToBe(TokenTypes.Symbol, '(')) {
+      // we assume a bracket to symbolize a function
       _expect(TokenTypes.Symbol);
-      node.addChild(_expression())
-      _expectToBe(TokenTypes.Symbol, ')');
-    } else if (_found(TokenTypes.Number)) {
-      node.addChild(new AstNode(NodeTypes.Number, currentToken));
-      _expect(TokenTypes.Number);
+      let funcNode = new AstNode(NodeTypes.Functor, nameToken);
+      _arguments(funcNode);
+      return funcNode;
     }
-    node.addChild(new AstNode(NodeTypes.Symbol, currentToken));
-    _expect(TokenTypes.Symbol);
+    return new AstNode(TokenTypes.Constant, nameToken);
+  };
+
+  let _simpleExpression = function _simpleExpression() {
+    let node;
     if (_foundToBe(TokenTypes.Symbol, '(')) {
-      _expect(TokenTypes.Symbol);
-      node.addChild(_expression())
+      node = _expression();
       _expectToBe(TokenTypes.Symbol, ')');
-    } else if (_found(TokenTypes.Number)) {
-      node.addChild(new AstNode(NodeTypes.Number, currentToken));
+    } else if (_found(TokenTypes.Constant)) {
+      node = _functorOrConstantExpression();
+    } else if (_found(TokenTypes.Variable)) {
+      node = new AstNode(NodeTypes.Variable, currentToken);
+      _expect(TokenTypes.Variable);
+    } else {
+      node = new AstNode(NodeTypes.Number, currentToken);
       _expect(TokenTypes.Number);
     }
     return node;
+  };
+
+  let _unaryExpression = function _unaryExpression() {
+    if (_foundOneOf(TokenTypes.Symbol, ['!', '-'])) {
+      let node = new AstNode(NodeTypes.UnaryOperator, currentToken);
+      _expect(TokenTypes.Symbol);
+      node.addChild(_unaryExpression());
+      return node;
+    }
+    return _simpleExpression();
+  };
+
+  let _multiplicationExpression = function _multiplicationExpression() {
+    let expr = _unaryExpression();
+    while (_foundOneOf(TokenTypes.Symbol, ['*', '/'])) {
+      let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
+      _expect(TokenTypes.Symbol);
+      node.addChild(expr);
+      let rightExpr = _unaryExpression();
+      node.addChild(rightExpr);
+      expr = node;
+    }
+    return expr;
+  };
+
+  let _additionExpression = function _additionExpression() {
+    let expr = _multiplicationExpression();
+    while (_foundOneOf(TokenTypes.Symbol, ['+', '-'])) {
+      let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
+      _expect(TokenTypes.Symbol);
+      node.addChild(expr);
+      let rightExpr = _multiplicationExpression();
+      node.addChild(rightExpr);
+      expr = node;
+    }
+    return expr;
+  };
+
+  let _expression = function _expression() {
+    return _additionExpression();
   };
 
   let _argument = function _argument() {
-    if (_found(TokenTypes.Constant)) {
-      // could be a constant or function name
-      let nameToken = currentToken;
-      _expect(TokenTypes.Constant);
-      // check if there is a bracket
-      if (_foundToBe(TokenTypes.Symbol, '(')) {
-        // we assume a bracket to symbolize a function
-        _expect(TokenTypes.Symbol);
-        let funcNode = new AstNode(NodeTypes.Function);
-        funcNode.addChild(new AstNode(NodeTypes.FunctionName, nameToken));
-        funcNode.addChild(_arguments());
-        return funcNode;
-      }
-      return new AstNode(TokenTypes.Constant, nameToken);
-    }
-    if (_found(TokenTypes.Variable)) {
-      let varNode = new AstNode(TokenTypes.Variable, currentToken);
-      _expect(TokenTypes.Variable);
-      return varNode;
-    }
-    // bracket delimited expression
     return _expression();
   }
 
-  let _arguments = function _arguments() {
-    let node = new AstNode(NodeTypes.Arguments);
-    node.addChild(_argument());
+  let _arguments = function _arguments(node) {
+    node.addChild(_expression());
     while (_foundToBe(TokenTypes.Symbol, ARGUMENT_SEPARATOR_SYMBOL)) {
       _expect(TokenTypes.Symbol);
-      node.addChild(_argument());
+      node.addChild(_expression());
     }
     _expect(TokenTypes.Symbol, ')');
-    return node;
   };
 
   let _literal = function _literal() {
-    let node = new AstNode(NodeTypes.Literal);
-    if (_foundToBe(TokenTypes.Symbol, '!')) {
-      node.addChild(new AstNode(NodeTypes.Symbol, currentToken));
-      _expect(TokenTypes.Symbol);
-    }
-    node.addChild(new AstNode(NodeTypes.LiteralName, currentToken));
-    _expect(TokenTypes.Constant);
-    if (_foundToBe(TokenTypes.Symbol, '(')) {
-      _expect(TokenTypes.Symbol);
-      node.addChild(_arguments());
-    }
-    return node;
+    return _functorOrConstantExpression();
   };
 
   let _literalSet = function _literalSet() {
