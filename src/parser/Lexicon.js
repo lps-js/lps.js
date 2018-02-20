@@ -11,7 +11,7 @@ module.exports = {
     '.', // end of clause
     ';', // OR operator
     ',', // argument separator or AND operator
-    '-', // subtraction / binary
+    '-', // subtraction / binary or negation / unary
     '+', // addition / binary
     '*', // multiplication / binary
     '=', // equality / binary
