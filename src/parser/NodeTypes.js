@@ -6,6 +6,7 @@ module.exports = {
   Variable: Symbol('Variable'),
   Number: Symbol('Number'),
   Functor: Symbol('Functor'),
+  List: Symbol('List'),
   BinaryOperator: Symbol('BinaryOperator'),
   UnaryOperator: Symbol('UnaryOperator'),
   Symbol: Symbol('Symbol')
