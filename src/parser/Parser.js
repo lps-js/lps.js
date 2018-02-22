@@ -3,6 +3,8 @@ const AstNode = require('./AstNode');
 const NodeTypes = require('./NodeTypes');
 const TokenTypes = require('./TokenTypes');
 
+const fs = require('fs');
+
 const END_OF_CLAUSE_SYMBOL = '.';
 const CLAUSE_LITERAL_SEPARATOR_SYMBOL = ',';
 const ARGUMENT_SEPARATOR_SYMBOL = ',';
@@ -217,11 +219,11 @@ function Parser(source) {
 
 Parser.parseFile = function parseFile(file) {
   return new Promise((resolve, reject) => {
-    fs.readFile('/etc/passwd', (err, data) => {
+    fs.readFile(file, 'utf8', (err, data) => {
       if (err) {
         throw err;
       }
-      let parser = new Parser(source);
+      let parser = new Parser(data);
       let token = parser.build();
       resolve(token);
     });
