@@ -215,4 +215,17 @@ function Parser(source) {
   };
 }
 
+Parser.parseFile = function parseFile(file) {
+  return new Promise((resolve, reject) => {
+    fs.readFile('/etc/passwd', (err, data) => {
+      if (err) {
+        throw err;
+      }
+      let parser = new Parser(source);
+      let token = parser.build();
+      resolve(token);
+    });
+  });
+};
+
 module.exports = Parser;
