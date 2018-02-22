@@ -19,7 +19,9 @@ module.exports = {
     '^', // power to / binary
     '>', // more than / binary
     '<', // less than / binary
-    '!' // negation / unary
+    '!', // negation / unary
+    '[', // list start
+    ']' // list end
   ],
   doubleSymbols: [
     '->', // implies / binary
