@@ -124,13 +124,30 @@ function Parser(source) {
     return expr;
   };
 
-  let _expression = function _expression() {
+  let _arrayExpression = function _arrayExpression() {
+    if (_foundToBe(TokenTypes.Symbol, '[')) {
+      _expect(TokenTypes.Symbol)
+      let node = new AstNode(NodeTypes.List);
+      if (_foundToBe(TokenTypes.Symbol, ']')) {
+        // case of empty array
+        _expect(TokenTypes.Symbol);
+        return node;
+      }
+      // otherwise we expect at least one element of the list inside
+      node.addChild(_arrayExpression());
+      while (_foundToBe(TokenTypes.Symbol, ',')) {
+        _expect(TokenTypes.Symbol);
+        node.addChild(_arrayExpression());
+      }
+      _expect(TokenTypes.Symbol);
+      return node;
+    }
     return _comparisonExpression();
   };
 
-  let _argument = function _argument() {
-    return _expression();
-  }
+  let _expression = function _expression() {
+    return _arrayExpression();
+  };
 
   let _arguments = function _arguments(node) {
     node.addChild(_expression());
