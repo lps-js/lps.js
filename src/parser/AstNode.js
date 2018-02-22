@@ -15,8 +15,8 @@ function AstNode(type, token) {
     return _children;
   };
 
-  this.setToken = function setToken(token) {
-    _token = token;
+  this.setToken = function setToken(t) {
+    _token = t;
   };
 
   this.isLeaf = function isLeaf() {
@@ -27,13 +27,15 @@ function AstNode(type, token) {
     _children.push(childNode);
   };
 
-  this.print = function print(n) {
+  this.print = function print(nArg) {
+    let n = nArg;
     if (!n) {
       n = 0;
     }
     console.log(' '.repeat(n) + String(_type) + (_token ? (': ' + _token.value) : ''));
+    n += 1;
     _children.forEach((child) => {
-      child.print(n + 1);
+      child.print(n);
     });
   };
 }

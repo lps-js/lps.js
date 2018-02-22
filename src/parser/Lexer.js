@@ -117,7 +117,7 @@ function Lexer(source) {
     let advanceLast = true;
     let testNumber = () => {
       if (chars[1] === null) {
-        return false
+        return false;
       }
       if (/[0-9]/.test(chars[1][1])) {
         return true;
@@ -128,13 +128,12 @@ function Lexer(source) {
         if (chars[1] !== null && /[0-9]/.test(chars[1][1])) {
           buffer += Lexicon.decimalSymbol;
           return true;
-        } else {
-          lastChars = chars;
-          advanceLast = false;
         }
+        lastChars = chars;
+        advanceLast = false;
       }
       return false;
-    }
+    };
     while (testNumber()) {
       chars = _nextChar();
       buffer += chars[0];
@@ -161,7 +160,7 @@ function Lexer(source) {
     let line = chars[2].line;
     let col = chars[2].col;
     let content = _extractContentByRegexTest(chars, Lexicon.unquotedConstantBodyTest);
-    result = _makeToken(TokenTypes.Constant, content, line, col);
+    let result = _makeToken(TokenTypes.Constant, content, line, col);
     lastChars = _nextChar();
     return result;
   };
@@ -186,7 +185,7 @@ function Lexer(source) {
       // skip over the closing delimiter
       _nextChar();
     }
-    result = _makeToken(TokenTypes.Constant, buffer, line, col);
+    let result = _makeToken(TokenTypes.Constant, buffer, line, col);
     lastChars = _nextChar();
     return result;
   };
@@ -205,7 +204,7 @@ function Lexer(source) {
   };
 
   this.get = function get() {
-    chars = _skipWhitespaceAndComments(lastChars);
+    let chars = _skipWhitespaceAndComments(lastChars);
     let c1 = chars[0];
     let c2 = chars[1];
 

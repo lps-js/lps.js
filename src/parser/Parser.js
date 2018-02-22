@@ -128,7 +128,7 @@ function Parser(source) {
 
   let _arrayExpression = function _arrayExpression() {
     if (_foundToBe(TokenTypes.Symbol, '[')) {
-      _expect(TokenTypes.Symbol)
+      _expect(TokenTypes.Symbol);
       let node = new AstNode(NodeTypes.List);
       if (_foundToBe(TokenTypes.Symbol, ']')) {
         // case of empty array
@@ -218,7 +218,7 @@ function Parser(source) {
 }
 
 Parser.parseFile = function parseFile(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     fs.readFile(file, 'utf8', (err, data) => {
       if (err) {
         throw err;
