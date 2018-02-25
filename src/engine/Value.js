@@ -8,6 +8,10 @@ function Value(value) {
   this.getVariables = function getVariables() {
     return [];
   };
+
+  this.substitute = function substitute(theta) {
+    return new Value(_value);
+  };
 }
 
 module.exports = Value;
