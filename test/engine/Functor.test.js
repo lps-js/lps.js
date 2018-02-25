@@ -35,4 +35,16 @@ describe('Functor', () => {
     });
   });
 
+  describe('substitute()', () => {
+    it('should return a copy of itself if there\'s no substitution', () => {
+      let functor = new Functor('add', [new Variable('X'), new Value(5)]);
+      expect(functor.substitute).to.be.a('function');
+
+      let theta = {};
+      expect(functor.substitute(theta)).to.be.instanceof(Functor);
+      // ID of the functor should not change
+      expect(functor.substitute(theta).getId()).to.be.equals(functor.getId());
+    });
+  });
+
 });
