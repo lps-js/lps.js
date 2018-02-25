@@ -19,6 +19,10 @@ function Functor(name, args) {
 
     return Object.keys(hash);
   };
+
+  this.getArguments = function getArguments() {
+    return _args;
+  };
 }
 
 module.exports = Functor;
