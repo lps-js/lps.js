@@ -13,6 +13,8 @@ describe('Functor', () => {
       expect(functor.getVariables).to.be.a('function');
 
       expect(functor.getVariables()).to.be.an('array');
+      expect(functor.getVariables()).contains('X');
+      expect(functor.getVariables().length).to.be.equals(1);
     });
   });
 
