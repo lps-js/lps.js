@@ -21,7 +21,13 @@ function Functor(name, args) {
   };
 
   this.getArguments = function getArguments() {
+    // content of _args is mutable
     return _args;
+  };
+
+  this.substitute = function substitute(theta) {
+    let newArgs = _args.map(arg => arg.substitute(theta));
+    return new Functor(_name, newArgs);
   };
 }
 
