@@ -41,9 +41,26 @@ describe('Functor', () => {
       expect(functor.substitute).to.be.a('function');
 
       let theta = {};
-      expect(functor.substitute(theta)).to.be.instanceof(Functor);
+      let substitutedFunctor = functor.substitute(theta);
+      expect(substitutedFunctor).to.be.instanceof(Functor);
       // ID of the functor should not change
-      expect(functor.substitute(theta).getId()).to.be.equals(functor.getId());
+      expect(substitutedFunctor.getId()).to.be.equals(functor.getId());
+    });
+
+    it('should return a copy of itself with substitution', () => {
+      let functor = new Functor('add', [new Variable('X'), new Value(5)]);
+      expect(functor.substitute).to.be.a('function');
+
+      let theta = {X: new Value(2)};
+      let substitutedFunctor = functor.substitute(theta);
+      expect(substitutedFunctor).to.be.instanceof(Functor);
+      // ID of the functor should not change
+      expect(substitutedFunctor.getId()).to.be.equals(functor.getId());
+      // if we substituted variable X, we should not get any variable
+      expect(substitutedFunctor.getVariables().length).to.be.equals(0);
+
+      expect(substitutedFunctor.getArguments()[0].evaluate()).to.be.equals(2);
+      expect(substitutedFunctor.getArguments()[1].evaluate()).to.be.equals(5);
     });
   });
 
