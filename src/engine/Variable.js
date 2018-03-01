@@ -13,7 +13,7 @@ function Variable(name) {
   this.substitute = function substitute(theta) {
     if (name in theta) {
       // needs to be substituted
-      return theta[name]
+      return theta[name];
     }
     return new Variable(_name);
   };

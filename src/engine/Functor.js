@@ -8,7 +8,6 @@ function Functor(name, args) {
   };
 
   this.getVariables = function getVariables() {
-    let variables = [];
     let hash = {};
 
     _args.forEach((arg) => {
