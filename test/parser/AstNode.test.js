@@ -31,13 +31,52 @@ describe('AstNode', () => {
   });
 
   describe('print', () => {
-    it('should change the token', function() {
+    it('should print out', function() {
       this.sinon.stub(console, 'log');
       let symbol = Symbol();
       let token = {'value': '.'};
       let node = new AstNode(symbol, token);
       node.print();
-      expect( console.log.calledOnce ).to.be.true;
+      expect(console.log.calledOnce).to.be.true;
+      this.sinon.restore();
+    });
+
+    it('should print out with indentation', function() {
+      this.sinon.stub(console, 'log');
+      let symbol = Symbol();
+      let token = {'value': '.'};
+      let node = new AstNode(symbol, token);
+      node.print(2);
+      expect(console.log.calledOnce).to.be.true;
+      this.sinon.restore();
+    });
+
+    it('should print out with no token', function() {
+      this.sinon.stub(console, 'log');
+      let symbol = Symbol();
+      let node = new AstNode(symbol, null);
+      node.print();
+      expect(console.log.calledOnce).to.be.true;
+      this.sinon.restore();
+    });
+  });
+
+  describe('print with child', () => {
+    it('should print out recursively', function() {
+      let child = {
+        print: (n) => {}
+      };
+      this.sinon.stub(console, 'log');
+      this.sinon.stub(child, 'print').value((n) => {
+        expect(n).to.be.equal(1);
+        console.log('testing');
+      });
+      let symbol = Symbol();
+      let token = {'value': '.'};
+      let node = new AstNode(symbol, token);
+      node.addChild(child);
+      node.print();
+      expect(console.log.calledTwice).to.be.true;
       this.sinon.restore();
     });
   });
