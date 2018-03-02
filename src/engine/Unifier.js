@@ -28,6 +28,7 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
   let rightOperand = equality[1].substitute(theta);
 
   if (leftOperand instanceof Value && rightOperand instanceof Value) {
+    // equal value check
     if (leftOperand.evaluate() === rightOperand.evaluate()) {
       return theta;
     }
@@ -62,17 +63,23 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
     if (rightOperand.getVariables().indexOf(varName) === -1) {
       return processNewSubstitution(varName, rightOperand, theta);
     }
+    // right operand contains left operand as a variables
+    // right not we simply do not handle infinite substitution
+    // X = f(X)
     return null;
   }
 
   if (leftOperand instanceof Variable && rightOperand instanceof Variable) {
+    // X = X can be taken away
     if (leftOperand.evaluate() === rightOperand.evaluate()) {
       return theta;
     }
+    // we substitute right operand with left operand and process more later
     let varName = leftOperand.evaluate();
     return processNewSubstitution(varName, rightOperand, theta);
   }
 
+  // no idea how we got here
   return null;
 };
 
