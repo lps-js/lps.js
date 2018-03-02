@@ -22,7 +22,7 @@ describe('AstNode', () => {
     it('should change the token', () => {
       let symbol = Symbol();
       let token1 = {};
-      let token2 = {'test': true};
+      let token2 = { test: true };
       let node = new AstNode(symbol, token1);
       expect(node.getToken()).to.be.equal(token1);
       node.setToken(token2);
@@ -31,27 +31,27 @@ describe('AstNode', () => {
   });
 
   describe('print', () => {
-    it('should print out', function() {
+    it('should print out', function () {
       this.sinon.stub(console, 'log');
       let symbol = Symbol();
-      let token = {'value': '.'};
+      let token = { value: '.' };
       let node = new AstNode(symbol, token);
       node.print();
       expect(console.log.calledOnce).to.be.true;
       this.sinon.restore();
     });
 
-    it('should print out with indentation', function() {
+    it('should print out with indentation', function () {
       this.sinon.stub(console, 'log');
       let symbol = Symbol();
-      let token = {'value': '.'};
+      let token = { value: '.' };
       let node = new AstNode(symbol, token);
       node.print(2);
       expect(console.log.calledOnce).to.be.true;
       this.sinon.restore();
     });
 
-    it('should print out with no token', function() {
+    it('should print out with no token', function () {
       this.sinon.stub(console, 'log');
       let symbol = Symbol();
       let node = new AstNode(symbol, null);
@@ -62,9 +62,9 @@ describe('AstNode', () => {
   });
 
   describe('print with child', () => {
-    it('should print out recursively', function() {
+    it('should print out recursively', function () {
       let child = {
-        print: (n) => {}
+        print: () => {}
       };
       this.sinon.stub(console, 'log');
       this.sinon.stub(child, 'print').value((n) => {
@@ -72,7 +72,7 @@ describe('AstNode', () => {
         console.log('testing');
       });
       let symbol = Symbol();
-      let token = {'value': '.'};
+      let token = { value: '.' };
       let node = new AstNode(symbol, token);
       node.addChild(child);
       node.print();
