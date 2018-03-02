@@ -9,7 +9,7 @@ function Value(value) {
     return [];
   };
 
-  this.substitute = function substitute(theta) {
+  this.substitute = function substitute() {
     return new Value(_value);
   };
 }
