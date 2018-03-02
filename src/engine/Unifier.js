@@ -23,6 +23,10 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
     return null;
   }
 
+  if (thetaArg === null) {
+    return null;
+  }
+
   let theta = thetaArg;
   let leftOperand = equality[0].substitute(theta);
   let rightOperand = equality[1].substitute(theta);
@@ -89,8 +93,12 @@ function Unifier() {
 
 Unifier.unifies = function unifies(equalities, thetaArg) {
   let theta = thetaArg;
-  if (!theta) {
+  if (typeof theta === 'undefined') {
     theta = {};
+  }
+
+  if (theta === null) {
+    return null;
   }
 
   let queue = [];
