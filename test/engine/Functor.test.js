@@ -6,20 +6,19 @@ const chai = require('chai');
 const expect = chai.expect;
 
 describe('Functor', () => {
-
   describe('constructor', () => {
     it('should initialise the Functor correctly', () => {
-      let arguments = [new Variable('X'), new Value(5)];
-      let functor = new Functor('add', arguments);
+      let functorArgs = [new Variable('X'), new Value(5)];
+      let functor = new Functor('add', functorArgs);
       expect(functor.getId).to.be.a('function');
 
-      expect(functor.getId()).to.be.equals("add/2");
+      expect(functor.getId()).to.be.equals('add/2');
 
       expect(functor.getArguments).to.be.a('function');
 
       expect(functor.getArguments()).to.be.an('array');
-      expect(functor.getArguments()).contains(arguments[0]);
-      expect(functor.getArguments()).contains(arguments[1]);
+      expect(functor.getArguments()).contains(functorArgs[0]);
+      expect(functor.getArguments()).contains(functorArgs[1]);
       expect(functor.getArguments().length).to.be.equals(2);
     });
   });
@@ -51,7 +50,7 @@ describe('Functor', () => {
       let functor = new Functor('add', [new Variable('X'), new Value(5)]);
       expect(functor.substitute).to.be.a('function');
 
-      let theta = {X: new Value(2)};
+      let theta = { X: new Value(2) };
       let substitutedFunctor = functor.substitute(theta);
       expect(substitutedFunctor).to.be.instanceof(Functor);
       // ID of the functor should not change
@@ -63,5 +62,4 @@ describe('Functor', () => {
       expect(substitutedFunctor.getArguments()[1].evaluate()).to.be.equals(5);
     });
   });
-
 });
