@@ -2,6 +2,17 @@ const Functor = require('./Functor');
 const Value = require('./Value');
 const Variable = require('./Variable');
 
+let processNewSubstitution = function processNewSubstitution(newVar, newValue, thetaArg) {
+  let theta = thetaArg;
+  let thetaP = {};
+  thetaP[newVar] = newValue;
+  Object.keys(theta).forEach((key) => {
+    theta[key] = theta[key].substitute(thetaP);
+  });
+  theta[newVar] = newValue;
+  return theta;
+}
+
 let processEquality = function processEquality(queue, equality, thetaArg) {
   if (equality.length != 2) {
     return null;
@@ -49,8 +60,7 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
       && (rightOperand instanceof Functor || rightOperand instanceof Value)) {
     let varName = leftOperand.evaluate();
     if (rightOperand.getVariables().indexOf(varName) === -1) {
-      theta[varName] = rightOperand;
-      return theta;
+      return processNewSubstitution(varName, rightOperand, theta);
     }
     return null;
   }
@@ -60,8 +70,7 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
       return theta;
     }
     let varName = leftOperand.evaluate();
-    theta[varName] = rightOperand;
-    return theta;
+    return processNewSubstitution(varName, rightOperand, theta);
   }
 
   return null;
