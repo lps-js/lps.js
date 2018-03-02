@@ -11,15 +11,15 @@ let processNewSubstitution = function processNewSubstitution(newVar, newValue, t
   });
   theta[newVar] = newValue;
   return theta;
-}
+};
 
 let processEquality = function processEquality(queue, equality, thetaArg) {
-  if (equality.length != 2) {
+  if (equality.length !== 2) {
     return null;
   }
 
-  if (typeof equality[0]['substitute'] === 'undefined'
-      || typeof equality[1]['substitute'] === 'undefined') {
+  if (typeof equality[0].substitute === 'undefined'
+      || typeof equality[1].substitute === 'undefined') {
     return null;
   }
 
@@ -66,7 +66,7 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
   }
 
   if (leftOperand instanceof Variable && rightOperand instanceof Variable) {
-    if (leftOperand.evaluate() == rightOperand.evaluate()) {
+    if (leftOperand.evaluate() === rightOperand.evaluate()) {
       return theta;
     }
     let varName = leftOperand.evaluate();
