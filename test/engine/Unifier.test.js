@@ -103,6 +103,23 @@ describe('Unifier', () => {
     expect(theta['X'].getId()).to.be.equal('g/1');
   });
 
+  it('should unify two functors with multiple variable occurrences, and return correct substution', () => {
+    let value1 = new Functor('f', [new Functor('g', [new Variable('X')]), new Variable('X')]);
+    let value2 = new Functor('f', [new Variable('Y'), new Value('a')]);
+    let theta = Unifier([[value1, value2]]);
+    expect(theta).to.be.not.null;
+
+    expect(Object.keys(theta)).to.be.contain('X');
+    expect(theta['X']).to.be.instanceof(Value)
+    expect(theta['X'].evaluate()).to.be.equal('a');
+
+    expect(Object.keys(theta)).to.be.contain('Y');
+    expect(theta['Y']).to.be.instanceof(Functor)
+    expect(theta['Y'].getArguments().length).to.be.equal(1);
+    expect(theta['Y'].getArguments()[0]).to.be.instanceof(Value);
+    expect(theta['Y'].getArguments()[0].evaluate()).to.be.equal('a');
+  });
+
   it('should not unify two funtors with an incorrect affecting substitution', () => {
     let value1 = new Functor('test', [new Value(1), new Value(2)]);
     let value2 = new Functor('test', [new Value(1), new Variable('X')]);
