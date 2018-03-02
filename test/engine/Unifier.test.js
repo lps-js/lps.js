@@ -8,6 +8,12 @@ const chai = require('chai');
 const expect = chai.expect;
 
 describe('Unifier', () => {
+  describe('init', () => {
+    let unifier = new Unifier();
+    expect(unifier).to.be.not.null;
+    expect(unifier).to.be.instanceof(Unifier);
+  });
+
   describe('unifies', () => {
     it('should unify two equal number values', () => {
       let value1 = new Value(5);
