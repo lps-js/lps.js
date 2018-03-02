@@ -83,7 +83,11 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
   return null;
 };
 
-function Unifier(equalities, thetaArg) {
+function Unifier() {
+
+}
+
+Unifier.unifies = function unifies(equalities, thetaArg) {
   let theta = thetaArg;
   if (!theta) {
     theta = {};
@@ -100,6 +104,6 @@ function Unifier(equalities, thetaArg) {
     }
   }
   return theta;
-}
+};
 
 module.exports = Unifier;
