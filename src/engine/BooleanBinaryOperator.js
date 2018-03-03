@@ -21,7 +21,7 @@ function BooleanBinaryOperator(operator, operand1, operand2) {
         return operandVal1 > operandVal2;
       case '<=':
         return operandVal1 <= operandVal2;
-      case '=>':
+      case '>=':
         return operandVal1 >= operandVal2;
       case '==':
         return operandVal1 === operandVal2;
