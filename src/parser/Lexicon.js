@@ -29,7 +29,8 @@ module.exports = {
     '<=', // less than or equal / binary
     '>=', // more than or equal / binary
     '!=', // not equals / binary
-    '==' // equals
+    '==', // equals
+    '**' // power
   ],
   constantDelimiters: [
     '\'',
