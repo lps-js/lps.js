@@ -5,7 +5,7 @@ const chai = require('chai');
 const expect = chai.expect;
 
 describe('Variable', () => {
-  describe('evaluate', () => {
+  describe('evaluate()', () => {
     it('should return the variable name', () => {
       let variable = new Variable('X');
       expect(variable.evaluate).to.be.a('function');
@@ -14,7 +14,7 @@ describe('Variable', () => {
     });
   });
 
-  describe('getVariables', () => {
+  describe('getVariables()', () => {
     it('should return an array containing itself', () => {
       let variable = new Variable('X');
       expect(variable.getVariables).to.be.a('function');
@@ -24,7 +24,7 @@ describe('Variable', () => {
     });
   });
 
-  describe('isGround', () => {
+  describe('isGround()', () => {
     it('should return false anyway', () => {
       let variable = new Variable('X');
       expect(variable.isGround).to.be.a('function');
@@ -33,7 +33,7 @@ describe('Variable', () => {
     });
   });
 
-  describe('substitute', () => {
+  describe('substitute()', () => {
     it('should return the substituted variable if theta contains it', () => {
       let variable = new Variable('X');
       expect(variable.substitute).to.be.a('function');

@@ -4,7 +4,7 @@ const chai = require('chai');
 const expect = chai.expect;
 
 describe('Value', () => {
-  describe('evaluate', () => {
+  describe('evaluate()', () => {
     it('should return the value correctly with a constant string', () => {
       let value = new Value('testing');
       expect(value.evaluate).to.be.a('function');
@@ -20,7 +20,7 @@ describe('Value', () => {
     });
   });
 
-  describe('getVariables', () => {
+  describe('getVariables()', () => {
     it('should return empty array', () => {
       let value = new Value('testing');
       expect(value.getVariables).to.be.a('function');
@@ -29,7 +29,7 @@ describe('Value', () => {
     });
   });
 
-  describe('isGround', () => {
+  describe('isGround()', () => {
     it('should return true anyway', () => {
       let value = new Value('testing');
       expect(value.isGround).to.be.a('function');
@@ -38,7 +38,7 @@ describe('Value', () => {
     });
   });
 
-  describe('substitute', () => {
+  describe('substitute()', () => {
     it('should just return a copy of itself', () => {
       let value = new Value('testing');
       expect(value.substitute).to.be.a('function');

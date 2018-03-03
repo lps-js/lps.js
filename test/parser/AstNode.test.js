@@ -5,7 +5,7 @@ const expect = chai.expect;
 require('mocha-sinon');
 
 describe('AstNode', () => {
-  describe('initialize AstNode', () => {
+  describe('constructor', () => {
     it('should initialise correct with type and token', () => {
       let symbol = Symbol();
       let token = {};
@@ -18,7 +18,7 @@ describe('AstNode', () => {
     });
   });
 
-  describe('setToken', () => {
+  describe('setToken()', () => {
     it('should change the token', () => {
       let symbol = Symbol();
       let token1 = {};
@@ -30,7 +30,7 @@ describe('AstNode', () => {
     });
   });
 
-  describe('print', () => {
+  describe('print()', () => {
     it('should print out', function () {
       this.sinon.stub(console, 'log');
       let symbol = Symbol();
@@ -59,10 +59,8 @@ describe('AstNode', () => {
       expect(console.log.calledOnce).to.be.true;
       this.sinon.restore();
     });
-  });
 
-  describe('print with child', () => {
-    it('should print out recursively', function () {
+    it('should print out children recursively', function () {
       let child = {
         print: () => {}
       };

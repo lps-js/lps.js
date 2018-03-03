@@ -14,7 +14,7 @@ describe('Unifier', () => {
     expect(unifier).to.be.instanceof(Unifier);
   });
 
-  describe('unifies', () => {
+  describe('unifies()', () => {
     it('should unify two equal number values', () => {
       let value1 = new Value(5);
       let value2 = new Value(5);

@@ -4,7 +4,7 @@ const variableArrayRename = require('../../src/utility/variableArrayRename');
 const chai = require('chai');
 const expect = chai.expect;
 
-describe('variableArrayRename', () => {
+describe('variableArrayRename()', () => {
   it('should return an empty array if given an empty one', () => {
     let theta = variableArrayRename([]);
     expect(Object.keys(theta)).to.be.empty;
