@@ -1,3 +1,5 @@
+const Variable = require('../engine/Variable');
+
 module.exports = function variableArrayRename(varArr, namePatternArg) {
   let namePattern = namePatternArg;
   if (!namePattern) {
@@ -9,7 +11,7 @@ module.exports = function variableArrayRename(varArr, namePatternArg) {
   // create the substitution
   let theta = {};
   varArr.forEach((varName) => {
-    theta[varName] = new Variable(namePattern.replace('*', varname));
+    theta[varName] = new Variable(namePattern.replace('*', varName));
   })
   return theta;
 };
