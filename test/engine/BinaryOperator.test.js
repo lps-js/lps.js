@@ -7,21 +7,21 @@ const chai = require('chai');
 const expect = chai.expect;
 
 describe('BinaryOperator', () => {
-  describe('operand1()', () => {
+  describe('getOperand1()', () => {
     it('should return the correct value', () => {
       let operator = new BinaryOperator('+', new Value(5), new Value(2));
-      expect(operator.operand1).to.be.a('function');
-      expect(operator.operand1()).to.be.instanceof(Value);
-      expect(operator.operand1().evaluate()).to.be.equal(5);
+      expect(operator.getOperand1).to.be.a('function');
+      expect(operator.getOperand1()).to.be.instanceof(Value);
+      expect(operator.getOperand1().evaluate()).to.be.equal(5);
     });
   });
 
-  describe('operand2()', () => {
+  describe('getOperand2()', () => {
     it('should return the correct value', () => {
       let operator = new BinaryOperator('+', new Value(5), new Value(2));
-      expect(operator.operand2).to.be.a('function');
-      expect(operator.operand2()).to.be.instanceof(Value);
-      expect(operator.operand2().evaluate()).to.be.equal(2);
+      expect(operator.getOperand2).to.be.a('function');
+      expect(operator.getOperand2()).to.be.instanceof(Value);
+      expect(operator.getOperand2().evaluate()).to.be.equal(2);
     });
   });
 
@@ -100,8 +100,8 @@ describe('BinaryOperator', () => {
       let operatorP = operator.substitute(theta);
       expect(operatorP).to.be.instanceof(BinaryOperator);
       expect(operatorP).to.be.not.equal(operator);
-      expect(operatorP.operand1().evaluate()).to.be.equal(operator.operand1().evaluate());
-      expect(operatorP.operand2().evaluate()).to.be.equal(operator.operand2().evaluate());
+      expect(operatorP.getOperand1().evaluate()).to.be.equal(operator.getOperand1().evaluate());
+      expect(operatorP.getOperand2().evaluate()).to.be.equal(operator.getOperand2().evaluate());
     });
 
     it('should return a clone for an unaffecting substitution', () => {
@@ -110,8 +110,8 @@ describe('BinaryOperator', () => {
       let operatorP = operator.substitute(theta);
       expect(operatorP).to.be.instanceof(BinaryOperator);
       expect(operatorP).to.be.not.equal(operator);
-      expect(operatorP.operand1().evaluate()).to.be.equal(operator.operand1().evaluate());
-      expect(operatorP.operand2().evaluate()).to.be.equal(operator.operand2().evaluate());
+      expect(operatorP.getOperand1().evaluate()).to.be.equal(operator.getOperand1().evaluate());
+      expect(operatorP.getOperand2().evaluate()).to.be.equal(operator.getOperand2().evaluate());
     });
 
     it('should return the correct expression for a substitution', () => {
@@ -120,9 +120,9 @@ describe('BinaryOperator', () => {
       let operatorP = operator.substitute(theta);
       expect(operatorP).to.be.instanceof(BinaryOperator);
       expect(operatorP).to.be.not.equal(operator);
-      expect(operatorP.operand1()).to.be.instanceof(Value);
-      expect(operatorP.operand1().evaluate()).to.be.equal(theta.X.evaluate());
-      expect(operatorP.operand2().evaluate()).to.be.equal(operator.operand2().evaluate());
+      expect(operatorP.getOperand1()).to.be.instanceof(Value);
+      expect(operatorP.getOperand1().evaluate()).to.be.equal(theta.X.evaluate());
+      expect(operatorP.getOperand2().evaluate()).to.be.equal(operator.getOperand2().evaluate());
     });
   });
 });
