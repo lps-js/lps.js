@@ -19,6 +19,20 @@ function Functor(name, args) {
     return Object.keys(hash);
   };
 
+  this.isGround = function isGround() {
+    let result = true;
+
+    for (let i = 0; i < _argsCount; i += 1) {
+      let arg = _args[i];
+      if (!arg.isGround()) {
+        result = false;
+        break;
+      }
+    }
+
+    return result;
+  };
+
   this.getArguments = function getArguments() {
     // content of _args is immutable
     return [].concat(_args);
