@@ -13,6 +13,6 @@ module.exports = function variableArrayRename(varArr, namePatternArg) {
   varArr.forEach((variable) => {
     let varName = variable.evaluate();
     theta[varName] = new Variable(namePattern.replace('*', varName));
-  })
+  });
   return theta;
 };

@@ -19,7 +19,7 @@ describe('variableArrayRename()', () => {
   });
 
   it('should throw error when invalid rename pattern given', () => {
-    expect(() => { variableArrayRename([new Variable('X')], 5) }).to.throw();
+    expect(() => { variableArrayRename([new Variable('X')], 5); }).to.throw();
   });
 
   it('should return a correct substitution given a variable and rename pattern', () => {
