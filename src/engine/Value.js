@@ -5,6 +5,10 @@ function Value(value) {
     return _value;
   };
 
+  this.isGround = function isGround() {
+    return true;
+  };
+
   this.getVariables = function getVariables() {
     return [];
   };

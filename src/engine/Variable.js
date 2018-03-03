@@ -6,6 +6,10 @@ function Variable(name) {
     return _name;
   };
 
+  this.isGround = function isGround() {
+    return false;
+  };
+
   this.getVariables = function getVariables() {
     return [_name];
   };
