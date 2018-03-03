@@ -34,6 +34,22 @@ describe('Functor', () => {
     });
   });
 
+  describe('isGround()', () => {
+    it('should return true for no variables', () => {
+      let functor = new Functor('add', [new Value(2), new Value(5)]);
+      expect(functor.isGround).to.be.a('function');
+
+      expect(functor.isGround()).to.be.true;
+    });
+
+    it('should return false for some variables', () => {
+      let functor = new Functor('add', [new Variable('X'), new Value(5)]);
+      expect(functor.isGround).to.be.a('function');
+
+      expect(functor.isGround()).to.be.false;
+    });
+  });
+
   describe('substitute()', () => {
     it('should return a copy of itself if there\'s no substitution', () => {
       let functor = new Functor('add', [new Variable('X'), new Value(5)]);
