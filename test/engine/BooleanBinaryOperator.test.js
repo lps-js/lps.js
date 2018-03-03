@@ -119,6 +119,13 @@ describe('BooleanBinaryOperator', () => {
       expect(operator.getVariables()).to.be.an('array');
       expect(operator.getVariables()).to.contain('X');
     });
+
+    it('should return an array containing the correct variables for an operation with some variables in alternative ordering', () => {
+      let operator = new BooleanBinaryOperator('>', new Value(2), new Variable('X'));
+      expect(operator.getVariables).to.be.a('function');
+      expect(operator.getVariables()).to.be.an('array');
+      expect(operator.getVariables()).to.contain('X');
+    });
   });
 
   describe('isGround()', () => {
