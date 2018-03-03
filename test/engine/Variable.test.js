@@ -7,31 +7,50 @@ const expect = chai.expect;
 describe('Variable', () => {
   describe('evaluate', () => {
     it('should return the variable name', () => {
-      let value = new Variable('X');
-      expect(value.evaluate).to.be.a('function');
+      let variable = new Variable('X');
+      expect(variable.evaluate).to.be.a('function');
 
-      expect(value.evaluate()).to.be.equals('X');
+      expect(variable.evaluate()).to.be.equals('X');
+    });
+  });
+
+  describe('getVariables', () => {
+    it('should return an array containing itself', () => {
+      let variable = new Variable('X');
+      expect(variable.getVariables).to.be.a('function');
+
+      expect(variable.getVariables()).to.be.not.empty;
+      expect(variable.getVariables()[0]).to.be.equal('X');
+    });
+  });
+
+  describe('isGround', () => {
+    it('should return false anyway', () => {
+      let variable = new Variable('X');
+      expect(variable.isGround).to.be.a('function');
+
+      expect(variable.isGround()).to.be.equal(false);
     });
   });
 
   describe('substitute', () => {
-    it('should return the substituted value if theta contains it', () => {
-      let value = new Variable('X');
-      expect(value.substitute).to.be.a('function');
+    it('should return the substituted variable if theta contains it', () => {
+      let variable = new Variable('X');
+      expect(variable.substitute).to.be.a('function');
 
       let theta = { X: new Value(5) };
-      expect(value.substitute(theta)).to.be.instanceof(Value);
-      expect(value.substitute(theta)).to.be.equals(theta.X);
-      expect(value.substitute(theta).evaluate()).to.be.equals(5);
+      expect(variable.substitute(theta)).to.be.instanceof(Value);
+      expect(variable.substitute(theta)).to.be.equals(theta.X);
+      expect(variable.substitute(theta).evaluate()).to.be.equals(5);
     });
 
-    it('should return the substituted value if theta contains it', () => {
-      let value = new Variable('X');
-      expect(value.substitute).to.be.a('function');
+    it('should return the substituted variable if theta contains it', () => {
+      let variable = new Variable('X');
+      expect(variable.substitute).to.be.a('function');
 
       let theta = { Y: new Value(5) };
-      expect(value.substitute(theta)).to.be.instanceof(Variable);
-      expect(value.substitute(theta).evaluate()).to.be.equals('X');
+      expect(variable.substitute(theta)).to.be.instanceof(Variable);
+      expect(variable.substitute(theta).evaluate()).to.be.equals('X');
     });
   });
 });
