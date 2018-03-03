@@ -20,6 +20,24 @@ describe('Value', () => {
     });
   });
 
+  describe('getVariables', () => {
+    it('should return empty array', () => {
+      let value = new Value('testing');
+      expect(value.getVariables).to.be.a('function');
+
+      expect(value.getVariables()).to.be.empty;
+    });
+  });
+
+  describe('isGround', () => {
+    it('should return true anyway', () => {
+      let value = new Value('testing');
+      expect(value.isGround).to.be.a('function');
+
+      expect(value.isGround()).to.be.equal(true);
+    });
+  });
+
   describe('substitute', () => {
     it('should just return a copy of itself', () => {
       let value = new Value('testing');
