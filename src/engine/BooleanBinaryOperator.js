@@ -3,6 +3,14 @@ function BooleanBinaryOperator(operator, operand1, operand2) {
   let _operand1 = operand1;
   let _operand2 = operand2;
 
+  this.getOperand1 = function getOperand1() {
+    return _operand1;
+  };
+
+  this.getOperand2 = function getOperand2() {
+    return _operand2;
+  };
+
   this.evaluate = function evaluate() {
     let operandVal1 = _operand1.evaluate();
     let operandVal2 = _operand2.evaluate();
