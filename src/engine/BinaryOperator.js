@@ -26,7 +26,7 @@ function BinaryOperator(operator, operand1, operand2) {
       case '**':
         return Math.pow(operandVal1, operandVal2);
       default:
-        throw new Error('Invalid operator');
+        throw new Error('Invalid binary operator');
     }
   };
 

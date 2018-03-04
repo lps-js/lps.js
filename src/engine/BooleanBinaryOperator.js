@@ -28,7 +28,7 @@ function BooleanBinaryOperator(operator, operand1, operand2) {
       case '!=':
         return operandVal1 !== operandVal2;
       default:
-        throw new Error('Invalid boolean operator');
+        throw new Error('Invalid boolean binary operator');
     }
   };
 
