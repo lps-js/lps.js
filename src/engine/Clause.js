@@ -1,5 +1,6 @@
 const Unifier = require('./Unifier');
 const BooleanBinaryOperator = require('./BooleanBinaryOperator');
+const BooleanUnaryOperator = require('./BooleanUnaryOperator');
 
 function Clause(head, body) {
   // array of expressions
@@ -87,7 +88,8 @@ function Clause(head, body) {
     // perform head check
     for (let i = 0; i < unresolvedHeadLiterals.length; i += 1) {
       let literal = unresolvedHeadLiterals[i];
-      if (literal instanceof BooleanBinaryOperator
+      if ((literal instanceof BooleanBinaryOperator
+            || literal instanceof BooleanUnaryOperator)
           && literal.isGround() && !literal.evaluate()) {
         // nope this doesn't work out
         return null;
