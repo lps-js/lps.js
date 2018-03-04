@@ -1,7 +1,13 @@
 function Functor(name, args) {
   let _name = name;
   let _args = args;
-  let _argsCount = args.length;
+  let _argsCount = 0;
+
+  if (typeof _args === 'undefined') {
+    _args = [];
+  } else {
+    _argsCount = args.length;
+  }
 
   this.getId = function getId() {
     return _name + '/' + _argsCount;
