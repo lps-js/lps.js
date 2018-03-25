@@ -57,4 +57,24 @@ describe('Value', () => {
       expect(value.substitute(theta).evaluate()).to.be.equals(value.evaluate());
     });
   });
+
+  describe('toString()', () => {
+    it('should return correct string quoted', () => {
+      let value = new Value('testing');
+      expect(value.toString).to.be.a('function');
+      expect(value.toString()).to.be.equal('"testing"');
+    });
+
+    it('should return correct numeric string quoted', () => {
+      let value = new Value('5');
+      expect(value.toString).to.be.a('function');
+      expect(value.toString()).to.be.equal('"5"');
+    });
+
+    it('should return correct string', () => {
+      let value = new Value(5);
+      expect(value.toString).to.be.a('function');
+      expect(value.toString()).to.be.equal(5);
+    });
+  });
 });
