@@ -33,6 +33,15 @@ describe('Variable', () => {
     });
   });
 
+  describe('toString()', () => {
+    it('should return string representation', () => {
+      let variable = new Variable('VarName');
+      expect(variable.toString).to.be.a('function');
+
+      expect(variable.toString()).to.be.equal('VarName');
+    });
+  });
+
   describe('substitute()', () => {
     it('should return the substituted variable if theta contains it', () => {
       let variable = new Variable('X');
