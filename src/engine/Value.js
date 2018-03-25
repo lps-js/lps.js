@@ -16,6 +16,14 @@ function Value(value) {
   this.substitute = function substitute() {
     return new Value(_value);
   };
+
+  this.toString = function toString() {
+    let result = _value;
+    if (typeof _value === 'string') {
+      result = '"' + result.replace('"', '\\"') + '"';
+    }
+    return result;
+  };
 }
 
 module.exports = Value;
