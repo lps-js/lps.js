@@ -101,6 +101,26 @@ function Clause(head, body) {
     let newHead = _head.map(expressions => expressions.substitute(theta));
     return new Clause(newHead, unresolvedBodyLiterals);
   };
+
+  this.toString = function toString() {
+    let result = '';
+    for (let i = 0; i < _head.length; i += 1) {
+      result += _head[i].toString();
+      if (i < _head.length - 1) {
+        result += ', ';
+      }
+    }
+    if (_body.length > 0) {
+      result += ' :- ';
+    }
+    for (let i = 0; i < _body.length; i += 1) {
+      result += _body[i].toString();
+      if (i < _body.length - 1) {
+        result += ', ';
+      }
+    }
+
+    return result;
   };
 }
 
