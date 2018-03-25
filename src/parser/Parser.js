@@ -57,7 +57,7 @@ function Parser(source) {
       _arguments(funcNode);
       return funcNode;
     }
-    return new AstNode(TokenTypes.Constant, nameToken);
+    return new AstNode(NodeTypes.Constant, nameToken);
   };
 
   let _simpleExpression = function _simpleExpression() {
