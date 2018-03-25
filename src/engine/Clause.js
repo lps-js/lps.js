@@ -63,31 +63,33 @@ function Clause(head, body) {
   };
 
   this.resolve = function resolve(fact) {
+    let substitutedFact = fact
+      .substitute(variableArrayRename(fact.getVariables(), '$fv_*'));
     let theta = {};
-    let unresolvedHeadLiterals = [];
-    _head.forEach((literal) => {
-      let newTheta = Unifier.unifies([[fact, literal]], theta);
+    let unresolvedBodyLiterals = [];
+    _body.forEach((literal) => {
+      let newTheta = Unifier.unifies([[substitutedFact, literal]], theta);
       if (newTheta === null) {
-        // unable to unify, let's just add to unresolvedHeadLiterals
-        unresolvedHeadLiterals.push(literal);
+        // unable to unify, let's just add to unresolvedBodyLiterals
+        unresolvedBodyLiterals.push(literal);
       } else {
         theta = newTheta;
       }
     });
 
-    if (unresolvedHeadLiterals.length === _head.length) {
+    if (unresolvedBodyLiterals.length === _body.length) {
       // nothing got resolved, probably not a matching rule.
       return null;
     }
 
     // perform substitution here
-    unresolvedHeadLiterals = unresolvedHeadLiterals.map((literal) => {
+    unresolvedBodyLiterals = unresolvedBodyLiterals.map((literal) => {
       return literal.substitute(theta);
     });
 
     // perform head check
-    for (let i = 0; i < unresolvedHeadLiterals.length; i += 1) {
-      let literal = unresolvedHeadLiterals[i];
+    for (let i = 0; i < unresolvedBodyLiterals.length; i += 1) {
+      let literal = unresolvedBodyLiterals[i];
       if ((literal instanceof BooleanBinaryOperator
             || literal instanceof BooleanUnaryOperator)
           && literal.isGround() && !literal.evaluate()) {
@@ -96,8 +98,9 @@ function Clause(head, body) {
       }
     }
 
-    let newBody = _body.map(expressions => expressions.substitute(theta));
-    return new Clause(unresolvedHeadLiterals, newBody);
+    let newHead = _head.map(expressions => expressions.substitute(theta));
+    return new Clause(newHead, unresolvedBodyLiterals);
+  };
   };
 }
 
