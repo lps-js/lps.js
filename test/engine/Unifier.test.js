@@ -15,12 +15,26 @@ describe('Unifier', () => {
   });
 
   describe('unifies()', () => {
+    it('should return null for a thetaArg of null', () => {
+      let value1 = new Value(5);
+      let value2 = new Value(5);
+      let theta = Unifier.unifies([[value1, value2]], null);
+      expect(theta).to.be.null;
+    });
+
     it('should unify two equal number values', () => {
       let value1 = new Value(5);
       let value2 = new Value(5);
       let theta = Unifier.unifies([[value1, value2]]);
       expect(theta).to.be.not.null;
       expect(Object.keys(theta)).to.be.empty;
+    });
+
+    it('should unify two equal number values', () => {
+      let value1 = new Value(5);
+      let value2 = new Value(7);
+      let theta = Unifier.unifies([[value1, value2], [value1, value1]]);
+      expect(theta).to.be.null;
     });
 
     it('should unify two equal number values with a substitution', () => {

@@ -23,10 +23,6 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
     return null;
   }
 
-  if (thetaArg === null) {
-    return null;
-  }
-
   let theta = thetaArg;
   let leftOperand = equality[0].substitute(theta);
   let rightOperand = equality[1].substitute(theta);
