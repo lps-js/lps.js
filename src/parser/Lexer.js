@@ -115,6 +115,7 @@ function Lexer(source) {
     let col = chars[2].col;
     let buffer = chars[0];
     let advanceLast = true;
+    let isFirstDigitZero = chars[0] === '0';
     let testNumber = () => {
       if (chars[1] === null) {
         return false;
@@ -131,6 +132,9 @@ function Lexer(source) {
         }
         lastChars = chars;
         advanceLast = false;
+        isFirstDigitZero = false;
+      } else if (isFirstDigitZero) {
+        throw new Error('Unexpected number');
       }
       return false;
     };
