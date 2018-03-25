@@ -48,6 +48,31 @@ function Functor(name, args) {
     let newArgs = _args.map(arg => arg.substitute(theta));
     return new Functor(_name, newArgs);
   };
+
+  this.toString = function toString() {
+    let result = _name;
+    result += '(';
+    for (let i = 0; i < _argsCount; i += 1) {
+      if (_args[i] instanceof Array) {
+        let list = _args[i];
+        result += '[';
+        for (let j = 0; j < list.length; j += 1) {
+          result += list[j];
+          if (j < list.length - 1) {
+            result += ', ';
+          }
+        }
+        result += ']';
+      } else {
+        result += _args[i].toString();
+      }
+      if (i < _argsCount - 1) {
+        result += ', ';
+      }
+    }
+    result += ')';
+    return result;
+  };
 }
 
 module.exports = Functor;
