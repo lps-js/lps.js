@@ -21,6 +21,10 @@ function Variable(name) {
     }
     return new Variable(_name);
   };
+
+  this.toString = function toString() {
+    return _name;
+  };
 }
 
 module.exports = Variable;
