@@ -1,29 +1,9 @@
-const LPS = require('./src/LPS');
+const Parser = require('./src/parser/Parser');
+const Engine = require('./src/engine/Engine');
 
-let engine = new LPS();
+Parser.parseFile('examples/fireSimple.lps')
+  .then((token) => {
+    token.print();
 
-engine.addFluents(['lightsOn', 'lightsOff']);
-engine.addEvent('switch');
-engine.initially(['lightsOff']);
-
-engine.addInitiator('switch', 'lightsOn', /* if */ 'lightsOff');
-engine.addTerminator('switch', 'lightsOff', /* if */ 'lightsOff');
-
-engine.addInitiator('switch', 'lightsOff', /* if */ 'lightsOn');
-engine.addTerminator('switch', 'lightsOn', /* if */ 'lightsOn');
-
-engine.observe('switch');
-engine.step();
-engine.step();
-engine.observe('switch');
-engine.step();
-engine.step();
-engine.step();
-engine.step();
-engine.step();
-engine.step();
-engine.step();
-engine.observe('switch');
-engine.step();
-
-module.exports = LPS;
+    let engine = new Engine(token);
+  });
