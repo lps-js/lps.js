@@ -21,6 +21,16 @@ describe('Functor', () => {
       expect(functor.getArguments()).contains(functorArgs[1]);
       expect(functor.getArguments().length).to.be.equals(2);
     });
+
+    it('should initialise the Functor without args correctly', () => {
+      let functor = new Functor('add');
+      expect(functor.getId).to.be.a('function');
+      expect(functor.getId()).to.be.equals('add/0');
+      expect(functor.getArguments).to.be.a('function');
+
+      expect(functor.getArguments()).to.be.an('array');
+      expect(functor.getArguments().length).to.be.equals(0);
+    });
   });
 
   describe('getVariables()', () => {
@@ -47,6 +57,22 @@ describe('Functor', () => {
       expect(functor.isGround).to.be.a('function');
 
       expect(functor.isGround()).to.be.false;
+    });
+
+    describe('toString()', () => {
+      it('should return correct string representation', () => {
+        let functor = new Functor('add', [new Value(2), new Value(5)]);
+        expect(functor.toString).to.be.a('function');
+
+        expect(functor.toString()).to.be.equal('add(2, 5)');
+      });
+
+      it('should return correct string representation for argument of array', () => {
+        let functor = new Functor('add', [[new Value(2), new Value(5)]]);
+        expect(functor.toString).to.be.a('function');
+
+        expect(functor.toString()).to.be.equal('add([2, 5])');
+      });
     });
   });
 
