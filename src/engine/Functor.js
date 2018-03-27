@@ -56,7 +56,8 @@ function Functor(name, args) {
         return arg.map(processArg);
       }
       return arg.substitute(theta);
-    }
+    };
+
     let newArgs = _args.map(processArg);
     return new Functor(_name, newArgs);
   };
