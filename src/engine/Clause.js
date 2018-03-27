@@ -124,7 +124,7 @@ function Clause(head, body) {
         result += ', ';
       }
     }
-
+    result += '.';
     return result;
   };
 }
