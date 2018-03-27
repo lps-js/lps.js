@@ -16,11 +16,17 @@ function Functor(name, args) {
   this.getVariables = function getVariables() {
     let hash = {};
 
-    _args.forEach((arg) => {
+    let processArg = function processArg(arg) {
+      if (arg instanceof Array) {
+        arg.forEach(processArg);
+        return;
+      }
       arg.getVariables().forEach((argVar) => {
         hash[argVar] = true;
       });
-    });
+    };
+
+    _args.forEach(processArg);
 
     return Object.keys(hash);
   };
@@ -45,7 +51,13 @@ function Functor(name, args) {
   };
 
   this.substitute = function substitute(theta) {
-    let newArgs = _args.map(arg => arg.substitute(theta));
+    let processArg = function processArg(arg) {
+      if (arg instanceof Array) {
+        return arg.map(processArg);
+      }
+      return arg.substitute(theta);
+    }
+    let newArgs = _args.map(processArg);
     return new Functor(_name, newArgs);
   };
 
