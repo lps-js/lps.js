@@ -27,6 +27,14 @@ function Clause(head, body) {
     return _body.length === 0;
   };
 
+  this.getHeadLiteralsCount = function getHeadLiteralsCount() {
+    return _head.length;
+  };
+
+  this.getBodyLiteralsCount = function getBodyLiteralsCount() {
+    return _body.length;
+  };
+
   this.isGround = function isGround() {
     let result = true;
 
