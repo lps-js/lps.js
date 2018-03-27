@@ -11,7 +11,10 @@ module.exports = function variableArrayRename(varArr, namePatternArg) {
   // create the substitution
   let theta = {};
   varArr.forEach((variable) => {
-    let varName = variable.evaluate();
+    let varName = variable;
+    if (variable instanceof Variable) {
+      varName = variable.evaluate();
+    }
     theta[varName] = new Variable(namePattern.replace('*', varName));
   });
   return theta;
