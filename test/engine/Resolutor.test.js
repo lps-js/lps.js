@@ -15,11 +15,12 @@ describe('Resolutor', () => {
       let clause = new Clause(head, body);
 
       let resolution = Resolutor.resolve(clause, new Functor('test2', [new Value(5)]));
-      expect(resolution).to.be.instanceof(Clause);
-      expect(resolution.getVariables()).to.be.empty;
-      expect(resolution.getHeadLiterals().length).to.be.equal(1);
+      let resClause = resolution.clause;
+      expect(resClause).to.be.instanceof(Clause);
+      expect(resClause.getVariables()).to.be.empty;
+      expect(resClause.getHeadLiterals().length).to.be.equal(1);
 
-      let headFunctor = resolution.getHeadLiterals()[0];
+      let headFunctor = resClause.getHeadLiterals()[0];
       expect(headFunctor).to.be.instanceof(Functor);
       expect(headFunctor.getId()).to.be.equal('test1/1');
       expect(headFunctor.getVariables()).to.be.empty;
@@ -33,11 +34,12 @@ describe('Resolutor', () => {
       let clause = new Clause(head, body);
 
       let resolution = Resolutor.resolve(clause, new Functor('test2', [new Value(5)]));
-      expect(resolution).to.be.instanceof(Clause);
-      expect(resolution.getVariables().length).to.be.equal(1);
-      expect(resolution.getHeadLiterals().length).to.be.equal(1);
+      let resClause = resolution.clause
+      expect(resClause).to.be.instanceof(Clause);
+      expect(resClause.getVariables().length).to.be.equal(1);
+      expect(resClause.getHeadLiterals().length).to.be.equal(1);
 
-      let headFunctor = resolution.getHeadLiterals()[0];
+      let headFunctor = resClause.getHeadLiterals()[0];
       expect(headFunctor).to.be.instanceof(Functor);
       expect(headFunctor.getId()).to.be.equal('test1/2');
       expect(headFunctor.getVariables().length).to.be.equal(1);
