@@ -1,4 +1,5 @@
 const Clause = require('./Clause');
+const Functor = require('./Functor');
 const Unifier = require('./Unifier');
 const Variable = require('./Variable');
 const BooleanBinaryOperator = require('./BooleanBinaryOperator');
@@ -26,6 +27,52 @@ Resolutor.compactTheta = function compactTheta(theta1, theta2) {
     theta[key] = substitution;
   })
   return theta;
+};
+
+Resolutor.query = function query(program, query, builtInActions) {
+  if (query instanceof Clause) {
+    let bodyLiterals = query.getBodyLiterals();
+    let theta = {};
+    for (let i in bodyLiterals) {
+      let literal = bodyLiterals[i];
+      let result = Resolutor.query(program, literal);
+      if (result === null) {
+        return null;
+      }
+      theta = Resolutor.compactTheta(theta, result);
+    }
+    return theta;
+  }
+  if (builtInActions && query instanceof Functor && builtInActions[query.getId()]) {
+    builtInActions[query.getId()].apply(null, query.getArguments())
+    return {};
+  }
+  for (let i in program) {
+    let clause = program[i];
+    if (clause.isFact()) { // we check the head literals for match
+      let resolution = Resolutor.resolveAction(clause, query);
+      if (resolution === null) {
+        continue;
+      }
+      return resolution.theta;
+    }
+
+    let resolution = Resolutor.resolve(clause, query);
+    if (resolution === null) {
+      continue;
+    }
+    if (!resolution.clause.isFact()) {
+      // the head is now our new query
+      continue;
+    }
+    let result = Resolutor.query(program, new Clause([], resolution.clause.getHeadLiterals()))
+    if (result === null) {
+      continue;
+    }
+    let theta = Resolutor.compactTheta(resolution.theta, result);
+    return theta;
+  }
+  return null;
 };
 
 Resolutor.resolve = function resolve(clause, fact) {
