@@ -49,4 +49,26 @@ describe('Resolutor', () => {
       expect(headFunctor.getArguments()[1]).to.be.instanceof(Variable);
     });
   });
+
+  describe('query', () => {
+    it('should return true for correct resolution', () => {
+      let fact = new Clause(
+        [new Functor('test', [new Value(5)])],
+        []
+      );
+      let clause = new Clause(
+        [new Functor('test', [new Variable('X')])],
+        [new Functor('test2', [new Variable('X')])]
+      );
+      let program = [fact, clause];
+      let query = new Clause(
+        [],
+        [new Functor('test2', [new Variable('T')])]
+      );
+      let theta = Resolutor.query(program, query);
+      expect(theta).to.be.not.null;
+      expect(theta['T']).to.be.instanceof(Value);
+      expect(theta['T'].evaluate()).to.be.equal(5);
+    });
+  });
 });
