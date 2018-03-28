@@ -29,8 +29,9 @@ Resolutor.compactTheta = function compactTheta(theta1, theta2) {
 };
 
 Resolutor.resolve = function resolve(clause, fact) {
+  let factVariableRenaming = variableArrayRename(fact.getVariables(), '$fv_*');
   let substitutedFact = fact
-    .substitute(variableArrayRename(fact.getVariables(), '$fv_*'));
+    .substitute(factVariableRenaming);
   let theta = {};
   let unresolvedBodyLiterals = [];
   let _head = clause.getHeadLiterals();
@@ -68,6 +69,7 @@ Resolutor.resolve = function resolve(clause, fact) {
   }
 
   let newHead = _head.map(expressions => expressions.substitute(theta));
+  theta = Resolutor.compactTheta(factVariableRenaming, theta);
   return {
     clause: new Clause(newHead, unresolvedBodyLiterals),
     theta: theta
@@ -75,8 +77,9 @@ Resolutor.resolve = function resolve(clause, fact) {
 };
 
 Resolutor.resolveAction = function resolveAction(clause, action) {
+  let actionVariableRenaming = variableArrayRename(action.getVariables(), '$fv_*');
   let substitutedAction = action
-    .substitute(variableArrayRename(action.getVariables(), '$fv_*'));
+    .substitute(actionVariableRenaming);
   let theta = {};
   let unresolvedHeadLiterals = [];
   let _head = clause.getHeadLiterals();
@@ -114,6 +117,7 @@ Resolutor.resolveAction = function resolveAction(clause, action) {
   }
 
   let newBody = _body.map(expressions => expressions.substitute(theta));
+  theta = Resolutor.compactTheta(actionVariableRenaming, theta);
   return {
     clause: new Clause(unresolvedHeadLiterals, newBody),
     theta: theta
