@@ -48,7 +48,10 @@ Resolutor.resolve = function resolve(clause, fact) {
   }
 
   let newHead = _head.map(expressions => expressions.substitute(theta));
-  return new Clause(newHead, unresolvedBodyLiterals);
+  return {
+    clause: new Clause(newHead, unresolvedBodyLiterals),
+    theta: theta
+  };
 };
 
 Resolutor.resolveAction = function resolveAction(clause, action) {
@@ -91,7 +94,10 @@ Resolutor.resolveAction = function resolveAction(clause, action) {
   }
 
   let newBody = _body.map(expressions => expressions.substitute(theta));
-  return new Clause(unresolvedHeadLiterals, newBody);
+  return {
+    clause: new Clause(unresolvedHeadLiterals, newBody),
+    theta: theta
+  };
 };
 
 module.exports = Resolutor;
