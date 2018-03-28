@@ -1,5 +1,6 @@
 const Clause = require('./Clause');
 const Unifier = require('./Unifier');
+const Variable = require('./Variable');
 const BooleanBinaryOperator = require('./BooleanBinaryOperator');
 const BooleanUnaryOperator = require('./BooleanUnaryOperator');
 const variableArrayRename = require('../utility/variableArrayRename');
@@ -7,6 +8,25 @@ const variableArrayRename = require('../utility/variableArrayRename');
 function Resolutor() {
 
 }
+
+Resolutor.compactTheta = function compactTheta(theta1, theta2) {
+  let theta = {};
+  Object.keys(theta1).forEach((key) => {
+    let substitution = theta1[key];
+    while (substitution instanceof Variable && theta2[substitution.evaluate()]) {
+      substitution = theta2[substitution.evaluate()];
+    }
+    theta[key] = substitution;
+  });
+  Object.keys(theta2).forEach((key) => {
+    let substitution = theta2[key];
+    // while (substitution instanceof Variable && theta1[substitution.evaluate()]) {
+      // substitution = theta1[substitution.evaluate()];
+    //}
+    theta[key] = substitution;
+  })
+  return theta;
+};
 
 Resolutor.resolve = function resolve(clause, fact) {
   let substitutedFact = fact
