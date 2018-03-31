@@ -61,14 +61,41 @@ describe('Resolutor', () => {
         [new Functor('test2', [new Variable('X')])]
       );
       let program = [fact, clause];
-      let query = new Clause(
-        [],
-        [new Functor('test2', [new Variable('T')])]
+      let query = new Functor('test2', [new Variable('T')])
+      let result = Resolutor.query(program, null, query, {});
+      expect(result).to.be.not.null;
+      expect(result).to.be.instanceof(Array);
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta['T']).to.be.instanceof(Value);
+      expect(result[0].theta['T'].evaluate()).to.be.equal(5);
+    });
+
+    it('should return true for multiple correct resolution', () => {
+      let fact1 = new Clause(
+        [new Functor('test', [new Value(5)])],
+        []
       );
-      let theta = Resolutor.query(program, query);
-      expect(theta).to.be.not.null;
-      expect(theta['T']).to.be.instanceof(Value);
-      expect(theta['T'].evaluate()).to.be.equal(5);
+      let fact2 = new Clause(
+        [new Functor('test', [new Value(3)])],
+        []
+      );
+      let clause = new Clause(
+        [new Functor('test', [new Variable('X')])],
+        [new Functor('test2', [new Variable('X')])]
+      );
+      let program = [fact1, fact2, clause];
+      let query = new Functor('test2', [new Variable('T')])
+      let result = Resolutor.query(program, null, query, {});
+      expect(result).to.be.not.null;
+      expect(result).to.be.instanceof(Array);
+      expect(result).to.have.length(2);
+      expect(result[0]).to.have.property('theta')
+      expect(result[0].theta['T']).to.be.instanceof(Value);
+      expect(result[0].theta['T'].evaluate()).to.be.equal(5);
+      expect(result[1]).to.have.property('theta')
+      expect(result[1].theta['T']).to.be.instanceof(Value);
+      expect(result[1].theta['T'].evaluate()).to.be.equal(3);
     });
   });
 });
