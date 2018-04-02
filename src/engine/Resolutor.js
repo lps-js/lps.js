@@ -108,6 +108,19 @@ Resolutor.query = function query(program, clause, query, actions) {
     }
   }
   let headLiteral = resolution.clause.getHeadLiterals()[0];
+
+  if (actions !== undefined && actions.indexOf(headLiteral.getId()) > -1) {
+    let actionId = headLiteral.getId();
+    return [{
+      theta: resolution.theta,
+      actions: [
+        {
+          action: actionId,
+          arguments: headLiteral.getArguments()
+        }
+      ]
+    }];
+  }
   let queryResult = Resolutor.query(program, null, headLiteral, actions);
   if (queryResult === null || queryResult.length === 0) {
     // possible but not proven yet
