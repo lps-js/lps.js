@@ -29,49 +29,61 @@ Resolutor.compactTheta = function compactTheta(theta1, theta2) {
   return theta;
 };
 
-Resolutor.query = function query(program, clause, query, builtInActions) {
-  // if (query instanceof Clause) {
-  //   let bodyLiterals = query.getBodyLiterals();
-  //   let theta = {};
-  //   for (let i in bodyLiterals) {
-  //     let literal = bodyLiterals[i];
-  //     let result = Resolutor.query(program, clause, literal, builtInActions);
-  //     if (result === null) {
-  //       return null;
-  //     }
-  //     console.log(result);
-  //     theta = Resolutor.compactTheta(theta, result.theta);
-  //   }
-  //   return {
-  //     theta: theta,
-  //     clause: null
-  //   };
-  // }
+Resolutor.query = function query(program, clause, query, actions) {
+  if (query instanceof Array) {
+    let result = [];
+    for (let i in query) {
+      let literal = query[i];
+      let queryResult = Resolutor.query(program, clause, literal, actions);
+      if (result === null) {
+        return null;
+      }
+
+      if (result.length === 0) {
+        result = result.concat(queryResult);
+        continue;
+      }
+
+      let newResult = [];
+      result.forEach((r) => {
+        queryResult.forEach((q) => {
+          let rtheta = r.theta;
+          rtheta = Resolutor.compactTheta(r.theta, q.theta);
+          newResult.push({
+            theta: rtheta,
+            actions: r.actions.concat(q.actions)
+          });
+        })
+      })
+      result = newResult;
+    }
+    return result;
+  }
 
   if (clause === null) {
     let result = [];
     for (let i in program) {
       let programClause = program[i];
-      let queryResult = Resolutor.query(program, programClause, query, builtInActions);
+      let queryResult = Resolutor.query(program, programClause, query, actions);
       if (queryResult === null) {
         continue;
       }
-      if (result instanceof Array) {
-        result = result.concat(queryResult);
-      } else {
-        result.push(queryResult);
-      }
+      result = result.concat(queryResult);
     }
     return result;
   }
 
-  if (builtInActions && query instanceof Functor && builtInActions[query.getId()]) {
-    builtInActions[query.getId()].apply(null, query.getArguments());
-    // TODO: return copy of query in clause
-    return {
+  if (actions !== undefined && query instanceof Functor && actions.indexOf(query.getId()) > -1) {
+    let actionId = query.getId();
+    return [{
       theta: {},
-      clause: query
-    };
+      actions: [
+        {
+          action: actionId,
+          arguments: query.getArguments()
+        }
+      ]
+    }];
   }
 
   if (clause.isFact()) { // we check the head literals for match
@@ -79,7 +91,7 @@ Resolutor.query = function query(program, clause, query, builtInActions) {
     if (resolution === null) {
       return null;
     }
-    return resolution;
+    return [{ theta: resolution.theta, actions: [] }];
   }
 
   let resolution = Resolutor.resolve(clause, query);
@@ -87,24 +99,35 @@ Resolutor.query = function query(program, clause, query, builtInActions) {
     return null;
   }
   if (!resolution.clause.isFact()) {
-    return null;
+    let bodyLiterals = resolution.clause.getBodyLiterals();
+    // we need a program without the current clause otherwise we'll
+    // end up in an infinite loop.
+    let programP = program.filter(c => c !== clause);
+    if (Resolutor.query(programP, null, bodyLiterals, actions) === null) {
+      return null;
+    }
   }
   let headLiteral = resolution.clause.getHeadLiterals()[0];
-  let queryResult = Resolutor.query(program, null, headLiteral, builtInActions);
-  if (queryResult !== null) {
-    queryResult = queryResult.map((result) => {
-      result.theta = Resolutor.compactTheta(resolution.theta, result.theta);
-      return result;
-    });
+  let queryResult = Resolutor.query(program, null, headLiteral, actions);
+  if (queryResult === null || queryResult.length === 0) {
+    // possible but not proven yet
+    return null;
   }
+  queryResult = queryResult.map((result) => {
+    result.theta = Resolutor.compactTheta(resolution.theta, result.theta);
+    return result;
+  });
   return queryResult;
 };
 
-Resolutor.resolve = function resolve(clause, fact) {
+Resolutor.resolve = function resolve(clause, fact, thetaArg) {
   let factVariableRenaming = variableArrayRename(fact.getVariables(), '$fv_*');
   let substitutedFact = fact
     .substitute(factVariableRenaming);
-  let theta = {};
+  let theta = thetaArg;
+  if (theta === undefined) {
+    theta = {};
+  }
   let unresolvedBodyLiterals = [];
   let _head = clause.getHeadLiterals();
   let _body = clause.getBodyLiterals();
@@ -148,11 +171,14 @@ Resolutor.resolve = function resolve(clause, fact) {
   };
 };
 
-Resolutor.resolveAction = function resolveAction(clause, action) {
+Resolutor.resolveAction = function resolveAction(clause, action, thetaArg) {
   let actionVariableRenaming = variableArrayRename(action.getVariables(), '$fv_*');
   let substitutedAction = action
     .substitute(actionVariableRenaming);
-  let theta = {};
+  let theta = thetaArg;
+  if (theta === undefined) {
+    theta = {};
+  }
   let unresolvedHeadLiterals = [];
   let _head = clause.getHeadLiterals();
   let _body = clause.getBodyLiterals();
