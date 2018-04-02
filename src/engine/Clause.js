@@ -84,7 +84,10 @@ function Clause(head, body) {
       }
     }
     if (_body.length > 0) {
-      result += ' :- ';
+      if (_head.length > 0) {
+        result += ' ';
+      }
+      result += '<- ';
     }
     for (let i = 0; i < _body.length; i += 1) {
       result += _body[i].toString();
