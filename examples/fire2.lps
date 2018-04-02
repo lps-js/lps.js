@@ -1,0 +1,25 @@
+maxTime(10).
+fluents([fire, water]).
+actions([eliminate, ignite(_), escape, refill]).
+
+observe(ignite(sofa), 1, 2).
+observe(ignite(bed), 4, 5).
+observe(refill, 7, 8).
+
+initially(water).
+
+flammable(sofa).
+flammable(bed).
+
+fire(T1) -> deal_with_fire(T2, T3).
+
+deal_with_fire(T1, T2) <- eliminate(T1, T2).
+deal_with_fire(T1, T2) <- escape(T1, T2).
+
+initiates(ignite(Object), fire) <- flammable(Object).
+
+terminates(eliminate(T1, T2), fire).
+terminates(eliminate(T1, T2), water).
+initiates(refill, water).
+
+% :-	eliminate, fire, not water.
