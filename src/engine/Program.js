@@ -3,6 +3,7 @@ const Functor = require('./Functor');
 const NodeTypes = require('../parser/NodeTypes');
 const Value = require('./Value');
 const Variable = require('./Variable');
+const Resolutor = require('./Resolutor');
 
 let processBinaryOperator = function processBinaryOperator() {
 
