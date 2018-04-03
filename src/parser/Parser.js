@@ -78,6 +78,12 @@ function Parser(source) {
   };
 
   let _unaryExpression = function _unaryExpression() {
+    if (_foundToBe(TokenTypes.Keyword, 'not')) {
+      let node = new AstNode(NodeTypes.UnaryOperator, currentToken);
+      _expect(TokenTypes.Keyword);
+      node.addChild(_unaryExpression());
+      return node;
+    }
     if (_foundOneOf(TokenTypes.Symbol, ['!', '-'])) {
       let node = new AstNode(NodeTypes.UnaryOperator, currentToken);
       _expect(TokenTypes.Symbol);
