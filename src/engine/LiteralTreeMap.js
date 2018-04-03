@@ -165,7 +165,7 @@ function LiteralTreeMap() {
   this.remove = function remove(literal) {
     let path = buildGetIndexPath(literal);
     if (path === null) {
-      return;
+      return false;
     }
 
     let lastPathIndex = path.length - 1;
@@ -189,13 +189,16 @@ function LiteralTreeMap() {
       if (result) {
         node._tree[index]._size -= 1;
         if (node._tree[index]._size === 0) {
+          _count -= 1;
           delete node._tree[index];
           return true;
         }
       }
       return false;
     };
+    let lastCount = _count;
     recursiveRemove(_root, 0);
+    return _count < lastCount;
   };
 
   this.clear = function clear() {
