@@ -164,7 +164,11 @@ function Lexer(source) {
     let line = chars[2].line;
     let col = chars[2].col;
     let content = _extractContentByRegexTest(chars, Lexicon.unquotedConstantBodyTest);
-    let result = _makeToken(TokenTypes.Constant, content, line, col);
+    let type = TokenTypes.Constant;
+    if (Lexicon.keywords.indexOf(content) > -1) {
+      type = TokenTypes.Keyword;
+    }
+    let result = _makeToken(type, content, line, col);
     lastChars = _nextChar();
     return result;
   };
