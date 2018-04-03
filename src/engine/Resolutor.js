@@ -74,12 +74,11 @@ Resolutor.query = function query(program, clause, query, actions) {
   }
 
   if (actions !== undefined && query instanceof Functor && actions.indexOf(query.getId()) > -1) {
-    let actionId = query.getId();
     return [{
       theta: {},
       actions: [
         {
-          action: actionId,
+          action: query.getName(),
           arguments: query.getArguments()
         }
       ]
@@ -110,12 +109,11 @@ Resolutor.query = function query(program, clause, query, actions) {
   let headLiteral = resolution.clause.getHeadLiterals()[0];
 
   if (actions !== undefined && actions.indexOf(headLiteral.getId()) > -1) {
-    let actionId = headLiteral.getId();
     return [{
       theta: resolution.theta,
       actions: [
         {
-          action: actionId,
+          action: headLiteral.getName(),
           arguments: headLiteral.getArguments()
         }
       ]
@@ -135,12 +133,11 @@ Resolutor.query = function query(program, clause, query, actions) {
 
 Resolutor.reverseQuery = function query(program, clause, head, actions) {
   if (actions !== undefined && actions.indexOf(head.getId()) > -1) {
-    let actionId = head.getId();
     return [{
       theta: {},
       actions: [
         {
-          action: actionId,
+          action: head.getName(),
           arguments: head.getArguments()
         }
       ]
