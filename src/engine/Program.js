@@ -143,8 +143,8 @@ let getProgramInterpretation = function getProgramInterpretation(facts, program)
         // nothing got resolved
         return;
       }
-      if (resolution.isFact()) {
-        resolution.getHeadLiterals().forEach(checkAndAdd);
+      if (resolution.clause.isFact()) {
+        resolution.clause.getHeadLiterals().forEach(checkAndAdd);
         return;
       }
       newProgram.push(resolution);
