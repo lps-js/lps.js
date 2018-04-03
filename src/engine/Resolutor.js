@@ -133,6 +133,67 @@ Resolutor.query = function query(program, clause, query, actions) {
   return queryResult;
 };
 
+Resolutor.reverseQuery = function query(program, clause, head, actions) {
+  if (actions !== undefined && actions.indexOf(head.getId()) > -1) {
+    let actionId = head.getId();
+    return [{
+      theta: {},
+      actions: [
+        {
+          action: actionId,
+          arguments: head.getArguments()
+        }
+      ]
+    }];
+  }
+  if (clause === null) {
+    let result = [];
+    for (let i in program) {
+      let programClause = program[i];
+      let queryResult = Resolutor.reverseQuery(program, programClause, head, actions);
+      if (queryResult === null) {
+        continue;
+      }
+      result = result.concat(queryResult);
+    }
+    return result;
+  }
+
+  if (clause.isFact()) {
+    // not interested in facts.
+    return null;
+  }
+
+  let resolution = Resolutor.resolveAction(clause, head);
+  if (resolution === null) {
+    return null;
+  }
+  if (resolution.clause.getHeadLiteralsCount() > 0) {
+    console.log('test');
+    return null;
+  }
+
+  let bodyLiterals = resolution.clause.getBodyLiterals();
+
+  // we need a program without the current clause otherwise we'll
+  // end up in an infinite loop.
+  let programP = program.filter(c => c !== clause);
+  let result = [];
+  for (let i in bodyLiterals) {
+    let queryHead = bodyLiterals[i];
+    let queryResult = Resolutor.reverseQuery(programP, null, queryHead, actions);
+    if (queryResult === null) {
+      return null;
+    }
+    queryResult = queryResult.map((r) => {
+      r.theta = Resolutor.compactTheta(resolution.theta, r.theta);
+      return r;
+    });
+    result = result.concat(queryResult);
+  }
+  return result;
+};
+
 Resolutor.resolve = function resolve(clause, fact, thetaArg) {
   let factVariableRenaming = variableArrayRename(fact.getVariables(), '$fv_*');
   let substitutedFact = fact
