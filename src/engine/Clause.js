@@ -27,6 +27,14 @@ function Clause(head, body) {
     return _body.length === 0;
   };
 
+  this.isQuery = function isQuery() {
+    return _head.length === 0;
+  };
+
+  this.isEmpty = function isEmpty() {
+    return _head.length === 0 && _body.length === 0;
+  };
+
   this.getHeadLiteralsCount = function getHeadLiteralsCount() {
     return _head.length;
   };
