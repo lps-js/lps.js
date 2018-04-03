@@ -6,5 +6,6 @@ module.exports = {
   Eof: Symbol('Eof'),
   Whitespace: Symbol('Whitespace'),
   Comment: Symbol('Comment'),
-  Error: Symbol('Error')
+  Error: Symbol('Error'),
+  Keyword: Symbol('Keyword')
 };
