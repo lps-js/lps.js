@@ -1,5 +1,6 @@
 const Clause = require('./Clause');
 const Functor = require('./Functor');
+const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
 const Program = require('./Program');
 const Unifier = require('./Unifier');
@@ -14,11 +15,11 @@ function Engine(nodes) {
 
   let _terminators = [];
   let _initiators = [];
-  let _observations = [];
+  let _observations = {};
 
   let _program = new Program(nodes);
 
-  let _activeFluents = {};
+  let _activeFluents = new LiteralTreeMap();
   let lastStepActions = [];
   let _currentTime = 1;
 
@@ -26,7 +27,7 @@ function Engine(nodes) {
     let literal = literalArg;
     let timingVariable = timingVariableArg;
     if (timingVariable === undefined) {
-      timingVariable = new Variable('T');
+      timingVariable = new Variable('$T');
     }
     if (literal instanceof Value) {
       literal = new Functor(literal.evaluate(), []);
@@ -99,7 +100,6 @@ function Engine(nodes) {
       } catch (_) {
         throw new Error('Unexpected value "' + val.toString() + '" in action/1 argument');
       }
-      let argCount = val.getArguments().length + 1;
       _actions[literal.getId()] = true;
     },
     'actions/1': (val) => {
@@ -140,11 +140,11 @@ function Engine(nodes) {
     'initially/1': (val) => {
       if (val instanceof Value) {
         let name = val.evaluate();
-        _activeFluents[name + '/1'] = new Functor(name, [new Value(1)]);
+        _activeFluents.add(new Functor(name, [new Value(1)]));
         return;
       }
       let initialFluent = new Functor(val.getName(), val.getArguments().concat([new Value(1)]));
-      _activeFluents[initialFluent.getId()] = initialFluent;
+      _activeFluents.add(initialFluent);
     },
 
     'terminates/2': (actionArg, fluentArg) => {
@@ -202,6 +202,44 @@ function Engine(nodes) {
         throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
       _initiators.push({ action: action, fluent: fluent });
+    },
+
+    'observe/2': (fluent, time) => {
+      if (!(time instanceof Value)) {
+        throw new Error('Time given to observe/2 must be a value.');
+      }
+      try {
+        builtInProcessors['observe/3'].apply(null, [fluent, time, time]);
+      } catch (_) {
+        throw new Error('Invalid fluent value given for observe/2.');
+      }
+    },
+    'observe/3': (action, startTime, endTime) => {
+      if (!(startTime instanceof Value)) {
+        throw new Error('Start time given to observe/3 must be a value.');
+      }
+      if (!(endTime instanceof Value)) {
+        throw new Error('End time given to observe/3 must be a value.');
+      }
+      let sTime = startTime.evaluate();
+      let eTime = endTime.evaluate();
+      if (eTime < sTime) {
+        throw new Error('Invalid ordering of time given to observe/3: Start time must come before end time.');
+      }
+      let literal = action;
+      try {
+        literal = timableSyntacticSugarProcessing(literal);
+      } catch (_) {
+        throw new Error('Invalid action value given for observe/3');
+      }
+      if (_observations[sTime] === undefined) {
+        _observations[sTime] = [];
+      }
+
+      _observations[sTime].push({
+        action: literal,
+        endTime: eTime
+      });
     }
   };
 
@@ -232,12 +270,12 @@ function Engine(nodes) {
     });
 
     _initiators.forEach((i) => {
-      let theta = Unifier.unifies([[t.action, action]]);
+      let theta = Unifier.unifies([[i.action, action]]);
       if (theta === null) {
         return;
       }
 
-      initiated.push(t.fluent.substitute(theta));
+      initiated.push(i.fluent.substitute(theta));
     });
 
     return {
@@ -246,7 +284,8 @@ function Engine(nodes) {
     };
   };
 
-  let performResolution = function performResolution(currentlyActiveFluents, newState) {
+  let performResolution = function performResolution(currentFluents) {
+    let nextTime = _currentTime + 1;
     let unresolvedRules = [].concat(_program.getRules());
     let unresolvedActions = [];
 
@@ -256,9 +295,28 @@ function Engine(nodes) {
     let activeEvents = [];
     let activeActions = [];
 
-    Object.keys(currentlyActiveFluents).forEach((key) => {
-      let fluent = currentlyActiveFluents[key];
+    let terminated = [];
+    let initiated = [];
 
+    if (_observations[_currentTime] !== undefined) {
+      // process observations
+      let theta = { '$T': _currentTime };
+      _observations[_currentTime].forEach((ob) => {
+        let action = ob.action;
+        let result = findFluentActors(action);
+        terminated = terminated.concat(result.t);
+        initiated = initiated.concat(result.i);
+
+        if (ob.endTime > nextTime) {
+          if (_observations[nextTime] === undefined) {
+            _observations[nextTime] = [];
+          }
+          _observations[nextTime].push(ob);
+        }
+      });
+    }
+
+    currentFluents.forEach((fluent) => {
       let activatedEvents = Resolutor.query(_program.getRules(), null, fluent, possibleEvents);
       activatedEvents.forEach((event) => {
         let query = event.actions.map(x => new Functor(x.action, x.arguments));
@@ -266,13 +324,11 @@ function Engine(nodes) {
       });
     });
 
-    let nextTime = _currentTime + 1
-    let terminated = [];
-    let initiated = [];
     activeEvents.forEach((event) => {
       let strategies = Resolutor.reverseQuery(_program.getProgram(), null, event, actions);
       strategies.forEach((strategy) => {
         strategy.actions.forEach((entry) => {
+          // TODO: need to check for action constraints.
           let action = new Functor(entry.action, entry.arguments);
           let result = findFluentActors(action);
           if (result.i.length > 0 || result.t.length > 0) {
@@ -285,23 +341,37 @@ function Engine(nodes) {
       });
     });
 
+    let updatedState = new LiteralTreeMap();
+    currentFluents.forEach((fluent) => {
+      updatedState.add(updateTimableFunctor(fluent, nextTime));
+    });
+
+    let deltaTerminated = new LiteralTreeMap();
+    let deltaInitiated = new LiteralTreeMap();
     terminated.forEach((terminatedFluent) => {
-      Object.keys(newState).forEach((key) => {
-        let fluent = newState[key];
+      updatedState.forEach((fluent) => {
         if (Unifier.unifies([[fluent, terminatedFluent]]) !== null) {
-          delete newState[key];
+          deltaTerminated.add(fluent);
         }
       });
     });
+
     initiated.forEach((initiatedFluent) => {
-      newState[initiatedFluent.getId()] = initiatedFluent;
+      if (!deltaTerminated.remove(initiatedFluent)) {
+        deltaInitiated.add(updateTimableFunctor(initiatedFluent, nextTime));
+      }
     });
 
-    Object.keys(newState).forEach((key) => {
-      newState[key] = updateTimableFunctor(newState[key], nextTime);
+    deltaTerminated.forEach((fluent) => {
+      updatedState.remove(fluent);
+    });
+
+    deltaInitiated.forEach((fluent) => {
+      updatedState.add(fluent);
     });
 
     lastStepActions = activeActions;
+    return updatedState;
   };
 
   this.getCurrentTime = function getCurrentTime() {
@@ -314,8 +384,8 @@ function Engine(nodes) {
 
   this.getActiveFluents = function getActiveFluents() {
     let fluents = [];
-    Object.keys(_activeFluents).forEach((key) => {
-      fluents.push(_activeFluents[key].toString());
+    _activeFluents.forEach((fluent) => {
+      fluents.push(fluent.toString());
     });
     return fluents;
   };
@@ -324,13 +394,34 @@ function Engine(nodes) {
     if (_currentTime > _maxTime) {
       return;
     }
-    let nextStepActiveFluents = {};
-    Object.keys(_activeFluents).forEach((key) => {
-      nextStepActiveFluents[key] = _activeFluents[key];
-    });
-    performResolution(_activeFluents, nextStepActiveFluents);
+    let nextStepActiveFluents = performResolution(_activeFluents);
     _activeFluents = nextStepActiveFluents;
     _currentTime += 1;
+  };
+
+  this.run = function run() {
+    if (_currentTime > _maxTime) {
+      return;
+    }
+    let result = [];
+
+    result.push({
+      activeFluents: this.getActiveFluents()
+    });
+
+    while(_currentTime < _maxTime) {
+      this.step();
+
+      result.push({
+        activeFluents: this.getActiveFluents(),
+        actions: this.getLastStepActions()
+      });
+    }
+    return result;
+  };
+
+  this.reset = function reset() {
+
   };
 }
 
