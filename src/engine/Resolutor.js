@@ -73,7 +73,7 @@ Resolutor.query = function query(program, clause, query, actions) {
     return result;
   }
 
-  if (actions !== undefined && query instanceof Functor && actions.indexOf(query.getId()) > -1) {
+  if (actions !== undefined && query instanceof Functor && actions[query.getId()] !== undefined) {
     return [{
       theta: {},
       actions: [
@@ -108,7 +108,7 @@ Resolutor.query = function query(program, clause, query, actions) {
   }
   let headLiteral = resolution.clause.getHeadLiterals()[0];
 
-  if (actions !== undefined && actions.indexOf(headLiteral.getId()) > -1) {
+  if (actions !== undefined && actions[headLiteral.getId()] !== undefined) {
     return [{
       theta: resolution.theta,
       actions: [
