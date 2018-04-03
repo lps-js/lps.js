@@ -109,7 +109,7 @@ let processClauses = function processClauses(rootNode, properties) {
     }
 
     // sanity check (2 literal sets and one operator)
-    if (children.length !== 3 || children[1].getToken().type !== NodeTypes.Symbol) {
+    if (children.length !== 3 || children[1].getType() !== NodeTypes.Symbol) {
       throw new Error('invalid number of children in clause node');
     }
 
