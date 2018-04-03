@@ -185,15 +185,15 @@ function Parser(source) {
     let hasImplicationSymbol = true;
 
     if (_foundToBe(TokenTypes.Symbol, '<-')) {
-      clauseNode.addChild(new AstNode(NodeTypes.BinaryOperator, currentToken));
+      clauseNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
       _expect(TokenTypes.Symbol);
     } else if (_foundToBe(TokenTypes.Symbol, '->')) {
-      clauseNode.addChild(new AstNode(NodeTypes.BinaryOperator, currentToken));
+      clauseNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
       _expect(TokenTypes.Symbol);
     } else {
       clauseNode.addChild(_literalSet());
       if (_foundToBe(TokenTypes.Symbol, '<-') || _foundToBe(TokenTypes.Symbol, '->')) {
-        clauseNode.addChild(new AstNode(NodeTypes.BinaryOperator, currentToken));
+        clauseNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
         _expect(TokenTypes.Symbol);
       } else {
         hasImplicationSymbol = false;
