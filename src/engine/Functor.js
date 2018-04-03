@@ -9,6 +9,10 @@ function Functor(name, args) {
     _argsCount = args.length;
   }
 
+  this.getName = function getName() {
+    return _name;
+  };
+
   this.getId = function getId() {
     return _name + '/' + _argsCount;
   };
