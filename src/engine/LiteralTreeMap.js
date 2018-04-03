@@ -210,6 +210,39 @@ function LiteralTreeMap() {
   this.size = function size() {
     return _count;
   };
+
+  this.toArray = function toArray() {
+    let result = [];
+
+    let recursiveBuild = (node) => {
+      if (node instanceof Functor || node instanceof Array) {
+        result.push(node);
+        return;
+      }
+      let indices = Object.getOwnPropertySymbols(node._tree)
+                  .concat(Object.getOwnPropertyNames(node._tree));
+      indices.forEach((key) => {
+        recursiveBuild(node._tree[key]);
+      });
+    };
+    recursiveBuild(_root);
+    return result;
+  };
+
+  this.forEach = function forEach(callback) {
+    let recursiveTraverse = (node) => {
+      if (node instanceof Functor || node instanceof Array) {
+        callback(node)
+        return;
+      }
+      let indices = Object.getOwnPropertySymbols(node._tree)
+                  .concat(Object.getOwnPropertyNames(node._tree));
+      indices.forEach((key) => {
+        recursiveTraverse(node._tree[key]);
+      });
+    };
+    recursiveTraverse(_root);;
+  };
 }
 
 module.exports = LiteralTreeMap;
