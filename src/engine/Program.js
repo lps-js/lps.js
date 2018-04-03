@@ -79,6 +79,11 @@ let processFactClause = function processFactClause(literals) {
   return literalSet;
 };
 
+let processConstraintClause = function processConstraintClause(bodyLiterals) {
+  let bodySet = processLiteralSet(bodyLiterals);
+  return new Clause([], bodySet);
+};
+
 let processClause = function processClause(headLiterals, bodyLiterals) {
   let headSet = processLiteralSet(headLiterals);
   let bodySet = processLiteralSet(bodyLiterals);
@@ -96,14 +101,26 @@ let processClauses = function processClauses(rootNode, properties) {
       });
       return;
     }
-    if (children.length !== 3) {
+
+    if (children.length === 2 && children[0].getToken().value === '<-') {
+      // a constraint format
+      properties.program.push(processConstraintClause(children[1].getChildren()));
+      return;
+    }
+
+    // sanity check (2 literal sets and one operator)
+    if (children.length !== 3 || children[1].getToken().type !== NodeTypes.Symbol) {
       throw new Error('invalid number of children in clause node');
     }
+
     let operator = children[1].getToken().value;
     if (operator === '<-') {
+      // a program clause in the form: consequent <- antecedent
       properties.program.push(processClause(children[0].getChildren(), children[2].getChildren()));
       return;
     }
+
+    // a LPS rule in the form: conditions -> consequent
     properties.rules.push(processClause(children[2].getChildren(), children[0].getChildren()));
   });
 };
