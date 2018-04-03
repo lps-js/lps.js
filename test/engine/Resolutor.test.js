@@ -236,4 +236,24 @@ describe('Resolutor', () => {
       expect(result[0].actions[0].arguments[0].evaluate()).to.be.equal(5);
     });
   });
+
+  describe('reverseQuery', () => {
+    it('should return the correct query result', () => {
+      let clause = new Clause(
+        [new Functor('test', [new Variable('X')])],
+        [new Functor('test2', [new Variable('X')])]
+      );
+      let program = [clause];
+      let query = new Functor('test', [new Variable('T')])
+      let result = Resolutor.reverseQuery(program, null, query, ['test2/1']);
+      expect(result).to.be.not.null;
+      expect(result).to.be.instanceof(Array);
+      expect(result).to.have.length(1);
+
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.instanceof(Object);
+      expect(result[0].theta['T']).to.be.instanceof(Variable);
+      expect(result[0].theta['T'].evaluate()).to.be.equal('X');
+    });
+  });
 });
