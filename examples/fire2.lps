@@ -13,13 +13,13 @@ flammable(bed).
 
 fire(T1) -> deal_with_fire(T2, T3).
 
-deal_with_fire(T1, T2) <- eliminate(T1, T2).
-deal_with_fire(T1, T2) <- escape(T1, T2).
+deal_with_fire(T1, T2) <- eliminate(T1, T).
+deal_with_fire(T1, T2) <- escape(T1, T).
 
 initiates(ignite(Object), fire) <- flammable(Object).
 
-terminates(eliminate(T1, T2), fire).
-terminates(eliminate(T1, T2), water).
+terminates(eliminate(T1), fire).
+terminates(eliminate(T1), water).
 initiates(refill, water).
 
-% :-	eliminate, fire, not water.
+% :- eliminate(T), fire(T), not water(T).
