@@ -32,17 +32,17 @@ function Parser(source) {
 
   let _expect = function _expect(type) {
     if (currentToken.type !== type) {
-      throw new Error('Expecting type ' + String(type) + ', but found ' + String(currentToken.type) + ' instead.');
+      throw new Error('Expecting type ' + String(type) + ', but found ' + String(currentToken.type) + ' instead at line ' + currentToken.line + ' col ' + currentToken.col + '.');
     }
     _nextToken();
   };
 
   let _expectToBe = function _expectToBe(type, content) {
     if (currentToken.type !== type) {
-      throw new Error('Expecting type ' + String(type) + ', but found ' + String(currentToken.type) + ' instead.');
+      throw new Error('Expecting type ' + String(type) + ', but found ' + String(currentToken.type) + ' instead at line ' + currentToken.line + ' col ' + currentToken.col + '.');
     }
     if (currentToken.value !== content) {
-      throw new Error('Expecting type ' + String(type) + ' of "' + content + '", but found "' + String(currentToken.value) + '" instead.');
+      throw new Error('Expecting type ' + String(type) + ' of "' + content + '", but found "' + String(currentToken.value) + '" instead at line ' + currentToken.line + ' col ' + currentToken.col + '.');
     }
     _nextToken();
   };
