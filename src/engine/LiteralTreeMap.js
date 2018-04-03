@@ -2,7 +2,7 @@ const Functor = require('./Functor');
 const Value = require('./Value');
 const Variable = require('./Variable');
 
-function LiteralTreeSet() {
+function LiteralTreeMap() {
   let _root = {
     _size: 0,
     _tree: {}
@@ -13,8 +13,12 @@ function LiteralTreeSet() {
   // only create an argument tree when needed otherwise we incur infinite loop
   let _argumentTree = null;
 
-  this.add = function add(literal) {
+  this.add = function add(literal, valueArg) {
     let node = _root;
+    let value = valueArg;
+    if (value === undefined) {
+      value = literal;
+    }
 
     let arguments = literal;
 
@@ -45,9 +49,14 @@ function LiteralTreeSet() {
       if (!(arg instanceof Value) && !(arg instanceof Variable)) {
         // use another tree to index this argument
         if (_argumentTree === null) {
-          _argumentTree = new LiteralTreeSet();
+          _argumentTree = new LiteralTreeMap();
+        } else {
+          nodeRep = _argumentTree.get(arg);
         }
-        nodeRep = _argumentTree.add(arg);
+        if (nodeRep === null) {
+          nodeRep = Symbol();
+          _argumentTree.add(arg, nodeRep);
+        }
       } else if (arg instanceof Variable) {
         nodeRep = _variableSymbol;
       } else {
@@ -55,7 +64,7 @@ function LiteralTreeSet() {
       }
       if (idx == arguments.length - 1) {
         node._size += 1;
-        node._tree[nodeRep] = representative;
+        node._tree[nodeRep] = value;
         return;
       }
 
@@ -84,7 +93,7 @@ function LiteralTreeSet() {
           return null;
         }
 
-        nodeRep = _argumentTree.isInSet(arg);
+        nodeRep = _argumentTree.get(arg);
         if (!nodeRep) {
           return null;
         }
@@ -97,9 +106,36 @@ function LiteralTreeSet() {
       path.push(nodeRep);
     }
     return path;
-  }
+  };
 
-  this.isInSet = function isInSet(literal) {
+  this.get = function get(literal) {
+    let path = buildGetIndexPath(literal);
+    if (path === null) {
+      return null;
+    }
+
+    let lastPathIndex = path.length - 1;
+    let recursiveGet = (node, i) => {
+      if (i >= path.length) {
+        return null;
+      }
+      if (node._size === 0) {
+        return null;
+      }
+      let index = path[i];
+      if (node._tree[index] === undefined) {
+        return null;
+      }
+      if (i === lastPathIndex) {
+        return node._tree[index];
+      }
+
+      return recursiveGet(node._tree[index], i + 1);
+    };
+    return recursiveGet(_root, 0);
+  };
+
+  this.contains = function contains(literal) {
     let path = buildGetIndexPath(literal);
     if (path === null) {
       return false;
@@ -118,7 +154,7 @@ function LiteralTreeSet() {
         return false;
       }
       if (i === lastPathIndex) {
-        return node._tree[index];
+        return true;
       }
 
       return recursiveCheck(node._tree[index], i + 1);
@@ -176,4 +212,4 @@ function LiteralTreeSet() {
   };
 }
 
-module.exports = LiteralTreeSet;
+module.exports = LiteralTreeMap;
