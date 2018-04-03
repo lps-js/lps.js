@@ -17,6 +17,10 @@ function Functor(name, args) {
     return _name + '/' + _argsCount;
   };
 
+  this.getArgumentCount = function getArgumentCount() {
+    return _argsCount;
+  };
+
   this.getVariables = function getVariables() {
     let hash = {};
 
