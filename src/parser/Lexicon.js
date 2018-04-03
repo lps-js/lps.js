@@ -36,6 +36,9 @@ module.exports = {
     '\'',
     '"'
   ],
+  keywords: [
+    'not'
+  ],
   constantDelimiterEscapeChar: '\\',
   unquotedConstantStartTest: /^[a-z]$/,
   unquotedConstantBodyTest: /^[a-zA-Z0-9-_]$/,
