@@ -174,14 +174,6 @@ function LiteralTreeSet() {
   this.size = function size() {
     return _count;
   };
-
-  this.toArray = function toArray() {
-
-  };
-
-  this.forEach = function forEach(callback) {
-
-  };
 }
 
 module.exports = LiteralTreeSet;
