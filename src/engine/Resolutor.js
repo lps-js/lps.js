@@ -2,8 +2,6 @@ const Clause = require('./Clause');
 const Functor = require('./Functor');
 const Unifier = require('./Unifier');
 const Variable = require('./Variable');
-const BooleanBinaryOperator = require('./BooleanBinaryOperator');
-const BooleanUnaryOperator = require('./BooleanUnaryOperator');
 const variableArrayRename = require('../utility/variableArrayRename');
 
 function Resolutor() {
@@ -225,9 +223,7 @@ Resolutor.resolve = function resolve(clause, fact, thetaArg) {
   // perform head check
   for (let i = 0; i < unresolvedBodyLiterals.length; i += 1) {
     let literal = unresolvedBodyLiterals[i];
-    if ((literal instanceof BooleanBinaryOperator
-          || literal instanceof BooleanUnaryOperator)
-        && literal.isGround() && !literal.evaluate()) {
+    if (literal.isGround() && !literal.evaluate()) {
       // nope this doesn't work out
       return null;
     }
@@ -276,9 +272,7 @@ Resolutor.resolveAction = function resolveAction(clause, action, thetaArg) {
   // perform head check
   for (let i = 0; i < unresolvedHeadLiterals.length; i += 1) {
     let literal = unresolvedHeadLiterals[i];
-    if ((literal instanceof BooleanBinaryOperator
-          || literal instanceof BooleanUnaryOperator)
-        && literal.isGround() && !literal.evaluate()) {
+    if (literal.isGround() && !literal.evaluate()) {
       // nope this doesn't work out
       return null;
     }
