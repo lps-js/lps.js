@@ -23,4 +23,4 @@ terminates(eliminate(T1), fire).
 terminates(eliminate(T1), water).
 initiates(refill, water).
 
-% :- eliminate(_, T), fire(T), not water(T).
+<- eliminate(_, T), fire(T), not water(T).
