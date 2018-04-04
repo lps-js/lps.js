@@ -195,7 +195,7 @@ function Program(tree) {
   processClauses(tree, {
     rules: _rules,
     program: _program,
-    facts: _facts,
+    facts: _facts
   });
 
   _facts = getProgramInterpretation(_facts, _program);
