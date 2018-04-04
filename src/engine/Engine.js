@@ -140,6 +140,12 @@ function Engine(nodes) {
     },
 
     'initially/1': (val) => {
+      if (val instanceof Array) {
+        val.forEach((v) => {
+          builtInProcessors['initially/1'].apply(null, [v]);
+        });
+        return;
+      }
       if (val instanceof Value) {
         let name = val.evaluate();
         _activeFluents.add(new Functor(name, [new Value(1)]));
