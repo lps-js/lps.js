@@ -33,7 +33,7 @@ function Engine(nodes) {
       literal = new Functor(literal.evaluate(), []);
     }
     if (!(literal instanceof Functor)) {
-      throw new Exception('Unexpected value "' + literal.toString() + '" provided for a literal.');
+      throw new Error('Unexpected value "' + literal.toString() + '" provided for a literal.');
     }
     literal = new Functor(literal.getName(), literal.getArguments().concat([timingVariable]));
     return literal;
@@ -51,7 +51,7 @@ function Engine(nodes) {
       literal = new Functor(literal.evaluate(), []);
     }
     if (!(literal instanceof Functor)) {
-      throw new Exception('Unexpected value "' + literal.toString() + '" provided for an event literal.');
+      throw new Error('Unexpected value "' + literal.toString() + '" provided for an event literal.');
     }
     literal = new Functor(literal.getName(), literal.getArguments().concat(additionalArguments));
     return literal;
@@ -61,9 +61,9 @@ function Engine(nodes) {
     if (!(literal instanceof Functor) || literal.getArguments() === 0) {
       throw new Error('Invalid timable functor provided');
     }
-    let arguments = literal.getArguments();
-    arguments[arguments.length - 1] = new Value(time);
-    return new Functor(literal.getName(), arguments);
+    let args = literal.getArguments();
+    args[args.length - 1] = new Value(time);
+    return new Functor(literal.getName(), args);
   };
 
   let builtInProcessors = {
@@ -107,7 +107,7 @@ function Engine(nodes) {
         throw new Error('Value for actions/1 expected to be an array.');
       }
       val.forEach((literal) => {
-        try{
+        try {
           builtInProcessors['action/1'].apply(null, [literal]);
         } catch (_) {
           throw new Error('Unexpected value "' + literal.toString() + '" in actions/1 array argument');
@@ -284,8 +284,6 @@ function Engine(nodes) {
 
   let performResolution = function performResolution(currentFluents) {
     let nextTime = _currentTime + 1;
-    let unresolvedRules = [].concat(_program.getRules());
-    let unresolvedActions = [];
 
     let possibleEvents = [].concat(_events);
     let actions = Object.keys(_actions);
@@ -298,7 +296,6 @@ function Engine(nodes) {
 
     if (_observations[_currentTime] !== undefined) {
       // process observations
-      let theta = { '$T': _currentTime };
       _observations[_currentTime].forEach((ob) => {
         let action = ob.action;
         let result = findFluentActors(action);
@@ -378,7 +375,7 @@ function Engine(nodes) {
 
   this.getLastStepActions = function getLastStepActions() {
     return lastStepActions.map(action => action.toString());
-  }
+  };
 
   this.getActiveFluents = function getActiveFluents() {
     let fluents = [];
@@ -399,7 +396,7 @@ function Engine(nodes) {
 
   this.run = function run() {
     if (_currentTime > _maxTime) {
-      return;
+      return null;
     }
     let result = [];
 
@@ -407,7 +404,7 @@ function Engine(nodes) {
       activeFluents: this.getActiveFluents()
     });
 
-    while(_currentTime < _maxTime) {
+    while (_currentTime < _maxTime) {
       this.step();
 
       result.push({
