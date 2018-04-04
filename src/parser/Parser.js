@@ -47,6 +47,9 @@ function Parser(source) {
     _nextToken();
   };
 
+  let _arguments;
+  let _expression;
+
   let _functorOrConstantExpression = function _functorOrConstantExpression() {
     let nameToken = currentToken;
     _expect(TokenTypes.Constant);
@@ -153,11 +156,11 @@ function Parser(source) {
     return _comparisonExpression();
   };
 
-  let _expression = function _expression() {
+  _expression = function () {
     return _arrayExpression();
   };
 
-  let _arguments = function _arguments(node) {
+  _arguments = function (node) {
     node.addChild(_expression());
     while (_foundToBe(TokenTypes.Symbol, ARGUMENT_SEPARATOR_SYMBOL)) {
       _expect(TokenTypes.Symbol);
