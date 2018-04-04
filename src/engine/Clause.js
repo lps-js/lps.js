@@ -22,7 +22,7 @@ function Clause(head, body) {
     return _body.length === 0;
   };
 
-  this.isQuery = function isQuery() {
+  this.isConstraint = function isQuery() {
     return _head.length === 0;
   };
 

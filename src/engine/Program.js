@@ -159,7 +159,7 @@ let getProgramInterpretation = function getProgramInterpretation(facts, program)
       return;
     }
 
-    if (clause.isQuery()) {
+    if (clause.isConstraint()) {
       return;
     }
 
