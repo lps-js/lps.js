@@ -240,15 +240,24 @@ Resolutor.resolve = function resolve(clause, fact, thetaArg) {
   let _head = clause.getHeadLiterals();
   let _body = clause.getBodyLiterals();
 
-  _body.forEach((literal) => {
+  // ensure to only resolve first matching literal
+  // because we're processing left to right
+  for (let i = 0; i < _body.length; i += 1) {
+    let literal = _body[i];
     let newTheta = Unifier.unifies([[substitutedFact, literal]], theta);
     if (newTheta === null) {
       // unable to unify, let's just add to unresolvedBodyLiterals
       unresolvedBodyLiterals.push(literal);
     } else {
       theta = newTheta;
+      // add remaining body literals
+      for (let j = i + 1; j < _body.length; j += 1) {
+        literal = _body[j];
+        unresolvedBodyLiterals.push(literal);
+      }
+      break;
     }
-  });
+  }
 
   if (unresolvedBodyLiterals.length === _body.length) {
     // nothing got resolved, probably not a matching rule.
