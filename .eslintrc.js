@@ -9,6 +9,7 @@ module.exports = {
     "no-console": ["warn", { "allow": ["log"] }],
     "no-underscore-dangle": "off",
     "func-names": "off",
+    "no-continue": "off",
   },
   overrides: [
     {
