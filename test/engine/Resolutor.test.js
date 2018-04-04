@@ -202,7 +202,7 @@ describe('Resolutor', () => {
       expect(result[0]).to.have.property('actions');
       expect(result[0].actions).to.be.instanceof(Array);
       expect(result[0].actions).to.be.length(1);
-      expect(result[0].actions[0].action).to.be.equal('test/1');
+      expect(result[0].actions[0].action).to.be.equal('test');
       expect(result[0].actions[0].arguments).to.be.instanceof(Array);
       expect(result[0].actions[0].arguments).to.be.length(1);
       expect(result[0].actions[0].arguments[0]).to.be.instanceof(Variable);
@@ -229,7 +229,7 @@ describe('Resolutor', () => {
       expect(result[0]).to.have.property('actions');
       expect(result[0].actions).to.be.instanceof(Array);
       expect(result[0].actions).to.be.length(1);
-      expect(result[0].actions[0].action).to.be.equal('test/1');
+      expect(result[0].actions[0].action).to.be.equal('test');
       expect(result[0].actions[0].arguments).to.be.instanceof(Array);
       expect(result[0].actions[0].arguments).to.be.length(1);
       expect(result[0].actions[0].arguments[0]).to.be.instanceof(Value);
