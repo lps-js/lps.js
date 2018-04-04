@@ -426,6 +426,7 @@ function Engine(nodes) {
     let result = [];
 
     result.push({
+      time: _currentTime,
       activeFluents: this.getActiveFluents()
     });
 
@@ -433,6 +434,7 @@ function Engine(nodes) {
       this.step();
 
       result.push({
+        time: _currentTime,
         fluents: this.getActiveFluents(),
         actions: this.getLastStepActions(),
         observations: this.getLastStepObservations()
