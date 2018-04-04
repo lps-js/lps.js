@@ -304,6 +304,7 @@ function Engine(nodes) {
     currentFluents.forEach((fluent) => {
       programWithFluents.push(new Clause([fluent], []));
       rulesWithFluents.push(new Clause([fluent], []));
+      factsWithFluents.push(fluent);
     });
 
     factsWithFluents.forEach((fact) => {
