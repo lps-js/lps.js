@@ -159,6 +159,10 @@ let getProgramInterpretation = function getProgramInterpretation(facts, program)
       return;
     }
 
+    if (clause.isQuery()) {
+      return;
+    }
+
     allFacts.forEach((fact) => {
       let resolution = Resolutor.resolve(clause, fact);
       if (resolution === null) {
