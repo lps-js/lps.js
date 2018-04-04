@@ -15,12 +15,47 @@ function BuiltInFunctorProvider(context) {
 
       return v1.evaluate() + v2.evaluate();
     },
+
     '-/2': (v1, v2) => {
       assertIsValue(v1);
       assertIsValue(v2);
 
       return v1.evaluate() - v2.evaluate();
     },
+
+    '-/1': (v1) => {
+      assertIsValue(v1);
+      return -v1.evaluate();
+    },
+
+    '>/2': (v1, v2) => {
+      assertIsValue(v1);
+      assertIsValue(v2);
+
+      return v1.evaluate() > v2.evaluate();
+    },
+
+    '>=/2': (v1, v2) => {
+      assertIsValue(v1);
+      assertIsValue(v2);
+
+      return v1.evaluate() >= v2.evaluate();
+    },
+
+    '</2': (v1, v2) => {
+      assertIsValue(v1);
+      assertIsValue(v2);
+
+      return v1.evaluate() < v2.evaluate();
+    },
+
+    '<=/2': (v1, v2) => {
+      console.log('HELLLO')
+      assertIsValue(v1);
+      assertIsValue(v2);
+      return v1.evaluate() <= v2.evaluate();
+    },
+
     '!/1': (literal) => {
       // v1 is a literal
       let queryResult = Resolutor.query(context, literal, []);
