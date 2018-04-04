@@ -230,7 +230,7 @@ Parser.parseFile = function parseFile(file) {
   return new Promise((resolve) => {
     fs.readFile(file, 'utf8', (err, data) => {
       if (err) {
-        throw err;
+        throw new Error('Parser could not open the file "' + file + '"');
       }
       let parser = new Parser(data);
       let token = parser.build();
