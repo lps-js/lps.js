@@ -62,7 +62,7 @@ describe('Resolutor', () => {
       );
       let program = [fact, clause];
       let query = new Functor('test2', [new Variable('T')])
-      let result = Resolutor.query(program, null, query, []);
+      let result = Resolutor.query(program, query, []);
       expect(result).to.be.not.null;
       expect(result).to.be.instanceof(Array);
       expect(result).to.have.length(1);
@@ -83,7 +83,7 @@ describe('Resolutor', () => {
       );
       let program = [clause, fact];
       let query = new Functor('test2', [new Variable('T')])
-      let result = Resolutor.query(program, null, query, []);
+      let result = Resolutor.query(program, query, []);
       expect(result).to.be.not.null;
       expect(result).to.be.instanceof(Array);
       expect(result).to.have.length(1);
@@ -111,7 +111,7 @@ describe('Resolutor', () => {
       );
       let program = [fact, clause];
       let query = new Functor('test2', [new Variable('T')])
-      let result = Resolutor.query(program, null, query, []);
+      let result = Resolutor.query(program, query, []);
       expect(result).to.be.not.null;
       expect(result).to.be.instanceof(Array);
       expect(result).to.have.length(1);
@@ -135,7 +135,7 @@ describe('Resolutor', () => {
       );
       let program = [clause];
       let query = new Functor('test2', [new Variable('T')])
-      let result = Resolutor.query(program, null, query, []);
+      let result = Resolutor.query(program, query, []);
       expect(result).to.be.not.null;
       expect(result).to.be.instanceof(Array);
       expect(result).to.have.length(0);
@@ -156,7 +156,7 @@ describe('Resolutor', () => {
       );
       let program = [fact1, fact2, clause];
       let query = new Functor('test2', [new Variable('T')])
-      let result = Resolutor.query(program, null, query, []);
+      let result = Resolutor.query(program, query, []);
       expect(result).to.be.not.null;
       expect(result).to.be.instanceof(Array);
       expect(result).to.have.length(2);
@@ -176,7 +176,7 @@ describe('Resolutor', () => {
       );
       let program = [clause];
       let query = new Functor('test2', [new Variable('T')])
-      let result = Resolutor.query(program, null, query, []);
+      let result = Resolutor.query(program, query, []);
       expect(result).to.be.not.null;
       expect(result).to.be.instanceof(Array);
       expect(result).to.have.length(0);
@@ -189,7 +189,7 @@ describe('Resolutor', () => {
       );
       let program = [clause];
       let query = new Functor('test2', [new Variable('T')]);
-      let result = Resolutor.query(program, null, query, ['test/1']);
+      let result = Resolutor.query(program, query, ['test/1']);
       expect(result).to.be.not.null;
       expect(result).to.be.instanceof(Array);
       expect(result).to.have.length(1);
@@ -216,7 +216,7 @@ describe('Resolutor', () => {
       );
       let program = [clause];
       let query = new Functor('test2', [new Value(5)]);
-      let result = Resolutor.query(program, null, query, ['test/1']);
+      let result = Resolutor.query(program, query, ['test/1']);
       expect(result).to.be.not.null;
       expect(result).to.be.instanceof(Array);
       expect(result).to.have.length(1);
