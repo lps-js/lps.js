@@ -1,8 +1,3 @@
-const Unifier = require('./Unifier');
-const BooleanBinaryOperator = require('./BooleanBinaryOperator');
-const BooleanUnaryOperator = require('./BooleanUnaryOperator');
-const variableArrayRename = require('../utility/variableArrayRename');
-
 function Clause(head, body) {
   // array of expressions
   let _head = head;
