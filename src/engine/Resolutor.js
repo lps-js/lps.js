@@ -81,38 +81,27 @@ let createRecursiveQuery = function createRecursiveQuery(program, actions) {
       let bodyLiterals = resolution.clause.getBodyLiterals();
       // we need a program without the current clause otherwise we'll
       // end up in an infinite loop.
-
       if (Resolutor.query(programWithoutClause, bodyLiterals, actions) === null) {
         return null;
       }
     }
 
     let headLiteralSet = resolution.clause.getHeadLiterals();
-    let headLiteral = headLiteralSet[0];
 
-    if (actions !== undefined && actions.indexOf(headLiteral.getId()) > -1) {
-      return [{
-        theta: resolution.theta,
-        actions: [
-          {
-            action: headLiteral.getName(),
-            arguments: headLiteral.getArguments()
-          }
-        ]
-      }];
+    let result = [];
+    for (let i = 0; i < headLiteralSet.length; i += 1) {
+      let literal = headLiteralSet[i];
+      let queryResult = Resolutor.query(program, literal, actions);
+      if (queryResult !== null) {
+        result = result.concat(queryResult);
+      }
     }
-
-    let queryResult = Resolutor.query(program, headLiteral, actions);
-    if (queryResult === null || queryResult.length === 0) {
-      // possible but not proven yet
-      return [];
-    }
-    queryResult = queryResult.map((resultArg) => {
-      let result = resultArg;
-      result.theta = Resolutor.compactTheta(resolution.theta, result.theta);
-      return result;
+    result = result.map((entryArg) => {
+      let entry = entryArg;
+      entry.theta = Resolutor.compactTheta(resolution.theta, entry.theta);
+      return entry;
     });
-    return queryResult;
+    return result;
   };
 };
 
@@ -181,7 +170,7 @@ Resolutor.query = function query(program, queryLiteralSet, actionsArg) {
     return result;
   }
 
-  return recursiveQueryRequest(program, queryLiteralSet, createRecursiveQuery(program, actions));
+  return recursiveQueryRequest(program, queryLiteralSet, createRecursiveQuery(program, actions),  actions);
 };
 
 Resolutor.reverseQuery = function query(program, clause, head, actions) {
