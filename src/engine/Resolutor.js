@@ -20,13 +20,12 @@ let recursiveQueryRequest = function recursiveQueryRequest(program, queryArg, re
   }
 
   if (actions.indexOf(queryArg.getId()) > -1) {
+    let actionArgs = queryArg.getArguments();
+    let theta = {};
     return [{
-      theta: {},
+      theta: theta,
       actions: [
-        {
-          action: queryArg.getName(),
-          arguments: queryArg.getArguments()
-        }
+        new Functor(queryArg.getName(), actionArgs)
       ]
     }];
   }
@@ -178,10 +177,7 @@ Resolutor.reverseQuery = function query(program, clause, head, actions) {
     return [{
       theta: {},
       actions: [
-        {
-          action: head.getName(),
-          arguments: head.getArguments()
-        }
+        new Functor(head.getName(), head.getArguments())
       ]
     }];
   }

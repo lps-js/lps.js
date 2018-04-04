@@ -309,8 +309,7 @@ function Engine(nodes) {
     factsWithFluents.forEach((fact) => {
       let activatedEvents = Resolutor.query(rulesWithFluents, fact, actions);
       activatedEvents.forEach((event) => {
-        let query = event.actions.map(x => new Functor(x.action, x.arguments));
-        activeEvents = activeEvents.concat(query);
+        activeEvents = activeEvents.concat(event.actions.map(f => f.substitute(event.theta)));
       });
     });
 
