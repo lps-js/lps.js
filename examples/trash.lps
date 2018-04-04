@@ -1,16 +1,16 @@
 % trash.lps
 maxTime(10).
 fluents([locked(_), trash(_), bin(_)]).
-action(dispose(_, _)).
-event(unlock(_)).
+action(dispose(X, Y, _)).
+action(unlock(_)).
 
 initially([locked(container1), trash(bottle1), bin(container1), bin(container2)]).
 
 observe(unlock(container1), 4, 5).
 
-trash(Object, T1) -> bin(Container, T1), dispose(Object, Container, T1, T3), T1 <= T2.
+trash(Object, T1) -> bin(Container, T1), dispose(Object, Container, _, T2).
 
 terminates(unlock(Container), locked(Container)).
-terminates(dispose(Object, _), trash(Object)).
+terminates(dispose(Object, X, Y), trash(Object)).
 
 <- dispose(_, Container), locked(Container).
