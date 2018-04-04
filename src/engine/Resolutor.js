@@ -261,14 +261,6 @@ Resolutor.resolve = function resolve(clause, fact, thetaArg) {
   });
 
   // perform head check
-  for (let i = 0; i < unresolvedBodyLiterals.length; i += 1) {
-    let literal = unresolvedBodyLiterals[i];
-    if (literal.isGround() && !literal.evaluate()) {
-      // nope this doesn't work out
-      return null;
-    }
-  }
-
   let newHead = _head.map(expressions => expressions.substitute(theta));
   theta = Resolutor.compactTheta(factVariableRenaming, theta);
   return {
@@ -310,14 +302,6 @@ Resolutor.resolveAction = function resolveAction(clause, action, thetaArg) {
   });
 
   // perform head check
-  for (let i = 0; i < unresolvedHeadLiterals.length; i += 1) {
-    let literal = unresolvedHeadLiterals[i];
-    if (literal.isGround() && !literal.evaluate()) {
-      // nope this doesn't work out
-      return null;
-    }
-  }
-
   let newBody = _body.map(expressions => expressions.substitute(theta));
   theta = Resolutor.compactTheta(actionVariableRenaming, theta);
   return {
