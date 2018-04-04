@@ -24,7 +24,7 @@ function Engine(nodes) {
   let _lastStepActions = [];
   let _lastStepObservations = [];
 
-  let timableSyntacticSugarProcessing = function timableSyntacticSugarProcessing(literalArg, timingVariableArg) {
+  let fluentSyntacticSugarProcessing = function fluentSyntacticSugarProcessing(literalArg, timingVariableArg) {
     let literal = literalArg;
     let timingVariable = timingVariableArg;
     if (timingVariable === undefined) {
@@ -40,7 +40,7 @@ function Engine(nodes) {
     return literal;
   };
 
-  let eventSyntacticSugarProcessing = function eventSyntacticSugarProcessing(literalArg) {
+  let actionSyntacticSugarProcessing = function actionSyntacticSugarProcessing(literalArg) {
     let literal = literalArg;
     let timingVariable1 = new Variable('T1');
     let timingVariable2 = new Variable('T2');
@@ -75,7 +75,7 @@ function Engine(nodes) {
     'fluent/1': (val) => {
       let fluent = val;
       try {
-        fluent = timableSyntacticSugarProcessing(fluent);
+        fluent = fluentSyntacticSugarProcessing(fluent);
       } catch (_) {
         throw new Error('Unexpected value "' + val.toString() + '" in fluent/1 argument');
       }
@@ -97,7 +97,7 @@ function Engine(nodes) {
     'action/1': (val) => {
       let literal = val;
       try {
-        literal = timableSyntacticSugarProcessing(literal);
+        literal = actionSyntacticSugarProcessing(literal);
       } catch (_) {
         throw new Error('Unexpected value "' + val.toString() + '" in action/1 argument');
       }
@@ -140,7 +140,7 @@ function Engine(nodes) {
         action = new Functor(action.evaluate(), []);
       }
 
-      action = timableSyntacticSugarProcessing(action);
+      action = actionSyntacticSugarProcessing(action);
 
       if (_actions[action.getId()] === undefined) {
         throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
@@ -152,7 +152,7 @@ function Engine(nodes) {
         throw new Error('When declaring a fluent terminator as a literal, the action must have the last argument as the time variable.');
       }
 
-      fluent = timableSyntacticSugarProcessing(fluent, lastArgument);
+      fluent = fluentSyntacticSugarProcessing(fluent, lastArgument);
 
       if (_fluents[fluent.getId()] === undefined) {
         throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
@@ -169,7 +169,7 @@ function Engine(nodes) {
         action = new Functor(action.evaluate(), []);
       }
 
-      action = timableSyntacticSugarProcessing(action);
+      action = actionSyntacticSugarProcessing(action);
 
       if (_actions[action.getId()] === undefined) {
         throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
@@ -181,7 +181,7 @@ function Engine(nodes) {
         throw new Error('When declaring a fluent initiator as a literal, the action must have the last argument as the time variable.');
       }
 
-      fluent = timableSyntacticSugarProcessing(fluent, lastArgument);
+      fluent = fluentSyntacticSugarProcessing(fluent, lastArgument);
 
       if (_fluents[fluent.getId()] === undefined) {
         throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
@@ -213,7 +213,7 @@ function Engine(nodes) {
       }
       let literal = action;
       try {
-        literal = timableSyntacticSugarProcessing(literal);
+        literal = actionSyntacticSugarProcessing(literal);
       } catch (_) {
         throw new Error('Invalid action value given for observe/3');
       }
@@ -300,13 +300,14 @@ function Engine(nodes) {
 
     let rulesWithFluents = _program.getRules();
     let programWithFluents = _program.getProgram();
+    let factsWithFluents = _program.getFacts();
     currentFluents.forEach((fluent) => {
       programWithFluents.push(new Clause([fluent], []));
       rulesWithFluents.push(new Clause([fluent], []));
     });
 
-    currentFluents.forEach((fluent) => {
-      let activatedEvents = Resolutor.query(rulesWithFluents, fluent, actions);
+    factsWithFluents.forEach((fact) => {
+      let activatedEvents = Resolutor.query(rulesWithFluents, fact, actions);
       activatedEvents.forEach((event) => {
         let query = event.actions.map(x => new Functor(x.action, x.arguments));
         activeEvents = activeEvents.concat(query);
