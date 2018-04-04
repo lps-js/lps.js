@@ -20,8 +20,10 @@ function Engine(nodes) {
   let _program = new Program(nodes);
 
   let _activeFluents = new LiteralTreeMap();
-  let lastStepActions = [];
   let _currentTime = 1;
+
+  let _lastStepActions = [];
+  let _lastStepObservations = [];
 
   let timableSyntacticSugarProcessing = function timableSyntacticSugarProcessing(literalArg, timingVariableArg) {
     let literal = literalArg;
@@ -290,14 +292,17 @@ function Engine(nodes) {
 
     let activeEvents = [];
     let activeActions = [];
+    let activeObservations = [];
 
     let terminated = [];
     let initiated = [];
 
     if (_observations[_currentTime] !== undefined) {
       // process observations
+      let theta = { $T: _currentTime };
       _observations[_currentTime].forEach((ob) => {
         let action = ob.action;
+        activeObservations.push(action.substitute(theta));
         let result = findFluentActors(action);
         terminated = terminated.concat(result.t);
         initiated = initiated.concat(result.i);
@@ -365,7 +370,7 @@ function Engine(nodes) {
       updatedState.add(fluent);
     });
 
-    lastStepActions = activeActions;
+    _lastStepActions = activeActions;
     return updatedState;
   };
 
@@ -374,7 +379,11 @@ function Engine(nodes) {
   };
 
   this.getLastStepActions = function getLastStepActions() {
-    return lastStepActions.map(action => action.toString());
+    return _lastStepActions.map(action => action.toString());
+  };
+
+  this.getLastStepObservations = function getLastStepObservations() {
+    return _lastStepObservations.map(action => action.toString());
   };
 
   this.getActiveFluents = function getActiveFluents() {
@@ -408,8 +417,9 @@ function Engine(nodes) {
       this.step();
 
       result.push({
-        activeFluents: this.getActiveFluents(),
-        actions: this.getLastStepActions()
+        fluents: this.getActiveFluents(),
+        actions: this.getLastStepActions(),
+        observations: this.getLastStepObservations()
       });
     }
     return result;
