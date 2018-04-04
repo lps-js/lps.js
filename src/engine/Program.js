@@ -5,12 +5,17 @@ const Value = require('./Value');
 const Variable = require('./Variable');
 const Resolutor = require('./Resolutor');
 
-let processBinaryOperator = function processBinaryOperator() {
-
+let processBinaryOperator = function processBinaryOperator(node) {
+  let operator = node.getToken().value;
+  return new Functor(operator, processArguments(node.getChildren()));
 };
 
-let processUnaryOperator = function processUnaryOperator() {
-
+let processUnaryOperator = function processUnaryOperator(node) {
+  let operator = node.getToken().value;
+  if (operator === 'not') {
+    operator = '!';
+  }
+  return new Functor(operator, processArguments(node.getChildren()));
 };
 
 let processArguments = function processArguments(nodes) {
