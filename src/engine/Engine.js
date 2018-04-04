@@ -11,7 +11,6 @@ function Engine(nodes) {
   let _maxTime = 20;
   let _fluents = {};
   let _actions = {};
-  let _events = [];
 
   let _terminators = [];
   let _initiators = [];
@@ -113,28 +112,6 @@ function Engine(nodes) {
           builtInProcessors['action/1'].apply(null, [literal]);
         } catch (_) {
           throw new Error('Unexpected value "' + literal.toString() + '" in actions/1 array argument');
-        }
-      });
-    },
-
-    'event/1': (val) => {
-      let event = val;
-      try {
-        event = eventSyntacticSugarProcessing(event);
-      } catch (_) {
-        throw new Error('Unexpected value "' + val.toString() + '" in event/1 argument');
-      }
-      _events.push(event.getId());
-    },
-    'events/1': (val) => {
-      if (!(val instanceof Array)) {
-        throw new Error('Value for events/1 expected to be an array.');
-      }
-      val.forEach((literal) => {
-        try {
-          builtInProcessors['event/1'].apply(null, [literal]);
-        } catch (_) {
-          throw new Error('Unexpected value "' + literal.toString() + '" in events/1 array argument');
         }
       });
     },
@@ -293,7 +270,6 @@ function Engine(nodes) {
   let performResolution = function performResolution(currentFluents) {
     let nextTime = _currentTime + 1;
 
-    let possibleEvents = [].concat(_events);
     let actions = Object.keys(_actions);
 
     let activeEvents = [];
@@ -322,13 +298,15 @@ function Engine(nodes) {
       });
     }
 
-    let rules = _program.getRules();
+    let rulesWithFluents = _program.getRules();
     let programWithFluents = _program.getProgram();
-
     currentFluents.forEach((fluent) => {
       programWithFluents.push(new Clause([fluent], []));
+      rulesWithFluents.push(new Clause([fluent], []));
+    });
 
-      let activatedEvents = Resolutor.query(rules, fluent, possibleEvents);
+    currentFluents.forEach((fluent) => {
+      let activatedEvents = Resolutor.query(rulesWithFluents, fluent, actions);
       activatedEvents.forEach((event) => {
         let query = event.actions.map(x => new Functor(x.action, x.arguments));
         activeEvents = activeEvents.concat(query);
@@ -393,6 +371,7 @@ function Engine(nodes) {
     });
 
     _lastStepActions = activeActions;
+    _lastStepObservations = activeObservations;
     return updatedState;
   };
 
