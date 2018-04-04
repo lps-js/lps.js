@@ -8,7 +8,7 @@ function Resolutor() {
 
 }
 
-let recursiveQueryRequest = function recursiveQueryRequest(program, queryArg, recursiveQuery) {
+let recursiveQueryRequest = function recursiveQueryRequest(program, queryArg, recursiveQuery, actions) {
   const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
   let builtInFunctors = new BuiltInFunctorProvider(program);
   if (builtInFunctors.has(queryArg.getId())) {
@@ -17,6 +17,18 @@ let recursiveQueryRequest = function recursiveQueryRequest(program, queryArg, re
       return [];
     }
     return null;
+  }
+
+  if (actions.indexOf(queryArg.getId()) > -1) {
+    return [{
+      theta: {},
+      actions: [
+        {
+          action: queryArg.getName(),
+          arguments: queryArg.getArguments()
+        }
+      ]
+    }];
   }
 
   let programWithoutClause = [];
@@ -43,18 +55,6 @@ let createRecursiveQuery = function createRecursiveQuery(program, actions) {
   // program.forEach((c) => console.log(c.toString()));
   // console.log('--');
   return (programWithoutClause, clause, queryArg) => {
-    if (actions.indexOf(queryArg.getId()) > -1) {
-      return [{
-        theta: {},
-        actions: [
-          {
-            action: queryArg.getName(),
-            arguments: queryArg.getArguments()
-          }
-        ]
-      }];
-    }
-
     if (clause.isFact()) { // we check the head literals for match
       let resolution = Resolutor.resolveAction(clause, queryArg);
       if (resolution === null) {
