@@ -247,14 +247,12 @@ function Engine(nodes) {
     _program.getFacts().forEach((fact) => {
       let id = fact.getId();
 
-      if (!builtInProcessors[id]) {
+      if (builtInProcessors[id] === undefined) {
         return;
       }
       builtInProcessors[id].apply(null, fact.getArguments());
     });
   };
-
-  processFacts();
 
   let findFluentActors = function findFluentActors(action) {
     let initiated = [];
@@ -423,6 +421,10 @@ function Engine(nodes) {
   this.reset = function reset() {
 
   };
+
+  // we preprocess some of the built-in processors by looking at the facts
+  // of the program.
+  processFacts();
 }
 
 module.exports = Engine;
