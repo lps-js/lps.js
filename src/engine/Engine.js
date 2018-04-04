@@ -316,8 +316,13 @@ function Engine(nodes) {
       });
     }
 
+    let rules = _program.getRules();
+    let programWithFluents = _program.getProgram();
+
     currentFluents.forEach((fluent) => {
-      let activatedEvents = Resolutor.query(_program.getRules(), null, fluent, possibleEvents);
+      programWithFluents.push(new Clause([fluent], []));
+
+      let activatedEvents = Resolutor.query(rules, fluent, possibleEvents);
       activatedEvents.forEach((event) => {
         let query = event.actions.map(x => new Functor(x.action, x.arguments));
         activeEvents = activeEvents.concat(query);
@@ -325,20 +330,31 @@ function Engine(nodes) {
     });
 
     activeEvents.forEach((event) => {
-      let strategies = Resolutor.reverseQuery(_program.getProgram(), null, event, actions);
-      strategies.forEach((strategy) => {
+      let strategies = Resolutor.reverseQuery(programWithFluents, null, event, actions);
+      let numStrategies = strategies.length;
+      for (let i = 0; i < numStrategies; i += 1) {
+        let strategy = strategies[i];
+        let isStrategyAccepted = true;
         strategy.actions.forEach((entry) => {
           // TODO: need to check for action constraints.
           let action = new Functor(entry.action, entry.arguments);
-          let result = findFluentActors(action);
-          if (result.i.length > 0 || result.t.length > 0) {
-            action = updateTimableFunctor(action, nextTime);
-            activeActions.push(action);
+          let actionConstraintCheck = Resolutor.query(programWithFluents, action, []);
+          if (actionConstraintCheck === null) {
+            isStrategyAccepted = false;
+            return;
           }
+          isStrategyAccepted = true;
+          let result = findFluentActors(action);
+          action = updateTimableFunctor(action, nextTime);
+          activeActions.push(action);
           terminated = terminated.concat(result.t);
           initiated = initiated.concat(result.i);
         });
-      });
+        if (isStrategyAccepted) {
+          return;
+        }
+      }
+      throw new Error('No strategy executed for an active event ' + event.toString() + ' at time ' + _currentTime);
     });
 
     let updatedState = new LiteralTreeMap();
