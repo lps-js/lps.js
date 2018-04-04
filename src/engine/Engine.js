@@ -217,7 +217,7 @@ function Engine(nodes) {
         throw new Error('Time given to observe/2 must be a value.');
       }
       try {
-        builtInProcessors['observe/3'].apply(null, [fluent, time, time]);
+        builtInProcessors['observe/3'].apply(null, [fluent, time, time + 1]);
       } catch (_) {
         throw new Error('Invalid fluent value given for observe/2.');
       }
