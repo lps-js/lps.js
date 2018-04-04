@@ -20,12 +20,13 @@ function LiteralTreeMap() {
       value = literal;
     }
 
-    let arguments = literal;
+    let args = literal;
 
-    let createIfNotExist = (node, subtree) => {
-      if (node._tree[subtree] === undefined) {
-        node._size += 1;
-        node._tree[subtree] = {
+    let createIfNotExist = (nArg, subtree) => {
+      let n = nArg;
+      if (n._tree[subtree] === undefined) {
+        n._size += 1;
+        n._tree[subtree] = {
           _size: 0,
           _tree: {}
         };
@@ -36,15 +37,15 @@ function LiteralTreeMap() {
       createIfNotExist(node, literal.getName());
       node = node._tree[literal.getName()];
 
-      arguments = literal.getArguments();
+      args = literal.getArguments();
     }
 
-    createIfNotExist(node, arguments.length);
-    node = node._tree[arguments.length];
+    createIfNotExist(node, args.length);
+    node = node._tree[args.length];
 
     let representative = Symbol();
 
-    arguments.forEach((arg, idx) => {
+    args.forEach((arg, idx) => {
       let nodeRep = null;
       if (!(arg instanceof Value) && !(arg instanceof Variable)) {
         // use another tree to index this argument
@@ -62,7 +63,7 @@ function LiteralTreeMap() {
       } else {
         nodeRep = arg.evaluate();
       }
-      if (idx == arguments.length - 1) {
+      if (idx === args.length - 1) {
         node._size += 1;
         node._tree[nodeRep] = value;
         return;
@@ -76,16 +77,16 @@ function LiteralTreeMap() {
   };
 
   let buildGetIndexPath = function buildGetIndexPath(literal) {
-    let arguments = literal;
+    let args = literal;
     let path = [];
     if (literal instanceof Functor) {
       path.push(literal.getName());
-      arguments = literal.getArguments();
+      args = literal.getArguments();
     }
-    path.push(arguments.length);
+    path.push(args.length);
 
-    for (let i = 0; i < arguments.length; ++i) {
-      let arg = arguments[i];
+    for (let i = 0; i < args.length; i += 1) {
+      let arg = args[i];
       let nodeRep = null;
       if (!(arg instanceof Value) && !(arg instanceof Variable)) {
         // use another tree to index this argument
@@ -169,7 +170,8 @@ function LiteralTreeMap() {
     }
 
     let lastPathIndex = path.length - 1;
-    let recursiveRemove = (node, i) => {
+    let recursiveRemove = (nodeArg, i) => {
+      let node = nodeArg;
       if (i >= path.length) {
         return false;
       }
@@ -223,7 +225,7 @@ function LiteralTreeMap() {
         return;
       }
       let indices = Object.getOwnPropertySymbols(node._tree)
-                  .concat(Object.getOwnPropertyNames(node._tree));
+        .concat(Object.getOwnPropertyNames(node._tree));
       indices.forEach((key) => {
         recursiveBuild(node._tree[key]);
       });
@@ -235,16 +237,16 @@ function LiteralTreeMap() {
   this.forEach = function forEach(callback) {
     let recursiveTraverse = (node) => {
       if (node instanceof Functor || node instanceof Array) {
-        callback(node)
+        callback(node);
         return;
       }
       let indices = Object.getOwnPropertySymbols(node._tree)
-                  .concat(Object.getOwnPropertyNames(node._tree));
+        .concat(Object.getOwnPropertyNames(node._tree));
       indices.forEach((key) => {
         recursiveTraverse(node._tree[key]);
       });
     };
-    recursiveTraverse(_root);;
+    recursiveTraverse(_root);
   };
 }
 
