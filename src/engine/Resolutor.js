@@ -8,6 +8,120 @@ function Resolutor() {
 
 }
 
+let recursiveQueryRequest = function recursiveQueryRequest(program, queryArg, recursiveQuery) {
+  const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
+  let builtInFunctors = new BuiltInFunctorProvider(program);
+  if (builtInFunctors.has(queryArg.getId())) {
+    let result = builtInFunctors.execute(queryArg.getId(), queryArg.getArguments());
+    if (result) {
+      return [];
+    }
+    return null;
+  }
+
+  let programWithoutClause = [];
+  for (let i = 0; i < program.length; i += 1) {
+    let clause = program[i];
+    programWithoutClause.push(program.filter(c => c !== clause));
+  }
+  let result = [];
+  for (let i = 0; i < program.length; i += 1) {
+    let clause = program[i];
+    let queryResult = recursiveQuery(programWithoutClause[i], clause, queryArg);
+    if (queryResult === null && clause.isConstraint()) {
+      return null;
+    }
+    if (queryResult !== null) {
+      result = result.concat(queryResult);
+    }
+  }
+  return result;
+};
+
+let createRecursiveQuery = function createRecursiveQuery(program, actions) {
+  // console.log('--');
+  // program.forEach((c) => console.log(c.toString()));
+  // console.log('--');
+  return (programWithoutClause, clause, queryArg) => {
+    if (actions.indexOf(queryArg.getId()) > -1) {
+      return [{
+        theta: {},
+        actions: [
+          {
+            action: queryArg.getName(),
+            arguments: queryArg.getArguments()
+          }
+        ]
+      }];
+    }
+
+    if (clause.isFact()) { // we check the head literals for match
+      let resolution = Resolutor.resolveAction(clause, queryArg);
+      if (resolution === null) {
+        return [];
+      }
+      return [{ theta: resolution.theta, actions: [] }];
+    }
+
+    let resolution = Resolutor.resolve(clause, queryArg);
+    if (resolution === null) {
+      return [];
+    }
+
+    if (clause.isConstraint()) {
+      let bodyLiterals = resolution.clause.getBodyLiterals();
+      let constraintQueryResult = Resolutor.query(programWithoutClause, bodyLiterals, actions);
+      if (constraintQueryResult === null) {
+        return [];
+      }
+      return null;
+    }
+
+    if (!resolution.clause.isFact()) {
+      let bodyLiterals = resolution.clause.getBodyLiterals();
+      // we need a program without the current clause otherwise we'll
+      // end up in an infinite loop.
+
+      if (Resolutor.query(programWithoutClause, bodyLiterals, actions) === null) {
+        return null;
+      }
+    }
+
+    let headLiteralSet = resolution.clause.getHeadLiterals();
+    let headLiteral = headLiteralSet[0];
+
+    if (actions !== undefined && actions.indexOf(headLiteral.getId()) > -1) {
+      return [{
+        theta: resolution.theta,
+        actions: [
+          {
+            action: headLiteral.getName(),
+            arguments: headLiteral.getArguments()
+          }
+        ]
+      }];
+    }
+
+    let queryResult = Resolutor.query(program, headLiteral, actions);
+    if (queryResult === null || queryResult.length === 0) {
+      // possible but not proven yet
+      return [];
+    }
+    queryResult = queryResult.map((resultArg) => {
+      let result = resultArg;
+      result.theta = Resolutor.compactTheta(resolution.theta, result.theta);
+      return result;
+    });
+    return queryResult;
+  };
+};
+
+
+let createRecursiveReverseQuery = function createRecursiveReverseQuery(program, actions) {
+  return (programWithoutClause, clause, queryArg) => {
+  };
+};
+
 Resolutor.compactTheta = function compactTheta(theta1, theta2) {
   let theta = {};
   Object.keys(theta1).forEach((key) => {
@@ -24,13 +138,25 @@ Resolutor.compactTheta = function compactTheta(theta1, theta2) {
   return theta;
 };
 
-Resolutor.query = function query(program, clause, queryArg, actions) {
-  if (queryArg instanceof Array) {
+Resolutor.query = function query(program, queryLiteralSet, actionsArg) {
+  let actions = actionsArg;
+  if (actions === undefined) {
+    actions = [];
+  }
+
+  if (queryLiteralSet instanceof Array) {
+    // console.log('SET: ');
+    //queryLiteralSet.forEach(c => console.log('' + c))
     let result = [];
-    for (let i = 0; i < queryArg.length; i += 1) {
-      let literal = queryArg[i];
-      let queryResult = Resolutor.query(program, clause, literal, actions);
-      if (result === null) {
+    for (let i = 0; i < queryLiteralSet.length; i += 1) {
+      let literal = queryLiteralSet[i];
+      let queryResult = Resolutor.query(program, literal, actions);
+      // console.log(literal + ' ');
+      // console.log(queryResult);
+      if (queryResult === null) {
+        // console.log('---')
+        // program.forEach(c => console.log('' + c))
+        // console.log(literal + ' nope');
         return null;
       }
 
@@ -55,76 +181,7 @@ Resolutor.query = function query(program, clause, queryArg, actions) {
     return result;
   }
 
-  if (clause === null) {
-    let result = [];
-    for (let i = 0; i < program.length; i += 1) {
-      let programClause = program[i];
-      let queryResult = Resolutor.query(program, programClause, queryArg, actions);
-      if (queryResult !== null) {
-        result = result.concat(queryResult);
-      }
-    }
-    return result;
-  }
-
-  if (actions !== undefined && queryArg instanceof Functor
-      && actions.indexOf(queryArg.getId()) > -1) {
-    return [{
-      theta: {},
-      actions: [
-        {
-          action: queryArg.getName(),
-          arguments: queryArg.getArguments()
-        }
-      ]
-    }];
-  }
-
-  if (clause.isFact()) { // we check the head literals for match
-    let resolution = Resolutor.resolveAction(clause, queryArg);
-    if (resolution === null) {
-      return null;
-    }
-    return [{ theta: resolution.theta, actions: [] }];
-  }
-
-  let resolution = Resolutor.resolve(clause, queryArg);
-  if (resolution === null) {
-    return null;
-  }
-  if (!resolution.clause.isFact()) {
-    let bodyLiterals = resolution.clause.getBodyLiterals();
-    // we need a program without the current clause otherwise we'll
-    // end up in an infinite loop.
-    let programP = program.filter(c => c !== clause);
-    if (Resolutor.query(programP, null, bodyLiterals, actions) === null) {
-      return null;
-    }
-  }
-  let headLiteral = resolution.clause.getHeadLiterals()[0];
-
-  if (actions !== undefined && actions.indexOf(headLiteral.getId()) > -1) {
-    return [{
-      theta: resolution.theta,
-      actions: [
-        {
-          action: headLiteral.getName(),
-          arguments: headLiteral.getArguments()
-        }
-      ]
-    }];
-  }
-  let queryResult = Resolutor.query(program, null, headLiteral, actions);
-  if (queryResult === null || queryResult.length === 0) {
-    // possible but not proven yet
-    return null;
-  }
-  queryResult = queryResult.map((resultArg) => {
-    let result = resultArg;
-    result.theta = Resolutor.compactTheta(resolution.theta, result.theta);
-    return result;
-  });
-  return queryResult;
+  return recursiveQueryRequest(program, queryLiteralSet, createRecursiveQuery(program, actions));
 };
 
 Resolutor.reverseQuery = function query(program, clause, head, actions) {
@@ -144,16 +201,15 @@ Resolutor.reverseQuery = function query(program, clause, head, actions) {
     for (let i = 0; i < program.length; i += 1) {
       let programClause = program[i];
       let queryResult = Resolutor.reverseQuery(program, programClause, head, actions);
-      if (queryResult === null) {
-        return null;
+      if (queryResult !== null) {
+        result = result.concat(queryResult);
       }
-      result = result.concat(queryResult);
     }
     return result;
   }
 
-  if (clause.isFact()) {
-    // not interested in facts.
+  if (clause.isFact() || clause.isConstraint()) {
+    // not interested in facts or queries
     return null;
   }
 
@@ -162,7 +218,6 @@ Resolutor.reverseQuery = function query(program, clause, head, actions) {
     return null;
   }
   if (resolution.clause.getHeadLiteralsCount() > 0) {
-    console.log('test');
     return null;
   }
 
