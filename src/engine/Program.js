@@ -103,6 +103,8 @@ let processClauses = function processClauses(rootNode, properties) {
       // single fact
       processFactClause(children[0].getChildren()).forEach((fact) => {
         properties.facts.push(fact);
+        properties.program.push(new Clause([fact], []));
+        properties.rules.push(new Clause([fact], []));
       });
       return;
     }
