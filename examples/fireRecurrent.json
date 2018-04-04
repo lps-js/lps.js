@@ -1,0 +1,118 @@
+[
+  {
+    "time": 1,
+    "activeFluents": [
+      "water(1)"
+    ]
+  },
+  {
+    "time": 2,
+    "fluents": [
+      "water(2)",
+      "fire(2)"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 3,
+    "fluents": [
+      
+    ],
+    "actions": [
+      "eliminate(2, 3)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 4,
+    "fluents": [
+      
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 5,
+    "fluents": [
+      "fire(5)"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 6,
+    "fluents": [
+      "fire(6)"
+    ],
+    "actions": [
+      "escape(5, 6)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 7,
+    "fluents": [
+      "fire(7)"
+    ],
+    "actions": [
+      "escape(6, 7)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 8,
+    "fluents": [
+      "fire(8)",
+      "water(8)"
+    ],
+    "actions": [
+      "escape(7, 8)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 9,
+    "fluents": [
+      
+    ],
+    "actions": [
+      "eliminate(8, 9)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 10,
+    "fluents": [
+      
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "time": 1,
+    "activeFluents": [
+      "fire(1)"
+    ]
+  },
+  {
+    "time": 2,
+    "fluents": [
+      
+    ],
+    "actions": [
+      "eliminate(1, 2)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 3,
+    "fluents": [
+      
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 4,
+    "fluents": [
+      
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 5,
+    "fluents": [
+      
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  }
+]
