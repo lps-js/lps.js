@@ -201,15 +201,15 @@ function Program(tree) {
   _facts = getProgramInterpretation(_facts, _program);
 
   this.getFacts = function getFacts() {
-    return _facts;
+    return _facts.map(x => x);
   };
 
   this.getProgram = function getProgram() {
-    return _program;
+    return _program.map(x => x);
   };
 
   this.getRules = function getRules() {
-    return _rules;
+    return _rules.map(x => x);
   };
 }
 
