@@ -15,7 +15,7 @@
       
     ],
     "observations": [
-      
+      "ignite(\"sofa\", 1, $T2)"
     ]
   },
   {
@@ -24,7 +24,7 @@
       
     ],
     "actions": [
-      "eliminate(2, 3)"
+      "eliminate(2, T2)"
     ],
     "observations": [
       
@@ -51,7 +51,7 @@
       
     ],
     "observations": [
-      
+      "ignite(\"bed\", 4, $T2)"
     ]
   },
   {
@@ -60,7 +60,7 @@
       "fire(6)"
     ],
     "actions": [
-      "escape(5, 6)"
+      "escape(5, T2)"
     ],
     "observations": [
       
@@ -72,7 +72,7 @@
       "fire(7)"
     ],
     "actions": [
-      "escape(6, 7)"
+      "escape(6, T2)"
     ],
     "observations": [
       
@@ -85,34 +85,34 @@
       "water(8)"
     ],
     "actions": [
-      "escape(7, 8)"
+      "escape(7, T2)"
     ],
     "observations": [
-      
+      "refill(7, $T2)"
     ]
   },
   {
     "time": 9,
     "fluents": [
-      
+      "water(9)"
     ],
     "actions": [
-      "eliminate(8, 9)"
+      "eliminate(8, T2)"
     ],
     "observations": [
-      
+      "refill(8, $T2)"
     ]
   },
   {
     "time": 10,
     "fluents": [
-      
+      "water(10)"
     ],
     "actions": [
       
     ],
     "observations": [
-      
+      "refill(9, $T2)"
     ]
   }
 ]

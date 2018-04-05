@@ -1,0 +1,23 @@
+[
+  {
+    "time": 1,
+    "activeFluents": [
+      
+    ]
+  },
+  {
+    "time": 2,
+    "fluents": [
+      
+    ],
+    "actions": [
+      "paint(\"uz\", \"blue\", T1, T2)",
+      "paint(\"az\", \"blue\", T1, T2)",
+      "paint(\"oz\", \"yellow\", T1, T2)",
+      "paint(\"iz\", \"red\", T1, T2)"
+    ],
+    "observations": [
+      
+    ]
+  }
+]

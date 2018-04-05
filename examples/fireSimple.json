@@ -11,7 +11,7 @@
       
     ],
     "actions": [
-      "eliminate(1, 2)"
+      "eliminate(1, T2)"
     ],
     "observations": [
       
