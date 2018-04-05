@@ -298,8 +298,11 @@ function LiteralTreeMap() {
       existingTheta = {};
     }
 
+    if (!(literal instanceof Functor) || !(literal instanceof Array)) {
+      throw new Error('');
+    }
+
     let path = flattenLiteral(literal);
-    //console.log(path);
 
     let recursiveUnification = (node, i, thetaArg) => {
       let theta = thetaArg;
@@ -346,19 +349,23 @@ function LiteralTreeMap() {
         }
       }
 
+      // the case of simple values
       if (current instanceof Value) {
         let value = current.evaluate();
         unifyForValue(value);
         return result;
       }
 
+      // the case of variables
       if (current instanceof Variable) {
         let varName = current.evaluate();
+
         if (theta[varName] !== undefined) {
           // a replacement for the current value exists
           unifyForValue(theta[varName].evaluate());
           return result;
         }
+
         node.indices().forEach((value) => {
           cloneTheta();
           if (value === _variableSymbol) {
@@ -384,6 +391,7 @@ function LiteralTreeMap() {
         return result;
       }
 
+      // the case of complex terms
       if (current instanceof Functor || current instanceof Array) {
         if (node._tree[_variableSymbol] !== undefined) {
           cloneTheta();
