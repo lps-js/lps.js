@@ -2,11 +2,39 @@ const Functor = require('./Functor');
 const Value = require('./Value');
 const Variable = require('./Variable');
 
+function __TreeNode(size, tree) {
+  this._size = size;
+  this._tree = tree;
+
+  if (this._size === undefined) {
+    this._size = 0;
+  }
+
+  if (this._tree === undefined) {
+    this._tree = {};
+  }
+
+  this.clone = function() {
+    let clone = new __TreeNode(size, {});
+    let indices = this.indices();
+    indices.forEach((index) => {
+      if (this._tree[index] instanceof __TreeNode) {
+        clone._tree[index] = this._tree[index].clone();
+        return ;
+      }
+      clone._tree[index] = deepCopy(this._tree[index]);
+    });
+  }
+
+  this.indices = function indices() {
+    let indices = Object.getOwnPropertySymbols(this._tree)
+      .concat(Object.getOwnPropertyNames(this._tree));
+    return indices;
+  }
+}
+
 function LiteralTreeMap() {
-  let _root = {
-    _size: 0,
-    _tree: {}
-  };
+  let _root = new __TreeNode();
   let _count = 0;
   let _variableSymbol = Symbol();
 
@@ -26,10 +54,7 @@ function LiteralTreeMap() {
       let n = nArg;
       if (n._tree[subtree] === undefined) {
         n._size += 1;
-        n._tree[subtree] = {
-          _size: 0,
-          _tree: {}
-        };
+        n._tree[subtree] = new __TreeNode();
       }
     };
 
