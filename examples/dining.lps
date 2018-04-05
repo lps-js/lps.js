@@ -1,0 +1,40 @@
+maxTime(7).
+fluents(available(_)).
+actions([pickup(_, _), putdown(_, _)]).
+
+initially([available(fork1),
+		available(fork2),
+		available(fork3),
+		available(fork4),
+		available(fork5)]).
+
+philosopher(socrates).
+philosopher(plato).
+philosopher(aristotle).
+philosopher(hume).
+philosopher(kant).
+
+adjacent(fork1, socrates, fork2).
+adjacent(fork2, plato, fork3).
+adjacent(fork3, aristotle, fork4).
+adjacent(fork4, hume, fork5).
+adjacent(fork5, kant, fork1).
+
+philosopher(P) -> dine(P, T1, T2).
+
+dine(P, T1, T3) from T1 to T3	<-
+	adjacent(F1, P, F2),
+	pickup(P, F1, T1, T2),
+	pickup(P, F2, T1, T2),
+	putdown(P, F1, T2, T3),
+	putdown(P, F2, T2, T3).
+
+terminates(pickup(P, F), available(F)).
+initiates(putdown(P, F), available(F)).
+
+<-	pickup(P, F), not available(F).
+<-	pickup(P1, F), pickup(P2, F), P1 != P2.
+
+/** <examples>
+?- go(Timeline).
+*/
