@@ -249,8 +249,7 @@ function LiteralTreeMap() {
         result.push(node);
         return;
       }
-      let indices = Object.getOwnPropertySymbols(node._tree)
-        .concat(Object.getOwnPropertyNames(node._tree));
+      let indices = node.indices();
       indices.forEach((key) => {
         recursiveBuild(node._tree[key]);
       });
@@ -265,8 +264,7 @@ function LiteralTreeMap() {
         callback(node);
         return;
       }
-      let indices = Object.getOwnPropertySymbols(node._tree)
-        .concat(Object.getOwnPropertyNames(node._tree));
+      let indices = node.indices();
       indices.forEach((key) => {
         recursiveTraverse(node._tree[key]);
       });
