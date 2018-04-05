@@ -48,7 +48,8 @@ function LiteralTreeMap() {
   let _variableSymbol = Symbol();
 
   // only create an argument tree when needed otherwise we incur infinite loop
-  let _argumentTree = null;
+  let _argumentTreeSymbol = null;
+  let _argumentClauses = {};
 
   this.add = function add(literal, valueArg) {
     let node = _root;
@@ -77,20 +78,19 @@ function LiteralTreeMap() {
     createIfNotExist(node, args.length);
     node = node._tree[args.length];
 
-    let representative = Symbol();
-
     args.forEach((arg, idx) => {
       let nodeRep = null;
       if (!(arg instanceof Value) && !(arg instanceof Variable)) {
         // use another tree to index this argument
-        if (_argumentTree === null) {
-          _argumentTree = new LiteralTreeMap();
+        if (_argumentTreeSymbol === null) {
+          _argumentTreeSymbol = new LiteralTreeMap();
         } else {
-          nodeRep = _argumentTree.get(arg);
+          nodeRep = _argumentTreeSymbol.get(arg);
         }
         if (nodeRep === null) {
           nodeRep = Symbol();
-          _argumentTree.add(arg, nodeRep);
+          _argumentClauses[nodeRep] = arg;
+          _argumentTreeSymbol.add(arg, nodeRep);
         }
       } else if (arg instanceof Variable) {
         nodeRep = _variableSymbol;
@@ -107,7 +107,6 @@ function LiteralTreeMap() {
       node = node._tree[nodeRep];
     });
     _count += 1;
-    return representative;
   };
 
   let buildGetIndexPath = function buildGetIndexPath(literal) {
@@ -124,11 +123,11 @@ function LiteralTreeMap() {
       let nodeRep = null;
       if (!(arg instanceof Value) && !(arg instanceof Variable)) {
         // use another tree to index this argument
-        if (_argumentTree === null) {
+        if (_argumentTreeSymbol === null) {
           return null;
         }
 
-        nodeRep = _argumentTree.get(arg);
+        nodeRep = _argumentTreeSymbol.get(arg);
         if (!nodeRep) {
           return null;
         }
@@ -243,7 +242,7 @@ function LiteralTreeMap() {
       _tree: {}
     };
     _count = 0;
-    _argumentTree = null;
+    _argumentTreeSymbol = null;
   };
 
   this.size = function size() {
@@ -286,10 +285,12 @@ function LiteralTreeMap() {
       return (tree) => {
         _count = tree.count;
         _root = tree.root.clone();
-        _argumentTree = null;
+        _argumentTreeSymbol = null;
+        _argumentClauses = null;
         _variableSymbol = tree.variableSymbol;
         if (tree.argumentTree !== null) {
-          _argumentTree = tree.argumentTree.clone();
+          _argumentTreeSymbol = tree.argumentTree.clone();
+          _argumentClauses = tree.argumentClauses.map(x => x);
         }
       }
     }
@@ -299,7 +300,8 @@ function LiteralTreeMap() {
       root: _root,
       count: _count,
       variableSymbol: _variableSymbol,
-      argumentTree: _argumentTree
+      argumentTree: _argumentTreeSymbol,
+      argumentClauses: _argumentClauses
     });
     return clone;
   };
