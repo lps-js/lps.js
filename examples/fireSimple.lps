@@ -1,7 +1,7 @@
 maxTime(5).
 fluent(fire).
-actions([eliminate(_), escape(_)]).
-action(deal_with_fire(_)).
+actions([eliminate, escape]).
+action(deal_with_fire).
 
 initially(fire).
 
@@ -10,4 +10,4 @@ fire(T1) -> deal_with_fire(T1, T2).
 deal_with_fire(T1, T2) <- eliminate(T1, T2).
 deal_with_fire(T1, T2) <- escape(T1, T2).
 
-terminates(eliminate(T1), fire).
+terminates(eliminate, fire).
