@@ -50,10 +50,15 @@ function BuiltInFunctorProvider(context) {
     },
 
     '<=/2': (v1, v2) => {
-      console.log('HELLLO')
       assertIsValue(v1);
       assertIsValue(v2);
       return v1.evaluate() <= v2.evaluate();
+    },
+
+    '!=/2': (v1, v2) => {
+      assertIsValue(v1);
+      assertIsValue(v2);
+      return v1.evaluate() != v2.evaluate();
     },
 
     '!/1': (literal) => {
