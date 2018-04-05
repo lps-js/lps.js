@@ -109,6 +109,18 @@ function LiteralTreeMap() {
     _count += 1;
   };
 
+  let flattenLiteral = function flattenLiteral(literal) {
+    let args = literal;
+    let result = [];
+    if (literal instanceof Functor) {
+      result.push(literal.getName());
+      args = literal.getArguments();
+    }
+    result.push(args.length);
+    result = result.concat(args);
+    return result
+  };
+
   let buildGetIndexPath = function buildGetIndexPath(literal) {
     let args = literal;
     let path = [];
