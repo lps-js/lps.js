@@ -2,6 +2,15 @@ const Functor = require('./Functor');
 const Value = require('./Value');
 const Variable = require('./Variable');
 
+function __TreeLoaderType() {}
+
+function deepCopy(obj) {
+  if (obj instanceof Array) {
+    return obj.map(x => deepCopy(x));
+  }
+  return obj;
+}
+
 function __TreeNode(size, tree) {
   this._size = size;
   this._tree = tree;
@@ -270,6 +279,29 @@ function LiteralTreeMap() {
       });
     };
     recursiveTraverse(_root);
+  };
+
+  this.clone = function clone() {
+    if (this instanceof __TreeLoaderType) {
+      return (tree) => {
+        _count = tree.count;
+        _root = tree.root.clone();
+        _argumentTree = null;
+        _variableSymbol = tree.variableSymbol;
+        if (tree.argumentTree !== null) {
+          _argumentTree = tree.argumentTree.clone();
+        }
+      }
+    }
+    let clone = new LiteralTreeMap()
+    let loader = clone.clone.call(new __TreeLoaderType());
+    loader({
+      root: _root,
+      count: _count,
+      variableSymbol: _variableSymbol,
+      argumentTree: _argumentTree
+    });
+    return clone;
   };
 }
 
