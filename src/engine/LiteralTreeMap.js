@@ -292,6 +292,128 @@ function LiteralTreeMap() {
     recursiveTraverse(_root);
   };
 
+  this.unifies = function unifies(literal, existingThetaArg) {
+    let existingTheta = existingThetaArg;
+    if (existingTheta === undefined) {
+      existingTheta = {};
+    }
+
+    let path = flattenLiteral(literal);
+    //console.log(path);
+
+    let recursiveUnification = (node, i, thetaArg) => {
+      let theta = thetaArg;
+      if (i >= path.length) {
+        return [ {theta: theta, leaf: node } ];
+      }
+
+      // make a copy of theta in case back tracking
+      let newTheta;
+      let result = [];
+      let subResult;
+      let specialVariableName = '$_' + i;
+
+      let current = path[i];
+      let currentType = typeof current;
+      if (currentType === 'string' || currentType === 'number') {
+        if (node._tree[current] === undefined) {
+          return [];
+        }
+        return recursiveUnification(node._tree[current], i + 1, theta);;
+      }
+
+      let cloneTheta = () => {
+        newTheta = {};
+        Object.keys(theta).forEach((key) => {
+          newTheta[key] = theta[key];
+        });
+      };
+
+      let unifyForValue = (value) => {
+        if (node._tree[_variableSymbol] === undefined
+            && node._tree[value] === undefined) {
+          return [];
+        }
+        if (node._tree[_variableSymbol] !== undefined) {
+          cloneTheta();
+          newTheta[specialVariableName] = current;
+          subResult = recursiveUnification(node._tree[_variableSymbol], i + 1, newTheta);
+          result = result.concat(subResult);
+        }
+        if (node._tree[value] !== undefined) {
+          subResult = recursiveUnification(node._tree[value], i + 1, theta);
+          result = result.concat(subResult);
+        }
+      }
+
+      if (current instanceof Value) {
+        let value = current.evaluate();
+        unifyForValue(value);
+        return result;
+      }
+
+      if (current instanceof Variable) {
+        let varName = current.evaluate();
+        if (theta[varName] !== undefined) {
+          // a replacement for the current value exists
+          unifyForValue(theta[varName].evaluate());
+          return result;
+        }
+        node.indices().forEach((value) => {
+          cloneTheta();
+          if (value === _variableSymbol) {
+            newTheta[varName] = new Variable(specialVariableName);
+            subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+            result = result.concat(subResult);
+            return;
+          }
+
+          // value is a functor or list
+          if (typeof value === 'symbol') {
+            let term = _argumentClauses[value];
+            newTheta[varName] = term;
+            subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+            result = result.concat(subResult);
+            return;
+          }
+
+          newTheta[varName] = new Value(value);
+          subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+          result = result.concat(subResult);
+        });
+        return result;
+      }
+
+      if (current instanceof Functor || current instanceof Array) {
+        if (node._tree[_variableSymbol] !== undefined) {
+          cloneTheta();
+          newTheta[specialVariableName] = current;
+          subResult = recursiveUnification(node._tree[_variableSymbol], i + 1, newTheta);
+          result = result.concat(subResult);
+        }
+        // some matching functors!
+        if (_argumentTreeSymbol !== null) {
+          // pass existing theta
+          subResult = _argumentTreeSymbol.unifies(current, theta);
+          subResult.forEach((entry) => {
+            cloneTheta();
+
+            // combine theta
+            Object.keys(entry.theta).forEach((k) => {
+              newTheta[k] = entry.theta[k];
+            });
+            subResult = recursiveUnification(node._tree[entry.leaf], i + 1, newTheta);
+            result = result.concat(subResult);
+          });
+        }
+        return result;
+      }
+
+      return result;
+    };
+    return recursiveUnification(_root, 0, existingTheta);
+  };
+
   this.clone = function clone() {
     if (this instanceof __TreeLoaderType) {
       return (tree) => {
