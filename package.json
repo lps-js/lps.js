@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nyc mocha \"test/**/*.test.js\"",
+    "test": "nyc --all mocha \"test/**/*.test.js\"",
     "lint": "eslint test src"
   },
   "author": "",
