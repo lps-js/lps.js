@@ -38,6 +38,7 @@ let recursiveQueryRequest = function recursiveQueryRequest(program, queryArg, re
   let result = [];
   for (let i = 0; i < program.length; i += 1) {
     let clause = program[i];
+
     let queryResult = recursiveQuery(programWithoutClause[i], clause, queryArg);
     if (queryResult === null && clause.isConstraint()) {
       return null;
@@ -69,6 +70,7 @@ let createRecursiveQuery = function createRecursiveQuery(program, actions) {
 
     if (clause.isConstraint()) {
       let bodyLiterals = resolution.clause.getBodyLiterals();
+      // program without the clause itself must be used to ensure termination
       let constraintQueryResult = Resolutor.query(programWithoutClause, bodyLiterals, actions);
       if (constraintQueryResult === null) {
         return [];
@@ -86,20 +88,13 @@ let createRecursiveQuery = function createRecursiveQuery(program, actions) {
     }
 
     let headLiteralSet = resolution.clause.getHeadLiterals();
-
-    let result = [];
-    for (let i = 0; i < headLiteralSet.length; i += 1) {
-      let literal = headLiteralSet[i];
-      let queryResult = Resolutor.query(program, literal, actions);
-      if (queryResult !== null) {
-        result = result.concat(queryResult);
-      }
-    }
+    let result = Resolutor.query(program, headLiteralSet, actions);
     result = result.map((entryArg) => {
       let entry = entryArg;
       entry.theta = Resolutor.compactTheta(resolution.theta, entry.theta);
       return entry;
     });
+
     return result;
   };
 };
