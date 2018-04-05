@@ -128,37 +128,34 @@ Resolutor.query = function query(program, queryLiteralSet, actionsArg) {
   }
 
   if (queryLiteralSet instanceof Array) {
-    // console.log('SET: ');
-    //queryLiteralSet.forEach(c => console.log('' + c))
     let result = [];
-    for (let i = 0; i < queryLiteralSet.length; i += 1) {
+    let queryResult = Resolutor.query(program, queryLiteralSet[0], actions);
+    if (queryResult === null) {
+      return null;
+    }
+    result = result.concat(queryResult);
+
+    for (let i = 1; i < queryLiteralSet.length; i += 1) {
       let literal = queryLiteralSet[i];
-      let queryResult = Resolutor.query(program, literal, actions);
-      // console.log(literal + ' ');
-      // console.log(queryResult);
-      if (queryResult === null) {
-        // console.log('---')
-        // program.forEach(c => console.log('' + c))
-        // console.log(literal + ' nope');
-        return null;
-      }
-
-      if (result.length === 0) {
-        result = result.concat(queryResult);
-        continue;
-      }
-
       let newResult = [];
-      result.forEach((r) => {
+      for (let j = 0; j < result.length; ++j) {
+        let entry = result[j];
+        let substitutedLiteral = literal.substitute(entry.theta);
+
+        queryResult = Resolutor.query(program, substitutedLiteral, actions);
+        if (queryResult === null) {
+          return null;
+        }
+
         queryResult.forEach((q) => {
-          let rtheta = r.theta;
-          rtheta = Resolutor.compactTheta(r.theta, q.theta);
+          let rtheta = entry.theta;
+          rtheta = Resolutor.compactTheta(entry.theta, q.theta);
           newResult.push({
             theta: rtheta,
-            actions: r.actions.concat(q.actions)
+            actions: entry.actions.concat(q.actions)
           });
         });
-      });
+      }
       result = newResult;
     }
     return result;
