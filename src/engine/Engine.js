@@ -42,8 +42,8 @@ function Engine(nodes) {
 
   let actionSyntacticSugarProcessing = function actionSyntacticSugarProcessing(literalArg) {
     let literal = literalArg;
-    let timingVariable1 = new Variable('T1');
-    let timingVariable2 = new Variable('T2');
+    let timingVariable1 = new Variable('$T1');
+    let timingVariable2 = new Variable('$T2');
     let additionalArguments = [
       timingVariable1,
       timingVariable2
@@ -267,27 +267,106 @@ function Engine(nodes) {
     };
   };
 
+  let recursiveStrategyFinder = function recursiveStrategyFinder(activeEvents, actions, idx, program, newClausesSoFar) {
+    if (idx >= activeEvents.length) {
+      return {
+        terminated: [],
+        initiated: [],
+        activeActions: []
+      };
+    }
+
+    let eventSet = activeEvents[idx];
+    let strategies = [];
+    let programSoFar = program.concat(newClausesSoFar);
+
+    for (let k = 0; k < eventSet.length; k += 1) {
+      let entry = eventSet[k];
+
+      entry.actions.forEach((event) => {
+        let literalId = event.getId();
+        let filteredActions = actions.filter(a => a !== literalId);
+        let queryResult = Resolutor.reverseQuery(programSoFar, null, event, filteredActions);
+        if(queryResult.length == 1) console.log(queryResult[0].actions.map(x => ''+x));
+        queryResult.forEach(qr => {
+          qr.theta = Resolutor.compactTheta(qr.theta, entry.theta);
+        });
+        strategies = strategies.concat(queryResult);
+      });
+    }
+
+    let numStrategies = strategies.length;
+    for (let i = 0; i < numStrategies; i += 1) {
+      let strategy = strategies[i];
+      let isStrategyAccepted = true;
+
+      let newClauses = [].concat(newClausesSoFar);
+      let terminated = [];
+      let initiated = [];
+      let activeActions = [];
+
+      strategy.actions.forEach((action) => {
+        newClauses.push(new Clause([action], []));
+      });
+      let programSoFar = program.concat(newClauses);
+
+      for (let j = 0; j < newClauses.length; j += 1) {
+        let clause = newClauses[j];
+        let filteredProgramSoFar = programSoFar.filter(c => c !== clause);
+
+        let actionConstraintCheck = Resolutor.query(filteredProgramSoFar, clause.getHeadLiterals(), []);
+        if (actionConstraintCheck === null) {
+          isStrategyAccepted = false;
+          break;
+        }
+      }
+
+      if (!isStrategyAccepted) {
+        continue;
+      }
+
+      strategy.actions.forEach((action) => {
+        let result = findFluentActors(action);
+        activeActions.push(action);
+        terminated = terminated.concat(result.t);
+        initiated = initiated.concat(result.i);
+      });
+
+      let newProgram = program.concat(newClauses);
+      let result = recursiveStrategyFinder(activeEvents, actions, idx + 1, program, newClauses);
+      if (result !== null) {
+        result.initiated = result.initiated.concat(initiated);
+        result.terminated = result.terminated.concat(terminated);
+        result.activeActions = result.activeActions.concat(activeActions);
+        return result;
+      }
+    }
+    if (numStrategies > 0) {
+      return null;
+    }
+    return recursiveStrategyFinder(activeEvents, actions, idx + 1, program, newClausesSoFar);
+  };
+
   let performResolution = function performResolution(currentFluents) {
     let nextTime = _currentTime + 1;
 
     let actions = Object.keys(_actions);
 
     let activeEvents = [];
-    let activeActions = [];
     let activeObservations = [];
 
-    let terminated = [];
-    let initiated = [];
+    let observationTerminated = [];
+    let observationInitiated = [];
 
     if (_observations[_currentTime] !== undefined) {
       // process observations
-      let theta = { $T: _currentTime };
+      let theta = { $T1: _currentTime };
       _observations[_currentTime].forEach((ob) => {
         let action = ob.action;
         activeObservations.push(action.substitute(theta));
         let result = findFluentActors(action);
-        terminated = terminated.concat(result.t);
-        initiated = initiated.concat(result.i);
+        observationTerminated = observationTerminated.concat(result.t);
+        observationInitiated = observationInitiated.concat(result.i);
 
         if (ob.endTime > nextTime) {
           if (_observations[nextTime] === undefined) {
@@ -309,38 +388,16 @@ function Engine(nodes) {
 
     factsWithFluents.forEach((fact) => {
       let activatedEvents = Resolutor.query(rulesWithFluents, fact, actions);
-      activatedEvents.forEach((event) => {
-        activeEvents = activeEvents.concat(event.actions.map(f => f.substitute(event.theta)));
-      });
+      if (activatedEvents === null || activatedEvents.length === 0) {
+        return;
+      }
+      activeEvents.push(activatedEvents);
     });
 
-    activeEvents.forEach((event) => {
-      let strategies = Resolutor.reverseQuery(programWithFluents, null, event, actions);
-      let numStrategies = strategies.length;
-      for (let i = 0; i < numStrategies; i += 1) {
-        let strategy = strategies[i];
-        let isStrategyAccepted = true;
-        strategy.actions.forEach((entry) => {
-          // TODO: need to check for action constraints.
-          let action = new Functor(entry.action, entry.arguments);
-          let actionConstraintCheck = Resolutor.query(programWithFluents, action, []);
-          if (actionConstraintCheck === null) {
-            isStrategyAccepted = false;
-            return;
-          }
-          isStrategyAccepted = true;
-          let result = findFluentActors(action);
-          action = updateTimableFunctor(action, nextTime);
-          activeActions.push(action);
-          terminated = terminated.concat(result.t);
-          initiated = initiated.concat(result.i);
-        });
-        if (isStrategyAccepted) {
-          return;
-        }
-      }
-      throw new Error('No strategy executed for an active event ' + event.toString() + ' at time ' + _currentTime);
-    });
+    // currently a greedy algorithm to accept only the first strategy that does not violate any constraints
+    let result = recursiveStrategyFinder(activeEvents, actions, 0, programWithFluents, []);
+    result.terminated = observationTerminated.concat(result.terminated);
+    result.initiated = observationInitiated.concat(result.initiated);
 
     let updatedState = new LiteralTreeMap();
     currentFluents.forEach((fluent) => {
@@ -349,7 +406,7 @@ function Engine(nodes) {
 
     let deltaTerminated = new LiteralTreeMap();
     let deltaInitiated = new LiteralTreeMap();
-    terminated.forEach((terminatedFluent) => {
+    result.terminated.forEach((terminatedFluent) => {
       updatedState.forEach((fluent) => {
         if (Unifier.unifies([[fluent, terminatedFluent]]) !== null) {
           deltaTerminated.add(fluent);
@@ -357,7 +414,7 @@ function Engine(nodes) {
       });
     });
 
-    initiated.forEach((initiatedFluent) => {
+    result.initiated.forEach((initiatedFluent) => {
       if (!deltaTerminated.remove(initiatedFluent)) {
         deltaInitiated.add(updateTimableFunctor(initiatedFluent, nextTime));
       }
@@ -371,7 +428,7 @@ function Engine(nodes) {
       updatedState.add(fluent);
     });
 
-    _lastStepActions = activeActions;
+    _lastStepActions = result.activeActions;
     _lastStepObservations = activeObservations;
     return updatedState;
   };
