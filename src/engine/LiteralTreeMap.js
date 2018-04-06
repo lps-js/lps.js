@@ -25,31 +25,31 @@ function __TreeNode(size, tree) {
 
   this.clone = function() {
     let clone = new __TreeNode(size, {});
-    let indices = this.indices();
-    indices.forEach((index) => {
+    this.indices().forEach((index) => {
       if (this._tree[index] instanceof __TreeNode) {
         clone._tree[index] = this._tree[index].clone();
         return ;
       }
       clone._tree[index] = deepCopy(this._tree[index]);
     });
-  }
+  };
 
   this.indices = function indices() {
     let indices = Object.getOwnPropertySymbols(this._tree)
       .concat(Object.getOwnPropertyNames(this._tree));
     return indices;
-  }
+  };
 }
 
 function LiteralTreeMap() {
+  const _variableSymbol = Symbol();
   let _root = new __TreeNode();
   let _count = 0;
-  let _variableSymbol = Symbol();
 
   // only create an argument tree when needed otherwise we incur infinite loop
   let _argumentTreeSymbol = null;
   let _argumentClauses = {};
+  let _variableMapping = {};
 
   this.add = function add(literal, valueArg) {
     let node = _root;
@@ -78,6 +78,8 @@ function LiteralTreeMap() {
     createIfNotExist(node, args.length);
     node = node._tree[args.length];
 
+    let variablesSoFar = {};
+
     args.forEach((arg, idx) => {
       let nodeRep = null;
       if (!(arg instanceof Value) && !(arg instanceof Variable)) {
@@ -93,7 +95,13 @@ function LiteralTreeMap() {
           _argumentTreeSymbol.add(arg, nodeRep);
         }
       } else if (arg instanceof Variable) {
-        nodeRep = _variableSymbol;
+        let varName = arg.evaluate();
+        // we need to recognise variables that are used again and bind them together
+        if (_variableMapping[varName] === undefined) {
+          let varSymbol = Symbol('var:' + varName);
+          _variableMapping[varName] = varSymbol;
+        }
+        nodeRep = _variableMapping[varName];
       } else {
         nodeRep = arg.evaluate();
       }
@@ -144,7 +152,11 @@ function LiteralTreeMap() {
           return null;
         }
       } else if (arg instanceof Variable) {
-        nodeRep = _variableSymbol;
+        let varName = arg.evaluate();
+        if (_variableMapping[varName] === undefined) {
+          return null;
+        }
+        nodeRep = _variableMapping[varName];
       } else {
         nodeRep = arg.evaluate();
       }
@@ -169,6 +181,9 @@ function LiteralTreeMap() {
         return null;
       }
       let index = path[i];
+      if (index === _variableSymbol) {
+        throw new Error('');
+      }
       if (node._tree[index] === undefined) {
         return null;
       }
@@ -298,8 +313,8 @@ function LiteralTreeMap() {
       existingTheta = {};
     }
 
-    if (!(literal instanceof Functor) || !(literal instanceof Array)) {
-      throw new Error('');
+    if (!(literal instanceof Functor) && !(literal instanceof Array)) {
+      throw new Error('Literal is not a functor or array');
     }
 
     let path = flattenLiteral(literal);
@@ -333,21 +348,28 @@ function LiteralTreeMap() {
       };
 
       let unifyForValue = (value) => {
-        if (node._tree[_variableSymbol] === undefined
-            && node._tree[value] === undefined) {
-          return [];
-        }
-        if (node._tree[_variableSymbol] !== undefined) {
+        node.indices().forEach((index) => {
+          // index is not a variable, functor or list
+          if (value === index) {
+            subResult = recursiveUnification(node._tree[value], i + 1, theta);
+            result = result.concat(subResult);
+            return;
+          }
+          if (typeof index !== 'symbol') {
+            return;
+          }
+          let symName = index.toString();
+          if (symName.indexOf('Symbol(var:') !== 0) {
+            // it's a not variable
+            return;
+          }
           cloneTheta();
-          newTheta[specialVariableName] = current;
-          subResult = recursiveUnification(node._tree[_variableSymbol], i + 1, newTheta);
+          let treeVarName = symName.substring(11, symName.length - 1);
+          newTheta[treeVarName] = new Value(value);
+          subResult = recursiveUnification(node._tree[index], i + 1, newTheta);
           result = result.concat(subResult);
-        }
-        if (node._tree[value] !== undefined) {
-          subResult = recursiveUnification(node._tree[value], i + 1, theta);
-          result = result.concat(subResult);
-        }
-      }
+        });
+      };
 
       // the case of simple values
       if (current instanceof Value) {
@@ -361,22 +383,24 @@ function LiteralTreeMap() {
         let varName = current.evaluate();
 
         if (theta[varName] !== undefined) {
-          // a replacement for the current value exists
+          // a replacement for the this variable exists
           unifyForValue(theta[varName].evaluate());
           return result;
         }
 
         node.indices().forEach((value) => {
           cloneTheta();
-          if (value === _variableSymbol) {
-            newTheta[varName] = new Variable(specialVariableName);
-            subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
-            result = result.concat(subResult);
-            return;
-          }
-
-          // value is a functor or list
+          // value is a variable, functor or list
           if (typeof value === 'symbol') {
+            let symName = value.toString();
+            if (symName.indexOf('Symbol(var:') === 0) {
+              // it's a variable
+              let treeVarName = symName.substring(11, symName.length - 1);
+              newTheta[varName] = new Variable(treeVarName);
+              subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+              result = result.concat(subResult);
+              return;
+            }
             let term = _argumentClauses[value];
             newTheta[varName] = term;
             subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
@@ -393,12 +417,6 @@ function LiteralTreeMap() {
 
       // the case of complex terms
       if (current instanceof Functor || current instanceof Array) {
-        if (node._tree[_variableSymbol] !== undefined) {
-          cloneTheta();
-          newTheta[specialVariableName] = current;
-          subResult = recursiveUnification(node._tree[_variableSymbol], i + 1, newTheta);
-          result = result.concat(subResult);
-        }
         // some matching functors!
         if (_argumentTreeSymbol !== null) {
           // pass existing theta
@@ -414,6 +432,23 @@ function LiteralTreeMap() {
             result = result.concat(subResult);
           });
         }
+        // go through to find variables
+        node.indices().forEach((value) => {
+          // value is not a variable, functor or list
+          if (typeof value !== 'symbol') {
+            return;
+          }
+          let symName = value.toString();
+          if (symName.indexOf('Symbol(var:') !== 0) {
+            // it's a not variable
+            return;
+          }
+          cloneTheta();
+          let treeVarName = symName.substring(11, symName.length - 1);
+          newTheta[treeVarName] = current;
+          subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+          result = result.concat(subResult);
+        });
         return result;
       }
 
@@ -429,7 +464,6 @@ function LiteralTreeMap() {
         _root = tree.root.clone();
         _argumentTreeSymbol = null;
         _argumentClauses = null;
-        _variableSymbol = tree.variableSymbol;
         if (tree.argumentTree !== null) {
           _argumentTreeSymbol = tree.argumentTree.clone();
           _argumentClauses = tree.argumentClauses.map(x => x);
@@ -441,7 +475,6 @@ function LiteralTreeMap() {
     loader({
       root: _root,
       count: _count,
-      variableSymbol: _variableSymbol,
       argumentTree: _argumentTreeSymbol,
       argumentClauses: _argumentClauses
     });
