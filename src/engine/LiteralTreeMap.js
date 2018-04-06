@@ -106,6 +106,12 @@ function LiteralTreeMap() {
         nodeRep = arg.evaluate();
       }
       if (idx === args.length - 1) {
+        if (node._tree[nodeRep] !== undefined) {
+          node._tree[nodeRep] = value;
+          return;
+        }
+        // do not increment counts for replacement
+        _count += 1;
         node._size += 1;
         node._tree[nodeRep] = value;
         return;
@@ -114,7 +120,6 @@ function LiteralTreeMap() {
       createIfNotExist(node, nodeRep);
       node = node._tree[nodeRep];
     });
-    _count += 1;
   };
 
   let flattenLiteral = function flattenLiteral(literal) {
