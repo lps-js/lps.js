@@ -186,6 +186,36 @@ describe('LiteralTreeMap', () => {
       let treeMap = new LiteralTreeMap();
       let args = [
         new Variable('X'),
+        new Variable('X'),
+      ];
+      let functor = new Functor('self', args);
+      treeMap.add(functor);
+
+      let query = new Functor('self', [new Variable('X'), new Variable('Y')]);
+      let result = treeMap.unifies(query);
+
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(1);
+
+      expect(result[0]).to.have.property('theta');
+      expect(Object.keys(result[0].theta)).to.be.length(2);
+
+      expect(result[0].theta).to.have.property('X');
+      expect(result[0].theta.X).to.be.instanceof(Variable);
+      expect(result[0].theta.X.evaluate()).to.be.equal('X');
+
+      expect(result[0].theta).to.have.property('Y');
+      expect(result[0].theta.Y).to.be.instanceof(Variable);
+      expect(result[0].theta.Y.evaluate()).to.be.equal('X');
+
+      expect(result[0]).to.have.property('leaf');
+      expect(result[0].leaf).to.be.equal(functor);
+    });
+
+    it('should return the correct unification for a nested literal', () => {
+      let treeMap = new LiteralTreeMap();
+      let args = [
+        new Variable('X'),
         new Value('b')
       ];
       let functor = new Functor('neighbours', args);
@@ -201,13 +231,39 @@ describe('LiteralTreeMap', () => {
       expect(result[0]).to.have.property('theta');
       expect(Object.keys(result[0].theta)).to.be.length(2);
 
-      expect(result[0].theta).to.have.property('$_2');
-      expect(result[0].theta.$_2).to.be.instanceof(Functor);
-      expect(result[0].theta.$_2).to.be.equal(functor2);
+      expect(result[0].theta).to.have.property('X');
+      expect(result[0].theta.X).to.be.instanceof(Functor);
+      expect(result[0].theta.X).to.be.equal(functor2);
 
       expect(result[0].theta).to.have.property('Y');
       expect(result[0].theta.Y).to.be.instanceof(Value);
       expect(result[0].theta.Y.evaluate()).to.be.equal('b');
+
+      expect(result[0]).to.have.property('leaf');
+      expect(result[0].leaf).to.be.equal(functor);
+    });
+
+    it('should return the correct unification for a repeated variables in query literal', () => {
+      let treeMap = new LiteralTreeMap();
+      let args = [
+        new Value('a'),
+        new Value('a')
+      ];
+      let functor = new Functor('neighbours', args);
+      treeMap.add(functor);
+
+      let query = new Functor('neighbours', [new Variable('X'), new Variable('X')]);
+      let result = treeMap.unifies(query);
+
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(1);
+
+      expect(result[0]).to.have.property('theta');
+      expect(Object.keys(result[0].theta)).to.be.length(1);
+
+      expect(result[0].theta).to.have.property('X');
+      expect(result[0].theta.X).to.be.instanceof(Value);
+      expect(result[0].theta.X.evaluate()).to.be.equal('a');
 
       expect(result[0]).to.have.property('leaf');
       expect(result[0].leaf).to.be.equal(functor);
