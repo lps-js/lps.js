@@ -4,6 +4,7 @@ const NodeTypes = require('../parser/NodeTypes');
 const Value = require('./Value');
 const Variable = require('./Variable');
 const Resolutor = require('./Resolutor');
+const LiteralTreeMap = require('./LiteralTreeMap');
 
 let processBinaryOperator = function processBinaryOperator(node) {
   let operator = node.getToken().value;
@@ -102,9 +103,7 @@ let processClauses = function processClauses(rootNode, properties) {
     if (children.length === 1) {
       // single fact
       processFactClause(children[0].getChildren()).forEach((fact) => {
-        properties.facts.push(fact);
-        properties.program.push(new Clause([fact], []));
-        properties.rules.push(new Clause([fact], []));
+        properties.facts.add(fact);
       });
       return;
     }
@@ -143,21 +142,21 @@ let isInSet = function isInSet(set, literal) {
 };
 
 let getProgramInterpretation = function getProgramInterpretation(facts, program) {
-  let allFacts = [].concat(facts);
-  let newFacts = [].concat(facts);
   let newProgram = [];
   let currentProgram = program;
+  let factsAdded = 0;
 
-  let checkAndAdd = function checkAndAdd(literal) {
-    if (isInSet(newFacts, literal)) {
-      return;
+  let addLiteral = function addLiteral(literal) {
+    let lastCount = facts.size();
+    facts.add(literal);
+    if (facts.size() > lastCount) {
+      factsAdded += 1;
     }
-    newFacts.push(literal);
   };
 
   let processClauseResolution = function processClauseResolution(clause) {
     if (clause.isFact()) {
-      clause.getHeadLiterals().forEach(checkAndAdd);
+      clause.getHeadLiterals().forEach(addLiteral);
       return;
     }
 
@@ -165,14 +164,14 @@ let getProgramInterpretation = function getProgramInterpretation(facts, program)
       return;
     }
 
-    allFacts.forEach((fact) => {
+    facts.forEach((fact) => {
       let resolution = Resolutor.resolve(clause, fact);
       if (resolution === null) {
         // nothing got resolved
         return;
       }
       if (resolution.clause.isFact()) {
-        resolution.clause.getHeadLiterals().forEach(checkAndAdd);
+        resolution.clause.getHeadLiterals().forEach(addLiteral);
         return;
       }
       newProgram.push(resolution);
@@ -182,17 +181,16 @@ let getProgramInterpretation = function getProgramInterpretation(facts, program)
 
   do {
     newProgram = [];
-    allFacts = [].concat(newFacts);
+    factsAdded = 0;
     currentProgram.forEach(processClauseResolution);
     currentProgram = newProgram;
-  } while (newFacts.length > allFacts.length);
-  return newFacts;
+  } while (factsAdded > 0);
 };
 
 function Program(tree) {
   let _rules = [];
   let _program = [];
-  let _facts = [];
+  let _facts = new LiteralTreeMap();
 
   processClauses(tree, {
     rules: _rules,
@@ -200,10 +198,10 @@ function Program(tree) {
     facts: _facts
   });
 
-  _facts = getProgramInterpretation(_facts, _program);
+  getProgramInterpretation(_facts, _program.concat(_rules));
 
   this.getFacts = function getFacts() {
-    return _facts.map(x => x);
+    return _facts;
   };
 
   this.getProgram = function getProgram() {
