@@ -1,11 +1,74 @@
 const Clause = require('./Clause');
 const Functor = require('./Functor');
+const LiteralTreeMap = require('./LiteralTreeMap');
 const Unifier = require('./Unifier');
 const Variable = require('./Variable');
 const variableArrayRename = require('../utility/variableArrayRename');
 
-function Resolutor() {
+let findUnifications = function findUnifications(literal, facts) {
+  let unifications = []
+  for (let i = 0; i < facts.length; i += 1) {
+    let unification = facts[i].unifies(literal);
+    unifications = unifications.concat(unification);
+  }
+  return unifications;
+};
 
+let resolveClauseBody = (bodyLiterals, facts) => {
+  let recursivelyFindUnifications = (unifications, idx) => {
+    if (unifications.length === 0) {
+      return null;
+    }
+    if (idx >= bodyLiterals.length) {
+      return unifications;
+    }
+    let literal = bodyLiterals[idx];
+    let currentUnifications = [];
+    unifications.forEach((theta) => {
+      let substitutedLiteral = literal.substitute(theta);
+      let newUnifications = findUnifications(substitutedLiteral, facts);
+      newUnifications.forEach((newUnification) => {
+        currentUnifications.push(Resolutor.compactTheta(theta, newUnification.theta));
+      });
+    });
+    return recursivelyFindUnifications(currentUnifications, idx + 1);
+  };
+  return recursivelyFindUnifications([{}], 0);
+};
+
+function Resolutor(program, factsArg) {
+  let facts = factsArg;
+  if (facts instanceof LiteralTreeMap) {
+    facts = [facts];
+  }
+  let newFacts = new LiteralTreeMap();
+  facts.push(newFacts);
+
+  let _programWithoutClause = [];
+  for (let i = 0; i < program.length; i += 1) {
+    let clause = program[i];
+    _programWithoutClause.push(program.filter(c => c !== clause));
+  }
+
+  let resolveForClause = (clause, idx) => {
+    let thetaSet = resolveClauseBody(clause.getBodyLiterals(), facts);
+    let headLiterals = clause.getHeadLiterals();
+    thetaSet.forEach((theta) => {
+      headLiterals.forEach((literal) => {
+        let substitutedLiteral = literal.substitute(theta);
+        newFacts.add(substitutedLiteral);
+      });
+    });
+  };
+
+  this.resolve = function resolve() {
+    let lastNewFactsCount;
+    do {
+      lastNewFactsCount = newFacts.size();
+      program.forEach(resolveForClause);
+    } while(lastNewFactsCount < newFacts.size());
+    return newFacts;
+  };
 }
 
 let recursiveQueryRequest = function recursiveQueryRequest(program, queryArg, recursiveQuery, actions) {
