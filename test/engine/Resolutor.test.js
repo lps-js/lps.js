@@ -265,6 +265,36 @@ describe('Resolutor', () => {
       expect(array[1].getId()).to.be.equal('test/1');
       expect(array[1].isGround()).to.be.true;
     });
+
+    it('should handle built-in functors', () => {
+      let clause = new Clause(
+        [new Functor('test', [new Variable('X')])],
+        [
+          new Functor('test2', [new Variable('X')]),
+          new Functor('!', [new Functor('test3', [new Variable('X')])])
+        ]
+      );
+      let facts = new LiteralTreeMap();
+      facts.add(new Functor('test2', [new Value(5)]));
+      facts.add(new Functor('test2', [new Value(3)]));
+
+      let program = [clause];
+
+      let resolutor = new Resolutor(program, facts);
+      let newFacts = resolutor.resolve();
+      expect(newFacts).to.be.instanceof(LiteralTreeMap);
+      expect(newFacts.size()).to.be.equal(2);
+
+      let array = newFacts.toArray();
+
+      expect(array[0]).to.be.instanceof(Functor);
+      expect(array[0].getId()).to.be.equal('test/1');
+      expect(array[0].isGround()).to.be.true;
+
+      expect(array[1]).to.be.instanceof(Functor);
+      expect(array[1].getId()).to.be.equal('test/1');
+      expect(array[1].isGround()).to.be.true;
+    });
   });
 
   describe('reverseQuery', () => {

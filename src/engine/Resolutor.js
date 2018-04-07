@@ -1,3 +1,4 @@
+const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Clause = require('./Clause');
 const Functor = require('./Functor');
 const LiteralTreeMap = require('./LiteralTreeMap');
@@ -14,7 +15,7 @@ let findUnifications = function findUnifications(literal, facts) {
   return unifications;
 };
 
-let resolveClauseBody = (bodyLiterals, facts) => {
+let resolveClauseBody = (bodyLiterals, facts, builtInFunctorProvider) => {
   let recursivelyFindUnifications = (unifications, idx) => {
     if (unifications.length === 0) {
       return null;
@@ -26,6 +27,12 @@ let resolveClauseBody = (bodyLiterals, facts) => {
     let currentUnifications = [];
     unifications.forEach((theta) => {
       let substitutedLiteral = literal.substitute(theta);
+      if (builtInFunctorProvider.has(substitutedLiteral.getId())) {
+        if (builtInFunctorProvider.execute(substitutedLiteral)) {
+          currentUnifications.push(theta);
+        }
+        return;
+      }
       let newUnifications = findUnifications(substitutedLiteral, facts);
       newUnifications.forEach((newUnification) => {
         currentUnifications.push(Resolutor.compactTheta(theta, newUnification.theta));
@@ -44,6 +51,10 @@ function Resolutor(program, factsArg) {
   let newFacts = new LiteralTreeMap();
   facts.push(newFacts);
 
+  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
+    return findUnifications(literal, facts);
+  })
+
   let _programWithoutClause = [];
   for (let i = 0; i < program.length; i += 1) {
     let clause = program[i];
@@ -51,7 +62,7 @@ function Resolutor(program, factsArg) {
   }
 
   let resolveForClause = (clause, idx) => {
-    let thetaSet = resolveClauseBody(clause.getBodyLiterals(), facts);
+    let thetaSet = resolveClauseBody(clause.getBodyLiterals(), facts, builtInFunctorProvider);
     let headLiterals = clause.getHeadLiterals();
     thetaSet.forEach((theta) => {
       headLiterals.forEach((literal) => {
