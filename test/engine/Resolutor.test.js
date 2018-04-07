@@ -1,5 +1,6 @@
 const Resolutor = require('../../src/engine/Resolutor');
 const Clause = require('../../src/engine/Clause');
+const LiteralTreeMap = require('../../src/engine/LiteralTreeMap');
 const Functor = require('../../src/engine/Functor');
 const Value = require('../../src/engine/Value');
 const Variable = require('../../src/engine/Variable');
@@ -234,6 +235,35 @@ describe('Resolutor', () => {
       expect(result[0].actions[0].arguments).to.be.length(1);
       expect(result[0].actions[0].arguments[0]).to.be.instanceof(Value);
       expect(result[0].actions[0].arguments[0].evaluate()).to.be.equal(5);
+    });
+  });
+
+  describe('newResolve', () => {
+    it('should help to debug', () => {
+      let clause = new Clause(
+        [new Functor('test', [new Variable('X')])],
+        [new Functor('test2', [new Variable('X')])]
+      );
+      let facts = new LiteralTreeMap();
+      facts.add(new Functor('test2', [new Value(5)]));
+      facts.add(new Functor('test2', [new Value(3)]));
+
+      let program = [clause];
+
+      let resolutor = new Resolutor(program, facts);
+      let newFacts = resolutor.resolve();
+      expect(newFacts).to.be.instanceof(LiteralTreeMap);
+      expect(newFacts.size()).to.be.equal(2);
+
+      let array = newFacts.toArray();
+
+      expect(array[0]).to.be.instanceof(Functor);
+      expect(array[0].getId()).to.be.equal('test/1');
+      expect(array[0].isGround()).to.be.true;
+
+      expect(array[1]).to.be.instanceof(Functor);
+      expect(array[1].getId()).to.be.equal('test/1');
+      expect(array[1].isGround()).to.be.true;
     });
   });
 
