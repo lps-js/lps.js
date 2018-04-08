@@ -32,6 +32,7 @@ function __TreeNode(size, tree) {
       }
       clone._tree[index] = deepCopy(this._tree[index]);
     });
+    return clone;
   };
 
   this.indices = function indices() {
@@ -275,6 +276,7 @@ function LiteralTreeMap() {
     };
     _count = 0;
     _argumentTreeSymbol = null;
+    _argumentClauses = {};
   };
 
   this.size = function size() {
@@ -355,7 +357,7 @@ function LiteralTreeMap() {
       let unifyForValue = (value) => {
         node.indices().forEach((index) => {
           // index is not a variable, functor or list
-          if (value === index) {
+          if (String(value) === index) {
             subResult = recursiveUnification(node._tree[value], i + 1, theta);
             result = result.concat(subResult);
             return;
@@ -468,10 +470,12 @@ function LiteralTreeMap() {
         _count = tree.count;
         _root = tree.root.clone();
         _argumentTreeSymbol = null;
-        _argumentClauses = null;
+        _argumentClauses = {};
         if (tree.argumentTree !== null) {
           _argumentTreeSymbol = tree.argumentTree.clone();
-          _argumentClauses = tree.argumentClauses.map(x => x);
+          Object.keys(tree.argumentClauses).forEach((key) => {
+            _argumentClauses[key] = tree.argumentClauses[key];s
+          });
         }
       }
     }
