@@ -49,11 +49,10 @@ function Resolutor(program, factsArg) {
     facts = [facts];
   }
   let newFacts = new LiteralTreeMap();
-  facts.push(newFacts);
 
   let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
     return findUnifications(literal, facts);
-  })
+  });
 
   let _programWithoutClause = [];
   for (let i = 0; i < program.length; i += 1) {
@@ -63,20 +62,66 @@ function Resolutor(program, factsArg) {
 
   let resolveForClause = (clause, idx) => {
     let thetaSet = resolveClauseBody(clause.getBodyLiterals(), facts, builtInFunctorProvider);
+    if (thetaSet === null) {
+      return true;
+    }
+    if (clause.isConstraint()) {
+      return false;
+    }
+
     let headLiterals = clause.getHeadLiterals();
+    let processedThetaSet = [];
     thetaSet.forEach((theta) => {
+      let isAllGround = true;
       headLiterals.forEach((literal) => {
         let substitutedLiteral = literal.substitute(theta);
-        newFacts.add(substitutedLiteral);
+        if (!substitutedLiteral.isGround()) {
+          isAllGround = false;
+          let headUnifications = findUnifications(substitutedLiteral, facts);
+          headUnifications.forEach((uni) => {
+            processedThetaSet.push(Resolutor.compactTheta(theta, uni.theta));
+          });
+        }
+      });
+
+      processedThetaSet.push(theta);
+    });
+
+    let countRejected = 0;
+    processedThetaSet.forEach((theta) => {
+      let thetaFacts = new LiteralTreeMap();
+      headLiterals.forEach((literal) => {
+        let substitutedLiteral = literal.substitute(theta);
+        thetaFacts.add(substitutedLiteral);
+      });
+      // check whether other clauses would accept this set of facts or not
+      let subresolutor = new Resolutor(_programWithoutClause[idx], facts.concat([thetaFacts]));
+      if (subresolutor.resolve() === null) {
+        ++countRejected;
+        return;
+      }
+      thetaFacts.forEach((l) => {
+        newFacts.add(l);
       });
     });
+
+    if (countRejected === processedThetaSet.length) {
+      return false;
+    }
+
+    return true;
   };
 
   this.resolve = function resolve() {
     let lastNewFactsCount;
     do {
       lastNewFactsCount = newFacts.size();
-      program.forEach(resolveForClause);
+      for (let i = 0; i < program.length; i += 1) {
+        let result = resolveForClause(program[i], i);
+        if (!result) {
+          return null;
+        }
+      }
     } while(lastNewFactsCount < newFacts.size());
     return newFacts;
   };
