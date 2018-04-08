@@ -142,49 +142,9 @@ let isInSet = function isInSet(set, literal) {
 };
 
 let getProgramInterpretation = function getProgramInterpretation(facts, program) {
-  let newProgram = [];
-  let currentProgram = program;
-  let factsAdded = 0;
-
-  let addLiteral = function addLiteral(literal) {
-    let lastCount = facts.size();
-    facts.add(literal);
-    if (facts.size() > lastCount) {
-      factsAdded += 1;
-    }
-  };
-
-  let processClauseResolution = function processClauseResolution(clause) {
-    if (clause.isFact()) {
-      clause.getHeadLiterals().forEach(addLiteral);
-      return;
-    }
-
-    if (clause.isConstraint()) {
-      return;
-    }
-
-    facts.forEach((fact) => {
-      let resolution = Resolutor.resolve(clause, fact);
-      if (resolution === null) {
-        // nothing got resolved
-        return;
-      }
-      if (resolution.clause.isFact()) {
-        resolution.clause.getHeadLiterals().forEach(addLiteral);
-        return;
-      }
-      newProgram.push(resolution);
-    });
-    newProgram.push(clause);
-  };
-
-  do {
-    newProgram = [];
-    factsAdded = 0;
-    currentProgram.forEach(processClauseResolution);
-    currentProgram = newProgram;
-  } while (factsAdded > 0);
+  let resolutor = new Resolutor(program, [facts]);
+  let newFacts = resolutor.resolve();
+  newFacts.forEach((literal) => facts.add(literal));
 };
 
 function Program(tree) {
@@ -198,7 +158,7 @@ function Program(tree) {
     facts: _facts
   });
 
-  getProgramInterpretation(_facts, _program.concat(_rules));
+  getProgramInterpretation(_facts, _program);
 
   this.getFacts = function getFacts() {
     return _facts;
