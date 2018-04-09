@@ -17,6 +17,7 @@ function Engine(nodes) {
   let _observations = {};
 
   let _program = new Program(nodes);
+  let _goals = [];
 
   let _activeFluents = new LiteralTreeMap();
   let _currentTime = 1;
@@ -267,137 +268,88 @@ function Engine(nodes) {
     };
   };
 
-  let recursiveStrategyFinder = function recursiveStrategyFinder(activeEvents, actions, idx, program, newClausesSoFar) {
-    if (idx >= activeEvents.length) {
+  let processObservations = function processObservations(timeStepFacts) {
+    let observationTerminated = [];
+    let observationInitiated = [];
+    let activeObservations = [];
+
+    if (_observations[_currentTime] === undefined) {
+      // no observations for current time
       return {
+        activeObservations: [],
         terminated: [],
-        initiated: [],
-        activeActions: []
+        initiated: []
       };
     }
 
-    let eventSet = activeEvents[idx];
-    let strategies = [];
-    let programSoFar = program.concat(newClausesSoFar);
+    // process observations
+    let theta = { $T1: new Value(_currentTime) };
+    let nextTime = _currentTime + 1;
+    _observations[_currentTime].forEach((ob) => {
+      let action = ob.action.substitute(theta);
+      timeStepFacts.add(action);
+      activeObservations.push(action);
+      let result = findFluentActors(action);
+      observationTerminated = observationTerminated.concat(result.t);
+      observationInitiated = observationInitiated.concat(result.i);
 
-    for (let k = 0; k < eventSet.length; k += 1) {
-      let entry = eventSet[k];
-
-      entry.actions.forEach((event) => {
-        let literalId = event.getId();
-        let filteredActions = actions.filter(a => a !== literalId);
-        let queryResult = Resolutor.reverseQuery(programSoFar, null, event, filteredActions);
-        if(queryResult.length == 1) console.log(queryResult[0].actions.map(x => ''+x));
-        queryResult.forEach(qr => {
-          qr.theta = Resolutor.compactTheta(qr.theta, entry.theta);
-        });
-        strategies = strategies.concat(queryResult);
-      });
-    }
-
-    let numStrategies = strategies.length;
-    for (let i = 0; i < numStrategies; i += 1) {
-      let strategy = strategies[i];
-      let isStrategyAccepted = true;
-
-      let newClauses = [].concat(newClausesSoFar);
-      let terminated = [];
-      let initiated = [];
-      let activeActions = [];
-
-      strategy.actions.forEach((action) => {
-        newClauses.push(new Clause([action], []));
-      });
-      let programSoFar = program.concat(newClauses);
-
-      for (let j = 0; j < newClauses.length; j += 1) {
-        let clause = newClauses[j];
-        let filteredProgramSoFar = programSoFar.filter(c => c !== clause);
-
-        let actionConstraintCheck = Resolutor.query(filteredProgramSoFar, clause.getHeadLiterals(), []);
-        if (actionConstraintCheck === null) {
-          isStrategyAccepted = false;
-          break;
+      if (ob.endTime > nextTime) {
+        if (_observations[nextTime] === undefined) {
+          _observations[nextTime] = [];
         }
+        _observations[nextTime].push(ob);
       }
+    });
 
-      if (!isStrategyAccepted) {
-        continue;
-      }
-
-      strategy.actions.forEach((action) => {
-        let result = findFluentActors(action);
-        activeActions.push(action);
-        terminated = terminated.concat(result.t);
-        initiated = initiated.concat(result.i);
-      });
-
-      let newProgram = program.concat(newClauses);
-      let result = recursiveStrategyFinder(activeEvents, actions, idx + 1, program, newClauses);
-      if (result !== null) {
-        result.initiated = result.initiated.concat(initiated);
-        result.terminated = result.terminated.concat(terminated);
-        result.activeActions = result.activeActions.concat(activeActions);
-        return result;
-      }
-    }
-    if (numStrategies > 0) {
-      return null;
-    }
-    return recursiveStrategyFinder(activeEvents, actions, idx + 1, program, newClausesSoFar);
-  };
+    return {
+      activeObservations: activeObservations,
+      terminated: observationTerminated,
+      initiated: observationInitiated
+    };
+  }
 
   let performResolution = function performResolution(currentFluents) {
     let nextTime = _currentTime + 1;
 
     let actions = Object.keys(_actions);
 
-    let activeEvents = [];
-    let activeObservations = [];
+    let rules = _program.getRules();
+    let program = _program.getProgram();
+    let facts = _program.getFacts();
+    let timeStepFacts = currentFluents.clone();
 
-    let observationTerminated = [];
-    let observationInitiated = [];
+    let result = {
+      terminated: [],
+      initiated: [],
+      activeActions: []
+    };
 
-    if (_observations[_currentTime] !== undefined) {
-      // process observations
-      let theta = { $T1: _currentTime };
-      _observations[_currentTime].forEach((ob) => {
-        let action = ob.action;
-        activeObservations.push(action.substitute(theta));
-        let result = findFluentActors(action);
-        observationTerminated = observationTerminated.concat(result.t);
-        observationInitiated = observationInitiated.concat(result.i);
-
-        if (ob.endTime > nextTime) {
-          if (_observations[nextTime] === undefined) {
-            _observations[nextTime] = [];
-          }
-          _observations[nextTime].push(ob);
+    // build goal clauses for each rule
+    // we need to derive the partially executed rule here too
+    rules.forEach((rule) => {
+      // rule is a single clause
+      //console.log(rule.toString());
+      let resolutor = new Resolutor([rule], [facts, timeStepFacts]);
+      let resolution = resolutor.resolve();
+      resolution.toArray().forEach((literal) => {
+        if (facts.contains(literal) || timeStepFacts.contains(literal)) {
+          console.log('remove');
+          resolution.remove(literal);
         }
       });
-    }
-
-    let rulesWithFluents = _program.getRules();
-    let programWithFluents = _program.getProgram();
-    let factsWithFluents = _program.getFacts();
-    currentFluents.forEach((fluent) => {
-      programWithFluents.push(new Clause([fluent], []));
-      rulesWithFluents.push(new Clause([fluent], []));
-      factsWithFluents.push(fluent);
-    });
-
-    factsWithFluents.forEach((fact) => {
-      let activatedEvents = Resolutor.query(rulesWithFluents, fact, actions);
-      if (activatedEvents === null || activatedEvents.length === 0) {
-        return;
+      //console.log(timeStepFacts.toArray().map(x => x.toString()));
+      if (resolution.size() > 0) {
+        _goals.push(resolution);
       }
-      activeEvents.push(activatedEvents);
     });
 
-    // currently a greedy algorithm to accept only the first strategy that does not violate any constraints
-    let result = recursiveStrategyFinder(activeEvents, actions, 0, programWithFluents, []);
-    result.terminated = observationTerminated.concat(result.terminated);
-    result.initiated = observationInitiated.concat(result.initiated);
+    _goals.forEach((goal) => {
+
+    });
+
+    let observationResult = processObservations(timeStepFacts);
+    result.terminated = observationResult.terminated.concat(result.terminated);
+    result.initiated = observationResult.initiated.concat(result.initiated);
 
     let updatedState = new LiteralTreeMap();
     currentFluents.forEach((fluent) => {
@@ -429,7 +381,7 @@ function Engine(nodes) {
     });
 
     _lastStepActions = result.activeActions;
-    _lastStepObservations = activeObservations;
+    _lastStepObservations = observationResult.activeObservations;
     return updatedState;
   };
 
