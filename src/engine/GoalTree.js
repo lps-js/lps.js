@@ -162,7 +162,6 @@ function GoalNode(clause) {
 
     let newChildren = [];
     reductionResult.forEach((r) => {
-      console.log('Adding child ' + r.map(x => x.toString()) + ' for ' + this.clause.toString());
       newChildren.push(new GoalNode(r));
     });
 
