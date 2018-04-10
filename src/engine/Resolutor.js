@@ -6,15 +6,6 @@ const Unifier = require('./Unifier');
 const Variable = require('./Variable');
 const variableArrayRename = require('../utility/variableArrayRename');
 
-let findUnifications = function findUnifications(literal, facts) {
-  let unifications = []
-  for (let i = 0; i < facts.length; i += 1) {
-    let unification = facts[i].unifies(literal);
-    unifications = unifications.concat(unification);
-  }
-  return unifications;
-};
-
 let resolveClauseBody = (bodyLiterals, facts, builtInFunctorProvider) => {
   let recursivelyFindUnifications = (unifications, idx) => {
     if (unifications.length === 0) {
@@ -33,7 +24,7 @@ let resolveClauseBody = (bodyLiterals, facts, builtInFunctorProvider) => {
         }
         return;
       }
-      let newUnifications = findUnifications(substitutedLiteral, facts);
+      let newUnifications = Resolutor.findUnifications(substitutedLiteral, facts);
       newUnifications.forEach((newUnification) => {
         currentUnifications.push(Resolutor.compactTheta(theta, newUnification.theta));
       });
@@ -51,7 +42,7 @@ function Resolutor(factsArg) {
   let newFacts = new LiteralTreeMap();
 
   let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
-    return findUnifications(literal, facts);
+    return Resolutor.findUnifications(literal, facts);
   });
 
   let resolveForClause = (programWithoutClause, clause, idx) => {
@@ -64,6 +55,7 @@ function Resolutor(factsArg) {
     }
 
     let headLiterals = clause.getHeadLiterals();
+
     let processedThetaSet = [];
     thetaSet.forEach((theta) => {
       let isAllGround = true;
@@ -71,7 +63,7 @@ function Resolutor(factsArg) {
         let substitutedLiteral = literal.substitute(theta);
         if (!substitutedLiteral.isGround()) {
           isAllGround = false;
-          let headUnifications = findUnifications(substitutedLiteral, facts);
+          let headUnifications = Resolutor.findUnifications(substitutedLiteral, facts);
           headUnifications.forEach((uni) => {
             processedThetaSet.push(Resolutor.compactTheta(theta, uni.theta));
           });
@@ -102,7 +94,6 @@ function Resolutor(factsArg) {
     if (countRejected === processedThetaSet.length) {
       return false;
     }
-
     return true;
   };
 
@@ -126,7 +117,6 @@ function Resolutor(factsArg) {
     return newFacts;
   };
 }
-
 
 Resolutor.compactTheta = function compactTheta(theta1, theta2) {
   let theta = {};
