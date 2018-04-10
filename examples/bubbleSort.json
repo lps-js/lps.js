@@ -1,0 +1,79 @@
+[
+  {
+    "time": 1,
+    "fluents": [
+      "location(\"d\", 1, 1)",
+      "location(\"c\", 2, 1)",
+      "location(\"b\", 3, 1)",
+      "location(\"a\", 4, 1)"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 2,
+    "fluents": [
+      "location(\"d\", 2, 2)",
+      "location(\"c\", 1, 2)",
+      "location(\"b\", 4, 2)",
+      "location(\"a\", 3, 2)"
+    ],
+    "actions": [
+      "swap(\"d\", 1, \"c\", 2, 1, 2)",
+      "swap(\"b\", 3, \"a\", 4, 1, 2)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 3,
+    "fluents": [
+      "location(\"c\", 1, 3)",
+      "location(\"b\", 4, 3)",
+      "location(\"d\", 3, 3)",
+      "location(\"a\", 2, 3)"
+    ],
+    "actions": [
+      "swap(\"d\", 2, \"a\", 3, 2, 3)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 4,
+    "fluents": [
+      "location(\"c\", 2, 4)",
+      "location(\"a\", 1, 4)",
+      "location(\"d\", 4, 4)",
+      "location(\"b\", 3, 4)"
+    ],
+    "actions": [
+      "swap(\"c\", 1, \"a\", 2, 3, 4)",
+      "swap(\"d\", 3, \"b\", 4, 3, 4)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 5,
+    "fluents": [
+      "location(\"a\", 1, 5)",
+      "location(\"d\", 4, 5)",
+      "location(\"c\", 3, 5)",
+      "location(\"b\", 2, 5)"
+    ],
+    "actions": [
+      "swap(\"c\", 2, \"b\", 3, 4, 5)"
+    ],
+    "observations": [
+      
+    ]
+  }
+]
