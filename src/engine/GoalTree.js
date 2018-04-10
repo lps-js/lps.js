@@ -1,4 +1,5 @@
 const LiteralTreeMap = require('./LiteralTreeMap');
+const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Resolutor = require('./Resolutor');
 const Value = require('./Value');
 const Variable = require('./Variable');
@@ -51,6 +52,9 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
 };
 
 let resolveStateConditions = function resolveStateConditions(clause, facts, resolved) {
+  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
+    return Resolutor.findUnifications(literal, facts);
+  })
   let thetaSet = [{ theta: {}, unresolved: [] }];
   clause.forEach((literal) => {
     let newThetaSet = [];
@@ -58,6 +62,15 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
       let substitutedLiteral = literal.substitute(tuple.theta);
       if (resolved.contains(substitutedLiteral)) {
         return;
+      }
+      if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
+        if (builtInFunctorProvider.execute(substitutedLiteral)) {
+          newThetaSet.push({
+            theta: tuple.theta,
+            unresolved: tuple.unresolved
+          });
+          return;
+        }
       }
       let literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       if (literalThetas.length === 0) {
