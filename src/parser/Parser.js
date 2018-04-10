@@ -98,7 +98,7 @@ function Parser(source) {
 
   let _multiplicationExpression = function _multiplicationExpression() {
     let expr = _unaryExpression();
-    while (_foundOneOf(TokenTypes.Symbol, ['*', '/'])) {
+    while (_foundOneOf(TokenTypes.Symbol, ['**', '*', '/'])) {
       let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
       _expect(TokenTypes.Symbol);
       node.addChild(expr);
