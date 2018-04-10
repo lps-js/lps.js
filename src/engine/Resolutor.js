@@ -134,4 +134,94 @@ Resolutor.compactTheta = function compactTheta(theta1, theta2) {
   return theta;
 };
 
+Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(rule, factsArg) {
+  let facts = factsArg;
+  if (facts instanceof LiteralTreeMap) {
+    facts = [facts];
+  }
+  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
+    return Resolutor.findUnifications(literal, facts);
+  });
+
+  let literals = rule.getBodyLiterals();
+  let thetaSet = [{ theta: {}, unresolved: [] }];
+  literals.forEach((literal) => {
+    let newThetaSet = [];
+    thetaSet.forEach((pair) => {
+      let substitutedLiteral = literal.substitute(pair.theta);
+      let literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
+      if (literalThetas.length === 0) {
+        newThetaSet.push({
+          theta: pair.theta,
+          unresolved: pair.unresolved.concat([substitutedLiteral])
+        });
+        return;
+      }
+      literalThetas.forEach((t) => {
+        newThetaSet.push({
+          theta: Resolutor.compactTheta(pair.theta, t.theta),
+          unresolved: pair.unresolved
+        });
+      })
+    });
+    thetaSet = newThetaSet;
+  });
+  return thetaSet;
+};
+
+Resolutor.findUnifications = function findUnifications(literal, factsArg) {
+  let facts = factsArg;
+  if (facts instanceof LiteralTreeMap) {
+    facts = [facts];
+  }
+  let unifications = []
+  for (let i = 0; i < facts.length; i += 1) {
+    let unification = facts[i].unifies(literal);
+    unifications = unifications.concat(unification);
+  }
+  return unifications;
+};
+
+Resolutor.processRules = function processRules(rules, goals, factsArg) {
+  let facts = factsArg;
+  if (facts instanceof LiteralTreeMap) {
+    facts = [facts];
+  }
+
+  let newRules = [];
+  rules.forEach((rule) => {
+    let resolutions = Resolutor.reduceRuleAntecdent(rule, facts);
+    let consequentLiterals = rule.getHeadLiterals();
+    resolutions.forEach((pair) => {
+      let substitutedConsequentLiterals = consequentLiterals.map(l => l.substitute(pair.theta));
+      if (pair.unresolved.length === 0) {
+        goals.push(substitutedConsequentLiterals);
+        return;
+      }
+
+      newRules.push(new Clause(substitutedConsequentLiterals, pair.unresolved));
+    });
+  });
+  return newRules;
+};
+
+Resolutor.reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
+  let reductions = [];
+  let assumption = new LiteralTreeMap();
+  assumption.add(eventAtom);
+
+  program.forEach((clause) => {
+    if (clause.isConstraint()) {
+      return;
+    }
+    let headLiterals = clause.getHeadLiterals();
+    let unifications = Resolutor.findUnifications(headLiterals[0], [assumption]);
+    unifications.forEach((pair) => {
+      reductions.push(clause.getBodyLiterals().map(l => l.substitute(pair.theta)));
+    });
+  });
+
+  return reductions;
+};
+
 module.exports = Resolutor;
