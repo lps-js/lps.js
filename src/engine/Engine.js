@@ -3,6 +3,7 @@ const Functor = require('./Functor');
 const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
 const Program = require('./Program');
+const GoalTree = require('./GoalTree');
 const Unifier = require('./Unifier');
 const Value = require('./Value');
 const Variable = require('./Variable');
@@ -20,7 +21,9 @@ function Engine(nodes) {
   let _goals = [];
 
   let _activeFluents = new LiteralTreeMap();
-  let _currentTime = 1;
+  let _candidateActions = new LiteralTreeMap();
+  let _possibleActions = new LiteralTreeMap();
+  let _currentTime = 0;
 
   let _lastStepActions = [];
   let _lastStepObservations = [];
@@ -64,7 +67,7 @@ function Engine(nodes) {
       throw new Error('Invalid timable functor provided');
     }
     let args = literal.getArguments();
-    args[args.length - 1] = new Value(time);
+    args[args.length - 1] = new Value(String(time));
     return new Functor(literal.getName(), args);
   };
 
@@ -103,6 +106,7 @@ function Engine(nodes) {
         throw new Error('Unexpected value "' + val.toString() + '" in action/1 argument');
       }
       _actions[literal.getId()] = true;
+      _possibleActions.add(literal);
     },
     'actions/1': (val) => {
       if (!(val instanceof Array)) {
@@ -308,7 +312,7 @@ function Engine(nodes) {
     };
   }
 
-  let performResolution = function performResolution(currentFluents) {
+  let performCycle = function performCycle(currentFluents) {
     let nextTime = _currentTime + 1;
 
     let actions = Object.keys(_actions);
@@ -317,6 +321,7 @@ function Engine(nodes) {
     let program = _program.getProgram();
     let facts = _program.getFacts();
     let timeStepFacts = currentFluents.clone();
+    let executedActions = new LiteralTreeMap();
 
     let result = {
       terminated: [],
@@ -324,36 +329,26 @@ function Engine(nodes) {
       activeActions: []
     };
 
-    // build goal clauses for each rule
-    // we need to derive the partially executed rule here too
-    rules.forEach((rule) => {
-      // rule is a single clause
-      //console.log(rule.toString());
-      let resolutor = new Resolutor([rule], [facts, timeStepFacts]);
-      let resolution = resolutor.resolve();
-      resolution.toArray().forEach((literal) => {
-        if (facts.contains(literal) || timeStepFacts.contains(literal)) {
-          console.log('remove');
-          resolution.remove(literal);
-        }
-      });
-      //console.log(timeStepFacts.toArray().map(x => x.toString()));
-      if (resolution.size() > 0) {
-        _goals.push(resolution);
-      }
-    });
-
-    _goals.forEach((goal) => {
-
-    });
+    // TODO: decide which actions
+    console.log(_currentTime);
+    console.log(_candidateActions.size());
+    _candidateActions.forEach((l) => {
+      result.activeActions.push(l);
+      let actors = findFluentActors(l);
+      result.terminated = result.terminated.concat(actors.t);
+      result.initiated = result.initiated.concat(actors.i);
+      // timeStepFacts.add(l);
+      executedActions.add(l);
+    })
+    _candidateActions.clear();
 
     let observationResult = processObservations(timeStepFacts);
     result.terminated = observationResult.terminated.concat(result.terminated);
     result.initiated = observationResult.initiated.concat(result.initiated);
 
     let updatedState = new LiteralTreeMap();
-    currentFluents.forEach((fluent) => {
-      updatedState.add(updateTimableFunctor(fluent, nextTime));
+    currentFluents.forEach((literal) => {
+      updatedState.add(updateTimableFunctor(literal, nextTime));
     });
 
     let deltaTerminated = new LiteralTreeMap();
@@ -379,6 +374,29 @@ function Engine(nodes) {
     deltaInitiated.forEach((fluent) => {
       updatedState.add(fluent);
     });
+
+    // build goal clauses for each rule
+    // we need to derive the partially executed rule here too
+    let newGoals = [];
+    let newRules = Resolutor.processRules(rules, newGoals, [facts, updatedState, executedActions]);
+
+    // to handle if time for this iteration has ended
+    let currentTimePossibleActions = new LiteralTreeMap();
+    let timeTheta = {
+      $T1: new Value(String(_currentTime + 1)),
+      $T2: new Value(String(_currentTime + 2))
+    }
+    _possibleActions.forEach((l) => {
+      currentTimePossibleActions.add(l.substitute(timeTheta));
+    });
+
+    _goals = _goals.concat(newGoals);
+    if (_goals.length > 0) {
+      let goalTree = new GoalTree(_goals[0]);
+      if (goalTree.evaluate(program, currentTimePossibleActions, _candidateActions, [facts, updatedState, executedActions])) {
+        _goals.shift();
+      }
+    }
 
     _lastStepActions = result.activeActions;
     _lastStepObservations = observationResult.activeObservations;
@@ -409,7 +427,7 @@ function Engine(nodes) {
     if (_currentTime > _maxTime) {
       return;
     }
-    let nextStepActiveFluents = performResolution(_activeFluents);
+    let nextStepActiveFluents = performCycle(_activeFluents);
     _activeFluents = nextStepActiveFluents;
     _currentTime += 1;
   };
@@ -419,11 +437,6 @@ function Engine(nodes) {
       return null;
     }
     let result = [];
-
-    result.push({
-      time: _currentTime,
-      activeFluents: this.getActiveFluents()
-    });
 
     while (_currentTime < _maxTime) {
       this.step();
