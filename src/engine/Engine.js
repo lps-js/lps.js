@@ -69,7 +69,7 @@ function Engine(nodes) {
       throw new Error('Invalid timable functor provided');
     }
     let args = literal.getArguments();
-    args[args.length - 1] = new Value(String(time));
+    args[args.length - 1] = new Value(time);
     return new Functor(literal.getName(), args);
   };
 
@@ -265,7 +265,7 @@ function Engine(nodes) {
         throw new Error('Time given to observe/2 must be a value.');
       }
       try {
-        builtInProcessors['observe/3'].apply(null, [fluent, time, new Value(String(parseInt(time.evaluate()) + 1))]);
+        builtInProcessors['observe/3'].apply(null, [fluent, time, new Value(Number(time.evaluate()) + 1)]);
       } catch (_) {
         throw new Error('Invalid fluent value given for observe/2.');
       }
@@ -369,7 +369,7 @@ function Engine(nodes) {
     }
 
     // process observations
-    let theta = { $T1: new Value(String(_currentTime)), $T2: new Value(String(_currentTime + 1)) };
+    let theta = { $T1: new Value(_currentTime), $T2: new Value(_currentTime + 1) };
     let nextTime = _currentTime + 1;
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action.substitute(theta);
@@ -510,8 +510,8 @@ function Engine(nodes) {
     // to handle if time for this iteration has ended
     let currentTimePossibleActions = new LiteralTreeMap();
     let timeTheta = {
-      $T1: new Value(String(_currentTime + 1)),
-      $T2: new Value(String(_currentTime + 2))
+      $T1: new Value(_currentTime + 1),
+      $T2: new Value(_currentTime + 2)
     }
     _possibleActions.forEach((l) => {
       currentTimePossibleActions.add(l.substitute(timeTheta));
