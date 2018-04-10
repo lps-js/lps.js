@@ -21,7 +21,7 @@ function Engine(nodes) {
   let _goals = [];
 
   let _activeFluents = new LiteralTreeMap();
-  let _candidateActions = new LiteralTreeMap();
+  let _goalCandidateActions = [];
   let _possibleActions = new LiteralTreeMap();
   let _currentTime = 0;
 
@@ -287,7 +287,7 @@ function Engine(nodes) {
     }
 
     // process observations
-    let theta = { $T1: new Value(_currentTime) };
+    let theta = { $T1: new Value(_currentTime), $T2: new Value(_currentTime + 1) };
     let nextTime = _currentTime + 1;
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action.substitute(theta);
@@ -310,7 +310,40 @@ function Engine(nodes) {
       terminated: observationTerminated,
       initiated: observationInitiated
     };
-  }
+  };
+
+  let actionsSelector = function actionsSelector(goalCandidateActions, program, facts) {
+    let newFacts;
+    let recursiveSelector = function(actionsSoFar, i) {
+      if (i >= goalCandidateActions.length) {
+        let resolutor = new Resolutor(facts.concat(actionsSoFar));
+        if (resolutor.resolve(program) === null) {
+          return null;
+        }
+        let actions = new LiteralTreeMap();
+        actionsSoFar.forEach((map) => {
+          map.forEach((l) => {
+            actions.add(l);
+          })
+        })
+        return actions;
+      }
+
+      let candidates = goalCandidateActions[i].toArray();
+      for (let k = 0; k < candidates.length; k += 1) {
+        let candidateMap = new LiteralTreeMap();
+        candidateMap.add(candidates[k]);
+        let result = recursiveSelector(actionsSoFar.concat([candidateMap]), i + 1);
+        if (result !== null) {
+          return result;
+        }
+      }
+
+      return recursiveSelector(actionsSoFar, i + 1);
+      //return null;
+    }
+    return recursiveSelector([], 0);
+  };
 
   let performCycle = function performCycle(currentFluents) {
     let nextTime = _currentTime + 1;
@@ -329,10 +362,17 @@ function Engine(nodes) {
       activeActions: []
     };
 
+    let updatedState = new LiteralTreeMap();
+    currentFluents.forEach((literal) => {
+      updatedState.add(updateTimableFunctor(literal, nextTime));
+    });
+
     // TODO: decide which actions
-    console.log(_currentTime);
-    console.log(_candidateActions.size());
-    _candidateActions.forEach((l) => {
+    let selectedActions = actionsSelector(_goalCandidateActions, program, [facts, currentFluents, updatedState]);
+    if (selectedActions === null) {
+      selectedActions = [];
+    }
+    selectedActions.forEach((l) => {
       result.activeActions.push(l);
       let actors = findFluentActors(l);
       result.terminated = result.terminated.concat(actors.t);
@@ -340,16 +380,11 @@ function Engine(nodes) {
       // timeStepFacts.add(l);
       executedActions.add(l);
     })
-    _candidateActions.clear();
+    _goalCandidateActions = [];
 
     let observationResult = processObservations(timeStepFacts);
     result.terminated = observationResult.terminated.concat(result.terminated);
     result.initiated = observationResult.initiated.concat(result.initiated);
-
-    let updatedState = new LiteralTreeMap();
-    currentFluents.forEach((literal) => {
-      updatedState.add(updateTimableFunctor(literal, nextTime));
-    });
 
     let deltaTerminated = new LiteralTreeMap();
     let deltaInitiated = new LiteralTreeMap();
@@ -378,7 +413,7 @@ function Engine(nodes) {
     // build goal clauses for each rule
     // we need to derive the partially executed rule here too
     let newGoals = [];
-    let newRules = Resolutor.processRules(rules, newGoals, [facts, updatedState, executedActions]);
+    let newRules = Resolutor.processRules(rules, newGoals, [facts, currentFluents, updatedState, executedActions]);
 
     // to handle if time for this iteration has ended
     let currentTimePossibleActions = new LiteralTreeMap();
@@ -391,12 +426,18 @@ function Engine(nodes) {
     });
 
     _goals = _goals.concat(newGoals);
-    if (_goals.length > 0) {
-      let goalTree = new GoalTree(_goals[0]);
-      if (goalTree.evaluate(program, currentTimePossibleActions, _candidateActions, [facts, updatedState, executedActions])) {
-        _goals.shift();
+    newGoals = [];
+    _goals.forEach((goal) => {
+      let candidateActions = new LiteralTreeMap();
+      let goalTree = new GoalTree(goal);
+      console.log(goal.toString())
+      if (!goalTree.evaluate(program, currentTimePossibleActions, candidateActions, [facts, updatedState, executedActions])) {
+        //newGoals.push(goal);
       }
-    }
+      console.log(candidateActions.toArray().toString());
+      _goalCandidateActions.push(candidateActions);
+    });
+    _goals = newGoals;
 
     _lastStepActions = result.activeActions;
     _lastStepObservations = observationResult.activeObservations;
@@ -440,6 +481,7 @@ function Engine(nodes) {
 
     while (_currentTime < _maxTime) {
       this.step();
+      console.log('TIME ' + _currentTime);
 
       result.push({
         time: _currentTime,
