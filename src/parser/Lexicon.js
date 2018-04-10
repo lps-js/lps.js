@@ -21,7 +21,8 @@ module.exports = {
     '<', // less than / binary
     '!', // negation / unary
     '[', // list start
-    ']' // list end
+    ']', // list end
+    '|' // head/tail separator
   ],
   doubleSymbols: [
     '->', // implies / binary
