@@ -1,22 +1,28 @@
 [
   {
     "time": 1,
-    "activeFluents": [
-      "locked(\"container1\", 1)",
-      "trash(\"bottle1\", 1)",
-      "bin(\"container1\", 1)",
-      "bin(\"container2\", 1)"
+    "fluents": [
+      "locked(\"container1\", \"1\")",
+      "trash(\"bottle1\", \"1\")",
+      "bin(\"container1\", \"1\")",
+      "bin(\"container2\", \"1\")"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
     ]
   },
   {
     "time": 2,
     "fluents": [
-      "locked(\"container1\", 2)",
-      "bin(\"container1\", 2)",
-      "bin(\"container2\", 2)"
+      "locked(\"container1\", \"2\")",
+      "bin(\"container1\", \"2\")",
+      "bin(\"container2\", \"2\")"
     ],
     "actions": [
-      "dispose(\"bottle1\", \"container2\", T2, T3)"
+      "dispose(\"bottle1\", \"container2\", \"1\", \"2\")"
     ],
     "observations": [
       
@@ -25,9 +31,9 @@
   {
     "time": 3,
     "fluents": [
-      "locked(\"container1\", 3)",
-      "bin(\"container1\", 3)",
-      "bin(\"container2\", 3)"
+      "locked(\"container1\", \"3\")",
+      "bin(\"container1\", \"3\")",
+      "bin(\"container2\", \"3\")"
     ],
     "actions": [
       
@@ -39,9 +45,9 @@
   {
     "time": 4,
     "fluents": [
-      "locked(\"container1\", 4)",
-      "bin(\"container1\", 4)",
-      "bin(\"container2\", 4)"
+      "locked(\"container1\", \"4\")",
+      "bin(\"container1\", \"4\")",
+      "bin(\"container2\", \"4\")"
     ],
     "actions": [
       
@@ -53,23 +59,21 @@
   {
     "time": 5,
     "fluents": [
-      "locked(\"container1\", 5)",
-      "bin(\"container1\", 5)",
-      "bin(\"container2\", 5)"
+      "bin(\"container1\", \"5\")",
+      "bin(\"container2\", \"5\")"
     ],
     "actions": [
       
     ],
     "observations": [
-      "unlock(\"container1\", T1, T2)"
+      "unlock(\"container1\", \"4\", \"5\")"
     ]
   },
   {
     "time": 6,
     "fluents": [
-      "locked(\"container1\", 6)",
-      "bin(\"container1\", 6)",
-      "bin(\"container2\", 6)"
+      "bin(\"container1\", \"6\")",
+      "bin(\"container2\", \"6\")"
     ],
     "actions": [
       
@@ -81,9 +85,8 @@
   {
     "time": 7,
     "fluents": [
-      "locked(\"container1\", 7)",
-      "bin(\"container1\", 7)",
-      "bin(\"container2\", 7)"
+      "bin(\"container1\", \"7\")",
+      "bin(\"container2\", \"7\")"
     ],
     "actions": [
       
@@ -95,9 +98,8 @@
   {
     "time": 8,
     "fluents": [
-      "locked(\"container1\", 8)",
-      "bin(\"container1\", 8)",
-      "bin(\"container2\", 8)"
+      "bin(\"container1\", \"8\")",
+      "bin(\"container2\", \"8\")"
     ],
     "actions": [
       
@@ -109,9 +111,8 @@
   {
     "time": 9,
     "fluents": [
-      "locked(\"container1\", 9)",
-      "bin(\"container1\", 9)",
-      "bin(\"container2\", 9)"
+      "bin(\"container1\", \"9\")",
+      "bin(\"container2\", \"9\")"
     ],
     "actions": [
       
@@ -123,9 +124,8 @@
   {
     "time": 10,
     "fluents": [
-      "locked(\"container1\", 10)",
-      "bin(\"container1\", 10)",
-      "bin(\"container2\", 10)"
+      "bin(\"container1\", \"10\")",
+      "bin(\"container2\", \"10\")"
     ],
     "actions": [
       
