@@ -1,6 +1,7 @@
 const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
 const Value = require('./Value');
+const Variable = require('./Variable');
 
 let fetchActionTiming = function fetchActionTiming(literal) {
   let arguments = literal.getArguments();
@@ -33,8 +34,14 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
     let timingVar1Name = headArgs[headArgs.length - 2].evaluate();
     let timingVar2Name = headArgs[headArgs.length - 1].evaluate();
     unifications.forEach((pair) => {
-      delete pair.theta[timingVar1Name];
-      delete pair.theta[timingVar2Name];
+      if (pair.theta[timingVar1Name] instanceof Variable) {
+        delete pair.theta[timingVar1Name];
+      }
+
+      if (pair.theta[timingVar2Name] instanceof Variable) {
+        delete pair.theta[timingVar2Name];
+      }
+
       reductions.push(clause.getBodyLiterals().map(l => l.substitute(pair.theta)));
     });
   });
@@ -43,12 +50,15 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
   return reductions;
 };
 
-let resolveStateConditions = function resolveStateConditions(clause, facts) {
+let resolveStateConditions = function resolveStateConditions(clause, facts, resolved) {
   let thetaSet = [{ theta: {}, unresolved: [] }];
   clause.forEach((literal) => {
     let newThetaSet = [];
     thetaSet.forEach((tuple) => {
       let substitutedLiteral = literal.substitute(tuple.theta);
+      if (resolved.contains(substitutedLiteral)) {
+        return;
+      }
       let literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       if (literalThetas.length === 0) {
         newThetaSet.push({
@@ -57,6 +67,7 @@ let resolveStateConditions = function resolveStateConditions(clause, facts) {
         });
         return;
       }
+      resolved.add(substitutedLiteral);
       literalThetas.forEach((t) => {
         let compactedTheta = Resolutor.compactTheta(tuple.theta, t.theta);
         newThetaSet.push({
@@ -67,7 +78,6 @@ let resolveStateConditions = function resolveStateConditions(clause, facts) {
     });
     thetaSet = newThetaSet;
   });
-
   return thetaSet.map(t => t.unresolved).filter(a => a.length < clause.length);
 }
 
@@ -109,33 +119,60 @@ let resolveSimpleActions = function resolveSimpleActions (clause, possibleAction
   });
 };
 
-function GoalNode (clause) {
+function GoalNode(clause) {
   this.clause = clause;
   this.children = [];
+  this.resolvedLiterals = new LiteralTreeMap();
 
-  this.evaluate = function evaluate(program, possibleActions, candidateActions, facts) {
+  this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
+    let result = [];
+    let candidateActions = new LiteralTreeMap();
+    resolveSimpleActions(this.clause, possibleActions, candidateActions);
+    if (this.children.length === 0) {
+      return [candidateActions];
+    }
+    for (let i = 0; i < this.children.length; i += 1) {
+      let childCandidateActionSet = this.children[i].getCandidateActionSet(possibleActions);
+      if (childCandidateActionSet.length > 0) {
+        result = result.concat(childCandidateActionSet);
+      }
+    }
+    return result;
+  };
+
+  this.evaluate = function evaluate(program, facts) {
     if (this.clause.length === 0) {
       return true;
     }
 
-    let reductionResult = [];
-    for (let i = 0; i < this.clause.length; i += 1) {
-      reductionResult = reductionResult.concat(reduceCompositeEvent(clause[i], program));
-    }
-    reductionResult = reductionResult.concat(resolveStateConditions(clause, facts));
-    resolveSimpleActions(this.clause, possibleActions, candidateActions);
-
-    reductionResult.forEach((r) => {
-      //console.log(r);
-      this.children.push(new GoalNode(r));
-    });
-
     for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, possibleActions, candidateActions, facts);
+      let result = this.children[i].evaluate(program, facts);
       if (result) {
         return true;
       }
     }
+
+    let reductionResult = [];
+    if (this.children.length === 0) {
+      for (let i = 0; i < this.clause.length; i += 1) {
+        reductionResult = reductionResult.concat(reduceCompositeEvent(clause[i], program));
+      }
+    }
+    reductionResult = reductionResult.concat(resolveStateConditions(clause, facts, this.resolvedLiterals));
+
+    let newChildren = [];
+    reductionResult.forEach((r) => {
+      console.log('Adding child ' + r.map(x => x.toString()) + ' for ' + this.clause.toString());
+      newChildren.push(new GoalNode(r));
+    });
+
+    for (let i = 0; i < newChildren.length; i += 1) {
+      let result = newChildren[i].evaluate(program, facts);
+      if (result) {
+        return true;
+      }
+    }
+    this.children = this.children.concat(newChildren);
     return false;
   }
 }
@@ -146,6 +183,10 @@ function GoalTree(goalClause) {
   this.evaluate = function evaluate(program, possibleActions, candidateActions, facts) {
     return _root.evaluate(program, possibleActions, candidateActions, facts);
   };
+
+  this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
+    return _root.getCandidateActionSet(possibleActions);
+  }
 }
 
 module.exports = GoalTree;
