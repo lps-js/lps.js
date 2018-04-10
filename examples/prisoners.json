@@ -1,0 +1,77 @@
+[
+  {
+    "time": 1,
+    "fluents": [
+      "total_years_in_jail(\"me\", 0, 1)",
+      "total_years_in_jail(\"you\", 0, 1)"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 2,
+    "fluents": [
+      "total_years_in_jail(\"me\", 0, 2)",
+      "total_years_in_jail(\"you\", 0, 2)"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      "refuses(\"you\", 1, 2)",
+      "bears_witness(\"me\", 1, 2)"
+    ]
+  },
+  {
+    "time": 3,
+    "fluents": [
+      "total_years_in_jail(\"me\", 0, 3)",
+      "total_years_in_jail(\"you\", 3, 3)"
+    ],
+    "actions": [
+      "gets(\"me\", 0, 2, 3)",
+      "gets(\"you\", 3, 2, 3)",
+      "refuses(\"me\", 2, 3)",
+      "bears_witness(\"you\", 2, 3)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 4,
+    "fluents": [
+      "total_years_in_jail(\"you\", 3, 4)",
+      "total_years_in_jail(\"me\", 3, 4)"
+    ],
+    "actions": [
+      "gets(\"you\", 0, 3, 4)",
+      "gets(\"me\", 3, 3, 4)",
+      "refuses(\"you\", 3, 4)",
+      "bears_witness(\"me\", 3, 4)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 5,
+    "fluents": [
+      "total_years_in_jail(\"me\", 3, 5)",
+      "total_years_in_jail(\"you\", 6, 5)"
+    ],
+    "actions": [
+      "gets(\"me\", 0, 4, 5)",
+      "gets(\"you\", 3, 4, 5)",
+      "refuses(\"me\", 4, 5)",
+      "bears_witness(\"you\", 4, 5)"
+    ],
+    "observations": [
+      
+    ]
+  }
+]
