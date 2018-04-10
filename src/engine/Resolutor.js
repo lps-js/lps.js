@@ -182,20 +182,37 @@ Resolutor.findUnifications = function findUnifications(literal, factsArg) {
   return unifications;
 };
 
-Resolutor.processRules = function processRules(rules, goals, factsArg) {
+Resolutor.processRules = function processRules(rules, goals, fluents, actions, factsArg) {
   let facts = factsArg;
   if (facts instanceof LiteralTreeMap) {
     facts = [facts];
   }
 
+  let containsTimables = function(rule) {
+    let bodyLiterals = rule.getBodyLiterals();
+    let result = false;
+    bodyLiterals.forEach((literal) => {
+      if (fluents[literal.getId()] || actions[literal.getId()]) {
+        result = true;
+      }
+    })
+    return result;
+  }
+
   let newRules = [];
   rules.forEach((rule) => {
+    if (containsTimables(rule)) {
+      newRules.push(rule);
+    }
     let resolutions = Resolutor.reduceRuleAntecdent(rule, facts);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
       let substitutedConsequentLiterals = consequentLiterals.map(l => l.substitute(pair.theta));
       if (pair.unresolved.length === 0) {
         goals.push(substitutedConsequentLiterals);
+        return;
+      }
+      if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
         return;
       }
 
