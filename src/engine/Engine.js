@@ -1,4 +1,5 @@
 const Clause = require('./Clause');
+const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Functor = require('./Functor');
 const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
@@ -15,6 +16,7 @@ function Engine(nodes) {
 
   let _terminators = [];
   let _initiators = [];
+  let _updaters = [];
   let _observations = {};
 
   let _program = new Program(nodes);
@@ -69,6 +71,36 @@ function Engine(nodes) {
     let args = literal.getArguments();
     args[args.length - 1] = new Value(String(time));
     return new Functor(literal.getName(), args);
+  };
+
+  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
+    return _program.getFacts().unifies(literal);
+  });
+
+  let handleBuiltInFunctorArgumentInLiteral = function handleBuiltInFunctorArgumentInLiteral(literal) {
+    let literalName = literal.getName();
+    let literalArgs = literal.getArguments();
+
+    let handleArg = (newArgs) => {
+      return (arg) => {
+        if (arg instanceof Array) {
+          let newArr = [];
+          arg.forEach(handleArg(newArr));
+          newArgs.push(newArr);
+          return;
+        }
+        if (arg instanceof Functor && builtInFunctorProvider.has(arg.getId())) {
+          newArgs.push(builtInFunctorProvider.execute(arg));
+          return;
+        }
+        newArgs.push(arg);
+      };
+    };
+
+
+    let newArgs = [];
+    literalArgs.forEach(handleArg(newArgs));
+    return new Functor(literalName, newArgs);
   };
 
   let builtInProcessors = {
@@ -194,12 +226,46 @@ function Engine(nodes) {
       _initiators.push({ action: action, fluent: fluent });
     },
 
+    'updates/3': (actionArg, terminatingFluentArg, initiatingFluentArg) => {
+      let action = actionArg;
+      let terminatingFluent = terminatingFluentArg;
+      let initiatingFluent = initiatingFluentArg;
+
+      if (action instanceof Value) {
+        action = new Functor(action.evaluate(), []);
+      }
+
+      action = actionSyntacticSugarProcessing(action);
+
+      if (_actions[action.getId()] === undefined) {
+        throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
+      }
+
+      let actionArguments = action.getArguments();
+      let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
+      if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
+        throw new Error('When declaring a fluent initiator as a literal, the action must have the last argument as the time variable.');
+      }
+
+      terminatingFluent = fluentSyntacticSugarProcessing(terminatingFluent, lastArgument);
+      initiatingFluent = fluentSyntacticSugarProcessing(initiatingFluent, lastArgument);
+
+      if (_fluents[terminatingFluent.getId()] === undefined) {
+        throw new Error('Fluent "' + terminatingFluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
+      }
+      if (_fluents[initiatingFluent.getId()] === undefined) {
+        throw new Error('Fluent "' + initiatingFluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
+      }
+
+      _updaters.push({ action: action, old: terminatingFluent, new: initiatingFluent });
+    },
+
     'observe/2': (fluent, time) => {
       if (!(time instanceof Value)) {
         throw new Error('Time given to observe/2 must be a value.');
       }
       try {
-        builtInProcessors['observe/3'].apply(null, [fluent, time, new Value(time.evaluate() + 1)]);
+        builtInProcessors['observe/3'].apply(null, [fluent, time, new Value(String(parseInt(time.evaluate()) + 1))]);
       } catch (_) {
         throw new Error('Invalid fluent value given for observe/2.');
       }
@@ -244,9 +310,25 @@ function Engine(nodes) {
     });
   };
 
-  let findFluentActors = function findFluentActors(action) {
+  let findFluentActors = function findFluentActors(action, timeStepFacts) {
     let initiated = [];
     let terminated = [];
+
+    _updaters.forEach((u) => {
+      let theta = Unifier.unifies([[u.action, action]]);
+      if (theta === null) {
+        return;
+      }
+
+      let factThetaSet = timeStepFacts.unifies(u.old.substitute(theta));
+      factThetaSet.forEach((pair) => {
+        let currentTheta = Resolutor.compactTheta(theta, pair.theta);
+        let oldFluent = handleBuiltInFunctorArgumentInLiteral(u.old.substitute(currentTheta));
+        let newFluent = handleBuiltInFunctorArgumentInLiteral(u.new.substitute(currentTheta));
+        terminated.push(oldFluent);
+        initiated.push(newFluent);
+      })
+    });
 
     _terminators.forEach((t) => {
       let theta = Unifier.unifies([[t.action, action]]);
@@ -254,7 +336,7 @@ function Engine(nodes) {
         return;
       }
 
-      terminated.push(t.fluent.substitute(theta));
+      terminated.push(handleBuiltInFunctorArgumentInLiteral(t.fluent.substitute(theta)));
     });
 
     _initiators.forEach((i) => {
@@ -263,7 +345,7 @@ function Engine(nodes) {
         return;
       }
 
-      initiated.push(i.fluent.substitute(theta));
+      initiated.push(handleBuiltInFunctorArgumentInLiteral(i.fluent.substitute(theta)));
     });
 
     return {
@@ -287,13 +369,12 @@ function Engine(nodes) {
     }
 
     // process observations
-    let theta = { $T1: new Value(_currentTime), $T2: new Value(_currentTime + 1) };
+    let theta = { $T1: new Value(String(_currentTime)), $T2: new Value(String(_currentTime + 1)) };
     let nextTime = _currentTime + 1;
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action.substitute(theta);
-      timeStepFacts.add(action);
       activeObservations.push(action);
-      let result = findFluentActors(action);
+      let result = findFluentActors(action, timeStepFacts);
       observationTerminated = observationTerminated.concat(result.t);
       observationInitiated = observationInitiated.concat(result.i);
 
@@ -344,6 +425,9 @@ function Engine(nodes) {
     return recursiveSelector([], 0);
   };
 
+  /*
+    Perform Cycle
+  */
   let performCycle = function performCycle(currentFluents) {
     let nextTime = _currentTime + 1;
 
@@ -352,7 +436,6 @@ function Engine(nodes) {
     let rules = _program.getRules();
     let program = _program.getProgram();
     let facts = _program.getFacts();
-    let timeStepFacts = currentFluents.clone();
     let executedActions = new LiteralTreeMap();
 
     let result = {
@@ -367,7 +450,7 @@ function Engine(nodes) {
     });
 
     // decide which actions from set of candidate actions to execute
-    let selectedActions = actionsSelector(_goalCandidateActions, program, [facts, currentFluents, updatedState]);
+    let selectedActions = actionsSelector(_goalCandidateActions, program, [facts, currentFluents]);
     if (selectedActions === null) {
       selectedActions = [];
     }
@@ -375,7 +458,7 @@ function Engine(nodes) {
     // process selected actions
     selectedActions.forEach((l) => {
       result.activeActions.push(l);
-      let actors = findFluentActors(l);
+      let actors = findFluentActors(l, updatedState);
       result.terminated = result.terminated.concat(actors.t);
       result.initiated = result.initiated.concat(actors.i);
       executedActions.add(l);
@@ -383,7 +466,10 @@ function Engine(nodes) {
     _goalCandidateActions = [];
 
     // update with observations
-    let observationResult = processObservations(timeStepFacts);
+    let observationResult = processObservations(updatedState);
+    observationResult.activeObservations.forEach((observation) => {
+      executedActions.add(observation);
+    });
     result.terminated = observationResult.terminated.concat(result.terminated);
     result.initiated = observationResult.initiated.concat(result.initiated);
 
