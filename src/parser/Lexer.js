@@ -144,7 +144,7 @@ function Lexer(source) {
       chars = _nextChar();
       buffer += chars[0];
     }
-    let result = _makeToken(TokenTypes.Number, buffer, line, col);
+    let result = _makeToken(TokenTypes.Number, Number(buffer), line, col);
     if (advanceLast) {
       lastChars = _nextChar();
     }
