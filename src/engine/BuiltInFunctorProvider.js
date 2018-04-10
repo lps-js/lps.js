@@ -35,6 +35,33 @@ function BuiltInFunctorProvider(findUnifications) {
       return new Value(Number(v1.evaluate()) - Number(v2.evaluate()));
     },
 
+    '*/2': function (v1Arg, v2Arg) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
+      assertIsValue(v1);
+      assertIsValue(v2);
+
+      return new Value(Number(v1.evaluate()) * Number(v2.evaluate()));
+    },
+
+    '//2': function (v1Arg, v2Arg) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
+      assertIsValue(v1);
+      assertIsValue(v2);
+
+      return new Value(Number(v1.evaluate()) / Number(v2.evaluate()));
+    },
+
+    '**/2': function (v1Arg, v2Arg) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
+      assertIsValue(v1);
+      assertIsValue(v2);
+
+      return new Value(Math.pow(Number(v1.evaluate()), Number(v2.evaluate())));
+    },
+
     '-/1': function (v1Arg) {
       let v1 = resolveValue(v1Arg);
       assertIsValue(v1);
@@ -138,6 +165,30 @@ function BuiltInFunctorProvider(findUnifications) {
       assertIsValue(v1);
       assertIsValue(v2);
       return new Value(Math.min(Number(v1.evaluate()), Number(v2.evaluate())));
+    },
+
+    'exp/1': function (v1Arg) {
+      let v1 = resolveValue(v1Arg);
+      assertIsValue(v1);
+      return new Value(Math.exp(Number(v1.evaluate())));
+    },
+
+    'log/1': function (v1Arg) {
+      let v1 = resolveValue(v1Arg);
+      assertIsValue(v1);
+      return new Value(Math.log(Number(v1.evaluate())));
+    },
+
+    'floor/1': function (v1Arg) {
+      let v1 = resolveValue(v1Arg);
+      assertIsValue(v1);
+      return new Value(Math.floor(Number(v1.evaluate())));
+    },
+
+    'ceil/1': function (v1Arg) {
+      let v1 = resolveValue(v1Arg);
+      assertIsValue(v1);
+      return new Value(Math.ceil(Number(v1.evaluate())));
     },
 
     '@</2': function (v1Arg, v2Arg) {
