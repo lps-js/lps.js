@@ -151,7 +151,6 @@ Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(rule, factsArg) {
       let substitutedLiteral = literal.substitute(pair.theta);
       if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
         if (builtInFunctorProvider.execute(substitutedLiteral)) {
-          // console.log('resolved: ' + substitutedLiteral);
           newThetaSet.push({
             theta: pair.theta,
             unresolved: pair.unresolved
