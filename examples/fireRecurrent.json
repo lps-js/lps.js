@@ -1,21 +1,27 @@
 [
   {
     "time": 1,
-    "activeFluents": [
-      "water(1)"
-    ]
-  },
-  {
-    "time": 2,
     "fluents": [
-      "water(2)",
-      "fire(2)"
+      "water(\"1\")"
     ],
     "actions": [
       
     ],
     "observations": [
-      "ignite(\"sofa\", 1, $T2)"
+      
+    ]
+  },
+  {
+    "time": 2,
+    "fluents": [
+      "water(\"2\")",
+      "fire(\"2\")"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      "ignite(\"sofa\", 1, 2)"
     ]
   },
   {
@@ -24,7 +30,7 @@
       
     ],
     "actions": [
-      "eliminate(2, T2)"
+      "eliminate(\"2\", \"3\")"
     ],
     "observations": [
       
@@ -45,22 +51,22 @@
   {
     "time": 5,
     "fluents": [
-      "fire(5)"
+      "fire(\"5\")"
     ],
     "actions": [
       
     ],
     "observations": [
-      "ignite(\"bed\", 4, $T2)"
+      "ignite(\"bed\", 4, 5)"
     ]
   },
   {
     "time": 6,
     "fluents": [
-      "fire(6)"
+      "fire(\"6\")"
     ],
     "actions": [
-      "escape(5, T2)"
+      "escape(\"5\", \"6\")"
     ],
     "observations": [
       
@@ -69,10 +75,10 @@
   {
     "time": 7,
     "fluents": [
-      "fire(7)"
+      "fire(\"7\")"
     ],
     "actions": [
-      "escape(6, T2)"
+      "escape(\"6\", \"7\")"
     ],
     "observations": [
       
@@ -81,38 +87,38 @@
   {
     "time": 8,
     "fluents": [
-      "fire(8)",
-      "water(8)"
+      "fire(\"8\")",
+      "water(\"8\")"
     ],
     "actions": [
-      "escape(7, T2)"
+      "escape(\"7\", \"8\")"
     ],
     "observations": [
-      "refill(7, $T2)"
+      "refill(7, 8)"
     ]
   },
   {
     "time": 9,
     "fluents": [
-      "water(9)"
+      "water(\"9\")"
     ],
     "actions": [
-      "eliminate(8, T2)"
+      "eliminate(\"8\", \"9\")"
     ],
     "observations": [
-      "refill(8, $T2)"
+      "refill(8, 9)"
     ]
   },
   {
     "time": 10,
     "fluents": [
-      "water(10)"
+      "water(\"10\")"
     ],
     "actions": [
       
     ],
     "observations": [
-      "refill(9, $T2)"
+      "refill(9, 10)"
     ]
   }
 ]

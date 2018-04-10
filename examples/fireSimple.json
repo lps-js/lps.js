@@ -17,8 +17,7 @@
       
     ],
     "actions": [
-      "eliminate(\"1\", \"2\")",
-      "escape(\"1\", \"2\")"
+      "eliminate(\"1\", \"2\")"
     ],
     "observations": [
       
