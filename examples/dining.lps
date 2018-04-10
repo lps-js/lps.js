@@ -1,13 +1,14 @@
 maxTime(7).
 fluent(available(_)).
-actions([pickup(_, _), putdown(_, _)]).
-action(dine(_)).
+actions([pickup(X, Y), putdown(X, Y)]).
 
-initially([available(fork1),
-		available(fork2),
-		available(fork3),
-		available(fork4),
-		available(fork5)]).
+initially(
+	[available(fork1),
+	available(fork2),
+	available(fork3),
+	available(fork4),
+	available(fork5)
+]).
 
 philosopher(socrates).
 philosopher(plato).
@@ -33,5 +34,5 @@ dine(P, T1, T3) <-
 terminates(pickup(P, F), available(F)).
 initiates(putdown(P, F), available(F)).
 
-<-	pickup(P, F), not available(F).
-<-	pickup(P1, F), pickup(P2, F), P1 != P2.
+<-	pickup(P, F, T, T1), not available(F, T).
+<-	pickup(P1, F, T, T1), pickup(P2, F, T, T1), P1 != P2.

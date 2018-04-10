@@ -1,0 +1,118 @@
+[
+  {
+    "time": 1,
+    "fluents": [
+      "available(\"fork1\", \"1\")",
+      "available(\"fork2\", \"1\")",
+      "available(\"fork3\", \"1\")",
+      "available(\"fork4\", \"1\")",
+      "available(\"fork5\", \"1\")"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 2,
+    "fluents": [
+      "available(\"fork5\", \"2\")"
+    ],
+    "actions": [
+      "pickup(\"socrates\", \"fork1\", \"1\", \"2\")",
+      "pickup(\"socrates\", \"fork2\", \"1\", \"2\")",
+      "pickup(\"aristotle\", \"fork3\", \"1\", \"2\")",
+      "pickup(\"aristotle\", \"fork4\", \"1\", \"2\")"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 3,
+    "fluents": [
+      "available(\"fork5\", \"3\")",
+      "available(\"fork1\", \"3\")",
+      "available(\"fork2\", \"3\")",
+      "available(\"fork3\", \"3\")",
+      "available(\"fork4\", \"3\")"
+    ],
+    "actions": [
+      "putdown(\"socrates\", \"fork1\", \"2\", \"3\")",
+      "putdown(\"socrates\", \"fork2\", \"2\", \"3\")",
+      "putdown(\"aristotle\", \"fork3\", \"2\", \"3\")",
+      "putdown(\"aristotle\", \"fork4\", \"2\", \"3\")"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 4,
+    "fluents": [
+      "available(\"fork1\", \"4\")"
+    ],
+    "actions": [
+      "pickup(\"plato\", \"fork2\", \"3\", \"4\")",
+      "pickup(\"plato\", \"fork3\", \"3\", \"4\")",
+      "pickup(\"hume\", \"fork4\", \"3\", \"4\")",
+      "pickup(\"hume\", \"fork5\", \"3\", \"4\")"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 5,
+    "fluents": [
+      "available(\"fork1\", \"5\")",
+      "available(\"fork2\", \"5\")",
+      "available(\"fork3\", \"5\")",
+      "available(\"fork4\", \"5\")",
+      "available(\"fork5\", \"5\")"
+    ],
+    "actions": [
+      "putdown(\"plato\", \"fork2\", \"4\", \"5\")",
+      "putdown(\"plato\", \"fork3\", \"4\", \"5\")",
+      "putdown(\"hume\", \"fork4\", \"4\", \"5\")",
+      "putdown(\"hume\", \"fork5\", \"4\", \"5\")"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 6,
+    "fluents": [
+      "available(\"fork2\", \"6\")",
+      "available(\"fork3\", \"6\")",
+      "available(\"fork4\", \"6\")"
+    ],
+    "actions": [
+      "pickup(\"kant\", \"fork5\", \"5\", \"6\")",
+      "pickup(\"kant\", \"fork1\", \"5\", \"6\")"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 7,
+    "fluents": [
+      "available(\"fork2\", \"7\")",
+      "available(\"fork3\", \"7\")",
+      "available(\"fork4\", \"7\")",
+      "available(\"fork5\", \"7\")",
+      "available(\"fork1\", \"7\")"
+    ],
+    "actions": [
+      "putdown(\"kant\", \"fork5\", \"6\", \"7\")",
+      "putdown(\"kant\", \"fork1\", \"6\", \"7\")"
+    ],
+    "observations": [
+      
+    ]
+  }
+]
