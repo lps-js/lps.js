@@ -150,23 +150,56 @@ describe('Resolutor', () => {
     });
   });
 
-  describe('reverseQuery', () => {
-    it('should return the correct query result', () => {
-      let clause = new Clause(
-        [new Functor('test', [new Variable('X')])],
-        [new Functor('test2', [new Variable('X')])]
+  describe('reduceRuleAntecdent', () => {
+    it('should return the test result', () => {
+      let rule = new Clause(
+        [new Functor('deal_with_fire', [new Variable('T1'), new Variable('T2')])],
+        [new Functor('fire', [new Variable('T1')])]
       );
-      let program = [clause];
-      let query = new Functor('test', [new Variable('T')])
-      let result = Resolutor.reverseQuery(program, null, query, ['test2/1']);
-      expect(result).to.be.not.null;
-      expect(result).to.be.instanceof(Array);
-      expect(result).to.have.length(1);
 
-      expect(result[0]).to.have.property('theta');
-      expect(result[0].theta).to.be.instanceof(Object);
-      expect(result[0].theta['T']).to.be.instanceof(Variable);
-      expect(result[0].theta['T'].evaluate()).to.be.equal('X');
+      let facts = new LiteralTreeMap();
+      facts.add(new Functor('fire', [new Value(1)]));
+
+      let result = Resolutor.reduceRuleAntecdent(rule, facts);
+      console.log(result);
+    });
+  });
+
+  describe('processRules', () => {
+    it('should return the test result', () => {
+      let rule = new Clause(
+        [new Functor('fire_response', [new Variable('Area'), new Variable('T5'), new Variable('T6')])],
+        [
+          new Functor('head_sensed', [new Variable('Area'), new Variable('T1'), new Variable('T2')]),
+          new Functor('smoke_detected', [new Variable('Area'), new Variable('T3'), new Variable('T4')]),
+          new Functor('<=', [new Functor('abs', [new Functor('-', [new Variable('T2'), new Variable('T4')])]), new Value(60)])
+        ]
+      );
+
+      let facts = new LiteralTreeMap();
+      facts.add(new Functor('smoke_detected', [new Value('kitchen'), new Value(14), new Value(15)]));
+
+      let goals = [];
+      let result = Resolutor.processRules([rule], goals, facts);
+      console.log(result.map(x => x.toString()));
+    });
+  });
+
+  describe('reduceCompositeEvent', () => {
+    it('should return the test result', () => {
+      let clause1 = new Clause(
+        [new Functor('deal_with_fire', [new Variable('T1'), new Variable('T2')])],
+        [new Functor('eliminate', [new Variable('T1'), new Variable('T2')])],
+      );
+      let clause2 = new Clause(
+        [new Functor('deal_with_fire', [new Variable('T1'), new Variable('T2')])],
+        [new Functor('escape', [new Variable('T1'), new Variable('T2')])],
+      );
+
+      let eventAtom = new Functor('deal_with_fire', [new Value(1), new Value(2)]);
+
+      let result = Resolutor.reduceCompositeEvent(eventAtom, [clause1, clause2]);
+      console.log(result.map(x => x.toString()));
     });
   });
 });
