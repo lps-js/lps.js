@@ -120,7 +120,11 @@ function Lexer(source) {
       if (chars[1] === null) {
         return false;
       }
+
       if (/[0-9]/.test(chars[1][1])) {
+        if (isFirstDigitZero) {
+          throw new Error('Unexpected number at line ' + line + ', col ' + col);
+        }
         return true;
       }
 
@@ -133,8 +137,6 @@ function Lexer(source) {
         lastChars = chars;
         advanceLast = false;
         isFirstDigitZero = false;
-      } else if (isFirstDigitZero) {
-        throw new Error('Unexpected number');
       }
       return false;
     };
