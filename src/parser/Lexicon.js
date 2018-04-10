@@ -30,7 +30,10 @@ module.exports = {
     '>=', // more than or equal / binary
     '!=', // not equals / binary
     '==', // equals
-    '**' // power
+    '**', // power
+    '@<',
+    '@>',
+    '@='
   ],
   constantDelimiters: [
     '\'',

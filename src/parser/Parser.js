@@ -124,7 +124,7 @@ function Parser(source) {
 
   let _comparisonExpression = function _comparisonExpression() {
     let expr = _additionExpression();
-    while (_foundOneOf(TokenTypes.Symbol, ['==', '<=', '>=', '!=', '<', '>'])) {
+    while (_foundOneOf(TokenTypes.Symbol, ['==', '<=', '>=', '!=', '<', '>', '@<', '@>', '@='])) {
       let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
       _expect(TokenTypes.Symbol);
       node.addChild(expr);
