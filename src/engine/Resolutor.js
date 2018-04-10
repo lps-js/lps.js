@@ -43,7 +43,7 @@ let resolveClauseBody = (bodyLiterals, facts, builtInFunctorProvider) => {
   return recursivelyFindUnifications([{}], 0);
 };
 
-function Resolutor(program, factsArg) {
+function Resolutor(factsArg) {
   let facts = factsArg;
   if (facts instanceof LiteralTreeMap) {
     facts = [facts];
@@ -54,13 +54,7 @@ function Resolutor(program, factsArg) {
     return findUnifications(literal, facts);
   });
 
-  let _programWithoutClause = [];
-  for (let i = 0; i < program.length; i += 1) {
-    let clause = program[i];
-    _programWithoutClause.push(program.filter(c => c !== clause));
-  }
-
-  let resolveForClause = (clause, idx) => {
+  let resolveForClause = (programWithoutClause, clause, idx) => {
     let thetaSet = resolveClauseBody(clause.getBodyLiterals(), facts, builtInFunctorProvider);
     if (thetaSet === null) {
       return true;
@@ -95,8 +89,8 @@ function Resolutor(program, factsArg) {
         thetaFacts.add(substitutedLiteral);
       });
       // check whether other clauses would accept this set of facts or not
-      let subresolutor = new Resolutor(_programWithoutClause[idx], facts.concat([thetaFacts]));
-      if (subresolutor.resolve() === null) {
+      let subresolutor = new Resolutor(facts.concat([thetaFacts]));
+      if (subresolutor.resolve(programWithoutClause) === null) {
         ++countRejected;
         return;
       }
@@ -112,12 +106,18 @@ function Resolutor(program, factsArg) {
     return true;
   };
 
-  this.resolve = function resolve() {
+  this.resolve = function resolve(program) {
+    let _programWithoutClause = [];
+    for (let i = 0; i < program.length; i += 1) {
+      let clause = program[i];
+      _programWithoutClause.push(program.filter(c => c !== clause));
+    }
+
     let lastNewFactsCount;
     do {
       lastNewFactsCount = newFacts.size();
       for (let i = 0; i < program.length; i += 1) {
-        let result = resolveForClause(program[i], i);
+        let result = resolveForClause(_programWithoutClause[i], program[i], i);
         if (!result) {
           return null;
         }
