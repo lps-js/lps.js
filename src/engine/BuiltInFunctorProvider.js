@@ -8,8 +8,18 @@ let assertIsValue = function assertIsValue(val) {
 };
 
 function BuiltInFunctorProvider(findUnifications) {
+  let resolveValue = (v) => {
+    let result = v;
+    if (result instanceof Functor && this.has(result.getId())) {
+      result = this.execute(result);
+    }
+    return result;
+  }
+
   let functors = {
-    '+/2': function (v1, v2) {
+    '+/2': function (v1Arg, v2Arg) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
       assertIsValue(v1);
       assertIsValue(v2);
 
@@ -17,6 +27,8 @@ function BuiltInFunctorProvider(findUnifications) {
     },
 
     '-/2': function (v1, v2) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
       assertIsValue(v1);
       assertIsValue(v2);
 
@@ -24,11 +36,14 @@ function BuiltInFunctorProvider(findUnifications) {
     },
 
     '-/1': function (v1) {
+      let v1 = resolveValue(v1Arg);
       assertIsValue(v1);
       return -v1.evaluate();
     },
 
     '>/2': function (v1, v2) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
       assertIsValue(v1);
       assertIsValue(v2);
 
@@ -36,6 +51,8 @@ function BuiltInFunctorProvider(findUnifications) {
     },
 
     '>=/2': function (v1, v2) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
       assertIsValue(v1);
       assertIsValue(v2);
 
@@ -43,6 +60,8 @@ function BuiltInFunctorProvider(findUnifications) {
     },
 
     '</2': function (v1, v2) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
       assertIsValue(v1);
       assertIsValue(v2);
 
@@ -50,12 +69,16 @@ function BuiltInFunctorProvider(findUnifications) {
     },
 
     '<=/2': function (v1, v2) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
       assertIsValue(v1);
       assertIsValue(v2);
       return v1.evaluate() <= v2.evaluate();
     },
 
     '!=/2': function (v1, v2) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
       assertIsValue(v1);
       assertIsValue(v2);
       return v1.evaluate() != v2.evaluate();
