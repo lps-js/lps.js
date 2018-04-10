@@ -140,6 +140,33 @@ function BuiltInFunctorProvider(findUnifications) {
       return new Value(Math.min(Number(v1.evaluate()), Number(v2.evaluate())));
     },
 
+    '@</2': function (v1Arg, v2Arg) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
+      assertIsValue(v1);
+      assertIsValue(v2);
+
+      return String(v1.evaluate()).localeCompare(String(v2.evaluate())) === -1;
+    },
+
+    '@=/2': function (v1Arg, v2Arg) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
+      assertIsValue(v1);
+      assertIsValue(v2);
+
+      return String(v1.evaluate()).localeCompare(String(v2.evaluate())) === 0;
+    },
+
+    '@>/2': function (v1Arg, v2Arg) {
+      let v1 = resolveValue(v1Arg);
+      let v2 = resolveValue(v2Arg);
+      assertIsValue(v1);
+      assertIsValue(v2);
+
+      return String(v1.evaluate()).localeCompare(String(v2.evaluate())) === 1;
+    },
+
     '!/1': function (literal) {
       if (!(literal instanceof Functor)) {
         throw new Error('');
