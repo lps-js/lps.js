@@ -1,0 +1,26 @@
+maxTime(5).
+fluent(total_years_in_jail(X, Y)).
+actions([refuses(_), bears_witness(_), gets(X, Y)]).
+
+initially([
+  total_years_in_jail(me, 0),
+  total_years_in_jail(you, 0)
+]).
+
+observe(refuses(you), 1).
+observe(bears_witness(me), 1, 2).
+
+other(me, you).
+other(you, me).
+
+bears_witness(P, T1, T2), refuses(Q, T1, T2) -> gets(P, 0, T2, T3), gets(Q, 3, T2, T3).
+
+bears_witness(P, T1, T2), bears_witness(Q, T1, T2), other(P, Q) -> gets(P, 2, T2, T3).
+
+refuses(P, T1, T2), refuses(Q, T1, T2), other(P, Q) -> gets(P, 1, T2, T3).
+
+refuses(O, T1, T2), other(I, O) -> refuses(I, T2, T3).
+
+bears_witness(O, T1, T2), other(I, O) -> bears_witness(I, T2, T3).
+
+updates(gets(P, Y), total_years_in_jail(P, OY), total_years_in_jail(P, OY+Y)).
