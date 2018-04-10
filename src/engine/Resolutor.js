@@ -225,8 +225,7 @@ Resolutor.processRules = function processRules(rules, goals, fluents, actions, f
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
         return;
       }
-
-      newRules.push(new Clause(substitutedConsequentLiterals, pair.unresolved));
+      newRules.push(new Clause(substitutedConsequentLiterals, pair.unresolved.map(l => l.substitute(pair.theta))));
     });
   });
   return newRules;
