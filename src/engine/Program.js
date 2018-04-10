@@ -168,6 +168,10 @@ function Program(tree) {
     return _program.map(x => x);
   };
 
+  this.updateRules = function updateRules(rules) {
+    _rules = rules;
+  }
+
   this.getRules = function getRules() {
     return _rules.map(x => x);
   };
