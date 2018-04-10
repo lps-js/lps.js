@@ -270,10 +270,7 @@ function LiteralTreeMap() {
   };
 
   this.clear = function clear() {
-    _root = {
-      _size: 0,
-      _tree: {}
-    };
+    _root = new __TreeNode();
     _count = 0;
     _argumentTreeSymbol = null;
     _argumentClauses = {};
