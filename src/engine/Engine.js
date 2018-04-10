@@ -74,34 +74,8 @@ function Engine(nodes) {
   };
 
   let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
-    return _program.getFacts().unifies(literal);
+    return Resolutor.findUnifications(literal, [_program.getFacts(), _activeFluents]);
   });
-
-  let handleBuiltInFunctorArgumentInLiteral = function handleBuiltInFunctorArgumentInLiteral(literal) {
-    let literalName = literal.getName();
-    let literalArgs = literal.getArguments();
-
-    let handleArg = (newArgs) => {
-      return (arg) => {
-        if (arg instanceof Array) {
-          let newArr = [];
-          arg.forEach(handleArg(newArr));
-          newArgs.push(newArr);
-          return;
-        }
-        if (arg instanceof Functor && builtInFunctorProvider.has(arg.getId())) {
-          newArgs.push(builtInFunctorProvider.execute(arg));
-          return;
-        }
-        newArgs.push(arg);
-      };
-    };
-
-
-    let newArgs = [];
-    literalArgs.forEach(handleArg(newArgs));
-    return new Functor(literalName, newArgs);
-  };
 
   let builtInProcessors = {
     'maxTime/1': (val) => {
@@ -323,8 +297,8 @@ function Engine(nodes) {
       let factThetaSet = timeStepFacts.unifies(u.old.substitute(theta));
       factThetaSet.forEach((pair) => {
         let currentTheta = Resolutor.compactTheta(theta, pair.theta);
-        let oldFluent = handleBuiltInFunctorArgumentInLiteral(u.old.substitute(currentTheta));
-        let newFluent = handleBuiltInFunctorArgumentInLiteral(u.new.substitute(currentTheta));
+        let oldFluent = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, u.old.substitute(currentTheta));
+        let newFluent = Resolutor.handleBuiltInFunctorArgumentInLiteral(u.new.substitute(currentTheta));
         terminated.push(oldFluent);
         initiated.push(newFluent);
       })
@@ -336,7 +310,7 @@ function Engine(nodes) {
         return;
       }
 
-      terminated.push(handleBuiltInFunctorArgumentInLiteral(t.fluent.substitute(theta)));
+      terminated.push(Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, t.fluent.substitute(theta)));
     });
 
     _initiators.forEach((i) => {
@@ -345,7 +319,7 @@ function Engine(nodes) {
         return;
       }
 
-      initiated.push(handleBuiltInFunctorArgumentInLiteral(i.fluent.substitute(theta)));
+      initiated.push(Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, i.fluent.substitute(theta)));
     });
 
     return {
@@ -576,6 +550,7 @@ function Engine(nodes) {
 
     while (_currentTime < _maxTime) {
       this.step();
+      console.log('TIME ' + _currentTime);
 
       result.push({
         time: _currentTime,

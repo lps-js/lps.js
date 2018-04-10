@@ -97,6 +97,9 @@ function Resolutor(factsArg) {
     return true;
   };
 
+
+
+
   this.resolve = function resolve(program) {
     let _programWithoutClause = [];
     for (let i = 0; i < program.length; i += 1) {
@@ -134,14 +137,50 @@ Resolutor.compactTheta = function compactTheta(theta1, theta2) {
   return theta;
 };
 
-Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(rule, factsArg) {
+Resolutor.handleBuiltInFunctorArgumentInLiteral = function handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal) {
+  let literalName = literal.getName();
+  let literalArgs = literal.getArguments();
+
+  let handleArg = (newArgs) => {
+    return (arg) => {
+      if (arg instanceof Array) {
+        let newArr = [];
+        arg.forEach(handleArg(newArr));
+        newArgs.push(newArr);
+        return;
+      }
+      if (arg instanceof Functor && builtInFunctorProvider.has(arg.getId())) {
+        newArgs.push(builtInFunctorProvider.execute(arg));
+        return;
+      }
+      newArgs.push(arg);
+    };
+  };
+
+  let newArgs = [];
+  literalArgs.forEach(handleArg(newArgs));
+  return new Functor(literalName, newArgs);
+};
+
+Resolutor.findUnifications = function findUnifications(literal, factsArg) {
   let facts = factsArg;
   if (facts instanceof LiteralTreeMap) {
     facts = [facts];
   }
-  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
-    return Resolutor.findUnifications(literal, facts);
-  });
+  let unifications = []
+  for (let i = 0; i < facts.length; i += 1) {
+    let unification = facts[i].unifies(literal);
+    unifications = unifications.concat(unification);
+  }
+  return unifications;
+};
+
+Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(builtInFunctorProvider, rule, factsArg) {
+  let facts = factsArg;
+  if (facts instanceof LiteralTreeMap) {
+    facts = [facts];
+  }
+
 
   let literals = rule.getBodyLiterals();
   let thetaSet = [{ theta: {}, unresolved: [] }];
@@ -158,6 +197,7 @@ Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(rule, factsArg) {
           return;
         }
       }
+      substitutedLiteral = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
       let literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       if (literalThetas.length === 0) {
         newThetaSet.push({
@@ -178,18 +218,6 @@ Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(rule, factsArg) {
   return thetaSet;
 };
 
-Resolutor.findUnifications = function findUnifications(literal, factsArg) {
-  let facts = factsArg;
-  if (facts instanceof LiteralTreeMap) {
-    facts = [facts];
-  }
-  let unifications = []
-  for (let i = 0; i < facts.length; i += 1) {
-    let unification = facts[i].unifies(literal);
-    unifications = unifications.concat(unification);
-  }
-  return unifications;
-};
 
 Resolutor.processRules = function processRules(rules, goals, fluents, actions, factsArg) {
   let facts = factsArg;
@@ -208,15 +236,19 @@ Resolutor.processRules = function processRules(rules, goals, fluents, actions, f
     return result;
   }
 
+  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
+    return Resolutor.findUnifications(literal, facts);
+  });
+
   let newRules = [];
   rules.forEach((rule) => {
     if (containsTimables(rule)) {
       newRules.push(rule);
     }
-    let resolutions = Resolutor.reduceRuleAntecdent(rule, facts);
+    let resolutions = Resolutor.reduceRuleAntecdent(builtInFunctorProvider, rule, facts);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
-      let substitutedConsequentLiterals = consequentLiterals.map(l => l.substitute(pair.theta));
+      let substitutedConsequentLiterals = consequentLiterals.map(l => Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, l.substitute(pair.theta)));
       if (pair.unresolved.length === 0) {
         goals.push(substitutedConsequentLiterals);
         return;
