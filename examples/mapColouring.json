@@ -17,10 +17,10 @@
       
     ],
     "actions": [
-      "paint(\"iz\", \"red\", \"1\", \"2\")",
-      "paint(\"oz\", \"yellow\", \"1\", \"2\")",
-      "paint(\"az\", \"blue\", \"1\", \"2\")",
-      "paint(\"uz\", \"blue\", \"1\", \"2\")"
+      "paint(\"iz\", \"red\", 1, 2)",
+      "paint(\"oz\", \"yellow\", 1, 2)",
+      "paint(\"az\", \"blue\", 1, 2)",
+      "paint(\"uz\", \"blue\", 1, 2)"
     ],
     "observations": [
       

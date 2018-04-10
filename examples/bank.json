@@ -2,8 +2,8 @@
   {
     "time": 1,
     "fluents": [
-      "balance(\"bob\", \"0\", \"1\")",
-      "balance(\"fariba\", \"100\", \"1\")"
+      "balance(\"bob\", \"0\", 1)",
+      "balance(\"fariba\", \"100\", 1)"
     ],
     "actions": [
       
@@ -15,24 +15,24 @@
   {
     "time": 2,
     "fluents": [
-      "balance(\"bob\", 10, \"2\")",
-      "balance(\"fariba\", 90, \"2\")"
+      "balance(\"bob\", 10, 2)",
+      "balance(\"fariba\", 90, 2)"
     ],
     "actions": [
       
     ],
     "observations": [
-      "transfer(\"fariba\", \"bob\", \"10\", \"1\", \"2\")"
+      "transfer(\"fariba\", \"bob\", \"10\", 1, 2)"
     ]
   },
   {
     "time": 3,
     "fluents": [
-      "balance(\"fariba\", 100, \"3\")",
-      "balance(\"bob\", 0, \"3\")"
+      "balance(\"fariba\", 100, 3)",
+      "balance(\"bob\", 0, 3)"
     ],
     "actions": [
-      "transfer(\"bob\", \"fariba\", \"10\", \"2\", \"3\")"
+      "transfer(\"bob\", \"fariba\", \"10\", 2, 3)"
     ],
     "observations": [
       
@@ -41,11 +41,11 @@
   {
     "time": 4,
     "fluents": [
-      "balance(\"bob\", 20, \"4\")",
-      "balance(\"fariba\", 80, \"4\")"
+      "balance(\"bob\", 20, 4)",
+      "balance(\"fariba\", 80, 4)"
     ],
     "actions": [
-      "transfer(\"fariba\", \"bob\", \"20\", \"3\", \"4\")"
+      "transfer(\"fariba\", \"bob\", \"20\", 3, 4)"
     ],
     "observations": [
       
@@ -54,11 +54,11 @@
   {
     "time": 5,
     "fluents": [
-      "balance(\"fariba\", 90, \"5\")",
-      "balance(\"bob\", 10, \"5\")"
+      "balance(\"fariba\", 90, 5)",
+      "balance(\"bob\", 10, 5)"
     ],
     "actions": [
-      "transfer(\"bob\", \"fariba\", \"10\", \"4\", \"5\")"
+      "transfer(\"bob\", \"fariba\", \"10\", 4, 5)"
     ],
     "observations": [
       
@@ -67,11 +67,11 @@
   {
     "time": 6,
     "fluents": [
-      "balance(\"bob\", 30, \"6\")",
-      "balance(\"fariba\", 70, \"6\")"
+      "balance(\"bob\", 30, 6)",
+      "balance(\"fariba\", 70, 6)"
     ],
     "actions": [
-      "transfer(\"fariba\", \"bob\", \"20\", \"5\", \"6\")"
+      "transfer(\"fariba\", \"bob\", \"20\", 5, 6)"
     ],
     "observations": [
       
@@ -80,11 +80,11 @@
   {
     "time": 7,
     "fluents": [
-      "balance(\"fariba\", 80, \"7\")",
-      "balance(\"bob\", 20, \"7\")"
+      "balance(\"fariba\", 80, 7)",
+      "balance(\"bob\", 20, 7)"
     ],
     "actions": [
-      "transfer(\"bob\", \"fariba\", \"10\", \"6\", \"7\")"
+      "transfer(\"bob\", \"fariba\", \"10\", 6, 7)"
     ],
     "observations": [
       
@@ -93,11 +93,11 @@
   {
     "time": 8,
     "fluents": [
-      "balance(\"bob\", 40, \"8\")",
-      "balance(\"fariba\", 60, \"8\")"
+      "balance(\"bob\", 40, 8)",
+      "balance(\"fariba\", 60, 8)"
     ],
     "actions": [
-      "transfer(\"fariba\", \"bob\", \"20\", \"7\", \"8\")"
+      "transfer(\"fariba\", \"bob\", \"20\", 7, 8)"
     ],
     "observations": [
       
@@ -106,11 +106,11 @@
   {
     "time": 9,
     "fluents": [
-      "balance(\"fariba\", 70, \"9\")",
-      "balance(\"bob\", 30, \"9\")"
+      "balance(\"fariba\", 70, 9)",
+      "balance(\"bob\", 30, 9)"
     ],
     "actions": [
-      "transfer(\"bob\", \"fariba\", \"10\", \"8\", \"9\")"
+      "transfer(\"bob\", \"fariba\", \"10\", 8, 9)"
     ],
     "observations": [
       
@@ -119,11 +119,11 @@
   {
     "time": 10,
     "fluents": [
-      "balance(\"bob\", 50, \"10\")",
-      "balance(\"fariba\", 50, \"10\")"
+      "balance(\"bob\", 50, 10)",
+      "balance(\"fariba\", 50, 10)"
     ],
     "actions": [
-      "transfer(\"fariba\", \"bob\", \"20\", \"9\", \"10\")"
+      "transfer(\"fariba\", \"bob\", \"20\", 9, 10)"
     ],
     "observations": [
       

@@ -2,7 +2,7 @@
   {
     "time": 1,
     "fluents": [
-      "fire(\"1\")"
+      "fire(1)"
     ],
     "actions": [
       
@@ -17,7 +17,7 @@
       
     ],
     "actions": [
-      "eliminate(\"1\", \"2\")"
+      "eliminate(1, 2)"
     ],
     "observations": [
       

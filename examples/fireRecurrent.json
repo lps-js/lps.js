@@ -2,7 +2,7 @@
   {
     "time": 1,
     "fluents": [
-      "water(\"1\")"
+      "water(1)"
     ],
     "actions": [
       
@@ -14,8 +14,8 @@
   {
     "time": 2,
     "fluents": [
-      "water(\"2\")",
-      "fire(\"2\")"
+      "water(2)",
+      "fire(2)"
     ],
     "actions": [
       
@@ -30,7 +30,7 @@
       
     ],
     "actions": [
-      "eliminate(\"2\", \"3\")"
+      "eliminate(2, 3)"
     ],
     "observations": [
       
@@ -51,7 +51,7 @@
   {
     "time": 5,
     "fluents": [
-      "fire(\"5\")"
+      "fire(5)"
     ],
     "actions": [
       
@@ -63,10 +63,10 @@
   {
     "time": 6,
     "fluents": [
-      "fire(\"6\")"
+      "fire(6)"
     ],
     "actions": [
-      "escape(\"5\", \"6\")"
+      "escape(5, 6)"
     ],
     "observations": [
       
@@ -75,10 +75,10 @@
   {
     "time": 7,
     "fluents": [
-      "fire(\"7\")"
+      "fire(7)"
     ],
     "actions": [
-      "escape(\"6\", \"7\")"
+      "escape(6, 7)"
     ],
     "observations": [
       
@@ -87,11 +87,11 @@
   {
     "time": 8,
     "fluents": [
-      "fire(\"8\")",
-      "water(\"8\")"
+      "fire(8)",
+      "water(8)"
     ],
     "actions": [
-      "escape(\"7\", \"8\")"
+      "escape(7, 8)"
     ],
     "observations": [
       "refill(7, 8)"
@@ -100,25 +100,25 @@
   {
     "time": 9,
     "fluents": [
-      "water(\"9\")"
+      
     ],
     "actions": [
-      "eliminate(\"8\", \"9\")"
+      "eliminate(8, 9)"
     ],
     "observations": [
-      "refill(8, 9)"
+      
     ]
   },
   {
     "time": 10,
     "fluents": [
-      "water(\"10\")"
+      
     ],
     "actions": [
       
     ],
     "observations": [
-      "refill(9, 10)"
+      
     ]
   }
 ]
