@@ -2,8 +2,8 @@
   {
     "time": 1,
     "fluents": [
-      "balance(\"bob\", \"0\", 1)",
-      "balance(\"fariba\", \"100\", 1)"
+      "balance(\"bob\", 0, 1)",
+      "balance(\"fariba\", 100, 1)"
     ],
     "actions": [
       
