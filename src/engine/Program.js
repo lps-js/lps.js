@@ -142,8 +142,8 @@ let isInSet = function isInSet(set, literal) {
 };
 
 let getProgramInterpretation = function getProgramInterpretation(facts, program) {
-  let resolutor = new Resolutor(program, [facts]);
-  let newFacts = resolutor.resolve();
+  let resolutor = new Resolutor(facts);
+  let newFacts = resolutor.resolve(program);
   newFacts.forEach((literal) => facts.add(literal));
 };
 
