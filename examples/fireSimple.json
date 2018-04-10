@@ -1,8 +1,14 @@
 [
   {
     "time": 1,
-    "activeFluents": [
-      "fire(1)"
+    "fluents": [
+      "fire(\"1\")"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
     ]
   },
   {
@@ -11,7 +17,8 @@
       
     ],
     "actions": [
-      "eliminate(1, T2)"
+      "eliminate(\"1\", \"2\")",
+      "escape(\"1\", \"2\")"
     ],
     "observations": [
       
