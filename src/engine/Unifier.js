@@ -29,7 +29,7 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
 
   if (leftOperand instanceof Value && rightOperand instanceof Value) {
     // equal value check
-    if (leftOperand.evaluate() === rightOperand.evaluate()) {
+    if (leftOperand.evaluate() == rightOperand.evaluate()) {
       return theta;
     }
     // no substitution available between two terms of different value.
