@@ -149,6 +149,16 @@ Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(rule, factsArg) {
     let newThetaSet = [];
     thetaSet.forEach((pair) => {
       let substitutedLiteral = literal.substitute(pair.theta);
+      if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
+        if (builtInFunctorProvider.execute(substitutedLiteral)) {
+          // console.log('resolved: ' + substitutedLiteral);
+          newThetaSet.push({
+            theta: pair.theta,
+            unresolved: pair.unresolved
+          });
+          return;
+        }
+      }
       let literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       if (literalThetas.length === 0) {
         newThetaSet.push({
