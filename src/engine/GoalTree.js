@@ -22,12 +22,23 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
     if (clause.isConstraint()) {
       return;
     }
+    // assuming horn clauses only
     let headLiterals = clause.getHeadLiterals();
-    let unifications = assumption.unifies(headLiterals[0]);
+    let headLiteral = headLiterals[0];
+    let headArgs = headLiteral.getArguments();
+    let unifications = assumption.unifies(headLiteral);
+    if (unifications.length === 0) {
+      return;
+    }
+    let timingVar1Name = headArgs[headArgs.length - 2].evaluate();
+    let timingVar2Name = headArgs[headArgs.length - 1].evaluate();
     unifications.forEach((pair) => {
+      delete pair.theta[timingVar1Name];
+      delete pair.theta[timingVar2Name];
       reductions.push(clause.getBodyLiterals().map(l => l.substitute(pair.theta)));
     });
   });
+
 
   return reductions;
 };
@@ -77,15 +88,20 @@ let resolveSimpleActions = function resolveSimpleActions (clause, possibleAction
       }
       literalThetas.forEach((t) => {
         let compactedTheta = Resolutor.compactTheta(tuple.theta, t.theta);
+        substitutedLiteral = substitutedLiteral.substitute(compactedTheta);
+        if (!substitutedLiteral.isGround()) {
+          return;
+        }
         newThetaSet.push({
-          theta: Resolutor.compactTheta(tuple.theta, t.theta),
+          theta: compactedTheta,
           unresolved: tuple.unresolved,
-          candidates: tuple.candidates.concat([substitutedLiteral]).map(l => l.substitute(compactedTheta))
+          candidates: tuple.candidates.concat([substitutedLiteral])
         });
       })
     });
     thetaSet = newThetaSet;
   });
+
   thetaSet.forEach((tuple) => {
     tuple.candidates.forEach((literal) => {
       candidateActions.add(literal);
@@ -98,7 +114,7 @@ function GoalNode (clause) {
   this.children = [];
 
   this.evaluate = function evaluate(program, possibleActions, candidateActions, facts) {
-    if (clause.length === 0) {
+    if (this.clause.length === 0) {
       return true;
     }
 
@@ -107,12 +123,12 @@ function GoalNode (clause) {
       reductionResult = reductionResult.concat(reduceCompositeEvent(clause[i], program));
     }
     reductionResult = reductionResult.concat(resolveStateConditions(clause, facts));
+    resolveSimpleActions(this.clause, possibleActions, candidateActions);
 
     reductionResult.forEach((r) => {
       //console.log(r);
       this.children.push(new GoalNode(r));
     });
-    resolveSimpleActions(clause, possibleActions, candidateActions)
 
     for (let i = 0; i < this.children.length; i += 1) {
       let result = this.children[i].evaluate(program, possibleActions, candidateActions, facts);
