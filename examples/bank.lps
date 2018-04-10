@@ -5,10 +5,10 @@ fluent(balance(Person, Amount)).
 initially([balance(bob, 0), balance(fariba, 100)]).
 observe(transfer(fariba, bob, 10), 1).
 
-transfer(fariba, bob, X, T1, T2), balance(bob, A), A >= 10 ->
+transfer(fariba, bob, X, T1, T2), balance(bob, A, T2), A >= 10 ->
 	transfer(bob, fariba, 10, T2, T3).
 
-transfer(bob, fariba, X, T1, T2), balance(fariba, A), A >= 20 ->
+transfer(bob, fariba, X, T1, T2), balance(fariba, A, T2), A >= 20 ->
 	transfer(fariba, bob, 20, T2, T3).
 
 updates(transfer(F, T, A), balance(T, Old), balance(T, Old + A)).
