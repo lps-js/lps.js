@@ -1,7 +1,13 @@
 [
   {
     "time": 1,
-    "activeFluents": [
+    "fluents": [
+      
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
       
     ]
   },
@@ -11,10 +17,46 @@
       
     ],
     "actions": [
-      "paint(\"uz\", \"blue\", T1, T2)",
-      "paint(\"az\", \"blue\", T1, T2)",
-      "paint(\"oz\", \"yellow\", T1, T2)",
-      "paint(\"iz\", \"red\", T1, T2)"
+      "paint(\"iz\", \"red\", \"1\", \"2\")",
+      "paint(\"oz\", \"yellow\", \"1\", \"2\")",
+      "paint(\"az\", \"blue\", \"1\", \"2\")",
+      "paint(\"uz\", \"blue\", \"1\", \"2\")"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 3,
+    "fluents": [
+      
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 4,
+    "fluents": [
+      
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 5,
+    "fluents": [
+      
+    ],
+    "actions": [
+      
     ],
     "observations": [
       

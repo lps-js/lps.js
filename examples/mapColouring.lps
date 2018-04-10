@@ -1,4 +1,4 @@
-maxTime(2).
+maxTime(5).
 action(paint(X, Y)).
 
 country(iz).
