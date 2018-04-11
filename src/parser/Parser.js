@@ -147,10 +147,10 @@ function Parser(source) {
     let headNode = new AstNode(NodeTypes.ListHead);
     node.addChild(headNode);
     // otherwise we expect at least one element of the list inside
-    headNode.addChild(_arrayExpression());
+    headNode.addChild(_expression());
     while (_foundToBe(TokenTypes.Symbol, ',')) {
       _expect(TokenTypes.Symbol);
-      headNode.addChild(_arrayExpression());
+      headNode.addChild(_expression());
     }
 
     // process tail
