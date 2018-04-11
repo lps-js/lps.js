@@ -1,0 +1,26 @@
+maxTime(3).
+event(request(_)).
+action(announce(_)).
+
+observe(request(sort([2,1,4,3])), 1, 2).
+
+request(sort(X), T1, T2) ->
+  quicksort(X, Y),
+  announce(sorted(Y), T2, T3).
+
+quicksort([X|Xs], Ys) <-
+  partition(Xs, X, Left, Right),
+  quicksort(Left, Ls),
+  quicksort(Right, Rs),
+  append(Ls, [X|Rs], Ys). % for XSB use instead basics:append(Ls,[X|Rs],Ys)
+
+quicksort([], []).
+
+
+partition([X|Xs], Y, [X|Ls],Rs) <-
+  	X =< Y, partition(Xs, Y, Ls, Rs).
+
+partition([X|Xs], Y, Ls, [X|Rs]) <-
+  	X > Y, partition(Xs, Y, Ls, Rs).
+
+partition([], Y, [], []).
