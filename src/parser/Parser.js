@@ -136,28 +136,44 @@ function Parser(source) {
   };
 
   let _arrayExpression = function _arrayExpression() {
-    if (_foundToBe(TokenTypes.Symbol, '[')) {
-      _expect(TokenTypes.Symbol);
-      let node = new AstNode(NodeTypes.List);
-      if (_foundToBe(TokenTypes.Symbol, ']')) {
-        // case of empty array
-        _expect(TokenTypes.Symbol);
-        return node;
-      }
-      // otherwise we expect at least one element of the list inside
-      node.addChild(_arrayExpression());
-      while (_foundToBe(TokenTypes.Symbol, ',')) {
-        _expect(TokenTypes.Symbol);
-        node.addChild(_arrayExpression());
-      }
+    _expect(TokenTypes.Symbol); // opening [
+    let node = new AstNode(NodeTypes.List);
+    if (_foundToBe(TokenTypes.Symbol, ']')) {
+      // case of empty array
       _expect(TokenTypes.Symbol);
       return node;
     }
-    return _comparisonExpression();
+
+    let headNode = new AstNode(NodeTypes.ListHead);
+    node.addChild(headNode);
+    // otherwise we expect at least one element of the list inside
+    headNode.addChild(_arrayExpression());
+    while (_foundToBe(TokenTypes.Symbol, ',')) {
+      _expect(TokenTypes.Symbol);
+      headNode.addChild(_arrayExpression());
+    }
+
+    // process tail
+    if (_foundToBe(TokenTypes.Symbol, '|')) {
+      // a tail of the list exists
+      _expect(TokenTypes.Symbol);
+      // check if tail is a list
+      if (_foundToBe(TokenTypes.Symbol, '[')) {
+        node.addChild(_arrayExpression());
+      } else { // otherwise we expect only a variable
+        node = new AstNode(NodeTypes.Variable, currentToken);
+        _expect(TokenTypes.Variable);
+      }
+    }
+    _expect(TokenTypes.Symbol);
+    return node;
   };
 
   _expression = function () {
-    return _arrayExpression();
+    if (_foundToBe(TokenTypes.Symbol, '[')) {
+      return _arrayExpression();
+    }
+    return _comparisonExpression();
   };
 
   _arguments = function (node) {
