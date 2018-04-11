@@ -131,16 +131,6 @@ let processClauses = function processClauses(rootNode, properties) {
   });
 };
 
-let isInSet = function isInSet(set, literal) {
-  let literalStr = literal.toString();
-  for (let i = 0; i < set.length; i += 1) {
-    if (set[i].toString() === literalStr) {
-      return true;
-    }
-  }
-  return false;
-};
-
 let getProgramInterpretation = function getProgramInterpretation(facts, program) {
   let resolutor = new Resolutor(facts);
   let newFacts = resolutor.resolve(program);
