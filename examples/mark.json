@@ -1,0 +1,101 @@
+[
+  {
+    "time": 1,
+    "fluents": [
+      "thirsty(\"mark\", 1)"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 2,
+    "fluents": [
+      "thirsty(\"mark\", 2)",
+      "drinking(\"mark\", 2)"
+    ],
+    "actions": [
+      "reach(\"mark\", \"glass\", \"right\", 1, 2)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 3,
+    "fluents": [
+      "thirsty(\"mark\", 3)",
+      "drinking(\"mark\", 3)"
+    ],
+    "actions": [
+      "grab(\"mark\", \"glass\", \"right\", 2, 3)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 4,
+    "fluents": [
+      "thirsty(\"mark\", 4)",
+      "drinking(\"mark\", 4)"
+    ],
+    "actions": [
+      "raise(\"mark\", \"glass\", \"right\", 3, 4)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 5,
+    "fluents": [
+      "empty(\"glass\", 5)"
+    ],
+    "actions": [
+      "sip(\"mark\", \"glass\", 4, 5)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 6,
+    "fluents": [
+      "empty(\"glass\", 6)"
+    ],
+    "actions": [
+      "putdown(\"mark\", \"glass\", 5, 6)"
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 7,
+    "fluents": [
+      "empty(\"glass\", 7)"
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      
+    ]
+  },
+  {
+    "time": 8,
+    "fluents": [
+      
+    ],
+    "actions": [
+      
+    ],
+    "observations": [
+      "refill(\"glass\", 7, 8)"
+    ]
+  }
+]
