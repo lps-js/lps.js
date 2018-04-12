@@ -92,16 +92,23 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
     thetaSet = newThetaSet;
   });
   return thetaSet.map(t => t.unresolved).filter(a => a.length < clause.length);
-}
+};
 
 let resolveSimpleActions = function resolveSimpleActions (clause, possibleActions, candidateActions) {
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
+  let hasUnresolvedClause = false;
   clause.forEach((literal) => {
+    if (hasUnresolvedClause) {
+      return;
+    }
     let newThetaSet = [];
     thetaSet.forEach((tuple) => {
       let substitutedLiteral = literal.substitute(tuple.theta);
       let literalThetas = possibleActions.unifies(substitutedLiteral);
       if (literalThetas.length === 0) {
+        if (!substitutedLiteral.isGround()) {
+          hasUnresolvedClause = true;
+        }
         newThetaSet.push({
           theta: tuple.theta,
           unresolved: tuple.unresolved.concat([substitutedLiteral]),
