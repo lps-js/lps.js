@@ -200,8 +200,8 @@ function GoalNode(clause) {
 function GoalTree(goalClause) {
   let _root = new GoalNode(goalClause);
 
-  this.evaluate = function evaluate(program, possibleActions, candidateActions, facts) {
-    return _root.evaluate(program, possibleActions, candidateActions, facts);
+  this.evaluate = function evaluate(program, facts) {
+    return _root.evaluate(program, facts);
   };
 
   this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
