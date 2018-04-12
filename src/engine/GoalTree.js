@@ -145,12 +145,13 @@ function GoalNode(clause) {
   this.resolvedLiterals = new LiteralTreeMap();
 
   this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
-    let result = [];
-    let candidateActions = new LiteralTreeMap();
-    resolveSimpleActions(this.clause, possibleActions, candidateActions);
     if (this.children.length === 0) {
+    let candidateActions = new LiteralTreeMap();
+      resolveSimpleActions(this.clause, possibleActions, candidateActions);
       return [candidateActions];
     }
+
+    let result = [];
     for (let i = 0; i < this.children.length; i += 1) {
       let childCandidateActionSet = this.children[i].getCandidateActionSet(possibleActions);
       if (childCandidateActionSet.length > 0) {
