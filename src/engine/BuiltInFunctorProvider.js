@@ -129,6 +129,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['-/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
 
@@ -151,6 +158,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['*/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
 
@@ -173,6 +187,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['//2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
 
@@ -195,6 +216,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['**/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
 
@@ -237,6 +265,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['>/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let num1 = Number(v1.evaluate());
@@ -261,6 +296,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['>=/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let num1 = Number(v1.evaluate());
@@ -285,6 +327,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['</2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let num1 = Number(v1.evaluate());
@@ -309,6 +358,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['<=/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let num1 = Number(v1.evaluate());
@@ -333,6 +389,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['!=/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let num1 = Number(v1.evaluate());
@@ -542,6 +605,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['pow/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let value = new Value(Math.pow(Number(v1.evaluate()), Number(v2.evaluate())));
@@ -565,6 +635,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['pow/3'](v1, instance, v3Arg));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let value = new Value(Math.pow(Number(v1.evaluate()), Number(v2.evaluate())));
@@ -583,6 +660,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['max/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let value = new Value(Math.max(Number(v1.evaluate()), Number(v2.evaluate())));
@@ -606,6 +690,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['max/3'](v1, instance, v3Arg));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let value = new Value(Math.max(Number(v1.evaluate()), Number(v2.evaluate())));
@@ -624,6 +715,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['min/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let value = new Value(Math.min(Number(v1.evaluate()), Number(v2.evaluate())));
@@ -647,6 +745,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['min/3'](v1, instance, v3Arg));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let value = new Value(Math.min(Number(v1.evaluate()), Number(v2.evaluate())));
@@ -813,6 +918,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['@</2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let compareResult = String(v1.evaluate()).localeCompare(String(v2.evaluate()));
@@ -836,6 +948,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['@=/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let compareResult = String(v1.evaluate()).localeCompare(String(v2.evaluate()));
@@ -859,6 +978,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['@>/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsValue(v2);
       let compareResult = String(v1.evaluate()).localeCompare(String(v2.evaluate()));
@@ -882,6 +1008,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['append/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsList(v1);
       assertIsList(v2);
 
@@ -907,6 +1040,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['append/3'](v1, instance, v3Arg));
+        });
+        return result;
+      }
+
       assertIsList(v1);
       assertIsList(v2);
 
@@ -966,6 +1106,13 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['member/2'](v1, instance));
+        });
+        return result;
+      }
+
       assertIsValue(v1);
       assertIsList(v2);
 
