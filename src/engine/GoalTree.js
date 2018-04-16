@@ -63,16 +63,12 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
       if (resolved.contains(substitutedLiteral)) {
         return;
       }
+      let literalThetas = [];
       if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
-        if (builtInFunctorProvider.execute(substitutedLiteral)) {
-          newThetaSet.push({
-            theta: tuple.theta,
-            unresolved: tuple.unresolved
-          });
-          return;
-        }
+        literalThetas = builtInFunctorProvider.execute(substitutedLiteral);
+      } else {
+        literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       }
-      let literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       if (literalThetas.length === 0) {
         newThetaSet.push({
           theta: tuple.theta,
