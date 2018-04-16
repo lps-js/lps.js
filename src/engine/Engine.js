@@ -297,10 +297,16 @@ function Engine(nodes) {
       let factThetaSet = timeStepFacts.unifies(u.old.substitute(theta));
       factThetaSet.forEach((pair) => {
         let currentTheta = Resolutor.compactTheta(theta, pair.theta);
-        let oldFluent = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, u.old.substitute(currentTheta));
-        let newFluent = Resolutor.handleBuiltInFunctorArgumentInLiteral(u.new.substitute(currentTheta));
-        terminated.push(oldFluent);
-        initiated.push(newFluent);
+
+        let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, u.old.substitute(currentTheta));
+        oldFluentSet.forEach((oldFluent) => {
+          terminated.push(oldFluent);
+        });
+
+        let newFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, u.new.substitute(currentTheta));
+        newFluentSet.forEach((newFluent) => {
+          initiated.push(newFluent);
+        });
       })
     });
 
@@ -310,7 +316,10 @@ function Engine(nodes) {
         return;
       }
 
-      terminated.push(Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, t.fluent.substitute(theta)));
+      let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, t.fluent.substitute(theta));
+      oldFluentSet.forEach((oldFluent) => {
+        terminated.push(oldFluent);
+      });
     });
 
     _initiators.forEach((i) => {
@@ -319,7 +328,10 @@ function Engine(nodes) {
         return;
       }
 
-      initiated.push(Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, i.fluent.substitute(theta)));
+      let newFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, i.fluent.substitute(theta));
+      newFluentSet.forEach((newFluent) => {
+        initiated.push(newFluent);
+      });
     });
 
     return {
