@@ -1,4 +1,5 @@
 const Functor = require('./Functor');
+const List = require('./List');
 const Value = require('./Value');
 const Variable = require('./Variable');
 
@@ -69,7 +70,9 @@ function LiteralTreeMap() {
       }
     };
 
-    if (literal instanceof Functor) {
+    if (literal instanceof List) {
+      args = literal.flatten();
+    } else if (literal instanceof Functor) {
       createIfNotExist(node, literal.getName());
       node = node._tree[literal.getName()];
 
