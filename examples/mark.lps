@@ -16,6 +16,7 @@ observe(refill(glass), 7).
 
 hand(mark, right).
 hand(mark, left).
+
 location(glass, right).
 container(glass).
 container(mug).

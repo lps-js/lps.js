@@ -1,6 +1,7 @@
 const Clause = require('./Clause');
 const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Functor = require('./Functor');
+const List = require('./List');
 const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
 const Program = require('./Program');
@@ -92,10 +93,10 @@ function Engine(nodes) {
       _fluents[fluent.getId()] = fluent;
     },
     'fluents/1': (val) => {
-      if (!(val instanceof Array)) {
-        throw new Error('Value for fluents/1 expected to be an array.');
+      if (!(val instanceof List)) {
+        throw new Error('Value for fluents/1 expected to be a list.');
       }
-      val.forEach((literal) => {
+      val.flatten().forEach((literal) => {
         try {
           builtInProcessors['fluent/1'].apply(null, [literal]);
         } catch (_) {
@@ -115,10 +116,10 @@ function Engine(nodes) {
       _possibleActions.add(literal);
     },
     'actions/1': (val) => {
-      if (!(val instanceof Array)) {
-        throw new Error('Value for actions/1 expected to be an array.');
+      if (!(val instanceof List)) {
+        throw new Error('Value for actions/1 expected to be a list.');
       }
-      val.forEach((literal) => {
+      val.flatten().forEach((literal) => {
         try {
           builtInProcessors['action/1'].apply(null, [literal]);
         } catch (_) {
@@ -128,8 +129,8 @@ function Engine(nodes) {
     },
 
     'initially/1': (val) => {
-      if (val instanceof Array) {
-        val.forEach((v) => {
+      if (val instanceof List) {
+        val.flatten().forEach((v) => {
           builtInProcessors['initially/1'].apply(null, [v]);
         });
         return;
@@ -276,7 +277,6 @@ function Engine(nodes) {
   let processFacts = function processFacts() {
     _program.getFacts().forEach((fact) => {
       let id = fact.getId();
-
       if (builtInProcessors[id] === undefined) {
         return;
       }
