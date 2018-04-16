@@ -72,8 +72,8 @@ function List(head, tail) {
         result += ', ';
       }
     }
-    if (!(tail instanceof List) || !tail.isEmpty()) {
-      result += '|' + tail.toString();
+    if (!(_tail instanceof List) || !_tail.isEmpty()) {
+      result += '|' + _tail.toString();
     }
     result += ']';
     return result;
