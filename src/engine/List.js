@@ -40,8 +40,12 @@ function List(head, tail) {
     return Object.keys(hash);
   };
 
-  this.substitute = function substitute() {
-    return new Value(_value);
+  this.substitute = function substitute(theta) {
+    let flattenedList = this.flatten();
+    flattenedList = flattenedList.map((element) => {
+      return element.substitute(theta);
+    });
+    return new List(flattenedList);
   };
 
   this.flatten = function flatten() {
