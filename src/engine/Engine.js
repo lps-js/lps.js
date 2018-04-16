@@ -447,7 +447,14 @@ function Engine(nodes) {
       let actors = findFluentActors(l, updatedState);
       result.terminated = result.terminated.concat(actors.t);
       result.initiated = result.initiated.concat(actors.i);
-      executedActions.add(l);
+      let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, l);
+      selectedLiterals.forEach((tuple) => {
+        if (tuple.replacement === undefined) {
+          return;
+        }
+        console.log('SEL: ' + tuple.replacement);
+        executedActions.add(tuple.replacement);
+      });
     })
     _goalCandidateActions = [];
 
@@ -461,6 +468,8 @@ function Engine(nodes) {
 
     let observationResolutor = new Resolutor([facts, executedActions, updatedState]);
     let observationFacts = observationResolutor.resolve(program);
+
+    // console.log(observationFacts.toArray().map(x => x.toString()));
 
     let deltaTerminated = new LiteralTreeMap();
     let deltaInitiated = new LiteralTreeMap();
