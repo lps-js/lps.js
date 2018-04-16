@@ -18,13 +18,12 @@ let resolveClauseBody = (bodyLiterals, facts, builtInFunctorProvider) => {
     let currentUnifications = [];
     unifications.forEach((theta) => {
       let substitutedLiteral = literal.substitute(theta);
+      let newUnifications;
       if (builtInFunctorProvider.has(substitutedLiteral.getId())) {
-        if (builtInFunctorProvider.execute(substitutedLiteral)) {
-          currentUnifications.push(theta);
-        }
-        return;
+        newUnifications = builtInFunctorProvider.execute(substitutedLiteral);
+      } else {
+        newUnifications = Resolutor.findUnifications(substitutedLiteral, facts);
       }
-      let newUnifications = Resolutor.findUnifications(substitutedLiteral, facts);
       newUnifications.forEach((newUnification) => {
         currentUnifications.push(Resolutor.compactTheta(theta, newUnification.theta));
       });
@@ -141,25 +140,25 @@ Resolutor.handleBuiltInFunctorArgumentInLiteral = function handleBuiltInFunctorA
   let literalName = literal.getName();
   let literalArgs = literal.getArguments();
 
-  let handleArg = (newArgs) => {
-    return (arg) => {
-      if (arg instanceof Array) {
-        let newArr = [];
-        arg.forEach(handleArg(newArr));
-        newArgs.push(newArr);
-        return;
-      }
-      if (arg instanceof Functor && builtInFunctorProvider.has(arg.getId())) {
-        newArgs.push(builtInFunctorProvider.execute(arg));
-        return;
-      }
-      newArgs.push(arg);
-    };
+  let result = [];
+  let handleLiteralArg = (argsSoFar, idx) => {
+    if (idx >= literalArgs.length) {
+      result.push(new Functor(literalName, argsSoFar));
+    }
+    let arg = literalArgs[idx];
+    if (arg instanceof Functor && builtInFunctorProvider.has(arg.getId())) {
+      let executionResult = builtInFunctorProvider.execute(arg);
+      executionResult.forEach((instance) => {
+        if (instance.replacement === undefined) {
+          return;
+        }
+        handleLiteralArg(argsSoFar.concat([instance.replacement]), idx + 1);
+      })
+      return;
+    }
+    handleLiteralArg(argsSoFar.concat([arg]), idx + 1);
   };
-
-  let newArgs = [];
-  literalArgs.forEach(handleArg(newArgs));
-  return new Functor(literalName, newArgs);
+  return result;
 };
 
 Resolutor.findUnifications = function findUnifications(literal, factsArg) {
@@ -188,17 +187,14 @@ Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(builtInFunctorProvi
     let newThetaSet = [];
     thetaSet.forEach((pair) => {
       let substitutedLiteral = literal.substitute(pair.theta);
+      let literalThetas = [];
       if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
-        if (builtInFunctorProvider.execute(substitutedLiteral)) {
-          newThetaSet.push({
-            theta: pair.theta,
-            unresolved: pair.unresolved
-          });
-          return;
-        }
+        literalThetas = builtInFunctorProvider.execute(substitutedLiteral);
+      } else {
+        // TODO multiple instances
+        substitutedLiteral = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
+        literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       }
-      substitutedLiteral = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
-      let literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       if (literalThetas.length === 0) {
         newThetaSet.push({
           theta: pair.theta,
