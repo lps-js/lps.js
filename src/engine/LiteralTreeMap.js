@@ -152,7 +152,9 @@ function LiteralTreeMap() {
   let buildGetIndexPath = function buildGetIndexPath(literal) {
     let args = literal;
     let path = [];
-    if (literal instanceof Functor) {
+    if (literal instanceof List) {
+      args = literal.flatten();
+    } else if (literal instanceof Functor) {
       path.push(literal.getName());
       args = literal.getArguments();
     }
@@ -336,7 +338,7 @@ function LiteralTreeMap() {
       existingTheta = {};
     }
 
-    if (!(literal instanceof Functor) && !(literal instanceof Array)) {
+    if (!(literal instanceof Functor) && !(literal instanceof List)) {
       throw new Error('Literal is not a functor or array');
     }
 
