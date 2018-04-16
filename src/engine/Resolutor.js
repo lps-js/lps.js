@@ -193,9 +193,10 @@ Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(builtInFunctorProvi
       if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
         literalThetas = builtInFunctorProvider.execute(substitutedLiteral);
       } else {
-        // TODO multiple instances
-        substitutedLiteral = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
-        literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
+        let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
+        substitutedInstances.forEach((literal) => {
+          literalThetas = literalThetas.concat(Resolutor.findUnifications(literal, facts));
+        });
       }
       if (literalThetas.length === 0) {
         newThetaSet.push({
@@ -246,12 +247,14 @@ Resolutor.processRules = function processRules(rules, goals, fluents, actions, f
     let resolutions = Resolutor.reduceRuleAntecdent(builtInFunctorProvider, rule, facts);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
-      let substitutedConsequentLiterals = consequentLiterals.map(l => Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, l.substitute(pair.theta)));
-      if (pair.unresolved.length === 0) {
-        goals.push(substitutedConsequentLiterals);
+      if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
         return;
       }
-      if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
+      let substitutedConsequentLiterals = consequentLiterals.map(l =>  l.substitute(pair.theta));
+      if (pair.unresolved.length === 0) {
+        console.log('adding: ' + substitutedConsequentLiterals);
+
+        goals.push(substitutedConsequentLiterals);
         return;
       }
       newRules.push(new Clause(substitutedConsequentLiterals, pair.unresolved.map(l => l.substitute(pair.theta))));
