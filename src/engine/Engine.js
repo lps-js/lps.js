@@ -447,6 +447,9 @@ function Engine(nodes) {
     result.terminated = observationResult.terminated.concat(result.terminated);
     result.initiated = observationResult.initiated.concat(result.initiated);
 
+    let observationResolutor = new Resolutor([facts, executedActions, updatedState]);
+    let observationFacts = observationResolutor.resolve(program);
+
     let deltaTerminated = new LiteralTreeMap();
     let deltaInitiated = new LiteralTreeMap();
     result.terminated.forEach((terminatedFluent) => {
@@ -476,7 +479,7 @@ function Engine(nodes) {
     // build goal clauses for each rule
     // we need to derive the partially executed rule here too
     let newGoals = [];
-    let newRules = Resolutor.processRules(rules, newGoals, _fluents, _actions, [facts, updatedState, executedActions]);
+    let newRules = Resolutor.processRules(rules, newGoals, _fluents, _actions, [facts, updatedState, executedActions, observationFacts]);
     _program.updateRules(newRules);
 
     newGoals = newGoals.map(g => new GoalTree(g));
@@ -495,7 +498,7 @@ function Engine(nodes) {
 
     newGoals = [];
     _goals.forEach((goalTree) => {
-      if (goalTree.evaluate(program, [facts, updatedState, executedActions])) {
+      if (goalTree.evaluate(program, [facts, updatedState, executedActions, observationFacts])) {
         // goal tree has been resolved
         return;
       }
