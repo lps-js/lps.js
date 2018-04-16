@@ -144,6 +144,7 @@ Resolutor.handleBuiltInFunctorArgumentInLiteral = function handleBuiltInFunctorA
   let handleLiteralArg = (argsSoFar, idx) => {
     if (idx >= literalArgs.length) {
       result.push(new Functor(literalName, argsSoFar));
+      return;
     }
     let arg = literalArgs[idx];
     if (arg instanceof Functor && builtInFunctorProvider.has(arg.getId())) {
@@ -153,11 +154,12 @@ Resolutor.handleBuiltInFunctorArgumentInLiteral = function handleBuiltInFunctorA
           return;
         }
         handleLiteralArg(argsSoFar.concat([instance.replacement]), idx + 1);
-      })
+      });
       return;
     }
     handleLiteralArg(argsSoFar.concat([arg]), idx + 1);
   };
+  handleLiteralArg([], 0);
   return result;
 };
 
