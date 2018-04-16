@@ -22,11 +22,11 @@ let processUnaryOperator = function processUnaryOperator(node) {
 
 let processList = function processList(nodes) {
   let head = processArguments(nodes[0].getChildren());
-  let tail = new List([], []);
   if (nodes.length > 1) {
-    tail = processArguments([nodes[1]])[0];
-  }
-  return new List(head, tail);
+    let tail = processArguments([nodes[1]])[0];
+    return new List(head, tail);
+  };
+  return new List(head);
 };
 
 let processArguments = function processArguments(nodes) {
