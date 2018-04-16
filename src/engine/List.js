@@ -2,6 +2,11 @@ function List(head, tail) {
   let _head = head;
   let _tail = tail;
 
+  if (tail === undefined) {
+    // empty list for tail
+    _tail = new List([], []);
+  }
+
   this.isGround = function isGround() {
     let result = true;
 
