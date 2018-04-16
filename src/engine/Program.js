@@ -1,6 +1,7 @@
 const Clause = require('./Clause');
 const Functor = require('./Functor');
 const NodeTypes = require('../parser/NodeTypes');
+const List = require('./List');
 const Value = require('./Value');
 const Variable = require('./Variable');
 const Resolutor = require('./Resolutor');
@@ -19,6 +20,15 @@ let processUnaryOperator = function processUnaryOperator(node) {
   return new Functor(operator, processArguments(node.getChildren()));
 };
 
+let processList = function processList(nodes) {
+  let head = processArguments(nodes[0].getChildren());
+  let tail = new List([], []);
+  if (nodes.length > 1) {
+    tail = processArguments([nodes[1]])[0];
+  }
+  return new List(head, tail);
+};
+
 let processArguments = function processArguments(nodes) {
   let result = [];
 
@@ -34,7 +44,7 @@ let processArguments = function processArguments(nodes) {
         result.push(processUnaryOperator(node));
         break;
       case NodeTypes.List:
-        result.push(processArguments(node.getChildren()));
+        result.push(processList(node.getChildren()));
         break;
       case NodeTypes.Number:
         result.push(new Value(node.getToken().value));
