@@ -43,6 +43,14 @@ function __TreeNode(size, tree) {
   };
 }
 
+let createSubtreeIfNotExist = (nArg, subtree) => {
+  let n = nArg;
+  if (n._tree[subtree] === undefined) {
+    n._size += 1;
+    n._tree[subtree] = new __TreeNode();
+  }
+};
+
 function LiteralTreeMap() {
   let _root = new __TreeNode();
   let _count = 0;
@@ -62,29 +70,18 @@ function LiteralTreeMap() {
 
     let args = literal;
 
-    let createIfNotExist = (nArg, subtree) => {
-      let n = nArg;
-      if (n._tree[subtree] === undefined) {
-        n._size += 1;
-        n._tree[subtree] = new __TreeNode();
-      }
-    };
-
     if (literal instanceof List) {
       args = literal.flatten();
     } else if (literal instanceof Functor) {
-      createIfNotExist(node, literal.getName());
+      createSubtreeIfNotExist(node, literal.getName());
       node = node._tree[literal.getName()];
-
       args = literal.getArguments();
     }
-
-    createIfNotExist(node, args.length);
-    node = node._tree[args.length];
-
-    let variablesSoFar = {};
+    let lastNodeRep = args.length;
+    createSubtreeIfNotExist(node, args.length);
 
     args.forEach((arg, idx) => {
+      node = node._tree[lastNodeRep];
       let nodeRep = null;
       if (!(arg instanceof Value) && !(arg instanceof Variable)) {
         // use another tree to index this argument
@@ -120,21 +117,23 @@ function LiteralTreeMap() {
           }
         }
       }
+      lastNodeRep = nodeRep;
       if (idx === args.length - 1) {
-        if (node._tree[nodeRep] !== undefined) {
-          node._tree[nodeRep] = value;
-          return;
-        }
-        // do not increment counts for replacement
-        _count += 1;
-        node._size += 1;
-        node._tree[nodeRep] = value;
         return;
       }
 
-      createIfNotExist(node, nodeRep);
-      node = node._tree[nodeRep];
+      createSubtreeIfNotExist(node, nodeRep);
     });
+
+    if (node._tree[lastNodeRep] !== undefined) {
+      node._tree[lastNodeRep] = value;
+      return;
+    }
+
+    // do not increment counts for replacement
+    _count += 1;
+    node._size += 1;
+    node._tree[lastNodeRep] = value;
   };
 
   let flattenLiteral = function flattenLiteral(literal) {
@@ -168,9 +167,8 @@ function LiteralTreeMap() {
         if (_argumentTreeSymbol === null) {
           return null;
         }
-
         nodeRep = _argumentTreeSymbol.get(arg);
-        if (!nodeRep) {
+        if (nodeRep === null) {
           return null;
         }
       } else if (arg instanceof Variable) {
