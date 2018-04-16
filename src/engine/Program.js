@@ -21,6 +21,9 @@ let processUnaryOperator = function processUnaryOperator(node) {
 };
 
 let processList = function processList(nodes) {
+  if (nodes.length === 0) {
+    return new List([]);
+  }
   let head = processArguments(nodes[0].getChildren());
   if (nodes.length > 1) {
     let tail = processArguments([nodes[1]])[0];
