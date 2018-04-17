@@ -7,6 +7,14 @@ function List(head, tail) {
     _tail = new List([], []);
   }
 
+  this.getHead = function getHead() {
+    return [].concat(_head);
+  };
+
+  this.getTail = function getTail() {
+    return _tail;
+  };
+
   this.isGround = function isGround() {
     let result = true;
 
@@ -17,7 +25,9 @@ function List(head, tail) {
       }
     }
 
-    result = result && _tail.isGround();
+    if (!(_tail instanceof Array)) {
+      result = result && _tail.isGround();
+    }
 
     return result;
   };
