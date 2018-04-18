@@ -447,12 +447,8 @@ function Engine(nodes) {
       result.terminated = result.terminated.concat(actors.t);
       result.initiated = result.initiated.concat(actors.i);
       let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, l);
-      selectedLiterals.forEach((tuple) => {
-        if (tuple.replacement === undefined) {
-          return;
-        }
-        console.log('SEL: ' + tuple.replacement);
-        executedActions.add(tuple.replacement);
+      selectedLiterals.forEach((literal) => {
+        executedActions.add(literal);
       });
     })
     _goalCandidateActions = [];
