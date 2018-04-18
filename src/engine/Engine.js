@@ -315,7 +315,6 @@ function Engine(nodes) {
       if (theta === null) {
         return;
       }
-
       let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, t.fluent.substitute(theta));
       oldFluentSet.forEach((oldFluent) => {
         terminated.push(oldFluent);
@@ -466,19 +465,17 @@ function Engine(nodes) {
     result.terminated = observationResult.terminated.concat(result.terminated);
     result.initiated = observationResult.initiated.concat(result.initiated);
 
-    let observationResolutor = new Resolutor([facts, executedActions, updatedState]);
-    let observationFacts = observationResolutor.resolve(program);
-
-    // console.log(observationFacts.toArray().map(x => x.toString()));
+    // console.log('executedActions');
+    // console.log(executedActions.toArray().map(x => x.toString()));
 
     let deltaTerminated = new LiteralTreeMap();
     let deltaInitiated = new LiteralTreeMap();
     result.terminated.forEach((terminatedFluent) => {
-      updatedState.forEach((fluent) => {
-        if (Unifier.unifies([[fluent, terminatedFluent]]) !== null) {
-          deltaTerminated.add(fluent);
-        }
-      });
+      // updatedState.forEach((fluent) => {
+      //   if (Unifier.unifies([[fluent, terminatedFluent]]) !== null) {
+      deltaTerminated.add(terminatedFluent);
+      //   }
+      // });
     });
 
     result.initiated.forEach((initiatedFluent) => {
@@ -500,7 +497,8 @@ function Engine(nodes) {
     // build goal clauses for each rule
     // we need to derive the partially executed rule here too
     let newGoals = [];
-    let newRules = Resolutor.processRules(rules, newGoals, _fluents, _actions, [facts, updatedState, executedActions, observationFacts]);
+
+    let newRules = Resolutor.processRules(rules, newGoals, _fluents, _actions, [facts, updatedState, executedActions]);
     _program.updateRules(newRules);
 
     newGoals = newGoals.map(g => new GoalTree(g));
@@ -519,7 +517,7 @@ function Engine(nodes) {
 
     newGoals = [];
     _goals.forEach((goalTree) => {
-      if (goalTree.evaluate(program, [facts, updatedState, executedActions, observationFacts])) {
+      if (goalTree.evaluate(program, [facts, updatedState, executedActions])) {
         // goal tree has been resolved
         return;
       }
