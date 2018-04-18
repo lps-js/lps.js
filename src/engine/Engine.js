@@ -574,7 +574,6 @@ function Engine(nodes) {
 
     while (_currentTime < _maxTime) {
       this.step();
-      console.log('TIME ' + _currentTime);
 
       result.push({
         time: _currentTime,
