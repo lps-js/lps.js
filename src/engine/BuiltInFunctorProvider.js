@@ -398,8 +398,8 @@ function BuiltInFunctorProvider(findUnifications) {
 
       assertIsValue(v1);
       assertIsValue(v2);
-      let num1 = Number(v1.evaluate());
-      let num2 = Number(v2.evaluate());
+      let num1 = v1.evaluate();
+      let num2 = v2.evaluate();
 
       if (num1 != num2) {
         result.push({
