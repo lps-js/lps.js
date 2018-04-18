@@ -44,7 +44,10 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
         delete pair.theta[timingVar2Name];
       }
 
-      reductions.push(clause.getBodyLiterals().map(l => l.substitute(pair.theta)));
+      reductions.push({
+        clause: clause.getBodyLiterals().map(l => l.substitute(pair.theta)),
+        theta: pair.theta
+      });
     });
   });
 
@@ -201,7 +204,6 @@ function GoalNode(clause) {
         });
       }
     }
-    reductionResult = reductionResult.concat(resolveStateConditions(clause, facts, this.resolvedLiterals));
 
     let newChildren = [];
     reductionResult.forEach((r) => {
@@ -210,6 +212,13 @@ function GoalNode(clause) {
 
     for (let i = 0; i < newChildren.length; i += 1) {
       let result = newChildren[i].evaluate(program, facts);
+      if (result) {
+        return true;
+      }
+    }
+
+    for (let i = 0; i < this.children.length; i += 1) {
+      let result = this.children[i].evaluate(program, facts);
       if (result) {
         return true;
       }
