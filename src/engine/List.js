@@ -1,3 +1,5 @@
+const Variable = require('./Variable');
+
 function List(head, tail) {
   let _head = head;
   let _tail = tail;
@@ -43,9 +45,13 @@ function List(head, tail) {
 
     _head.forEach(processArg);
 
-    tail.getVariables().forEach((varName) => {
-      hash[varName] = true
-    });
+    if (_tail instanceof List) {
+      _tail.getVariables().forEach((varName) => {
+        hash[varName] = true
+      });
+    } else if (_tail instanceof Variable) {
+      hash[_tail.evaluate()] = true;
+    }
 
     return Object.keys(hash);
   };
