@@ -5,13 +5,13 @@ const Value = require('./Value');
 const Variable = require('./Variable');
 
 let fetchActionTiming = function fetchActionTiming(literal) {
-  let arguments = literal.getArguments();
-  if (arguments.length < 2) {
+  let args = literal.getArguments();
+  if (args.length < 2) {
     throw new Error('Invalid action / event');
   }
 
-  let t1TimingArg = arguments[arguments.length - 2];
-  let t2TimingArg = arguments[arguments.length - 1];
+  let t1TimingArg = args[args.length - 2];
+  let t2TimingArg = args[args.length - 1];
   return [t1TimingArg, t2TimingArg];
 }
 
