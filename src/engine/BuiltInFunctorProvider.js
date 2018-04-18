@@ -378,6 +378,37 @@ function BuiltInFunctorProvider(findUnifications) {
       return result;
     },
 
+    '==/2': function (v1Arg, v2Arg) {
+      let result = [];
+      let v1 = resolveValue(v1Arg);
+      if (v1 instanceof Array) {
+        v1.forEach((instance) => {
+          result = result.concat(functors['==/2'](instance, v2Arg));
+        });
+        return result;
+      }
+
+      let v2 = resolveValue(v2Arg);
+      if (v2 instanceof Array) {
+        v2.forEach((instance) => {
+          result = result.concat(functors['==/2'](v1, instance));
+        });
+        return result;
+      }
+
+      assertIsValue(v1);
+      assertIsValue(v2);
+      let num1 = v1.evaluate();
+      let num2 = v2.evaluate();
+
+      if (num1 === num2) {
+        result.push({
+          theta: {}
+        });
+      }
+      return result;
+    },
+
     '!=/2': function (v1Arg, v2Arg) {
       let result = [];
       let v1 = resolveValue(v1Arg);
