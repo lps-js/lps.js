@@ -194,7 +194,7 @@ function GoalNode(clause) {
           });
           let theta = Resolutor.compactTheta(variableArrayRename(varToChange), crrArg.theta);
           let crr = crrArg.clause.map((l) => {
-            return l.substitute(theta);
+            return l.substitute(crrArg.theta);
           });
           let remappedClause = this.clause.map((l) => {
             return l.substitute(theta);
