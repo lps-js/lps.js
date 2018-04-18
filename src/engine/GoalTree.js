@@ -3,6 +3,7 @@ const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Resolutor = require('./Resolutor');
 const Value = require('./Value');
 const Variable = require('./Variable');
+const variableArrayRename = require('../utility/variableArrayRename');
 
 let fetchActionTiming = function fetchActionTiming(literal) {
   let args = literal.getArguments();
