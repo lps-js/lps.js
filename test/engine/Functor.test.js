@@ -1,4 +1,5 @@
 const Functor = require('../../src/engine/Functor');
+const List = require('../../src/engine/List');
 const Value = require('../../src/engine/Value');
 const Variable = require('../../src/engine/Variable');
 
@@ -68,7 +69,7 @@ describe('Functor', () => {
       });
 
       it('should return correct string representation for argument of array', () => {
-        let functor = new Functor('add', [[new Value(2), new Value(5)]]);
+        let functor = new Functor('add', [new List([new Value(2), new Value(5)])]);
         expect(functor.toString).to.be.a('function');
 
         expect(functor.toString()).to.be.equal('add([2, 5])');
