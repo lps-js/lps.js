@@ -57,6 +57,9 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
   })
   let thetaSet = [{ theta: {}, unresolved: [] }];
   clause.forEach((literal) => {
+    if (thetaSet === null) {
+      return;
+    }
     let newThetaSet = [];
     thetaSet.forEach((tuple) => {
       let substitutedLiteral = literal.substitute(tuple.theta);
@@ -66,6 +69,10 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
       let literalThetas = [];
       if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
         literalThetas = builtInFunctorProvider.execute(substitutedLiteral);
+        if (literalThetas.length === 0) {
+          newThetaSet = null;
+          return;
+        }
       } else {
         literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       }
@@ -87,6 +94,9 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
     });
     thetaSet = newThetaSet;
   });
+  if (thetaSet === null) {
+    return null;
+  }
   return thetaSet.map(t => t.unresolved).filter(a => a.length < clause.length);
 };
 
@@ -162,17 +172,32 @@ function GoalNode(clause) {
       return true;
     }
 
-    for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, facts);
-      if (result) {
-        return true;
-      }
-    }
-
     let reductionResult = [];
+    let stateConditionResolutionResult = resolveStateConditions(clause, facts, this.resolvedLiterals);
+    if (stateConditionResolutionResult === null) {
+      // node failed indefinitely
+      return false;
+    }
+    reductionResult = reductionResult.concat(stateConditionResolutionResult);
     if (this.children.length === 0) {
       for (let i = 0; i < this.clause.length; i += 1) {
-        reductionResult = reductionResult.concat(reduceCompositeEvent(clause[i], program));
+        let compositeReductionResult = reduceCompositeEvent(clause[i], program);
+        compositeReductionResult.forEach((crrArg) => {
+          // crr needs to rename variables to avoid clashes
+          let varToChange = [];
+          this.clause.forEach((l) => {
+            varToChange = varToChange.concat(l.getVariables());
+          });
+          let theta = Resolutor.compactTheta(variableArrayRename(varToChange), crrArg.theta);
+          let crr = crrArg.clause.map((l) => {
+            return l.substitute(theta);
+          });
+          let remappedClause = this.clause.map((l) => {
+            return l.substitute(theta);
+          })
+          let newClause = remappedClause.slice(0, i).concat(crr).concat(remappedClause.slice(i + 1, this.clause.length));
+          reductionResult.push(newClause);
+        });
       }
     }
     reductionResult = reductionResult.concat(resolveStateConditions(clause, facts, this.resolvedLiterals));
