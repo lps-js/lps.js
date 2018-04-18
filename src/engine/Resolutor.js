@@ -96,9 +96,6 @@ function Resolutor(factsArg) {
     return true;
   };
 
-
-
-
   this.resolve = function resolve(program) {
     let _programWithoutClause = [];
     for (let i = 0; i < program.length; i += 1) {
@@ -124,7 +121,11 @@ Resolutor.compactTheta = function compactTheta(theta1, theta2) {
   let theta = {};
   Object.keys(theta1).forEach((key) => {
     let substitution = theta1[key];
-    while (substitution instanceof Variable && theta2[substitution.evaluate()]) {
+    while (substitution instanceof Variable && theta2[substitution.evaluate()] !== undefined) {
+      if (theta2[substitution.evaluate()] instanceof Variable
+          && substitution.evaluate() === theta2[substitution.evaluate()].evaluate()) {
+        break;
+      }
       substitution = theta2[substitution.evaluate()];
     }
     theta[key] = substitution;
