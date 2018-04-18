@@ -19,7 +19,7 @@ let resolveClauseBody = (bodyLiterals, facts, builtInFunctorProvider) => {
     unifications.forEach((theta) => {
       let substitutedLiteral = literal.substitute(theta);
       let newUnifications;
-      if (builtInFunctorProvider.has(substitutedLiteral.getId())) {
+      if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
         newUnifications = builtInFunctorProvider.execute(substitutedLiteral);
       } else {
         newUnifications = Resolutor.findUnifications(substitutedLiteral, facts);
