@@ -1,0 +1,17 @@
+maxTime(3).
+action(request(_, _)).
+action(announce(_)).
+
+observe(request([2, 1, 4, 3], 3), 1, 2).
+
+request(X, Y, T1, T2) ->
+  partition(X, Y, Left, Right),
+  announce(result(Left, Right), T2, T3).
+
+partition([X|Xs], Y, L, Rs) <-
+  	X <= Y, partition(Xs, Y, Ls, Rs), append([X], Ls, L).
+
+partition([X|Xs], Y, Ls, R) <-
+  	X > Y, partition(Xs, Y, Ls, Rs), append([X], Rs, R).
+
+partition([], Y, [], []).
