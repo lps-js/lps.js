@@ -7,32 +7,32 @@ const Variable = require('./Variable');
 const Resolutor = require('./Resolutor');
 const LiteralTreeMap = require('./LiteralTreeMap');
 
-let processBinaryOperator = function processBinaryOperator(node) {
+let processBinaryOperator = function processBinaryOperator(node, singleUnderscoreVariableSet) {
   let operator = node.getToken().value;
-  return new Functor(operator, processArguments(node.getChildren()));
+  return new Functor(operator, processArguments(node.getChildren(), singleUnderscoreVariableSet));
 };
 
-let processUnaryOperator = function processUnaryOperator(node) {
+let processUnaryOperator = function processUnaryOperator(node, singleUnderscoreVariableSet) {
   let operator = node.getToken().value;
   if (operator === 'not') {
     operator = '!';
   }
-  return new Functor(operator, processArguments(node.getChildren()));
+  return new Functor(operator, processArguments(node.getChildren(), singleUnderscoreVariableSet));
 };
 
-let processList = function processList(nodes) {
+let processList = function processList(nodes, singleUnderscoreVariableSet) {
   if (nodes.length === 0) {
     return new List([]);
   }
-  let head = processArguments(nodes[0].getChildren());
+  let head = processArguments(nodes[0].getChildren(), singleUnderscoreVariableSet);
   if (nodes.length > 1) {
-    let tail = processArguments([nodes[1]])[0];
+    let tail = processArguments([nodes[1]], singleUnderscoreVariableSet)[0];
     return new List(head, tail);
   };
   return new List(head);
 };
 
-let processArguments = function processArguments(nodes) {
+let processArguments = function processArguments(nodes, singleUnderscoreVariableSet) {
   let result = [];
 
   nodes.forEach((node) => {
@@ -41,22 +41,27 @@ let processArguments = function processArguments(nodes) {
         result.push(new Value(node.getToken().value));
         break;
       case NodeTypes.BinaryOperator:
-        result.push(processBinaryOperator(node));
+        result.push(processBinaryOperator(node, singleUnderscoreVariableSet));
         break;
       case NodeTypes.UnaryOperator:
-        result.push(processUnaryOperator(node));
+        result.push(processUnaryOperator(node, singleUnderscoreVariableSet));
         break;
       case NodeTypes.List:
-        result.push(processList(node.getChildren()));
+        result.push(processList(node.getChildren(), singleUnderscoreVariableSet));
         break;
       case NodeTypes.Number:
         result.push(new Value(node.getToken().value));
         break;
       case NodeTypes.Functor:
-        result.push(processFunctor(node));
+        result.push(processFunctor(node, singleUnderscoreVariableSet));
         break;
       case NodeTypes.Variable:
-        result.push(new Variable(node.getToken().value));
+        let name = node.getToken().value;
+        if (name === '_') {
+          name = '$_' + String(singleUnderscoreVariableSet.next);
+          singleUnderscoreVariableSet.next += 1;
+        }
+        result.push(new Variable(name));
         break;
       default:
         throw new Error('Unexpected node type in arguments set: '
@@ -67,17 +72,17 @@ let processArguments = function processArguments(nodes) {
   return result;
 };
 
-let processFunctor = function processFunctor(node) {
+let processFunctor = function processFunctor(node, singleUnderscoreVariableSet) {
   let name = node.getToken().value;
-  return new Functor(name, processArguments(node.getChildren()));
+  return new Functor(name, processArguments(node.getChildren(), singleUnderscoreVariableSet));
 };
 
-let processLiteralSet = function processLiteralSet(literals) {
+let processLiteralSet = function processLiteralSet(literals, singleUnderscoreVariableSet) {
   let result = [];
   literals.forEach((node) => {
     switch (node.getType()) {
       case NodeTypes.Functor:
-        result.push(processFunctor(node));
+        result.push(processFunctor(node, singleUnderscoreVariableSet));
         break;
       case NodeTypes.BinaryOperator:
         result.push(processBinaryOperator(node));
@@ -94,18 +99,29 @@ let processLiteralSet = function processLiteralSet(literals) {
 };
 
 let processFactClause = function processFactClause(literals) {
-  let literalSet = processLiteralSet(literals);
+  let singleUnderscoreVariableSet = {
+    next: 0
+  };
+  let literalSet = processLiteralSet(literals, singleUnderscoreVariableSet);
   return literalSet;
 };
 
 let processConstraintClause = function processConstraintClause(bodyLiterals) {
-  let bodySet = processLiteralSet(bodyLiterals);
+  let singleUnderscoreVariableSet = {
+    next: 0,
+    set: {}
+  };
+  let bodySet = processLiteralSet(bodyLiterals, singleUnderscoreVariableSet);
   return new Clause([], bodySet);
 };
 
 let processClause = function processClause(headLiterals, bodyLiterals) {
-  let headSet = processLiteralSet(headLiterals);
-  let bodySet = processLiteralSet(bodyLiterals);
+  let singleUnderscoreVariableSet = {
+    next: 0,
+    set: {}
+  };
+  let headSet = processLiteralSet(headLiterals, singleUnderscoreVariableSet);
+  let bodySet = processLiteralSet(bodyLiterals, singleUnderscoreVariableSet);
   return new Clause(headSet, bodySet);
 };
 
