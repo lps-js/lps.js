@@ -44,7 +44,6 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
           delete theta[varName];
         }
       });
-      clause.getBodyLiterals().map(l => l.substitute(theta)).forEach(l => console.log('ll ' + l));
       reductions.push({
         clause: clause.getBodyLiterals().map(l => l.substitute(theta)),
         theta: outputTheta
