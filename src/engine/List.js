@@ -57,11 +57,15 @@ function List(head, tail) {
   };
 
   this.substitute = function substitute(theta) {
-    let flattenedList = this.flatten();
-    flattenedList = flattenedList.map((element) => {
+    let newHead = head.map((element) => {
       return element.substitute(theta);
     });
-    return new List(flattenedList);
+
+    let newTail = _tail;
+    if (newTail instanceof List || newTail instanceof Variable) {
+      newTail = newTail.substitute(theta)
+    }
+    return new List(newHead, newTail);
   };
 
   this.flatten = function flatten() {
