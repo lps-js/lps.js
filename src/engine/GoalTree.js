@@ -14,7 +14,7 @@ let fetchActionTiming = function fetchActionTiming(literal) {
   let t1TimingArg = args[args.length - 2];
   let t2TimingArg = args[args.length - 1];
   return [t1TimingArg, t2TimingArg];
-}
+};
 
 let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
   let reductions = [];
@@ -33,20 +33,21 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
     if (unifications.length === 0) {
       return;
     }
-    let timingVar1Name = headArgs[headArgs.length - 2].evaluate();
-    let timingVar2Name = headArgs[headArgs.length - 1].evaluate();
+
     unifications.forEach((pair) => {
-      if (pair.theta[timingVar1Name] instanceof Variable) {
-        delete pair.theta[timingVar1Name];
-      }
-
-      if (pair.theta[timingVar2Name] instanceof Variable) {
-        delete pair.theta[timingVar2Name];
-      }
-
+      let theta = pair.theta;
+      let outputTheta = {};
+      Object.keys(theta).forEach((varName) => {
+        if (theta[varName] instanceof Variable) {
+          // output variable
+          outputTheta[theta[varName].evaluate()] = new Variable(varName);
+          delete theta[varName];
+        }
+      });
+      clause.getBodyLiterals().map(l => l.substitute(theta)).forEach(l => console.log('ll ' + l));
       reductions.push({
-        clause: clause.getBodyLiterals().map(l => l.substitute(pair.theta)),
-        theta: pair.theta
+        clause: clause.getBodyLiterals().map(l => l.substitute(theta)),
+        theta: outputTheta
       });
     });
   });
@@ -104,7 +105,7 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
   return thetaSet.map(t => t.unresolved).filter(a => a.length < clause.length);
 };
 
-let resolveSimpleActions = function resolveSimpleActions (clause, possibleActions, candidateActions) {
+let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, candidateActions) {
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
   let hasUnresolvedClause = false;
   clause.forEach((literal) => {
@@ -192,14 +193,10 @@ function GoalNode(clause) {
           this.clause.forEach((l) => {
             varToChange = varToChange.concat(l.getVariables());
           });
-          let theta = Resolutor.compactTheta(variableArrayRename(varToChange), crrArg.theta);
-          let crr = crrArg.clause.map((l) => {
-            return l.substitute(crrArg.theta);
-          });
           let remappedClause = this.clause.map((l) => {
-            return l.substitute(theta);
+            return l.substitute(crrArg.theta);
           })
-          let newClause = remappedClause.slice(0, i).concat(crr).concat(remappedClause.slice(i + 1, this.clause.length));
+          let newClause = remappedClause.slice(0, i).concat(crrArg.clause).concat(remappedClause.slice(i + 1, this.clause.length));
           reductionResult.push(newClause);
         });
       }
