@@ -1,6 +1,6 @@
 maxTime(7).
 fluent(available(_)).
-actions([pickup(X, Y), putdown(X, Y)]).
+actions([pickup(_, _), putdown(_, _)]).
 
 initially(
 	[available(fork1),

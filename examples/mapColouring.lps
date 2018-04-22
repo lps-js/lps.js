@@ -1,5 +1,5 @@
 maxTime(5).
-action(paint(X, Y)).
+action(paint(_, _)).
 
 country(iz).
 country(oz).
