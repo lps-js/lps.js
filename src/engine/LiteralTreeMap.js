@@ -394,8 +394,11 @@ function LiteralTreeMap() {
             // it's a not variable
             return;
           }
-          cloneTheta();
           let treeVarName = symName.substring(11, symName.length - 1);
+          if (theta[treeVarName] !== undefined) {
+            return;
+          }
+          cloneTheta();
           newTheta[treeVarName] = new Value(value);
           subResult = recursiveUnification(node._tree[index], i + 1, newTheta);
           result = result.concat(subResult);
