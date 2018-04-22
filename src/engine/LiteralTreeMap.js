@@ -43,6 +43,17 @@ function __TreeNode(size, tree) {
   };
 }
 
+let recursivelyGetLeafNodes = (currentNode) => {
+  if (!(currentNode instanceof __TreeNode)) {
+    return [currentNode];
+  }
+  let result = [];
+  currentNode.indices().forEach((idx) => {
+    result = result.concat(recursivelyGetLeafNodes(currentNode._tree[idx]));
+  });
+  return result;
+};
+
 let createSubtreeIfNotExist = (nArg, subtree) => {
   let n = nArg;
   if (n._tree[subtree] === undefined) {
@@ -337,12 +348,10 @@ function LiteralTreeMap() {
     }
 
     if (!(literal instanceof Functor) && !(literal instanceof List)) {
-      throw new Error('Literal is not a functor or array');
+      throw new Error('Literal is not a functor or list');
     }
 
-    let path = flattenLiteral(literal);
-
-    let recursiveUnification = (node, i, thetaArg) => {
+    let recursiveUnification = (path, node, i, thetaArg) => {
       let theta = thetaArg;
       if (i >= path.length) {
         return [ {theta: theta, leaf: node } ];
@@ -359,7 +368,7 @@ function LiteralTreeMap() {
         if (node._tree[current] === undefined) {
           return [];
         }
-        return recursiveUnification(node._tree[current], i + 1, theta);;
+        return recursiveUnification(path, node._tree[current], i + 1, theta);;
       }
 
       let cloneTheta = () => {
@@ -373,7 +382,7 @@ function LiteralTreeMap() {
         node.indices().forEach((index) => {
           // index is not a variable, functor or list
           if (value === index) {
-            subResult = recursiveUnification(node._tree[index], i + 1, theta);
+            subResult = recursiveUnification(path, node._tree[index], i + 1, theta);
             result = result.concat(subResult);
             return;
           }
@@ -385,7 +394,7 @@ function LiteralTreeMap() {
             // it's a number
             let numValue = Number(symName.substring(11, symName.length - 1));
             if (value === numValue) {
-              subResult = recursiveUnification(node._tree[index], i + 1, theta);
+              subResult = recursiveUnification(path, node._tree[index], i + 1, theta);
               result = result.concat(subResult);
             }
             return;
@@ -400,7 +409,7 @@ function LiteralTreeMap() {
           }
           cloneTheta();
           newTheta[treeVarName] = new Value(value);
-          subResult = recursiveUnification(node._tree[index], i + 1, newTheta);
+          subResult = recursiveUnification(path, node._tree[index], i + 1, newTheta);
           result = result.concat(subResult);
         });
       };
@@ -431,7 +440,7 @@ function LiteralTreeMap() {
               // it's a number
               let numValue = Number(symName.substring(11, symName.length - 1));
               newTheta[varName] = new Value(numValue);
-              subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+              subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
               result = result.concat(subResult);
               return;
             }
@@ -439,38 +448,52 @@ function LiteralTreeMap() {
               // it's a variable
               let treeVarName = symName.substring(11, symName.length - 1);
               newTheta[varName] = new Variable(treeVarName);
-              subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+              subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
               result = result.concat(subResult);
               return;
             }
             let term = _argumentClauses[value];
             newTheta[varName] = term;
-            subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+            subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
             result = result.concat(subResult);
             return;
           }
 
           newTheta[varName] = new Value(value);
-          subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+          subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
           result = result.concat(subResult);
         });
         return result;
       }
 
       // the case of complex terms
-      if (current instanceof Functor || current instanceof Array) {
+      if (current instanceof Functor || current instanceof List) {
         // some matching functors!
         if (_argumentTreeSymbol !== null) {
           // pass existing theta
           subResult = _argumentTreeSymbol.unifies(current, theta);
           subResult.forEach((entry) => {
             cloneTheta();
-
             // combine theta
             Object.keys(entry.theta).forEach((k) => {
               newTheta[k] = entry.theta[k];
             });
-            subResult = recursiveUnification(node._tree[entry.leaf], i + 1, newTheta);
+            if (current instanceof List && entry.tailVariable !== undefined) {
+              // handle tail theta
+              entry.matchingTails.forEach((symbol) => {
+                if (node._tree[symbol] === undefined) {
+                  return;
+                }
+                let list = _argumentClauses[symbol].flatten();
+                list.splice(0, entry.headEaten);
+                newTheta[entry.tailVariable.evaluate()] = new List(list);
+                //console.log(newTheta);
+                subResult = recursiveUnification(path, node._tree[symbol], i + 1, newTheta);
+                result = result.concat(subResult);
+              });
+              return;
+            }
+            subResult = recursiveUnification(path, node._tree[entry.leaf], i + 1, newTheta);
             result = result.concat(subResult);
           });
         }
@@ -488,7 +511,7 @@ function LiteralTreeMap() {
           cloneTheta();
           let treeVarName = symName.substring(11, symName.length - 1);
           newTheta[treeVarName] = current;
-          subResult = recursiveUnification(node._tree[value], i + 1, newTheta);
+          subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
           result = result.concat(subResult);
         });
         return result;
@@ -496,7 +519,71 @@ function LiteralTreeMap() {
 
       return result;
     };
-    return recursiveUnification(_root, 0, existingTheta);
+
+    if (literal instanceof List) {
+      let listHead = literal.getHead();
+
+      let buildListPath = (list, remainingLength) => {
+        let listHead = list.getHead();
+        //console.log(listHead.length, remainingLength);
+        if (listHead.length > remainingLength) {
+          return null;
+        }
+        let listTail = list.getTail();
+        if (listTail instanceof List) {
+          let sublist = buildListPath(listTail, remainingLength - listHead.length);
+          return {
+            list: listHead.concat(sublist.list),
+            tail: sublist.tail
+          };
+        }
+
+        let result = {
+          list: [].concat(listHead),
+          tail: null
+        };
+        if (listTail instanceof Variable) {
+          result.tail = listTail;
+        }
+        return result;
+      };
+
+      let paths = [];
+      _root.indices().forEach((idxArg) => {
+        let len = Number(idxArg);
+        if (isNaN(len)) {
+          return;
+        }
+        let pathTuple = buildListPath(literal, len);
+        if (pathTuple === null) {
+          return;
+        }
+        let path = pathTuple.list;
+        paths.push({ idx: idxArg, path: path, tail: pathTuple.tail });
+      });
+
+      let result = [];
+      paths.forEach((tuple) => {
+        subResult = recursiveUnification(tuple.path, _root._tree[tuple.idx], 0, existingTheta);
+        if (tuple.tail !== null) {
+          subResult = subResult.map((pairArg) => {
+            let pair = pairArg;
+            let leafNodes = recursivelyGetLeafNodes(pair.leaf);
+            pair.headEaten = tuple.path.length;
+            pair.tailVariable = tuple.tail;
+            pair.matchingTails = leafNodes;
+            return pair;
+          });
+        }
+        // process tails for each subResult
+
+        result = result.concat(subResult);
+      });
+      return result;
+    }
+
+    let path = flattenLiteral(literal);
+    return recursiveUnification(path, _root, 0, existingTheta);
   };
 
   this.clone = function clone() {
