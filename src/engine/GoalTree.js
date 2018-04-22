@@ -16,10 +16,11 @@ let fetchActionTiming = function fetchActionTiming(literal) {
   return [t1TimingArg, t2TimingArg];
 };
 
-let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
+let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, usedVariables) {
   let reductions = [];
   let assumption = new LiteralTreeMap();
   assumption.add(eventAtom);
+  let renameTheta = variableArrayRename(usedVariables);
 
   program.forEach((clause) => {
     if (clause.isConstraint()) {
@@ -27,7 +28,7 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
     }
     // assuming horn clauses only
     let headLiterals = clause.getHeadLiterals();
-    let headLiteral = headLiterals[0];
+    let headLiteral = headLiterals[0].substitute(renameTheta);
     let headArgs = headLiteral.getArguments();
     let unifications = assumption.unifies(headLiteral);
     if (unifications.length === 0) {
@@ -45,8 +46,9 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
         }
       });
       reductions.push({
-        clause: clause.getBodyLiterals().map(l => l.substitute(theta)),
-        theta: outputTheta
+        clause: clause.getBodyLiterals().map(l => l.substitute(theta).substitute(renameTheta)),
+        theta: outputTheta,
+        internalTheta: theta
       });
     });
   });
@@ -71,7 +73,7 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
         return;
       }
       let literalThetas = [];
-      if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
+      if (builtInFunctorProvider.has(substitutedLiteral.getId())) {
         literalThetas = builtInFunctorProvider.execute(substitutedLiteral);
         if (literalThetas.length === 0) {
           newThetaSet = null;
@@ -87,12 +89,19 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
         });
         return;
       }
+
       resolved.add(substitutedLiteral);
       literalThetas.forEach((t) => {
         let compactedTheta = Resolutor.compactTheta(tuple.theta, t.theta);
+        let replacement = [];
+        if (t.replacement !== undefined) {
+          replacement = t.replacement;
+        }
         newThetaSet.push({
           theta: compactedTheta,
-          unresolved: tuple.unresolved.map(l => l.substitute(compactedTheta))
+          unresolved: tuple.unresolved
+            .concat(replacement)
+            .map(l => l.substitute(compactedTheta))
         });
       })
     });
@@ -185,17 +194,36 @@ function GoalNode(clause) {
     reductionResult = reductionResult.concat(stateConditionResolutionResult);
     if (this.children.length === 0) {
       for (let i = 0; i < this.clause.length; i += 1) {
-        let compositeReductionResult = reduceCompositeEvent(clause[i], program);
+        let usedVariables = {};
+        let otherLiteralsFront = this.clause.slice(0, i);
+        let otherLiteralsBack = this.clause.slice(i + 1, this.clause.length);
+        otherLiteralsFront.forEach((l) => {
+          l.getVariables().forEach((v) => {
+            usedVariables[v] = true;
+          });
+        });
+        otherLiteralsBack.forEach((l) => {
+          l.getVariables().forEach((v) => {
+            usedVariables[v] = true;
+          });
+        });
+        usedVariables = Object.keys(usedVariables);
+        let compositeReductionResult = reduceCompositeEvent(clause[i], program, usedVariables);
         compositeReductionResult.forEach((crrArg) => {
           // crr needs to rename variables to avoid clashes
-          let varToChange = [];
-          this.clause.forEach((l) => {
-            varToChange = varToChange.concat(l.getVariables());
+          // also at the same time handle any output variables
+          let remappedClauseFront = otherLiteralsFront.map((l) => {
+            return l
+              .substitute(crrArg.theta);
           });
-          let remappedClause = this.clause.map((l) => {
-            return l.substitute(crrArg.theta);
-          })
-          let newClause = remappedClause.slice(0, i).concat(crrArg.clause).concat(remappedClause.slice(i + 1, this.clause.length));
+          let remappedClauseBack = otherLiteralsBack.map((l) => {
+            return l
+              .substitute(crrArg.theta);
+          });
+
+          let newClause = remappedClauseFront
+            .concat(crrArg.clause)
+            .concat(remappedClauseBack);
           reductionResult.push(newClause);
         });
       }
