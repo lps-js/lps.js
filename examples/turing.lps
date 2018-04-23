@@ -2,6 +2,7 @@ maxTime(10).
 
 fluent(said(_, _)).
 action(say(_, _)).
+event(saying(_, _)).
 
 initially([
 	said(turing, []),
