@@ -41,7 +41,10 @@ module.exports = {
     '"'
   ],
   keywords: [
-    'not'
+    'not',
+    'true',
+    'false',
+    'fail'
   ],
   constantDelimiterEscapeChar: '\\',
   unquotedConstantStartTest: /^[a-z]$/,
