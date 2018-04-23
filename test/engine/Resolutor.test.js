@@ -150,7 +150,7 @@ describe('Resolutor', () => {
     });
   });
 
-  describe('reduceRuleAntecdent', () => {
+  describe('reduceRuleAntecedent', () => {
     it('should return the test result', () => {
       let rule = new Clause(
         [new Functor('deal_with_fire', [new Variable('T1'), new Variable('T2')])],
@@ -160,7 +160,7 @@ describe('Resolutor', () => {
       let facts = new LiteralTreeMap();
       facts.add(new Functor('fire', [new Value(1)]));
 
-      let result = Resolutor.reduceRuleAntecdent(rule, facts);
+      let result = Resolutor.reduceRuleAntecedent(rule, facts);
       console.log(result);
     });
   });
@@ -181,24 +181,6 @@ describe('Resolutor', () => {
 
       let goals = [];
       let result = Resolutor.processRules([rule], goals, facts);
-      console.log(result.map(x => x.toString()));
-    });
-  });
-
-  describe('reduceCompositeEvent', () => {
-    it('should return the test result', () => {
-      let clause1 = new Clause(
-        [new Functor('deal_with_fire', [new Variable('T1'), new Variable('T2')])],
-        [new Functor('eliminate', [new Variable('T1'), new Variable('T2')])],
-      );
-      let clause2 = new Clause(
-        [new Functor('deal_with_fire', [new Variable('T1'), new Variable('T2')])],
-        [new Functor('escape', [new Variable('T1'), new Variable('T2')])],
-      );
-
-      let eventAtom = new Functor('deal_with_fire', [new Value(1), new Value(2)]);
-
-      let result = Resolutor.reduceCompositeEvent(eventAtom, [clause1, clause2]);
       console.log(result.map(x => x.toString()));
     });
   });
