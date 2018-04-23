@@ -150,9 +150,6 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
       literalThetas.forEach((t) => {
         let compactedTheta = Resolutor.compactTheta(tuple.theta, t.theta);
         substitutedLiteral = substitutedLiteral.substitute(compactedTheta);
-        if (!substitutedLiteral.isGround()) {
-          return;
-        }
         newThetaSet.push({
           theta: compactedTheta,
           unresolved: tuple.unresolved,
