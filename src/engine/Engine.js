@@ -15,6 +15,7 @@ function Engine(nodes) {
   let _maxTime = 20;
   let _fluents = {};
   let _actions = {};
+  let _events = {};
 
   let _terminators = [];
   let _initiators = [];
@@ -125,6 +126,28 @@ function Engine(nodes) {
           builtInProcessors['action/1'].apply(null, [literal]);
         } catch (_) {
           throw new Error('Unexpected value "' + literal.toString() + '" in actions/1 array argument');
+        }
+      });
+    },
+
+    'event/1': (val) => {
+      let literal = val;
+      try {
+        literal = actionSyntacticSugarProcessing(literal);
+      } catch (_) {
+        throw new Error('Unexpected value "' + val.toString() + '" in event/1 argument');
+      }
+      _events[literal.getId()] = true;
+    },
+    'events/1': (val) => {
+      if (!(val instanceof List)) {
+        throw new Error('Value for events/1 expected to be a list.');
+      }
+      val.flatten().forEach((literal) => {
+        try {
+          builtInProcessors['event/1'].apply(null, [literal]);
+        } catch (_) {
+          throw new Error('Unexpected value "' + literal.toString() + '" in events/1 array argument');
         }
       });
     },
@@ -495,7 +518,7 @@ function Engine(nodes) {
     // we need to derive the partially executed rule here too
     let newGoals = [];
 
-    let newRules = processRules(rules, newGoals, _fluents, _actions, [facts, updatedState, executedActions]);
+    let newRules = processRules(rules, newGoals, _fluents, _actions, _events, [facts, updatedState, executedActions]);
     _program.updateRules(newRules);
 
     // to handle if time for this iteration has ended

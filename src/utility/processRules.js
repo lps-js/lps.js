@@ -3,7 +3,7 @@ const Resolutor = require('../engine/Resolutor');
 const GoalTree = require('../engine/GoalTree');
 const BuiltInFunctorProvider = require('../engine/BuiltInFunctorProvider');
 
-module.exports = function processRules(rules, goals, clauses, fluents, actions, factsArg) {
+module.exports = function processRules(rules, goals, clauses, fluents, actions, events, factsArg) {
   let facts = factsArg;
   if (facts instanceof LiteralTreeMap) {
     facts = [facts];
@@ -13,7 +13,7 @@ module.exports = function processRules(rules, goals, clauses, fluents, actions, 
     let bodyLiterals = rule.getBodyLiterals();
     let result = false;
     bodyLiterals.forEach((literal) => {
-      if (fluents[literal.getId()] || actions[literal.getId()]) {
+      if (fluents[literal.getId()] || actions[literal.getId()] || events[literal.getId()]) {
         result = true;
       }
     })
