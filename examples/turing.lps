@@ -1,8 +1,8 @@
 maxTime(10).
 
-fluent(said(X, Y)).
-action(say(X, Y)).
-action(saying(X, Y)).
+fluent(said(_, _)).
+action(say(_, _)).
+action(saying(_, _)).
 
 initially([said(turing, []), said(robot, [])]).
 
