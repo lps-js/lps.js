@@ -434,8 +434,16 @@ function Engine(nodes) {
       updatedState.add(updateTimableFunctor(literal, nextTime));
     });
 
+    // update with observations
+    let observationResult = processObservations(updatedState);
+    observationResult.activeObservations.forEach((observation) => {
+      executedActions.add(observation);
+    });
+    result.terminated = observationResult.terminated.concat(result.terminated);
+    result.initiated = observationResult.initiated.concat(result.initiated);
+
     // decide which actions from set of candidate actions to execute
-    let selectedActions = actionsSelector(_goalCandidateActions, program, [facts, currentFluents]);
+    let selectedActions = actionsSelector(_goalCandidateActions, program, [facts, currentFluents, executedActions]);
     if (selectedActions === null) {
       selectedActions = [];
     }
@@ -452,14 +460,6 @@ function Engine(nodes) {
       });
     })
     _goalCandidateActions = [];
-
-    // update with observations
-    let observationResult = processObservations(updatedState);
-    observationResult.activeObservations.forEach((observation) => {
-      executedActions.add(observation);
-    });
-    result.terminated = observationResult.terminated.concat(result.terminated);
-    result.initiated = observationResult.initiated.concat(result.initiated);
 
     // console.log('executedActions');
     // console.log(executedActions.toArray().map(x => x.toString()));
