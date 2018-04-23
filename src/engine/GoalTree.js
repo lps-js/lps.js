@@ -122,7 +122,14 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
   if (thetaSet === null) {
     return null;
   }
-  return thetaSet.map(t => t.unresolved).filter(a => a.length < clause.length);
+  let nodes = [];
+  thetaSet.forEach(t => {
+    if (t.unresolved.length >= clause.length) {
+      return;
+    }
+    nodes.push(new GoalNode(t.unresolved, t.theta));
+  });
+  return nodes;
 };
 
 let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, candidateActions) {
@@ -167,8 +174,9 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
   });
 };
 
-function GoalNode(clause) {
+function GoalNode(clause, theta) {
   this.clause = clause;
+  this.theta = theta;
   this.children = [];
   this.resolvedLiterals = new LiteralTreeMap();
 
@@ -191,14 +199,14 @@ function GoalNode(clause) {
 
   this.evaluate = function evaluate(program, facts) {
     if (this.clause.length === 0) {
-      return true;
+      return [this.theta];
     }
 
     let reductionResult = [];
     let stateConditionResolutionResult = resolveStateConditions(clause, facts, this.resolvedLiterals);
     if (stateConditionResolutionResult === null) {
       // node failed indefinitely
-      return false;
+      return null;
     }
     reductionResult = reductionResult.concat(stateConditionResolutionResult);
     if (this.children.length === 0) {
@@ -230,40 +238,90 @@ function GoalNode(clause) {
             return l
               .substitute(crrArg.theta);
           });
-
           let newClause = remappedClauseFront
             .concat(crrArg.clause)
             .concat(remappedClauseBack);
-          reductionResult.push(newClause);
+          reductionResult.push(new GoalNode(newClause, crrArg.theta));
         });
       }
     }
 
     let newChildren = [];
     reductionResult.forEach((r) => {
-      newChildren.push(new GoalNode(r));
+      newChildren.push(r);
     });
 
     for (let i = 0; i < newChildren.length; i += 1) {
       let result = newChildren[i].evaluate(program, facts);
       if (result) {
-        return true;
+        return [this.theta].concat(result);
       }
     }
 
     for (let i = 0; i < this.children.length; i += 1) {
       let result = this.children[i].evaluate(program, facts);
       if (result) {
-        return true;
+        return [this.theta].concat(result);
       }
     }
     this.children = this.children.concat(newChildren);
-    return false;
+    return null;
   }
 }
 
-function GoalTree(goalClause) {
-  let _root = new GoalNode(goalClause);
+function GoalTree(goalClause, consequent) {
+  let _root = new GoalNode(goalClause, {});
+  let _consequent = consequent;
+  if (consequent === undefined) {
+    _consequent = null;
+  }
+
+  this.getConsequent = function getConsequent(thetaTrail) {
+    if (_consequent === null) {
+      return null;
+    }
+    let antecedentVariables = {};
+    _root.clause.forEach((literal) => {
+      literal.getVariables().forEach((vName) => {
+        antecedentVariables[vName] = true;
+      });
+    });
+    let commonVariables = {};
+    _consequent.forEach((literal) => {
+      literal.getVariables().forEach((vName) => {
+        if (antecedentVariables[vName]) {
+          commonVariables[vName] = true;
+        }
+      });
+    });
+    let replacement = {};
+    thetaTrail.forEach((theta) => {
+      Object.keys(theta).forEach((k) => {
+        if (replacement[k] !== undefined) {
+          return;
+        }
+        replacement[k] = theta[k];
+      });
+      Object.keys(replacement).forEach((k) => {
+        if (replacement[k] instanceof Variable) {
+          let vName = replacement[k].evaluate();
+          if (replacement[vName] !== undefined) {
+            replacement[k] = replacement[vName];
+          }
+        }
+      });
+    });
+    let newReplacement = {};
+    Object.keys(replacement).forEach((k) => {
+      if (commonVariables[k] === undefined) {
+        return;
+      }
+      newReplacement[k] = replacement[k];
+    });
+
+    newConsequent = consequent.map(l => l.substitute(newReplacement));
+    return new GoalTree(newConsequent);
+  };
 
   this.evaluate = function evaluate(program, facts) {
     return _root.evaluate(program, facts);
