@@ -2,9 +2,11 @@ maxTime(10).
 
 fluent(said(_, _)).
 action(say(_, _)).
-action(saying(_, _)).
 
-initially([said(turing, []), said(robot, [])]).
+initially([
+	said(turing, []),
+	said(robot, [])
+]).
 
 observe(say(turing, what), 1).
 observe(say(turing, is), 2).
@@ -28,7 +30,7 @@ saying(Agent, verbphrase, T1, T3) <-
 	saying(Agent, verb, T1, T2),
 	saying(Agent, nounphrase, T2, T3).
 
-saying(Agent, verbprase, T1, T3) <-
+saying(Agent, verbphrase, T1, T3) <-
 	saying(Agent, verb, T1, T3).
 	
 saying(Agent, adjective, T1, T2) <- say(Agent, my, T1, T2).
