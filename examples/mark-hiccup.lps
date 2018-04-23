@@ -1,0 +1,53 @@
+# Watch this: https://i.imgur.com/DYNIfoG.mp4
+
+maxTime(8).
+fluents([thirsty(_), empty(_), drinking(_)]).
+actions([
+  reach(_, _, _),
+  grab(_, _, _),
+  raise(_, _, _),
+  sip(_, _),
+  putdown(_, _),
+  refill(_),
+  hiccup(_)
+]).
+
+initially(thirsty(mark)).
+observe(refill(glass), 7).
+
+observe(reach(mark, glass, right), 1).
+observe(grab(mark, glass, right), 2).
+observe(raise(mark, glass, right), 3).
+observe(sip(mark, glass), 4).
+observe(putdown(mark, glass), 5).
+
+hand(mark, right).
+hand(mark, left).
+
+location(glass, right).
+container(glass).
+container(mug).
+
+drink(P, C, T1, T2) -> hiccup(P, T2, T4).
+% thirsty(P, T) -> container(C), drink(P, C, T, T2).
+
+drink(Person, C, T1, T6) <-
+  hand(Person, H),
+  location(C, H),
+  reach(Person, C, H, T1, T2),
+  grab(Person, C, H, T2, T3),
+  raise(Person, C, H, T3, T4),
+  sip(Person, C, T4, T5),
+  putdown(Person, C, T5, T6).
+
+# Sets up condition for drinking to prevent drinking twice
+initiates(reach(Person, C, H), drinking(Person)).
+terminates(sip(Person, C), drinking(Person)).
+
+terminates(sip(Person, C), thirsty(Person)).
+initiates(sip(Person, C), empty(C)).
+
+terminates(refill(C), empty(C)).
+
+<- reach(Person, C, H, T1, T2), drinking(P, T1).
+<- sip(Person, C, T1, T2), empty(C, T1).
