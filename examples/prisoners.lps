@@ -1,6 +1,6 @@
 maxTime(5).
-fluent(total_years_in_jail(X, Y)).
-actions([refuses(_), bears_witness(_), gets(X, Y)]).
+fluent(total_years_in_jail(_, _)).
+actions([refuses(_), bears_witness(_), gets(_, _)]).
 
 initially([
   total_years_in_jail(me, 0),
