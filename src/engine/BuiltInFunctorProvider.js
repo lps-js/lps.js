@@ -1156,18 +1156,28 @@ function BuiltInFunctorProvider(findUnifications) {
       }
 
       let v2 = resolveValue(v2Arg);
+      assertIsList(v2);
+      let flattenedList = v2.flatten();
+
+      if (v1 instanceof Variable) {
+        let variableName = v1.evaluate();
+        for (let i = 0; i < flattenedList.length; i += 1) {
+          let theta = {};
+          theta[variableName] = flattenedList[i];
+          result.push({
+            theta: theta
+          });
+        }
+        return result;
+      }
 
       assertIsValue(v1);
-      assertIsList(v2);
-
-      let flattenedList = v2.flatten();
       for (let i = 0; i < flattenedList.length; i += 1) {
         if (flattenedList[i].evaluate() === v1.evaluate()) {
           // found an instance
           result.push({
             theta: {}
           });
-          break;
         }
       }
 
