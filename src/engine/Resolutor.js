@@ -183,7 +183,6 @@ Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(builtInFunctorProvi
     facts = [facts];
   }
 
-
   let literals = rule.getBodyLiterals();
   let thetaSet = [{ theta: {}, unresolved: [] }];
   literals.forEach((literal) => {
@@ -195,8 +194,8 @@ Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(builtInFunctorProvi
         literalThetas = builtInFunctorProvider.execute(substitutedLiteral);
       } else {
         let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
-        substitutedInstances.forEach((literal) => {
-          literalThetas = literalThetas.concat(Resolutor.findUnifications(literal, facts));
+        substitutedInstances.forEach((l) => {
+          literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
         });
       }
       if (literalThetas.length === 0) {
