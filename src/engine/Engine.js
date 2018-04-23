@@ -9,6 +9,7 @@ const GoalTree = require('./GoalTree');
 const Unifier = require('./Unifier');
 const Value = require('./Value');
 const Variable = require('./Variable');
+const processRules = require('../utility/processRules');
 
 function Engine(nodes) {
   let _maxTime = 20;
@@ -494,17 +495,15 @@ function Engine(nodes) {
     // we need to derive the partially executed rule here too
     let newGoals = [];
 
-    let newRules = Resolutor.processRules(rules, newGoals, _fluents, _actions, [facts, updatedState, executedActions]);
+    let newRules = processRules(rules, newGoals, _fluents, _actions, [facts, updatedState, executedActions]);
     _program.updateRules(newRules);
-
-    newGoals = newGoals.map(g => new GoalTree(g));
 
     // to handle if time for this iteration has ended
     let currentTimePossibleActions = new LiteralTreeMap();
     let timeTheta = {
       $T1: new Value(_currentTime + 1),
       $T2: new Value(_currentTime + 2)
-    }
+    };
     _possibleActions.forEach((l) => {
       currentTimePossibleActions.add(l.substitute(timeTheta));
     });
@@ -513,8 +512,19 @@ function Engine(nodes) {
 
     newGoals = [];
     _goals.forEach((goalTree) => {
-      if (goalTree.evaluate(program, [facts, updatedState, executedActions])) {
+      let evaluationResult = goalTree.evaluate(program, [facts, updatedState, executedActions]);
+      if (evaluationResult !== null) {
         // goal tree has been resolved
+        let consequentTree = goalTree.getConsequent(evaluationResult);
+        if (consequentTree != null) {
+          if (consequentTree.evaluate(program, [facts, updatedState, executedActions])) {
+            return;
+          }
+          let candidateActions = consequentTree.getCandidateActionSet(currentTimePossibleActions);
+          candidateActions = candidateActions.filter(a => a.size() > 0);
+          _goalCandidateActions.push(candidateActions);
+          newGoals.push(consequentTree);
+        }
         return;
       }
       let candidateActions = goalTree.getCandidateActionSet(currentTimePossibleActions);
