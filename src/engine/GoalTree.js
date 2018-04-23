@@ -62,8 +62,19 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
     return Resolutor.findUnifications(literal, facts);
   })
   let thetaSet = [{ theta: {}, unresolved: [] }];
+  let isGrounded = true;
   clause.forEach((literal) => {
     if (thetaSet === null) {
+      return;
+    }
+    if (!isGrounded) {
+      thetaSet.forEach((tuple) => {
+        let substitutedLiteral = literal.substitute(tuple.theta);
+        if (resolved.contains(substitutedLiteral)) {
+          return;
+        }
+        tuple.unresolved.push(substitutedLiteral);
+      });
       return;
     }
     let newThetaSet = [];
@@ -82,6 +93,7 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
       } else {
         literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
       }
+      isGrounded = substitutedLiteral.isGround();
       if (literalThetas.length === 0) {
         newThetaSet.push({
           theta: tuple.theta,
@@ -193,7 +205,8 @@ function GoalNode(clause) {
     }
     reductionResult = reductionResult.concat(stateConditionResolutionResult);
     if (this.children.length === 0) {
-      for (let i = 0; i < this.clause.length; i += 1) {
+      // only attempt to resolve the first literal
+      for (let i = 0; i < 1; i += 1) {
         let usedVariables = {};
         let otherLiteralsFront = this.clause.slice(0, i);
         let otherLiteralsBack = this.clause.slice(i + 1, this.clause.length);
