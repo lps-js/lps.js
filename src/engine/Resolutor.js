@@ -177,7 +177,7 @@ Resolutor.findUnifications = function findUnifications(literal, factsArg) {
   return unifications;
 };
 
-Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(builtInFunctorProvider, rule, factsArg) {
+Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(builtInFunctorProvider, rule, factsArg) {
   let facts = factsArg;
   if (facts instanceof LiteralTreeMap) {
     facts = [facts];
@@ -215,52 +215,6 @@ Resolutor.reduceRuleAntecdent = function reduceRuleAntecdent(builtInFunctorProvi
     thetaSet = newThetaSet;
   });
   return thetaSet;
-};
-
-
-Resolutor.processRules = function processRules(rules, goals, fluents, actions, factsArg) {
-  let facts = factsArg;
-  if (facts instanceof LiteralTreeMap) {
-    facts = [facts];
-  }
-
-  let containsTimables = function(rule) {
-    let bodyLiterals = rule.getBodyLiterals();
-    let result = false;
-    bodyLiterals.forEach((literal) => {
-      if (fluents[literal.getId()] || actions[literal.getId()]) {
-        result = true;
-      }
-    })
-    return result;
-  }
-
-  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
-    return Resolutor.findUnifications(literal, facts);
-  });
-
-  let newRules = [];
-  rules.forEach((rule) => {
-    if (containsTimables(rule)) {
-      newRules.push(rule);
-    }
-    let resolutions = Resolutor.reduceRuleAntecdent(builtInFunctorProvider, rule, facts);
-    let consequentLiterals = rule.getHeadLiterals();
-    resolutions.forEach((pair) => {
-      if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
-        return;
-      }
-      let substitutedConsequentLiterals = consequentLiterals.map(l =>  l.substitute(pair.theta));
-      if (pair.unresolved.length === 0) {
-        console.log('adding: ' + substitutedConsequentLiterals);
-
-        goals.push(substitutedConsequentLiterals);
-        return;
-      }
-      newRules.push(new Clause(substitutedConsequentLiterals, pair.unresolved.map(l => l.substitute(pair.theta))));
-    });
-  });
-  return newRules;
 };
 
 Resolutor.reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
