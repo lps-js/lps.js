@@ -27,26 +27,10 @@ module.exports = function processRules(rules, goals, clauses, fluents, actions, 
   let newRules = [];
   rules.forEach((rule) => {
     if (containsTimables(rule)) {
-      // console.log('preserving rule ' + rule);
       // preserve a rule if it has timeable in its antecedent
       newRules.push(rule);
     }
     goals.push(new GoalTree(rule.getBodyLiterals(), rule.getHeadLiterals()));
-    // let resolutions = Resolutor.reduceRuleAntecedent(builtInFunctorProvider, rule, clauses, facts);
-    // let consequentLiterals = rule.getHeadLiterals();
-    // resolutions.forEach((pair) => {
-    //   if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
-    //     return;
-    //   }
-    //   let substitutedConsequentLiterals = consequentLiterals.map(l =>  l.substitute(pair.theta));
-    //   if (pair.unresolved.length === 0) {
-    //     console.log('adding: ' + substitutedConsequentLiterals);
-    //
-    //     goals.push(substitutedConsequentLiterals);
-    //     return;
-    //   }
-    //   newRules.push(new Clause(substitutedConsequentLiterals, pair.unresolved.map(l => l.substitute(pair.theta))));
-    // });
   });
   return newRules;
 };
