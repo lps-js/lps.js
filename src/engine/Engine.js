@@ -534,25 +534,26 @@ function Engine(nodes) {
     _goals = _goals.concat(newGoals);
 
     newGoals = [];
-    _goals.forEach((goalTree) => {
+    _goals.forEach((goalTreeArg) => {
+      let goalTree = goalTreeArg;
       let evaluationResult = goalTree.evaluate(program, [facts, updatedState, executedActions]);
       if (evaluationResult !== null) {
         // goal tree has been resolved
         let consequentTree = goalTree.getConsequent(evaluationResult);
-        if (consequentTree != null) {
-          if (consequentTree.evaluate(program, [facts, updatedState, executedActions])) {
-            return;
-          }
-          let candidateActions = consequentTree.getCandidateActionSet(currentTimePossibleActions);
-          candidateActions = candidateActions.filter(a => a.size() > 0);
-          _goalCandidateActions.push(candidateActions);
-          newGoals.push(consequentTree);
+        if (consequentTree == null) {
+          return;
         }
-        return;
+        if (consequentTree.evaluate(program, [facts, updatedState, executedActions])) {
+          return;
+        }
+        goalTree = consequentTree;
       }
-      let candidateActions = goalTree.getCandidateActionSet(currentTimePossibleActions);
-      candidateActions = candidateActions.filter(a => a.size() > 0);
-      _goalCandidateActions.push(candidateActions);
+      if (!goalTree.hasConsequent()) {
+        // no consequent tree === this is the consequent of the rule.
+        let candidateActions = goalTree.getCandidateActionSet(currentTimePossibleActions);
+        candidateActions = candidateActions.filter(a => a.size() > 0);
+        _goalCandidateActions.push(candidateActions);
+      }
       // goal tree has not been resolved, so let's persist the tree
       // to the next cycle
       newGoals.push(goalTree);
