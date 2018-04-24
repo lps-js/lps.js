@@ -561,8 +561,8 @@ function Engine(nodes) {
       if (!goalTree.hasConsequent()) {
         // no consequent tree === this is the consequent of the rule.
         _goalCandidateActions.push(goalTree.getCandidateActionSet(currentTimePossibleActions));
-        newGoals.push(goalTree);
       }
+      newGoals.push(goalTree);
       // goal tree has not been resolved, so let's persist the tree
       // to the next cycle
     });
