@@ -276,6 +276,10 @@ function GoalTree(goalClause, consequent) {
     _consequent = null;
   }
 
+  this.hasConsequent = function hasConsequent() {
+    return _consequent !== null;
+  };
+
   this.getConsequent = function getConsequent(thetaTrail) {
     if (_consequent === null) {
       return null;
