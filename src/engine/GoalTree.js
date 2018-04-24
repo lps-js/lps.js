@@ -182,7 +182,7 @@ function GoalNode(clause, theta) {
 
   this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
     if (this.children.length === 0) {
-    let candidateActions = new LiteralTreeMap();
+      let candidateActions = new LiteralTreeMap();
       resolveSimpleActions(this.clause, possibleActions, candidateActions);
       return [candidateActions];
     }
@@ -197,9 +197,9 @@ function GoalNode(clause, theta) {
     return result;
   };
 
-  this.evaluate = function evaluate(program, facts) {
+  this.evaluate = function evaluate(program, facts, firstOnly) {
     if (this.clause.length === 0) {
-      return [this.theta];
+      return [[this.theta]];
     }
 
     let reductionResult = [];
@@ -251,21 +251,21 @@ function GoalNode(clause, theta) {
       newChildren.push(r);
     });
 
-    for (let i = 0; i < newChildren.length; i += 1) {
-      let result = newChildren[i].evaluate(program, facts);
-      if (result) {
-        return [this.theta].concat(result);
-      }
-    }
+    let nodeResult = [];
 
+    this.children = this.children.concat(newChildren);
     for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, facts);
+      let result = this.children[i].evaluate(program, facts, firstOnly);
       if (result) {
-        return [this.theta].concat(result);
+        result.forEach((subpath) => {
+          nodeResult.push([this.theta].concat(subpath));
+        });
+        if (firstOnly) {
+          return nodeResult;
+        }
       }
     }
-    this.children = this.children.concat(newChildren);
-    return null;
+    return nodeResult;
   }
 }
 
@@ -328,11 +328,13 @@ function GoalTree(goalClause, consequent) {
   };
 
   this.evaluate = function evaluate(program, facts) {
-    return _root.evaluate(program, facts);
+    return _root.evaluate(program, facts, !this.hasConsequent());
   };
 
   this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
-    return _root.getCandidateActionSet(possibleActions);
+    return _root
+      .getCandidateActionSet(possibleActions)
+      .filter(a => a.size() > 0);
   }
 }
 
