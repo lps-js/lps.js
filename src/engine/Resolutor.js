@@ -217,23 +217,4 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(builtInFunctorPro
   return thetaSet;
 };
 
-Resolutor.reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program) {
-  let reductions = [];
-  let assumption = new LiteralTreeMap();
-  assumption.add(eventAtom);
-
-  program.forEach((clause) => {
-    if (clause.isConstraint()) {
-      return;
-    }
-    let headLiterals = clause.getHeadLiterals();
-    let unifications = Resolutor.findUnifications(headLiterals[0], [assumption]);
-    unifications.forEach((pair) => {
-      reductions.push(clause.getBodyLiterals().map(l => l.substitute(pair.theta)));
-    });
-  });
-
-  return reductions;
-};
-
 module.exports = Resolutor;
