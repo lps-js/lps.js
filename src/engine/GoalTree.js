@@ -80,42 +80,45 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
     let newThetaSet = [];
     thetaSet.forEach((tuple) => {
       let substitutedLiteral = literal.substitute(tuple.theta);
-      if (resolved.contains(substitutedLiteral)) {
-        return;
-      }
-      let literalThetas = [];
-      if (builtInFunctorProvider.has(substitutedLiteral.getId())) {
-        literalThetas = builtInFunctorProvider.execute(substitutedLiteral);
-        if (literalThetas.length === 0) {
-          newThetaSet = null;
+      let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
+      substitutedInstances.forEach((instance) => {
+        if (resolved.contains(instance)) {
           return;
         }
-      } else {
-        literalThetas = Resolutor.findUnifications(substitutedLiteral, facts);
-      }
-      isGrounded = substitutedLiteral.isGround();
-      if (literalThetas.length === 0) {
-        newThetaSet.push({
-          theta: tuple.theta,
-          unresolved: tuple.unresolved.concat([substitutedLiteral])
-        });
-        return;
-      }
-
-      resolved.add(substitutedLiteral);
-      literalThetas.forEach((t) => {
-        let compactedTheta = Resolutor.compactTheta(tuple.theta, t.theta);
-        let replacement = [];
-        if (t.replacement !== undefined) {
-          replacement = t.replacement;
+        let literalThetas = [];
+        if (builtInFunctorProvider.has(instance.getId())) {
+          literalThetas = builtInFunctorProvider.execute(instance);
+          if (literalThetas.length === 0) {
+            newThetaSet = null;
+            return;
+          }
+        } else {
+          literalThetas = Resolutor.findUnifications(instance, facts);
         }
-        newThetaSet.push({
-          theta: compactedTheta,
-          unresolved: tuple.unresolved
-            .concat(replacement)
-            .map(l => l.substitute(compactedTheta))
+        isGrounded = instance.isGround();
+        if (literalThetas.length === 0) {
+          newThetaSet.push({
+            theta: tuple.theta,
+            unresolved: tuple.unresolved.concat([instance])
+          });
+          return;
+        }
+
+        resolved.add(instance);
+        literalThetas.forEach((t) => {
+          let compactedTheta = Resolutor.compactTheta(tuple.theta, t.theta);
+          let replacement = [];
+          if (t.replacement !== undefined) {
+            replacement = t.replacement;
+          }
+          newThetaSet.push({
+            theta: compactedTheta,
+            unresolved: tuple.unresolved
+              .concat(replacement)
+              .map(l => l.substitute(compactedTheta))
+          });
         });
-      })
+      });
     });
     thetaSet = newThetaSet;
   });
