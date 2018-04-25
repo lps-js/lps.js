@@ -85,10 +85,10 @@ let processLiteralSet = function processLiteralSet(literals, singleUnderscoreVar
         result.push(processFunctor(node, singleUnderscoreVariableSet));
         break;
       case NodeTypes.BinaryOperator:
-        result.push(processBinaryOperator(node));
+        result.push(processBinaryOperator(node, singleUnderscoreVariableSet));
         break;
       case NodeTypes.UnaryOperator:
-        result.push(processUnaryOperator(node));
+        result.push(processUnaryOperator(node, singleUnderscoreVariableSet));
         break;
       default:
         throw new Error('Unexpected node type in literal set: '
