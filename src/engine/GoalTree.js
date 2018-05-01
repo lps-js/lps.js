@@ -303,14 +303,16 @@ function GoalTree(goalClause, consequent) {
       });
     });
     let replacement = {};
+    Object.keys(commonVariables).forEach((k) => {
+      replacement[k] = new Variable(k);
+    });
     thetaTrail.forEach((theta) => {
-      Object.keys(theta).forEach((k) => {
-        replacement[k] = theta[k];
-      });
       Object.keys(replacement).forEach((k) => {
         if (replacement[k] instanceof Variable) {
           let vName = replacement[k].evaluate();
-          if (replacement[vName] !== undefined) {
+          if (theta[vName] !== undefined) {
+            replacement[k] = theta[vName];
+          } else if (replacement[vName] !== undefined) {
             replacement[k] = replacement[vName];
           }
         }
@@ -326,7 +328,6 @@ function GoalTree(goalClause, consequent) {
       }
       newReplacement[k] = replacement[k];
     });
-
     newConsequent = consequent.map(l => l.substitute(newReplacement));
     return new GoalTree(newConsequent);
   };
