@@ -305,9 +305,6 @@ function GoalTree(goalClause, consequent) {
     let replacement = {};
     thetaTrail.forEach((theta) => {
       Object.keys(theta).forEach((k) => {
-        if (replacement[k] !== undefined) {
-          return;
-        }
         replacement[k] = theta[k];
       });
       Object.keys(replacement).forEach((k) => {
@@ -322,6 +319,9 @@ function GoalTree(goalClause, consequent) {
     let newReplacement = {};
     Object.keys(replacement).forEach((k) => {
       if (commonVariables[k] === undefined) {
+        return;
+      }
+      if (replacement[k] instanceof Variable) {
         return;
       }
       newReplacement[k] = replacement[k];
