@@ -190,7 +190,7 @@ function Parser(source) {
     return _expression();
   };
 
-  let _literalSet = function _literalSet() {
+  let _logicalExpression = function _logicalExpression() {
     let node = new AstNode(NodeTypes.LiteralSet);
     node.addChild(_literal());
     while (_foundToBe(TokenTypes.Symbol, CLAUSE_LITERAL_SEPARATOR_SYMBOL)) {
@@ -211,7 +211,7 @@ function Parser(source) {
       clauseNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
       _expect(TokenTypes.Symbol);
     } else {
-      clauseNode.addChild(_literalSet());
+      clauseNode.addChild(_logicalExpression());
       if (_foundToBe(TokenTypes.Symbol, '<-') || _foundToBe(TokenTypes.Symbol, '->')) {
         clauseNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
         _expect(TokenTypes.Symbol);
@@ -220,7 +220,7 @@ function Parser(source) {
       }
     }
     if (hasImplicationSymbol) {
-      clauseNode.addChild(_literalSet());
+      clauseNode.addChild(_logicalExpression());
     }
     _expect(TokenTypes.Symbol, END_OF_CLAUSE_SYMBOL);
     return clauseNode;
