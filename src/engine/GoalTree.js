@@ -97,6 +97,10 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, reso
         }
         isGrounded = instance.isGround();
         if (literalThetas.length === 0) {
+          if (isGrounded) {
+            newThetaSet = null;
+            return;
+          }
           newThetaSet.push({
             theta: tuple.theta,
             unresolved: tuple.unresolved.concat([instance])
