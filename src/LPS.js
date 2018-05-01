@@ -1,3 +1,6 @@
+const Parser = require('./parser/Parser');
+const Engine = require('./engine/Engine');
+
 function LPS() {
 
 }
