@@ -29,7 +29,7 @@ function BuiltInFunctorProvider(findUnifications) {
       });
     }
     return result;
-  }
+  };
 
   let checkOrSetOutputArg = function checkOrSetOutputArg(value, outputArg) {
     if (outputArg instanceof Variable) {
@@ -60,25 +60,17 @@ function BuiltInFunctorProvider(findUnifications) {
     if (value instanceof List && output instanceof List) {
       let flattenedValueList = value.flatten();
       let flattenedOutputList = output.flatten();
-      if (flattenedValueList.length != flattenedOutputList.length) {
+      if (flattenedValueList.length !== flattenedOutputList.length) {
         return result;
       }
 
-      for (let i = 0; i < flattenedValueList.length; i += 1) {
-
-      }
-
-      result.push(
-        {
-          theta: {}
-        }
-      );
+      result.push({
+        theta: {}
+      });
     } else if (value.evaluate() === output.evaluate()) {
-      result.push(
-        {
-          theta: {}
-        }
-      );
+      result.push({
+        theta: {}
+      });
     }
     return result;
   };
@@ -445,6 +437,7 @@ function BuiltInFunctorProvider(findUnifications) {
       let num1 = v1.evaluate();
       let num2 = v2.evaluate();
 
+      // eslint-disable-next-line eqeqeq
       if (num1 != num2) {
         result.push({
           theta: {}
@@ -569,7 +562,7 @@ function BuiltInFunctorProvider(findUnifications) {
       let v1 = resolveValue(v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['tan/1'](instance, v2Arg));
+          result = result.concat(functors['tan/1'](instance));
         });
         return result;
       }
@@ -1042,7 +1035,6 @@ function BuiltInFunctorProvider(findUnifications) {
     },
 
     'append/2': function (v1Arg, v2Arg) {
-      let result = [];
       let v1 = resolveValue(v1Arg);
       let v2 = resolveValue(v2Arg);
       assertIsList(v1);
@@ -1095,7 +1087,6 @@ function BuiltInFunctorProvider(findUnifications) {
     },
 
     'length/1': function (v1Arg) {
-      let result = [];
       let v1 = resolveValue(v1Arg);
 
       assertIsList(v1);
@@ -1111,14 +1102,12 @@ function BuiltInFunctorProvider(findUnifications) {
     },
 
     'length/2': function (v1Arg, v2Arg) {
-      let result = [];
       let v1 = resolveValue(v1Arg);
 
       assertIsList(v1);
 
       let value = new Value(v1.flatten().length);
-
-      return checkOrSetOutputArg(newList, v2Arg);
+      return checkOrSetOutputArg(value, v2Arg);
     },
 
     'member/2': function (v1Arg, v2Arg) {
@@ -1177,16 +1166,16 @@ function BuiltInFunctorProvider(findUnifications) {
 
   this.has = function has(id) {
     return functors[id] !== undefined;
-  }
+  };
 
   this.execute = function execute(literal) {
-    let id = literal.getId()
+    let id = literal.getId();
     if (functors[id] === undefined) {
       throw new Error('');
     }
     return functors[id].apply(null, literal.getArguments());
   };
-};
+}
 
 
 module.exports = BuiltInFunctorProvider;
