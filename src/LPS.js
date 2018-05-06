@@ -13,6 +13,6 @@ LPS.load = function load(file) {
         resolve(engine);
       });
   });
-}
+};
 
 module.exports = LPS;

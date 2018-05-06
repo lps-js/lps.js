@@ -32,7 +32,6 @@ module.exports = function variableArrayRename(varArr, namePatternArg) {
           newTheta[varName] = new Variable(namePattern.replace('*', varNameP));
           addCount += 1;
         }
-        return;
       }
     });
     theta = newTheta;

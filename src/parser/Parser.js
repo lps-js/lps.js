@@ -161,8 +161,8 @@ function Parser(source) {
       if (_foundToBe(TokenTypes.Symbol, '[')) {
         node.addChild(_arrayExpression());
       } else { // otherwise we expect only a variable
-        tailNode = new AstNode(NodeTypes.Variable, currentToken);
-        node.addChild(tailNode)
+        let tailNode = new AstNode(NodeTypes.Variable, currentToken);
+        node.addChild(tailNode);
         _expect(TokenTypes.Variable);
       }
     }
