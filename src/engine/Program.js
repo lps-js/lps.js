@@ -28,7 +28,7 @@ let processList = function processList(nodes, singleUnderscoreVariableSet) {
   if (nodes.length > 1) {
     let tail = processArguments([nodes[1]], singleUnderscoreVariableSet)[0];
     return new List(head, tail);
-  };
+  }
   return new List(head);
 };
 
