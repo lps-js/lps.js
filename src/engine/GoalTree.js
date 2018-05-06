@@ -162,7 +162,6 @@ function GoalNode(clause, theta) {
   this.clause = clause;
   this.theta = theta;
   this.children = [];
-  this.resolvedLiterals = new LiteralTreeMap();
 
   this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
     if (this.children.length === 0) {
@@ -236,6 +235,7 @@ function GoalNode(clause, theta) {
     });
 
     let nodeResult = [];
+    let numFailed = 0;
 
     this.children = this.children.concat(newChildren);
     for (let i = 0; i < this.children.length; i += 1) {
