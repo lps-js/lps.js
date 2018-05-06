@@ -47,7 +47,7 @@ function List(head, tail) {
 
     if (_tail instanceof List) {
       _tail.getVariables().forEach((varName) => {
-        hash[varName] = true
+        hash[varName] = true;
       });
     } else if (_tail instanceof Variable) {
       hash[_tail.evaluate()] = true;
@@ -63,7 +63,7 @@ function List(head, tail) {
 
     let newTail = _tail;
     if (newTail instanceof List || newTail instanceof Variable) {
-      newTail = newTail.substitute(theta)
+      newTail = newTail.substitute(theta);
     }
     return new List(newHead, newTail);
   };
@@ -77,7 +77,7 @@ function List(head, tail) {
       }
     }
     return result;
-  }
+  };
 
   this.isEmpty = function isEmpty() {
     return _head.length === 0;

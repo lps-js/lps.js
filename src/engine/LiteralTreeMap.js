@@ -24,19 +24,19 @@ function __TreeNode(size, tree) {
     this._tree = {};
   }
 
-  this.clone = function() {
+  this.clone = function () {
     let clone = new __TreeNode(size, {});
     this.indices().forEach((index) => {
       if (this._tree[index] instanceof __TreeNode) {
         clone._tree[index] = this._tree[index].clone();
-        return ;
+        return;
       }
       clone._tree[index] = deepCopy(this._tree[index]);
     });
     return clone;
   };
 
-  this.indices = function indices() {
+  this.indices = function () {
     let indices = Object.getOwnPropertySymbols(this._tree)
       .concat(Object.getOwnPropertyNames(this._tree));
     return indices;
@@ -156,7 +156,7 @@ function LiteralTreeMap() {
     }
     result.push(args.length);
     result = result.concat(args);
-    return result
+    return result;
   };
 
   let buildGetIndexPath = function buildGetIndexPath(literal) {
@@ -354,7 +354,7 @@ function LiteralTreeMap() {
     let recursiveUnification = (path, node, i, thetaArg) => {
       let theta = thetaArg;
       if (i >= path.length) {
-        return [ {theta: theta, leaf: node } ];
+        return [{ theta: theta, leaf: node }];
       }
 
       // make a copy of theta in case back tracking
@@ -368,7 +368,7 @@ function LiteralTreeMap() {
         if (node._tree[current] === undefined) {
           return [];
         }
-        return recursiveUnification(path, node._tree[current], i + 1, theta);;
+        return recursiveUnification(path, node._tree[current], i + 1, theta);
       }
 
       let cloneTheta = () => {
@@ -475,7 +475,8 @@ function LiteralTreeMap() {
         });
 
         if (invertUnificationOrder) {
-          result.forEach((sr) => {
+          result.forEach((srArg) => {
+            let sr = srArg;
             delete sr.theta[varName];
           });
         }
@@ -503,7 +504,6 @@ function LiteralTreeMap() {
                 let list = _argumentClauses[symbol].flatten();
                 list.splice(0, entry.headEaten);
                 newTheta[entry.tailVariable.evaluate()] = new List(list);
-                //console.log(newTheta);
                 subResult = recursiveUnification(path, node._tree[symbol], i + 1, newTheta);
                 result = result.concat(subResult);
               });
@@ -537,11 +537,10 @@ function LiteralTreeMap() {
     };
 
     if (literal instanceof List) {
-      let listHead = literal.getHead();
+      let subResult;
 
       let buildListPath = (list, remainingLength) => {
         let listHead = list.getHead();
-        //console.log(listHead.length, remainingLength);
         if (listHead.length > remainingLength) {
           return null;
         }
@@ -567,7 +566,7 @@ function LiteralTreeMap() {
       let paths = [];
       _root.indices().forEach((idxArg) => {
         let len = Number(idxArg);
-        if (isNaN(len)) {
+        if (Number.isNaN(len)) {
           return;
         }
         let pathTuple = buildListPath(literal, len);
@@ -602,7 +601,7 @@ function LiteralTreeMap() {
     return recursiveUnification(path, _root, 0, existingTheta);
   };
 
-  this.clone = function clone() {
+  this.clone = function () {
     if (this instanceof __TreeLoaderType) {
       return (tree) => {
         _count = tree.count;
@@ -612,12 +611,12 @@ function LiteralTreeMap() {
         if (tree.argumentTree !== null) {
           _argumentTreeSymbol = tree.argumentTree.clone();
           Object.keys(tree.argumentClauses).forEach((key) => {
-            _argumentClauses[key] = tree.argumentClauses[key];s
+            _argumentClauses[key] = tree.argumentClauses[key];
           });
         }
-      }
+      };
     }
-    let clone = new LiteralTreeMap()
+    let clone = new LiteralTreeMap();
     let loader = clone.clone.call(new __TreeLoaderType());
     loader({
       root: _root,
