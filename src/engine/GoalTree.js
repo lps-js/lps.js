@@ -186,15 +186,15 @@ function GoalNode(clause, theta) {
       return [[this.theta]];
     }
 
+    // only attempt to resolve the first literal left to right
     let reductionResult = [];
-    let stateConditionResolutionResult = resolveStateConditions(clause, facts, this.resolvedLiterals);
+    let stateConditionResolutionResult = resolveStateConditions(clause, facts);
     if (stateConditionResolutionResult === null) {
       // node failed indefinitely
       return null;
     }
     reductionResult = reductionResult.concat(stateConditionResolutionResult);
     if (this.children.length === 0) {
-      // only attempt to resolve the first literal
       for (let i = 0; i < 1; i += 1) {
         let usedVariables = {};
         let otherLiteralsFront = this.clause.slice(0, i);
