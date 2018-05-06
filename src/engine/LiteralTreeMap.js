@@ -423,12 +423,18 @@ function LiteralTreeMap() {
 
       // the case of variables
       if (current instanceof Variable) {
+        let invertUnificationOrder = false;
         let varName = current.evaluate();
 
         if (theta[varName] !== undefined) {
           // a replacement for the this variable exists
-          unifyForValue(theta[varName].evaluate());
-          return result;
+          if (theta[varName] instanceof Variable) {
+            theta[theta[varName].evaluate()] = new Variable(varName);
+            invertUnificationOrder = true;
+          } else {
+            unifyForValue(theta[varName].evaluate());
+            return result;
+          }
         }
 
         node.indices().forEach((value) => {
@@ -447,7 +453,11 @@ function LiteralTreeMap() {
             if (symName.indexOf('Symbol(var:') === 0) {
               // it's a variable
               let treeVarName = symName.substring(11, symName.length - 1);
-              newTheta[varName] = new Variable(treeVarName);
+              if (invertUnificationOrder) {
+                newTheta[treeVarName] = new Variable(varName);
+              } else {
+                newTheta[varName] = new Variable(treeVarName);
+              }
               subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
               result = result.concat(subResult);
               return;
@@ -463,6 +473,12 @@ function LiteralTreeMap() {
           subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
           result = result.concat(subResult);
         });
+
+        if (invertUnificationOrder) {
+          result.forEach((sr) => {
+            delete sr.theta[varName];
+          });
+        }
         return result;
       }
 
