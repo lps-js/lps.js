@@ -192,6 +192,10 @@ function Parser(source) {
 
   let _logicalExpression = function _logicalExpression() {
     let node = new AstNode(NodeTypes.LiteralSet);
+    if (_foundToBe(TokenTypes.Keyword, 'true')) {
+      _expect(TokenTypes.Keyword);
+      return node;
+    }
     node.addChild(_literal());
     while (_foundToBe(TokenTypes.Symbol, CLAUSE_LITERAL_SEPARATOR_SYMBOL)) {
       _expect(TokenTypes.Symbol);
