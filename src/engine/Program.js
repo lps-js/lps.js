@@ -189,7 +189,7 @@ function Program(tree) {
 
   this.updateRules = function updateRules(rules) {
     _rules = rules;
-  }
+  };
 
   this.getRules = function getRules() {
     return _rules.map(x => x);

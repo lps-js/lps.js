@@ -18,7 +18,6 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, use
     // assuming horn clauses only
     let headLiterals = clause.getHeadLiterals();
     let headLiteral = headLiterals[0].substitute(renameTheta);
-    let headArgs = headLiteral.getArguments();
     let unifications = assumption.unifies(headLiteral);
     if (unifications.length === 0) {
       return;
@@ -42,14 +41,13 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, use
     });
   });
 
-
   return reductions;
 };
 
 let resolveStateConditions = function resolveStateConditions(clause, facts) {
   let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
     return Resolutor.findUnifications(literal, facts);
-  })
+  });
   let thetaSet = [];
   let literal = clause[0];
   let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
@@ -62,7 +60,6 @@ let resolveStateConditions = function resolveStateConditions(clause, facts) {
     if (builtInFunctorProvider.has(instance.getId())) {
       literalThetas = builtInFunctorProvider.execute(instance);
       if (literalThetas.length === 0) {
-        console.log('FAIL: ' + instance);
         thetaSet = null;
         return;
       }
@@ -72,23 +69,22 @@ let resolveStateConditions = function resolveStateConditions(clause, facts) {
     let isGrounded = instance.isGround();
     if (literalThetas.length === 0) {
       if (isGrounded) {
-        console.log('FAIL: ' + instance);
         thetaSet = null;
-        return ;
+        return;
       }
       return;
     }
 
     // resolved.add(instance);
     literalThetas.forEach((t) => {
-      let replacement = [];
+      let replacement = clause.slice(1, clause.length)
+        .map(l => l.substitute(t.theta));
       if (t.replacement !== undefined) {
-        replacement = t.replacement;
+        replacement = t.replacement.concat(replacement);
       }
       thetaSet.push({
         theta: t.theta,
-        unresolved: clause.slice(1, clause.length)
-          .map(l => l.substitute(t.theta))
+        unresolved: replacement
       });
     });
   });
@@ -135,7 +131,7 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
           unresolved: tuple.unresolved,
           candidates: tuple.candidates.concat([substitutedLiteral])
         });
-      })
+      });
     });
     thetaSet = newThetaSet;
   });
@@ -259,7 +255,7 @@ function GoalNode(clause, theta) {
     }
 
     return nodeResult;
-  }
+  };
 }
 
 function GoalTree(goalClause, consequent) {
@@ -329,7 +325,7 @@ function GoalTree(goalClause, consequent) {
     return _root
       .getCandidateActionSet(possibleActions)
       .filter(a => a.size() > 0);
-  }
+  };
 }
 
 module.exports = GoalTree;
