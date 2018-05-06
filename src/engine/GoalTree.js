@@ -163,8 +163,13 @@ function GoalNode(clause, theta) {
   this.clause = clause;
   this.theta = theta;
   this.children = [];
+  this.hasBranchFailed = false;
 
   this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
+    if (this.hasBranchFailed) {
+      return [];
+    }
+
     if (this.children.length === 0) {
       let candidateActions = new LiteralTreeMap();
       resolveSimpleActions(this.clause, possibleActions, candidateActions);
@@ -182,6 +187,10 @@ function GoalNode(clause, theta) {
   };
 
   this.evaluate = function evaluate(program, facts, firstOnly) {
+    if (this.hasBranchFailed) {
+      return null;
+    }
+
     if (this.clause.length === 0) {
       return [[this.theta]];
     }
@@ -191,6 +200,7 @@ function GoalNode(clause, theta) {
     if (this.children.length === 0) {
       let stateConditionResolutionResult = resolveStateConditions(clause, facts);
       if (stateConditionResolutionResult === null) {
+        this.hasBranchFailed = true;
         // node failed indefinitely
         return null;
       }
@@ -256,6 +266,7 @@ function GoalNode(clause, theta) {
     }
 
     if (this.children.length > 0 && numFailed === this.children.length) {
+      this.hasBranchFailed = true;
       return null;
     }
 
