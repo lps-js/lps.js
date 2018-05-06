@@ -28,30 +28,6 @@ function BuiltInFunctorProvider(findUnifications) {
         result.push(r.replacement);
       });
     }
-    // } else if (result instanceof List) {
-    //   let flattenedList = v.flatten();
-    //   result = [];
-    //   let recursivelyBuildInstancesOfList = function (listSoFar, idx) {
-    //     if (idx >= flattenedList.length) {
-    //       result.push(new List(listSoFar));
-    //       return;
-    //     }
-    //     let element = flattenedList[idx];
-    //     let resolved = resolveValue(element);
-    //     if (resolved instanceof Array) {
-    //       resolved.forEach((instance) => {
-    //         if (instance.replacement === undefined) {
-    //           return;
-    //         }
-    //         recursivelyBuildInstancesOfList(listSoFar.concat([instance.replacement]), idx + 1);
-    //       });
-    //       return;
-    //     }
-    //     let newListSoFar = listSoFar.concat([resolved]);
-    //     recursivelyBuildInstancesOfList(newListSoFar, idx + 1);
-    //   };
-    //   recursivelyBuildInstancesOfList([], 0);
-    // }
     return result;
   }
 
