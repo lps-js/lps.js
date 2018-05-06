@@ -5,6 +5,7 @@ const LiteralTreeMap = require('./LiteralTreeMap');
 const Unifier = require('./Unifier');
 const Variable = require('./Variable');
 const variableArrayRename = require('../utility/variableArrayRename');
+const compactTheta = require('../utility/compactTheta');
 
 let resolveClauseBody = (bodyLiterals, facts, builtInFunctorProvider) => {
   let recursivelyFindUnifications = (unifications, idx) => {
@@ -25,7 +26,7 @@ let resolveClauseBody = (bodyLiterals, facts, builtInFunctorProvider) => {
         newUnifications = Resolutor.findUnifications(substitutedLiteral, facts);
       }
       newUnifications.forEach((newUnification) => {
-        currentUnifications.push(Resolutor.compactTheta(theta, newUnification.theta));
+        currentUnifications.push(compactTheta(theta, newUnification.theta));
       });
     });
     return recursivelyFindUnifications(currentUnifications, idx + 1);
@@ -64,7 +65,7 @@ function Resolutor(factsArg) {
           isAllGround = false;
           let headUnifications = Resolutor.findUnifications(substitutedLiteral, facts);
           headUnifications.forEach((uni) => {
-            processedThetaSet.push(Resolutor.compactTheta(theta, uni.theta));
+            processedThetaSet.push(compactTheta(theta, uni.theta));
           });
         }
       });
@@ -116,26 +117,6 @@ function Resolutor(factsArg) {
     return newFacts;
   };
 }
-
-Resolutor.compactTheta = function compactTheta(theta1, theta2) {
-  let theta = {};
-  Object.keys(theta1).forEach((key) => {
-    let substitution = theta1[key];
-    while (substitution instanceof Variable && theta2[substitution.evaluate()] !== undefined) {
-      if (theta2[substitution.evaluate()] instanceof Variable
-          && substitution.evaluate() === theta2[substitution.evaluate()].evaluate()) {
-        break;
-      }
-      substitution = theta2[substitution.evaluate()];
-    }
-    theta[key] = substitution;
-  });
-  Object.keys(theta2).forEach((key) => {
-    let substitution = theta2[key];
-    theta[key] = substitution;
-  });
-  return theta;
-};
 
 Resolutor.handleBuiltInFunctorArgumentInLiteral = function handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal) {
   let literalName = literal.getName();
@@ -207,7 +188,7 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(builtInFunctorPro
       }
       literalThetas.forEach((t) => {
         newThetaSet.push({
-          theta: Resolutor.compactTheta(pair.theta, t.theta),
+          theta: compactTheta(pair.theta, t.theta),
           unresolved: pair.unresolved
         });
       })

@@ -10,6 +10,7 @@ const Unifier = require('./Unifier');
 const Value = require('./Value');
 const Variable = require('./Variable');
 const processRules = require('../utility/processRules');
+const compactTheta = require('../utility/compactTheta');
 
 function Engine(nodes) {
   let _maxTime = 20;
@@ -320,7 +321,7 @@ function Engine(nodes) {
 
       let factThetaSet = timeStepFacts.unifies(u.old.substitute(theta));
       factThetaSet.forEach((pair) => {
-        let currentTheta = Resolutor.compactTheta(theta, pair.theta);
+        let currentTheta = compactTheta(theta, pair.theta);
 
         let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, u.old.substitute(currentTheta));
         oldFluentSet.forEach((oldFluent) => {

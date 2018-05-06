@@ -4,6 +4,7 @@ const Resolutor = require('./Resolutor');
 const Value = require('./Value');
 const Variable = require('./Variable');
 const variableArrayRename = require('../utility/variableArrayRename');
+const compactTheta = require('../utility/compactTheta');
 
 let fetchActionTiming = function fetchActionTiming(literal) {
   let args = literal.getArguments();
@@ -139,7 +140,7 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
         return;
       }
       literalThetas.forEach((t) => {
-        let compactedTheta = Resolutor.compactTheta(tuple.theta, t.theta);
+        let compactedTheta = compactTheta(tuple.theta, t.theta);
         substitutedLiteral = substitutedLiteral.substitute(compactedTheta);
         newThetaSet.push({
           theta: compactedTheta,
