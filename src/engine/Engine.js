@@ -1,11 +1,9 @@
-const Clause = require('./Clause');
 const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Functor = require('./Functor');
 const List = require('./List');
 const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
 const Program = require('./Program');
-const GoalTree = require('./GoalTree');
 const Unifier = require('./Unifier');
 const Value = require('./Value');
 const Variable = require('./Variable');
@@ -332,7 +330,7 @@ function Engine(nodes) {
         newFluentSet.forEach((newFluent) => {
           initiated.push(newFluent);
         });
-      })
+      });
     });
 
     _terminators.forEach((t) => {
@@ -404,8 +402,6 @@ function Engine(nodes) {
   };
 
   let actionsSelector = function actionsSelector(goalCandidateActions, program, facts) {
-    let newFacts;
-
     let recursiveSelector = function (actionsSoFar, l) {
       if (l >= goalCandidateActions.length) {
         let resolutor = new Resolutor(facts.concat(actionsSoFar));
@@ -431,7 +427,7 @@ function Engine(nodes) {
         }
       }
       return recursiveSelector(actionsSoFar, l + 1);
-    }
+    };
     return recursiveSelector([], 0);
   };
 
@@ -472,7 +468,6 @@ function Engine(nodes) {
     if (selectedActions === null) {
       selectedActions = [];
     }
-
     // process selected actions
     selectedActions.forEach((l) => {
       result.activeActions.push(l);
@@ -483,7 +478,8 @@ function Engine(nodes) {
       selectedLiterals.forEach((literal) => {
         executedActions.add(literal);
       });
-    })
+    });
+    // reset goal candidate actions for next cycle
     _goalCandidateActions = [];
 
     // console.log('executedActions');
