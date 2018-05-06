@@ -1,21 +1,9 @@
 const LiteralTreeMap = require('./LiteralTreeMap');
 const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Resolutor = require('./Resolutor');
-const Value = require('./Value');
 const Variable = require('./Variable');
 const variableArrayRename = require('../utility/variableArrayRename');
 const compactTheta = require('../utility/compactTheta');
-
-let fetchActionTiming = function fetchActionTiming(literal) {
-  let args = literal.getArguments();
-  if (args.length < 2) {
-    throw new Error('Invalid action / event');
-  }
-
-  let t1TimingArg = args[args.length - 2];
-  let t2TimingArg = args[args.length - 1];
-  return [t1TimingArg, t2TimingArg];
-};
 
 let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, usedVariables) {
   let reductions = [];
