@@ -1,0 +1,49 @@
+% concurrentTowers.lps
+
+maxTime(10).
+fluent(location(_, _)).
+action(move(_, _)).
+
+initially([
+	location(f, floor),
+	location(b, f),
+	location(e, b),
+	location(a, floor),
+	location(d,a),
+	location(c,d)
+]).
+
+true -> make_tower([a, b, c, floor], T1, T2).
+true -> make_tower([f, e, d, floor], T1, T2).
+
+clear(Block, T) <-
+	Block != floor, 
+	not location(_, Block, T).
+
+clear(floor, _).
+
+make_tower([Block, floor], T1, T2) <-
+	make_on(Block, floor, T1, T2).
+
+make_tower([Block, Place|Places], T1, T3) <-
+	Place != floor,
+	make_tower([Place|Places], T1, T2),
+	make_on(Block, Place, T2, T3).
+
+make_on(Block, Place, T, T) <-
+	location(Block, Place, T).
+	
+make_on(Block, Place, T1, T4) <-
+	not location(Block, Place, T1),
+	make_clear(Place, T1, T2),
+	make_clear(Block, T2, T3),
+	move(Block, Place, T3, T4).
+
+make_clear(Place, T, T) <-
+	clear(Place, T).
+
+make_clear(Block, T1, T2) <-
+	location(Block1, Block, T1),
+	make_on(Block1, floor, T1, T2).
+
+updates(move(Block, Place), location(Block, _), location(Block, Place)).
