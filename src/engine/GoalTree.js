@@ -57,74 +57,51 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, use
   return reductions;
 };
 
-let resolveStateConditions = function resolveStateConditions(clause, facts, resolved) {
+let resolveStateConditions = function resolveStateConditions(clause, facts) {
   let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
     return Resolutor.findUnifications(literal, facts);
   })
-  let thetaSet = [{ theta: {}, unresolved: [] }];
-  let isGrounded = true;
-  clause.forEach((literal) => {
+  let thetaSet = [];
+  let literal = clause[0];
+  let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
+  // console.log(substitutedInstances.map(l => ''+l));
+  substitutedInstances.forEach((instance) => {
     if (thetaSet === null) {
       return;
     }
-    if (!isGrounded) {
-      thetaSet.forEach((tuple) => {
-        let substitutedLiteral = literal.substitute(tuple.theta);
-        if (resolved.contains(substitutedLiteral)) {
-          return;
-        }
-        tuple.unresolved.push(substitutedLiteral);
-      });
+    let literalThetas = [];
+    if (builtInFunctorProvider.has(instance.getId())) {
+      literalThetas = builtInFunctorProvider.execute(instance);
+      if (literalThetas.length === 0) {
+        console.log('FAIL: ' + instance);
+        thetaSet = null;
+        return;
+      }
+    } else {
+      literalThetas = Resolutor.findUnifications(instance, facts);
+    }
+    let isGrounded = instance.isGround();
+    if (literalThetas.length === 0) {
+      if (isGrounded) {
+        console.log('FAIL: ' + instance);
+        thetaSet = null;
+        return ;
+      }
       return;
     }
-    let newThetaSet = [];
-    thetaSet.forEach((tuple) => {
-      let substitutedLiteral = literal.substitute(tuple.theta);
-      let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
-      substitutedInstances.forEach((instance) => {
-        if (resolved.contains(instance)) {
-          return;
-        }
-        let literalThetas = [];
-        if (builtInFunctorProvider.has(instance.getId())) {
-          literalThetas = builtInFunctorProvider.execute(instance);
-          if (literalThetas.length === 0) {
-            newThetaSet = null;
-            return;
-          }
-        } else {
-          literalThetas = Resolutor.findUnifications(instance, facts);
-        }
-        isGrounded = instance.isGround();
-        if (literalThetas.length === 0) {
-          if (isGrounded) {
-            newThetaSet = null;
-            return;
-          }
-          newThetaSet.push({
-            theta: tuple.theta,
-            unresolved: tuple.unresolved.concat([instance])
-          });
-          return;
-        }
 
-        resolved.add(instance);
-        literalThetas.forEach((t) => {
-          let compactedTheta = Resolutor.compactTheta(tuple.theta, t.theta);
-          let replacement = [];
-          if (t.replacement !== undefined) {
-            replacement = t.replacement;
-          }
-          newThetaSet.push({
-            theta: compactedTheta,
-            unresolved: tuple.unresolved
-              .concat(replacement)
-              .map(l => l.substitute(compactedTheta))
-          });
-        });
+    // resolved.add(instance);
+    literalThetas.forEach((t) => {
+      let replacement = [];
+      if (t.replacement !== undefined) {
+        replacement = t.replacement;
+      }
+      thetaSet.push({
+        theta: t.theta,
+        unresolved: clause.slice(1, clause.length)
+          .map(l => l.substitute(t.theta))
       });
     });
-    thetaSet = newThetaSet;
   });
   if (thetaSet === null) {
     return null;
