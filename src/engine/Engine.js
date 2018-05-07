@@ -9,12 +9,15 @@ const Value = require('./Value');
 const Variable = require('./Variable');
 const processRules = require('../utility/processRules');
 const compactTheta = require('../utility/compactTheta');
+const EventManager = require('../observer/Manager');
 
 function Engine(nodes) {
   let _maxTime = 20;
   let _fluents = {};
   let _actions = {};
   let _events = {};
+
+  let _engineEventManager = new EventManager();
 
   let _terminators = [];
   let _initiators = [];
@@ -590,12 +593,14 @@ function Engine(nodes) {
   };
 
   this.step = function step() {
-    if (_currentTime > _maxTime) {
+    _engineEventManager.notify('preStep', this);
+    if (_maxTime !== null && _currentTime > _maxTime) {
       return;
     }
     let nextStepActiveFluents = performCycle(_activeFluents);
     _activeFluents = nextStepActiveFluents;
     _currentTime += 1;
+    _engineEventManager.notify('postStep', this);
   };
 
   this.run = function run() {
@@ -603,7 +608,7 @@ function Engine(nodes) {
       return null;
     }
     let result = [];
-
+    _engineEventManager.notify('run', this);
     while (_currentTime < _maxTime) {
       this.step();
 
@@ -615,6 +620,11 @@ function Engine(nodes) {
       });
     }
     return result;
+  };
+
+  this.on = function on(event, listener) {
+    _engineEventManager.addListener(event, listener);
+    return this;
   };
 
   this.reset = function reset() {
