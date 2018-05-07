@@ -226,15 +226,13 @@ function GoalNode(clause, theta) {
       }
     }
 
-    let newChildren = [];
     reductionResult.forEach((r) => {
-      newChildren.push(r);
+      this.children.push(r);
     });
 
     let nodeResult = [];
     let numFailed = 0;
 
-    this.children = this.children.concat(newChildren);
     for (let i = 0; i < this.children.length; i += 1) {
       let result = this.children[i].evaluate(program, facts, firstOnly);
       if (result === null) {
