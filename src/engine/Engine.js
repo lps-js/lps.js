@@ -530,19 +530,16 @@ function Engine(nodes) {
 
     // build goal clauses for each rule
     // we need to derive the partially executed rule here too
-    let newGoals = [];
-
-    let newRules = processRules(rules, newGoals, _fluents, _actions, _events, [facts, updatedState, executedActions]);
+    let newRules = processRules(rules, _goals, _fluents, _actions, _events, [facts, updatedState, executedActions]);
     _program.updateRules(newRules);
 
-    _goals = _goals.concat(newGoals);
-
-    newGoals = [];
+    let newGoals = [];
     _goals.forEach((goalTree) => {
       let evaluationResult = goalTree.evaluate(program, [facts, updatedState, executedActions]);
       if (evaluationResult === null) {
         return;
       }
+
       // goal tree has been resolved
       evaluationResult.forEach((path) => {
         let consequentTree = goalTree.getConsequent(path);
