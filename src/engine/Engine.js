@@ -25,7 +25,6 @@ function Engine(nodes) {
   let _goals = [];
 
   let _activeFluents = new LiteralTreeMap();
-  let _goalCandidateActions = [];
   let _possibleActions = new LiteralTreeMap();
   let _currentTime = 0;
 
