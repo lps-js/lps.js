@@ -401,10 +401,11 @@ function Engine(nodes) {
     };
   };
 
-  let actionsSelector = function actionsSelector(goalCandidateActions, program, facts) {
+  let actionsSelector = function actionsSelector(goalTrees, possibleActions, program, facts) {
     let recursiveSelector = function (actionsSoFar, l) {
-      if (l >= goalCandidateActions.length) {
+      if (l >= goalTrees.length) {
         let resolutor = new Resolutor(facts.concat(actionsSoFar));
+        // check if chosen actions violate any constraints
         if (resolutor.resolve(program) === null) {
           return null;
         }
@@ -416,15 +417,26 @@ function Engine(nodes) {
         });
         return actions;
       }
-      for (let i = 0; i < goalCandidateActions[l].length; i += 1) {
-        if (goalCandidateActions[l][i].size() === 0) {
-          continue;
+      let goalTree = goalTrees[l];
+      if (goalTree.hasConsequent()) {
+        // skip a goal tree whose antecedent has not been resolved.
+        return recursiveSelector(actionsSoFar, l + 1);
+      }
+      let finalResult = null;
+      goalTree.forEachCandidateActions(possibleActions, (candidateActions) => {
+        if (candidateActions.size() === 0) {
+          return true;
         }
-        let candidates = goalCandidateActions[l][i];
-        let result = recursiveSelector(actionsSoFar.concat([candidates]), l + 1);
+        let result = recursiveSelector(actionsSoFar.concat([candidateActions]), l + 1);
         if (result !== null) {
-          return result;
+          finalResult = result;
+          return false;
         }
+        // continue
+        return true;
+      });
+      if (finalResult) {
+        return finalResult;
       }
       return recursiveSelector(actionsSoFar, l + 1);
     };
@@ -463,8 +475,18 @@ function Engine(nodes) {
     result.terminated = observationResult.terminated.concat(result.terminated);
     result.initiated = observationResult.initiated.concat(result.initiated);
 
+    // to handle time for this iteration
+    let currentTimePossibleActions = new LiteralTreeMap();
+    let timeTheta = {
+      $T1: new Value(_currentTime),
+      $T2: new Value(_currentTime + 1)
+    };
+    _possibleActions.forEach((l) => {
+      currentTimePossibleActions.add(l.substitute(timeTheta));
+    });
+
     // decide which actions from set of candidate actions to execute
-    let selectedActions = actionsSelector(_goalCandidateActions, program, [facts, currentFluents, executedActions]);
+    let selectedActions = actionsSelector(_goals, currentTimePossibleActions, program, [facts, currentFluents, executedActions]);
     if (selectedActions === null) {
       selectedActions = [];
     }
@@ -479,11 +501,7 @@ function Engine(nodes) {
         executedActions.add(literal);
       });
     });
-    // reset goal candidate actions for next cycle
-    _goalCandidateActions = [];
 
-    // console.log('executedActions');
-    // console.log(executedActions.toArray().map(x => x.toString()));
 
     let deltaTerminated = new LiteralTreeMap();
     let deltaInitiated = new LiteralTreeMap();
@@ -518,16 +536,6 @@ function Engine(nodes) {
     let newRules = processRules(rules, newGoals, _fluents, _actions, _events, [facts, updatedState, executedActions]);
     _program.updateRules(newRules);
 
-    // to handle if time for this iteration has ended
-    let currentTimePossibleActions = new LiteralTreeMap();
-    let timeTheta = {
-      $T1: new Value(_currentTime + 1),
-      $T2: new Value(_currentTime + 2)
-    };
-    _possibleActions.forEach((l) => {
-      currentTimePossibleActions.add(l.substitute(timeTheta));
-    });
-
     _goals = _goals.concat(newGoals);
 
     newGoals = [];
@@ -549,15 +557,10 @@ function Engine(nodes) {
         if (consequentEvaluateResult.length > 0) {
           return;
         }
-        _goalCandidateActions.push(consequentTree.getCandidateActionSet(currentTimePossibleActions));
         newGoals.push(consequentTree);
       });
       if (evaluationResult.length > 0) {
         return;
-      }
-      if (!goalTree.hasConsequent()) {
-        // no consequent tree === this is the consequent of the rule.
-        _goalCandidateActions.push(goalTree.getCandidateActionSet(currentTimePossibleActions));
       }
       newGoals.push(goalTree);
       // goal tree has not been resolved, so let's persist the tree
