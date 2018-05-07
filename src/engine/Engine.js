@@ -622,6 +622,17 @@ function Engine(nodes) {
     return result;
   };
 
+  this.runContinuous = function runContinuous(intervalArg) {
+    let interval = intervalArg;
+    if (intervalArg === undefined) {
+      interval = 150;
+    }
+    _engineEventManager.notify('runContinuous', this);
+    setInterval(() => {
+      this.step();
+    }, interval);
+  };
+
   this.on = function on(event, listener) {
     _engineEventManager.addListener(event, listener);
     return this;
