@@ -313,7 +313,7 @@ function GoalTree(goalClause, consequent) {
       }
       newReplacement[k] = replacement[k];
     });
-    newConsequent = consequent.map(l => l.substitute(newReplacement));
+    let newConsequent = consequent.map(l => l.substitute(newReplacement));
     return new GoalTree(newConsequent);
   };
 
