@@ -149,25 +149,25 @@ function GoalNode(clause, theta) {
   this.children = [];
   this.hasBranchFailed = false;
 
-  this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
+  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, callback) {
     if (this.hasBranchFailed) {
-      return [];
+      return true;
     }
 
     if (this.children.length === 0) {
       let candidateActions = new LiteralTreeMap();
       resolveSimpleActions(this.clause, possibleActions, candidateActions);
-      return [candidateActions];
+      return callback(candidateActions);
     }
 
     let result = [];
     for (let i = 0; i < this.children.length; i += 1) {
-      let childCandidateActionSet = this.children[i].getCandidateActionSet(possibleActions);
-      if (childCandidateActionSet.length > 0) {
-        result = result.concat(childCandidateActionSet);
+      let childResult = this.children[i].forEachCandidateActions(possibleActions, callback);
+      if (!childResult) {
+        return false;
       }
     }
-    return result;
+    return true;
   };
 
   this.evaluate = function evaluate(program, facts, firstOnly) {
@@ -321,10 +321,8 @@ function GoalTree(goalClause, consequent) {
     return _root.evaluate(program, facts, !this.hasConsequent());
   };
 
-  this.getCandidateActionSet = function getCandidateActionSet(possibleActions) {
-    return _root
-      .getCandidateActionSet(possibleActions)
-      .filter(a => a.size() > 0);
+  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, callback) {
+    _root.forEachCandidateActions(possibleActions, callback);
   };
 }
 
