@@ -200,4 +200,12 @@ function Program(tree) {
   };
 }
 
+Program.constructLiteral = function constructLiteral(node) {
+  let singleUnderscoreVariableSet = {
+    next: 0,
+    set: {}
+  };
+  return processFunctor(node, singleUnderscoreVariableSet);
+};
+
 module.exports = Program;
