@@ -170,6 +170,23 @@ function GoalNode(clause, theta) {
     return true;
   };
 
+  this.checkIfBranchFailed = function checkIfBranchFailed() {
+    if (this.hasBranchFailed) {
+      return true;
+    }
+    let numFailed = 0;
+    for (let i = 0; i < this.children.length; i += 1) {
+      if (this.children[i].checkIfBranchFailed()) {
+        numFailed += 1;
+      }
+    }
+    if (this.children.length > 0 && numFailed === this.children.length) {
+      this.hasBranchFailed = true;
+      return true;
+    }
+    return false;
+  };
+
   this.evaluate = function evaluate(program, facts, firstOnly) {
     if (this.hasBranchFailed) {
       return null;
@@ -235,20 +252,17 @@ function GoalNode(clause, theta) {
 
     for (let i = 0; i < this.children.length; i += 1) {
       let result = this.children[i].evaluate(program, facts, firstOnly);
-      if (result === null) {
-        numFailed += 1;
-      } else if (result.length > 0) {
-        result.forEach((subpath) => {
-          nodeResult.push([this.theta].concat(subpath));
-        });
-        if (firstOnly) {
-          return nodeResult;
-        }
+      if (result === null || result.length === 0) {
+        continue
+      }
+      result.forEach((subpath) => {
+        nodeResult.push([this.theta].concat(subpath));
+      });
+      if (firstOnly) {
+        return nodeResult;
       }
     }
-
-    if (this.children.length > 0 && numFailed === this.children.length) {
-      this.hasBranchFailed = true;
+    if (this.checkIfBranchFailed()) {
       return null;
     }
 
@@ -313,6 +327,14 @@ function GoalTree(goalClause, consequent) {
     });
     let newConsequent = consequent.map(l => l.substitute(newReplacement));
     return new GoalTree(newConsequent);
+  };
+
+  this.checkTreeFailed = function checkTreeFailed() {
+    return _root.checkIfBranchFailed();
+  };
+
+  this.getRootClause = function () {
+    return _root.clause.map(l => '' + l);
   };
 
   this.evaluate = function evaluate(program, facts) {
