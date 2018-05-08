@@ -504,7 +504,6 @@ function Engine(nodes) {
       });
     });
 
-
     let deltaTerminated = new LiteralTreeMap();
     let deltaInitiated = new LiteralTreeMap();
     result.terminated.forEach((terminatedFluent) => {
@@ -597,7 +596,7 @@ function Engine(nodes) {
 
   this.step = function step() {
     _engineEventManager.notify('preStep', this);
-    if (_maxTime !== null && _currentTime > _maxTime) {
+    if (_maxTime !== null && _currentTime >= _maxTime) {
       return;
     }
     let nextStepActiveFluents = performCycle(_activeFluents);
@@ -607,14 +606,13 @@ function Engine(nodes) {
   };
 
   this.run = function run() {
-    if (_currentTime > _maxTime) {
+    if (_currentTime >= _maxTime) {
       return null;
     }
     let result = [];
     _engineEventManager.notify('run', this);
     while (_currentTime < _maxTime) {
       this.step();
-
       result.push({
         time: _currentTime,
         fluents: this.getActiveFluents(),
@@ -630,6 +628,7 @@ function Engine(nodes) {
     if (intervalArg === undefined) {
       interval = 150;
     }
+    _maxTime = null;
     _engineEventManager.notify('runContinuous', this);
     setInterval(() => {
       this.step();
