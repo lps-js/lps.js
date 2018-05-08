@@ -98,7 +98,7 @@ let processLiteralSet = function processLiteralSet(literals, singleUnderscoreVar
   return result;
 };
 
-let processFactClause = function processFactClause(literals) {
+let processFact = function processFact(literals) {
   let singleUnderscoreVariableSet = {
     next: 0
   };
@@ -106,7 +106,7 @@ let processFactClause = function processFactClause(literals) {
   return literalSet;
 };
 
-let processConstraintClause = function processConstraintClause(bodyLiterals) {
+let processConstraint = function processConstraint(bodyLiterals) {
   let singleUnderscoreVariableSet = {
     next: 0,
     set: {}
@@ -115,7 +115,7 @@ let processConstraintClause = function processConstraintClause(bodyLiterals) {
   return new Clause([], bodySet);
 };
 
-let processClause = function processClause(headLiterals, bodyLiterals) {
+let processRuleOrClause = function processRuleOrClause(headLiterals, bodyLiterals) {
   let singleUnderscoreVariableSet = {
     next: 0,
     set: {}
@@ -125,38 +125,42 @@ let processClause = function processClause(headLiterals, bodyLiterals) {
   return new Clause(headSet, bodySet);
 };
 
-let processClauses = function processClauses(rootNode, properties) {
+let processLine = function processLine(clauseNode, properties) {
+  let children = clauseNode.getChildren();
+  if (children.length === 1) {
+    // single fact
+    processFact(children[0].getChildren()).forEach((fact) => {
+      properties.facts.add(fact);
+    });
+    return;
+  }
+
+  if (children.length === 2 && children[0].getToken().value === '<-') {
+    // a constraint format
+    properties.program.push(processConstraint(children[1].getChildren()));
+    return;
+  }
+
+  // sanity check (2 literal sets and one operator)
+  if (children.length !== 3 || children[1].getType() !== NodeTypes.Symbol) {
+    throw new Error('invalid number of children in clause node');
+  }
+
+  let operator = children[1].getToken().value;
+  if (operator === '<-') {
+    // a program clause in the form: consequent <- antecedent
+    properties.program.push(processRuleOrClause(children[0].getChildren(), children[2].getChildren()));
+    return;
+  }
+
+  // a LPS rule in the form: conditions -> consequent
+  properties.rules.push(processRuleOrClause(children[2].getChildren(), children[0].getChildren()));
+};
+
+let processProgram = function processProgram(rootNode, properties) {
   let clauseNodes = rootNode.getChildren();
   clauseNodes.forEach((clauseNode) => {
-    let children = clauseNode.getChildren();
-    if (children.length === 1) {
-      // single fact
-      processFactClause(children[0].getChildren()).forEach((fact) => {
-        properties.facts.add(fact);
-      });
-      return;
-    }
-
-    if (children.length === 2 && children[0].getToken().value === '<-') {
-      // a constraint format
-      properties.program.push(processConstraintClause(children[1].getChildren()));
-      return;
-    }
-
-    // sanity check (2 literal sets and one operator)
-    if (children.length !== 3 || children[1].getType() !== NodeTypes.Symbol) {
-      throw new Error('invalid number of children in clause node');
-    }
-
-    let operator = children[1].getToken().value;
-    if (operator === '<-') {
-      // a program clause in the form: consequent <- antecedent
-      properties.program.push(processClause(children[0].getChildren(), children[2].getChildren()));
-      return;
-    }
-
-    // a LPS rule in the form: conditions -> consequent
-    properties.rules.push(processClause(children[2].getChildren(), children[0].getChildren()));
+    processLine(clauseNode, properties);
   });
 };
 
@@ -171,7 +175,7 @@ function Program(tree) {
   let _program = [];
   let _facts = new LiteralTreeMap();
 
-  processClauses(tree, {
+  processProgram(tree, {
     rules: _rules,
     program: _program,
     facts: _facts
