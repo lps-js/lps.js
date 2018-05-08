@@ -1,0 +1,16 @@
+fluent(fire).
+fluent(water).
+actions([eliminate, escape, set_fire, refill]).
+event(deal_with_fire).
+
+fire(T1) -> deal_with_fire(T1, T2).
+
+deal_with_fire(T1, T2) <- eliminate(T1, T2).
+deal_with_fire(T1, T2) <- escape(T1, T2).
+
+initiates(set_fire, fire).
+initiates(refill, water).
+terminates(eliminate, fire).
+terminates(eliminate, water).
+
+<- eliminate(T, T1), fire(T), not water(T).
