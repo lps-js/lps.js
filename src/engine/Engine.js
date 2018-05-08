@@ -561,7 +561,10 @@ function Engine(nodes) {
       if (evaluationResult.length > 0) {
         return;
       }
-      newGoals.push(goalTree);
+
+      if (!goalTree.hasConsequent()) {
+        newGoals.push(goalTree);
+      }
       // goal tree has not been resolved, so let's persist the tree
       // to the next cycle
     });
