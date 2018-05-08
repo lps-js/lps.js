@@ -640,6 +640,16 @@ function Engine(nodes) {
     return this;
   };
 
+  this.observe = function(observation) {
+    if (_observations[_currentTime] === undefined) {
+      _observations[_currentTime] = [];
+    }
+    _observations[_currentTime].push({
+      action: actionSyntacticSugarProcessing(observation),
+      endTime: _currentTime + 1
+    });
+  };
+
   this.reset = function reset() {
 
   };
