@@ -1,4 +1,4 @@
-function Manager {
+function Manager() {
   let _events = {};
 
   this.addListener = function addListener(event, listener) {
