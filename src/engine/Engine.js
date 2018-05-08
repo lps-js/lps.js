@@ -409,7 +409,7 @@ function Engine(nodes) {
         if (actionsSoFar.length === 0) {
           return new LiteralTreeMap();
         }
-        let constraintSet = program.filter(clause => {
+        let constraintSet = program.filter((clause) => {
           return clause.getHeadLiteralsCount() === 0;
         });
         if (constraintSet.length > 0) {
@@ -564,13 +564,15 @@ function Engine(nodes) {
         if (consequentEvaluateResult.length > 0) {
           return;
         }
-        newGoals.push(consequentTree);
+        if (!consequentTree.checkTreeFailed()) {
+          newGoals.push(consequentTree);
+        }
       });
       if (evaluationResult.length > 0) {
         return;
       }
 
-      if (!goalTree.hasConsequent()) {
+      if (!goalTree.checkTreeFailed()) {
         newGoals.push(goalTree);
       }
       // goal tree has not been resolved, so let's persist the tree
