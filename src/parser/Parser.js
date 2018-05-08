@@ -238,7 +238,24 @@ function Parser(source) {
     return node;
   };
 
+  this.buildClause = function buildClause() {
+    if (_root) {
+      return _root;
+    }
+    _root = _clause();
+    return _root;
+  };
+
+  this.buildLiteral = function buildLiteral() {
+    if (_root) {
+      return _root;
+    }
+    _root = _literal();
+    return _root;
+  };
+
   this.build = function build() {
+    // return cached version if rebuilding using the same source
     if (_root) {
       return _root;
     }
@@ -246,6 +263,22 @@ function Parser(source) {
     return _root;
   };
 }
+
+Parser.parseClause = function parseLiteral(clause) {
+  return new Promise((resolve) => {
+    let parser = new Parser(clause);
+    let token = parser.buildClause();
+    resolve(token);
+  });
+};
+
+Parser.parseLiteral = function parseLiteral(literal) {
+  return new Promise((resolve) => {
+    let parser = new Parser(literal);
+    let token = parser.buildLiteral();
+    resolve(token);
+  });
+};
 
 Parser.parseFile = function parseFile(file) {
   return new Promise((resolve) => {
