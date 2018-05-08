@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+const net = require('net');
+const LPS = require('../src/LPS');
+const Parser = require('../src/parser/Parser');
+const Program = require('../src/engine/Program');
+
+const SERVER_PORT = 8040;
+const args = process.argv.slice(2);
+
+if (args.length === 0) {
+  console.log('Logic Production Systems (LPS)');
+  console.log('File argument to LPS program required');
+  console.log('\tTry running for example: $ lps examples/bank.lps');
+  process.exit(-1);
+}
+
+let file = args[0];
+console.log('Loading file: ' + file);
+
+LPS.load(file)
+  .then((engine) => {
+    console.log('File loaded.');
+    engine.on('postStep', () => {
+      console.log('[ Time ' + engine.getCurrentTime() + ' ] -------------- ');
+      console.log('Actions:\t' + engine.getLastStepActions());
+      console.log('Fluents:\t' + engine.getActiveFluents());
+      console.log('Obs:\t' + engine.getLastStepObservations());
+      console.log('');
+    });
+    engine.runContinuous();
+
+    const server = net.createServer((socket) => {
+      socket.on('data', (data) => {
+        let strData = data.toString('utf8');
+        Parser.parseLiteral(strData)
+          .then((node) => {
+            let literal = Program.constructLiteral(node);
+            engine.observe(literal);
+          });
+      });
+    });
+    server.listen(SERVER_PORT, '127.0.0.1');
+    
+    console.log('TCP Server now listening on ' + SERVER_PORT);
+    console.log('');
+  });
