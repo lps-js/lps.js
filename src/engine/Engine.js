@@ -406,11 +406,20 @@ function Engine(nodes) {
   let actionsSelector = function actionsSelector(goalTrees, possibleActions, program, facts) {
     let recursiveSelector = function (actionsSoFar, l) {
       if (l >= goalTrees.length) {
-        let resolutor = new Resolutor(facts.concat(actionsSoFar));
-        // check if chosen actions violate any constraints
-        if (resolutor.resolve(program) === null) {
-          return null;
+        if (actionsSoFar.length === 0) {
+          return new LiteralTreeMap();
         }
+        let constraintSet = program.filter(clause => {
+          return clause.getHeadLiteralsCount() === 0;
+        });
+        if (constraintSet.length > 0) {
+          let resolutor = new Resolutor(facts.concat(actionsSoFar));
+          // check if chosen actions violate any constraints
+          if (resolutor.resolve(program) === null) {
+            return null;
+          }
+        }
+
         let actions = new LiteralTreeMap();
         actionsSoFar.forEach((map) => {
           map.forEach((literal) => {
