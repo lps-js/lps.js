@@ -429,10 +429,6 @@ function Engine(nodes) {
         return actions;
       }
       let goalTree = goalTrees[l];
-      if (goalTree.hasConsequent()) {
-        // skip a goal tree whose antecedent has not been resolved.
-        return recursiveSelector(actionsSoFar, l + 1);
-      }
       let finalResult = null;
       goalTree.forEachCandidateActions(possibleActions, (candidateActions) => {
         if (candidateActions.size() === 0) {
