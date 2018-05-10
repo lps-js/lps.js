@@ -101,7 +101,7 @@ let resolveStateConditions = function resolveStateConditions(clause, facts) {
   return nodes;
 };
 
-let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, candidateActions) {
+let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, builtInFunctorProvider, candidateActions) {
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
   let hasUnresolvedClause = false;
   clause.forEach((literal) => {
@@ -111,25 +111,28 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
     let newThetaSet = [];
     thetaSet.forEach((tuple) => {
       let substitutedLiteral = literal.substitute(tuple.theta);
-      let literalThetas = possibleActions.unifies(substitutedLiteral);
-      if (literalThetas.length === 0) {
-        if (!substitutedLiteral.isGround()) {
-          hasUnresolvedClause = true;
+      let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
+      substitutedInstances.forEach((instance) => {
+        let literalThetas = possibleActions.unifies(instance);
+        if (literalThetas.length === 0) {
+          if (!instance.isGround()) {
+            hasUnresolvedClause = true;
+          }
+          newThetaSet.push({
+            theta: tuple.theta,
+            unresolved: tuple.unresolved.concat([instance]),
+            candidates: tuple.candidates
+          });
+          return;
         }
-        newThetaSet.push({
-          theta: tuple.theta,
-          unresolved: tuple.unresolved.concat([substitutedLiteral]),
-          candidates: tuple.candidates
-        });
-        return;
-      }
-      literalThetas.forEach((t) => {
-        let compactedTheta = compactTheta(tuple.theta, t.theta);
-        substitutedLiteral = substitutedLiteral.substitute(compactedTheta);
-        newThetaSet.push({
-          theta: compactedTheta,
-          unresolved: tuple.unresolved,
-          candidates: tuple.candidates.concat([substitutedLiteral])
+        literalThetas.forEach((t) => {
+          let compactedTheta = compactTheta(tuple.theta, t.theta);
+          let instanceResult = instance.substitute(compactedTheta);
+          newThetaSet.push({
+            theta: compactedTheta,
+            unresolved: tuple.unresolved,
+            candidates: tuple.candidates.concat([instanceResult])
+          });
         });
       });
     });
@@ -149,20 +152,20 @@ function GoalNode(clause, theta) {
   this.children = [];
   this.hasBranchFailed = false;
 
-  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, callback) {
+  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, builtInFunctorProvider, callback) {
     if (this.hasBranchFailed) {
       return true;
     }
 
     if (this.children.length === 0) {
       let candidateActions = new LiteralTreeMap();
-      resolveSimpleActions(this.clause, possibleActions, candidateActions);
+      resolveSimpleActions(this.clause, possibleActions, builtInFunctorProvider, candidateActions);
       return callback(candidateActions);
     }
 
     let result = [];
     for (let i = 0; i < this.children.length; i += 1) {
-      let childResult = this.children[i].forEachCandidateActions(possibleActions, callback);
+      let childResult = this.children[i].forEachCandidateActions(possibleActions, builtInFunctorProvider, callback);
       if (!childResult) {
         return false;
       }

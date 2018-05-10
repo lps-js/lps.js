@@ -510,7 +510,7 @@ function Engine(nodes) {
       }
       let goalTree = goalTrees[l];
       let finalResult = null;
-      goalTree.forEachCandidateActions(possibleActions, (candidateActions) => {
+      goalTree.forEachCandidateActions(possibleActions, builtInFunctorProvider, (candidateActions) => {
         if (candidateActions.size() === 0) {
           return true;
         }
@@ -635,9 +635,11 @@ function Engine(nodes) {
         return;
       }
 
-      if (!goalTree.checkTreeFailed()) {
-        newGoals.push(goalTree);
+      if (goalTree.checkTreeFailed()) {
+        return;
       }
+
+      newGoals.push(goalTree);
       // goal tree has not been resolved, so let's persist the tree
       // to the next cycle
     });
