@@ -169,7 +169,7 @@ function GoalNode(clause, theta) {
       }
       let constraintCheckResult = constraintCheck(program, builtInFunctorProvider, facts, candidateActions);
       if (!constraintCheckResult) {
-        return null;
+        return true;
       }
 
       return callback(candidateActions);
