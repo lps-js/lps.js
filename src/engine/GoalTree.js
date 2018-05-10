@@ -218,14 +218,17 @@ function GoalNode(clause, theta) {
 
     // only attempt to resolve the first literal left to right
     let reductionResult = [];
-    if (isTimable(this.clause[0]) || this.children.length === 0) {
+    let isTimableLiteral = isTimable(this.clause[0]);
+    if (isTimableLiteral || this.children.length === 0) {
       let stateConditionResolutionResult = resolveStateConditions(clause, facts, builtInFunctorProvider);
-      if (stateConditionResolutionResult === null) {
+      if (!isTimableLiteral && stateConditionResolutionResult === null) {
         this.hasBranchFailed = true;
         // node failed indefinitely
         return null;
       }
-      reductionResult = reductionResult.concat(stateConditionResolutionResult);
+      if (stateConditionResolutionResult !== null) {
+        reductionResult = reductionResult.concat(stateConditionResolutionResult);
+      }
     }
     if (this.children.length === 0) {
       for (let i = 0; i < 1; i += 1) {
