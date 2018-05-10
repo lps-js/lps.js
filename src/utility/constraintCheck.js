@@ -7,7 +7,11 @@ module.exports = function constraintCheck(program, builtInFunctorProvider, facts
   if (!(facts instanceof Array)) {
     facts = [facts];
   }
-  facts = facts.concat([newFacts]);
+  if (newFacts instanceof Array) {
+    facts = facts.concat(newFacts);
+  } else if (newFacts !== undefined) {
+    facts = facts.concat([newFacts]);
+  }
 
   let result = true;
   program.forEach((clause) => {
