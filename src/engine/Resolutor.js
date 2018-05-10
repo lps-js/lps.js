@@ -162,40 +162,43 @@ Resolutor.reduceRuleAntecedent =
       facts = [facts];
     }
 
-    let literals = rule.getBodyLiterals();
-    let thetaSet = [{ theta: {}, unresolved: [] }];
-    literals.forEach((literal) => {
-      let newThetaSet = [];
-      thetaSet.forEach((pair) => {
-        let substitutedLiteral = literal.substitute(pair.theta);
-        let literalThetas = [];
-        if (substitutedLiteral.isGround() && builtInFunctorProvider.has(substitutedLiteral.getId())) {
-          literalThetas = builtInFunctorProvider.execute(substitutedLiteral);
-        } else {
-          let substitutedInstances = Resolutor
-            .handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
-          substitutedInstances.forEach((l) => {
-            literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
-          });
-        }
-
-        if (literalThetas.length === 0) {
-          newThetaSet.push({
-            theta: pair.theta,
-            unresolved: pair.unresolved.concat([substitutedLiteral])
-          });
-          return;
-        }
-
-        literalThetas.forEach((t) => {
-          newThetaSet.push({
-            theta: compactTheta(pair.theta, t.theta),
-            unresolved: pair.unresolved
-          });
+    let recursiveResolution = function(result, remainingLiterals, theta) {
+      if (remainingLiterals.length === 0) {
+        result.push({
+          theta: theta,
+          unresolved: []
         });
+        return;
+      }
+
+      let literal = remainingLiterals[0].substitute(theta);
+      let literalThetas = [];
+      if (literal.isGround() && builtInFunctorProvider.has(literal.getId())) {
+        literalThetas = builtInFunctorProvider.execute(literal);
+      } else {
+        let substitutedInstances = Resolutor
+          .handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
+        substitutedInstances.forEach((l) => {
+          literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
+        });
+      }
+
+      if (literalThetas.length === 0) {
+        result.push({
+          theta: theta,
+          unresolved: remainingLiterals.concat([])
+        });
+        return;
+      }
+
+      literalThetas.forEach((t) => {
+        recursiveResolution(result, remainingLiterals.slice(1, remainingLiterals.length), compactTheta(theta, t.theta));
       });
-      thetaSet = newThetaSet;
-    });
+    };
+
+    let literals = rule.getBodyLiterals();
+    let thetaSet = [];
+    recursiveResolution(thetaSet, literals, {});
     return thetaSet;
   };
 
