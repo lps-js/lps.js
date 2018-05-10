@@ -187,7 +187,7 @@ function GoalNode(clause, theta) {
     return false;
   };
 
-  this.evaluate = function evaluate(program, facts, firstOnly) {
+  this.evaluate = function evaluate(program, facts) {
     if (this.hasBranchFailed) {
       return null;
     }
@@ -251,16 +251,14 @@ function GoalNode(clause, theta) {
     let numFailed = 0;
 
     for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, facts, firstOnly);
+      let result = this.children[i].evaluate(program, facts);
       if (result === null || result.length === 0) {
         continue
       }
       result.forEach((subpath) => {
         nodeResult.push([this.theta].concat(subpath));
       });
-      if (firstOnly) {
-        return nodeResult;
-      }
+      return nodeResult;
     }
     if (this.checkIfBranchFailed()) {
       return null;
@@ -270,64 +268,8 @@ function GoalNode(clause, theta) {
   };
 }
 
-function GoalTree(goalClause, consequent) {
+function GoalTree(goalClause) {
   let _root = new GoalNode(goalClause, {});
-  let _consequent = consequent;
-  if (consequent === undefined) {
-    _consequent = null;
-  }
-
-  this.hasConsequent = function hasConsequent() {
-    return _consequent !== null;
-  };
-
-  this.getConsequent = function getConsequent(thetaTrail) {
-    if (_consequent === null) {
-      return null;
-    }
-    let antecedentVariables = {};
-    _root.clause.forEach((literal) => {
-      literal.getVariables().forEach((vName) => {
-        antecedentVariables[vName] = true;
-      });
-    });
-    let commonVariables = {};
-    _consequent.forEach((literal) => {
-      literal.getVariables().forEach((vName) => {
-        if (antecedentVariables[vName]) {
-          commonVariables[vName] = true;
-        }
-      });
-    });
-    let replacement = {};
-    Object.keys(commonVariables).forEach((k) => {
-      replacement[k] = new Variable(k);
-    });
-    thetaTrail.forEach((theta) => {
-      Object.keys(replacement).forEach((k) => {
-        if (replacement[k] instanceof Variable) {
-          let vName = replacement[k].evaluate();
-          if (theta[vName] !== undefined) {
-            replacement[k] = theta[vName];
-          } else if (replacement[vName] !== undefined) {
-            replacement[k] = replacement[vName];
-          }
-        }
-      });
-    });
-    let newReplacement = {};
-    Object.keys(replacement).forEach((k) => {
-      if (commonVariables[k] === undefined) {
-        return;
-      }
-      if (replacement[k] instanceof Variable) {
-        return;
-      }
-      newReplacement[k] = replacement[k];
-    });
-    let newConsequent = consequent.map(l => l.substitute(newReplacement));
-    return new GoalTree(newConsequent);
-  };
 
   this.checkTreeFailed = function checkTreeFailed() {
     return _root.checkIfBranchFailed();
@@ -338,7 +280,7 @@ function GoalTree(goalClause, consequent) {
   };
 
   this.evaluate = function evaluate(program, facts) {
-    return _root.evaluate(program, facts, !this.hasConsequent());
+    return _root.evaluate(program, facts);
   };
 
   this.forEachCandidateActions = function forEachCandidateActions(possibleActions, callback) {

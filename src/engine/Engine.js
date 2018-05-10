@@ -552,22 +552,6 @@ function Engine(nodes) {
       }
 
       // goal tree has been resolved
-      evaluationResult.forEach((path) => {
-        let consequentTree = goalTree.getConsequent(path);
-        if (consequentTree === null) {
-          return;
-        }
-        let consequentEvaluateResult = consequentTree.evaluate(program, [facts, updatedState, executedActions]);
-        if (consequentEvaluateResult === null) {
-          return;
-        }
-        if (consequentEvaluateResult.length > 0) {
-          return;
-        }
-        if (!consequentTree.checkTreeFailed()) {
-          newGoals.push(consequentTree);
-        }
-      });
       if (evaluationResult.length > 0) {
         return;
       }
