@@ -12,6 +12,7 @@ const processRules = require('../utility/processRules');
 const compactTheta = require('../utility/compactTheta');
 const EventManager = require('../observer/Manager');
 const expandRuleAntecedent = require('../utility/expandRuleAntecedent');
+const variableArrayRename = require('../utility/variableArrayRename');
 
 function Engine(nodes) {
   let _maxTime = 20;
@@ -338,15 +339,31 @@ function Engine(nodes) {
       });
 
       let commonVariables = {};
+      let consequentVariables = {};
       consequent.forEach((literal) => {
         literal.getVariables().forEach((vName) => {
           if (antecedentVariables[vName]) {
             commonVariables[vName] = true;
           }
+          consequentVariables[vName] = true;
         });
       });
 
       ruleResult.forEach((tuple) => {
+        let newAntecedentVariables = {};
+        tuple.literalSet.forEach((literal) => {
+          literal.getVariables().forEach((vName) => {
+            newAntecedentVariables[vName] = true;
+          });
+        });
+
+        let renameSet = [];
+        Object.keys(newAntecedentVariables).forEach((vName) => {
+          if (consequentVariables[vName] !== undefined && commonVariables[vName] === undefined) {
+            renameSet.push(vName);
+          }
+        });
+
         let tupleConsequent = consequent.concat([]);
         let replacement = {};
         Object.keys(commonVariables).forEach((k) => {
@@ -364,17 +381,8 @@ function Engine(nodes) {
             }
           });
         });
-        let newReplacement = {};
-        Object.keys(replacement).forEach((k) => {
-          if (commonVariables[k] === undefined) {
-            return;
-          }
-          if (replacement[k] instanceof Variable) {
-            return;
-          }
-          newReplacement[k] = replacement[k];
-        });
-        tupleConsequent = tupleConsequent.map(literal => literal.substitute(newReplacement));
+        let renameTheta = variableArrayRename(renameSet);
+        tupleConsequent = tupleConsequent.map(literal => literal.substitute(replacement).substitute(renameTheta));
         newRules.push(new Clause(tupleConsequent, tuple.literalSet));
       });
     });
