@@ -272,7 +272,7 @@ function GoalNode(clause, theta) {
     for (let i = 0; i < this.children.length; i += 1) {
       let result = this.children[i].evaluate(program, isTimable, builtInFunctorProvider, facts);
       if (result === null || result.length === 0) {
-        continue
+        continue;
       }
       let nodeResult = [];
       result.forEach((subpath) => {
