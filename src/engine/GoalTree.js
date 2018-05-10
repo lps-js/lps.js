@@ -189,6 +189,11 @@ function GoalNode(clause, theta) {
     if (this.hasBranchFailed) {
       return true;
     }
+
+    if (this.children.length === 0) {
+      return false;
+    }
+
     let numFailed = 0;
     for (let i = 0; i < this.children.length; i += 1) {
       if (this.children[i].checkIfBranchFailed()) {
