@@ -94,7 +94,7 @@ let resolveStateConditions = function resolveStateConditions(clause, facts, buil
     if (t.unresolved.length >= clause.length) {
       return;
     }
-    nodes.push(new GoalNode(t.unresolved, t.theta, builtInFunctorProvider));
+    nodes.push(new GoalNode(t.unresolved, t.theta));
   });
   return nodes;
 };
@@ -144,31 +144,30 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
   });
 };
 
-function GoalNode(clause, theta, builtInFunctorProvider) {
+function GoalNode(clause, theta) {
   this.clause = clause;
   this.theta = theta;
   this.children = [];
   this.hasBranchFailed = false;
-  this.builtInFunctorProvider = builtInFunctorProvider;
 
   let newFacts = new LiteralTreeMap();
   if (this.clause.length > 0) {
     newFacts.add(this.clause[0]);
   }
 
-  this.forEachCandidateActions = function forEachCandidateActions(program, facts, possibleActions, callback) {
+  this.forEachCandidateActions = function forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback) {
     if (this.hasBranchFailed) {
       return true;
     }
 
     if (this.children.length === 0) {
       let candidateActions = new LiteralTreeMap();
-      resolveSimpleActions(this.clause, possibleActions, this.builtInFunctorProvider, candidateActions);
+      resolveSimpleActions(this.clause, possibleActions, builtInFunctorProvider, candidateActions);
 
       if (candidateActions.size() === 0) {
         return true;
       }
-      let constraintCheckResult = constraintCheck(program, this.builtInFunctorProvider, facts, candidateActions);
+      let constraintCheckResult = constraintCheck(program, builtInFunctorProvider, facts, candidateActions);
       if (!constraintCheckResult) {
         this.hasBranchFailed = true;
         return null;
@@ -179,7 +178,7 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
 
     let result = [];
     for (let i = 0; i < this.children.length; i += 1) {
-      let childResult = this.children[i].forEachCandidateActions(program, facts, possibleActions, callback);
+      let childResult = this.children[i].forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback);
       if (!childResult) {
         return false;
       }
@@ -205,25 +204,13 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
     return false;
   };
 
-  this.evaluate = function evaluate(program, isTimable, facts) {
+  this.evaluate = function evaluate(program, isTimable, builtInFunctorProvider, facts) {
     if (this.hasBranchFailed) {
       return null;
     }
 
     if (this.clause.length === 0) {
       return [[this.theta]];
-    }
-
-    for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, isTimable, facts);
-      if (result === null || result.length === 0) {
-        continue
-      }
-      let nodeResult = [];
-      result.forEach((subpath) => {
-        nodeResult.push([this.theta].concat(subpath));
-      });
-      return nodeResult;
     }
 
     // only attempt to resolve the first literal left to right
@@ -268,18 +255,16 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
           let newClause = remappedClauseFront
             .concat(crrArg.clause)
             .concat(remappedClauseBack);
-          reductionResult.push(new GoalNode(newClause, crrArg.theta, this.builtInFunctorProvider));
+          reductionResult.push(new GoalNode(newClause, crrArg.theta));
         });
       }
     }
-
-    let newChildren = [];
     reductionResult.forEach((r) => {
-      newChildren.unshift(r);
+      this.children.push(r);
     });
 
-    for (let i = 0; i < newChildren.length; i += 1) {
-      let result = newChildren[i].evaluate(program, isTimable, facts);
+    for (let i = 0; i < this.children.length; i += 1) {
+      let result = this.children[i].evaluate(program, isTimable, builtInFunctorProvider, facts);
       if (result === null || result.length === 0) {
         continue
       }
@@ -289,7 +274,6 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
       });
       return nodeResult;
     }
-    this.children = this.children.concat(newChildren);
 
     if (this.checkIfBranchFailed()) {
       return null;
@@ -299,8 +283,8 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
   };
 }
 
-function GoalTree(goalClause, builtInFunctorProvider) {
-  let _root = new GoalNode(goalClause, {}, builtInFunctorProvider);
+function GoalTree(goalClause) {
+  let _root = new GoalNode(goalClause, {});
 
   this.checkTreeFailed = function checkTreeFailed() {
     return _root.checkIfBranchFailed();
@@ -310,8 +294,8 @@ function GoalTree(goalClause, builtInFunctorProvider) {
     return _root.clause.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(program, isTimable, facts) {
-    return _root.evaluate(program, isTimable, facts);
+  this.evaluate = function evaluate(program, isTimable, builtInFunctorProvider, facts) {
+    return _root.evaluate(program, isTimable, builtInFunctorProvider, facts);
   };
 
   this.forEachCandidateActions = function forEachCandidateActions(program, facts, possibleActions, callback) {
