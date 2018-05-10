@@ -286,8 +286,8 @@ function GoalTree(goalClause) {
     return _root.evaluate(program, facts);
   };
 
-  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, callback) {
-    _root.forEachCandidateActions(possibleActions, callback);
+  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, builtInFunctorProvider, callback) {
+    _root.forEachCandidateActions(possibleActions, builtInFunctorProvider, callback);
   };
 }
 
