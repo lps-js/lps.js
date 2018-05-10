@@ -1,24 +1,19 @@
-const BuiltInFunctorProvider = require('../engine/BuiltInFunctorProvider');
 const Clause = require('../engine/Clause');
 const LiteralTreeMap = require('../engine/LiteralTreeMap');
 const GoalTree = require('../engine/GoalTree');
 const Resolutor = require('../engine/Resolutor');
 
-module.exports = function processRules(rules, goals, fluents, actions, events, factsArg) {
+module.exports = function processRules(rules, goals, isTimable, builtInFunctorProvider, factsArg) {
   let facts = factsArg;
   if (facts instanceof LiteralTreeMap) {
     facts = [facts];
   }
 
-  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
-    return Resolutor.findUnifications(literal, facts);
-  });
-
   let containsTimables = function containsTimables(rule) {
     let bodyLiterals = rule.getBodyLiterals();
     let result = false;
     bodyLiterals.forEach((literal) => {
-      if (fluents[literal.getId()] || actions[literal.getId()] || events[literal.getId()]) {
+      if (isTimable(literal)) {
         result = true;
       }
     });
