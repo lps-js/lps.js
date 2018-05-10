@@ -80,10 +80,6 @@ function Engine(nodes) {
     return new Functor(literal.getName(), args);
   };
 
-  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
-    return Resolutor.findUnifications(literal, [_program.getFacts(), _activeFluents]);
-  });
-
   let builtInProcessors = {
     'maxTime/1': (val) => {
       _maxTime = val.evaluate();
@@ -310,6 +306,12 @@ function Engine(nodes) {
       }
       builtInProcessors[id].apply(null, fact.getArguments());
     });
+  };
+
+  let isTimable = function isTimable(literal) {
+    return _fluents[literal.getId()]
+      || _actions[literal.getId()]
+      || _events[literal.getId()];
   };
 
   let preProcessRules = function preProcessRules() {
