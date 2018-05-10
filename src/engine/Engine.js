@@ -507,9 +507,6 @@ function Engine(nodes) {
       let goalTree = goalTrees[l];
       let finalResult = null;
       goalTree.forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, (candidateActions) => {
-        if (candidateActions.size() === 0) {
-          return true;
-        }
         let result = recursiveSelector(actionsSoFar.concat([candidateActions]), l + 1);
         if (result !== null) {
           finalResult = result;
