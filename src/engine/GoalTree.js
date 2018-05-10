@@ -4,6 +4,7 @@ const Resolutor = require('./Resolutor');
 const Variable = require('./Variable');
 const variableArrayRename = require('../utility/variableArrayRename');
 const compactTheta = require('../utility/compactTheta');
+const constraintCheck = require('../utility/constraintCheck');
 
 let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, usedVariables) {
   let reductions = [];
@@ -150,6 +151,11 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
   this.hasBranchFailed = false;
   this.builtInFunctorProvider = builtInFunctorProvider;
 
+  let newFacts = new LiteralTreeMap();
+  if (this.clause.length > 0) {
+    newFacts.add(this.clause[0]);
+  }
+
   this.forEachCandidateActions = function forEachCandidateActions(program, facts, possibleActions, callback) {
     if (this.hasBranchFailed) {
       return true;
@@ -158,6 +164,16 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
     if (this.children.length === 0) {
       let candidateActions = new LiteralTreeMap();
       resolveSimpleActions(this.clause, possibleActions, this.builtInFunctorProvider, candidateActions);
+
+      if (candidateActions.size() === 0) {
+        return true;
+      }
+      let constraintCheckResult = constraintCheck(program, this.builtInFunctorProvider, facts, candidateActions);
+      if (!constraintCheckResult) {
+        this.hasBranchFailed = true;
+        return null;
+      }
+
       return callback(candidateActions);
     }
 
@@ -168,6 +184,7 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
         return false;
       }
     }
+    this.checkIfBranchFailed();
     return true;
   };
 
@@ -195,6 +212,18 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
 
     if (this.clause.length === 0) {
       return [[this.theta]];
+    }
+
+    for (let i = 0; i < this.children.length; i += 1) {
+      let result = this.children[i].evaluate(program, isTimable, facts);
+      if (result === null || result.length === 0) {
+        continue
+      }
+      let nodeResult = [];
+      result.forEach((subpath) => {
+        nodeResult.push([this.theta].concat(subpath));
+      });
+      return nodeResult;
     }
 
     // only attempt to resolve the first literal left to right
@@ -244,28 +273,29 @@ function GoalNode(clause, theta, builtInFunctorProvider) {
       }
     }
 
+    let newChildren = [];
     reductionResult.forEach((r) => {
-      this.children.push(r);
+      newChildren.unshift(r);
     });
 
-    let nodeResult = [];
-    let numFailed = 0;
-
-    for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, facts);
+    for (let i = 0; i < newChildren.length; i += 1) {
+      let result = newChildren[i].evaluate(program, isTimable, facts);
       if (result === null || result.length === 0) {
         continue
       }
+      let nodeResult = [];
       result.forEach((subpath) => {
         nodeResult.push([this.theta].concat(subpath));
       });
       return nodeResult;
     }
+    this.children = this.children.concat(newChildren);
+
     if (this.checkIfBranchFailed()) {
       return null;
     }
 
-    return nodeResult;
+    return [];
   };
 }
 
