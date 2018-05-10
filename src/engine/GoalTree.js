@@ -44,10 +44,7 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, use
   return reductions;
 };
 
-let resolveStateConditions = function resolveStateConditions(clause, facts) {
-  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
-    return Resolutor.findUnifications(literal, facts);
-  });
+let resolveStateConditions = function resolveStateConditions(clause, facts, builtInFunctorProvider) {
   let thetaSet = [];
   let literal = clause[0];
   let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
@@ -96,7 +93,7 @@ let resolveStateConditions = function resolveStateConditions(clause, facts) {
     if (t.unresolved.length >= clause.length) {
       return;
     }
-    nodes.push(new GoalNode(t.unresolved, t.theta));
+    nodes.push(new GoalNode(t.unresolved, t.theta, builtInFunctorProvider));
   });
   return nodes;
 };
@@ -146,26 +143,27 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
   });
 };
 
-function GoalNode(clause, theta) {
+function GoalNode(clause, theta, builtInFunctorProvider) {
   this.clause = clause;
   this.theta = theta;
   this.children = [];
   this.hasBranchFailed = false;
+  this.builtInFunctorProvider = builtInFunctorProvider;
 
-  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, builtInFunctorProvider, callback) {
+  this.forEachCandidateActions = function forEachCandidateActions(program, facts, possibleActions, callback) {
     if (this.hasBranchFailed) {
       return true;
     }
 
     if (this.children.length === 0) {
       let candidateActions = new LiteralTreeMap();
-      resolveSimpleActions(this.clause, possibleActions, builtInFunctorProvider, candidateActions);
+      resolveSimpleActions(this.clause, possibleActions, this.builtInFunctorProvider, candidateActions);
       return callback(candidateActions);
     }
 
     let result = [];
     for (let i = 0; i < this.children.length; i += 1) {
-      let childResult = this.children[i].forEachCandidateActions(possibleActions, builtInFunctorProvider, callback);
+      let childResult = this.children[i].forEachCandidateActions(program, facts, possibleActions, callback);
       if (!childResult) {
         return false;
       }
@@ -190,7 +188,7 @@ function GoalNode(clause, theta) {
     return false;
   };
 
-  this.evaluate = function evaluate(program, facts) {
+  this.evaluate = function evaluate(program, isTimable, facts) {
     if (this.hasBranchFailed) {
       return null;
     }
@@ -201,8 +199,8 @@ function GoalNode(clause, theta) {
 
     // only attempt to resolve the first literal left to right
     let reductionResult = [];
-    if (this.children.length === 0) {
-      let stateConditionResolutionResult = resolveStateConditions(clause, facts);
+    if (isTimable(this.clause[0]) || this.children.length === 0) {
+      let stateConditionResolutionResult = resolveStateConditions(clause, facts, builtInFunctorProvider);
       if (stateConditionResolutionResult === null) {
         this.hasBranchFailed = true;
         // node failed indefinitely
@@ -241,7 +239,7 @@ function GoalNode(clause, theta) {
           let newClause = remappedClauseFront
             .concat(crrArg.clause)
             .concat(remappedClauseBack);
-          reductionResult.push(new GoalNode(newClause, crrArg.theta));
+          reductionResult.push(new GoalNode(newClause, crrArg.theta, this.builtInFunctorProvider));
         });
       }
     }
@@ -271,8 +269,8 @@ function GoalNode(clause, theta) {
   };
 }
 
-function GoalTree(goalClause) {
-  let _root = new GoalNode(goalClause, {});
+function GoalTree(goalClause, builtInFunctorProvider) {
+  let _root = new GoalNode(goalClause, {}, builtInFunctorProvider);
 
   this.checkTreeFailed = function checkTreeFailed() {
     return _root.checkIfBranchFailed();
@@ -282,12 +280,12 @@ function GoalTree(goalClause) {
     return _root.clause.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(program, facts) {
-    return _root.evaluate(program, facts);
+  this.evaluate = function evaluate(program, isTimable, facts) {
+    return _root.evaluate(program, isTimable, facts);
   };
 
-  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, builtInFunctorProvider, callback) {
-    _root.forEachCandidateActions(possibleActions, builtInFunctorProvider, callback);
+  this.forEachCandidateActions = function forEachCandidateActions(program, facts, possibleActions, callback) {
+    _root.forEachCandidateActions(program, facts, possibleActions, callback);
   };
 }
 

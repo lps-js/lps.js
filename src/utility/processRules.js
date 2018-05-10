@@ -32,7 +32,7 @@ module.exports = function processRules(rules, goals, fluents, actions, events, f
       newRules.push(rule);
     }
     if (rule.getBodyLiteralsCount() === 0) {
-      goals.push(new GoalTree(rule.getHeadLiterals()));
+      goals.push(new GoalTree(rule.getHeadLiterals(), builtInFunctorProvider));
       return;
     }
     let resolutions = Resolutor.reduceRuleAntecedent(builtInFunctorProvider, rule, facts);
@@ -43,7 +43,7 @@ module.exports = function processRules(rules, goals, fluents, actions, events, f
       }
       let substitutedConsequentLiterals = consequentLiterals.map(l =>  l.substitute(pair.theta));
       if (pair.unresolved.length === 0) {
-        goals.push(new GoalTree(substitutedConsequentLiterals));
+        goals.push(new GoalTree(substitutedConsequentLiterals, builtInFunctorProvider));
         return;
       }
       newRules.push(new Clause(substitutedConsequentLiterals, pair.unresolved.map(l => l.substitute(pair.theta))));
