@@ -579,6 +579,9 @@ function Engine(nodes) {
     }
     // process selected actions
     selectedActions.forEach((l) => {
+      if (executedActions.contains(l)) {
+        return;
+      }
       result.activeActions.push(l);
       let actors = findFluentActors(l, updatedState);
       result.terminated = result.terminated.concat(actors.t);
