@@ -4,8 +4,7 @@ const LiteralTreeMap = require('../engine/LiteralTreeMap');
 const GoalTree = require('../engine/GoalTree');
 const Resolutor = require('../engine/Resolutor');
 
-// rules, program, _goals, _fluents, _actions, _events, [facts, updatedState, executedActions]
-module.exports = function processRules(rules, program, goals, fluents, actions, events, factsArg) {
+module.exports = function processRules(rules, goals, fluents, actions, events, factsArg) {
   let facts = factsArg;
   if (facts instanceof LiteralTreeMap) {
     facts = [facts];
