@@ -13,6 +13,7 @@ const compactTheta = require('../utility/compactTheta');
 const EventManager = require('../observer/Manager');
 const expandRuleAntecedent = require('../utility/expandRuleAntecedent');
 const variableArrayRename = require('../utility/variableArrayRename');
+const constraintCheck = require('../utility/constraintCheck');
 
 function Engine(nodes) {
   let _maxTime = 20;
@@ -391,7 +392,7 @@ function Engine(nodes) {
     _program.updateRules(newRules);
   }
 
-  let findFluentActors = function findFluentActors(action, timeStepFacts) {
+  let findFluentActors = function findFluentActors(action, builtInFunctorProvider, timeStepFacts) {
     let initiated = [];
     let terminated = [];
 
@@ -446,7 +447,7 @@ function Engine(nodes) {
     };
   };
 
-  let processObservations = function processObservations(timeStepFacts) {
+  let processObservations = function processObservations(builtInFunctorProvider, timeStepFacts) {
     let observationTerminated = [];
     let observationInitiated = [];
     let activeObservations = [];
@@ -466,7 +467,7 @@ function Engine(nodes) {
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action.substitute(theta);
       activeObservations.push(action);
-      let result = findFluentActors(action, timeStepFacts);
+      let result = findFluentActors(action, builtInFunctorProvider, timeStepFacts);
       observationTerminated = observationTerminated.concat(result.t);
       observationInitiated = observationInitiated.concat(result.i);
 
@@ -485,21 +486,14 @@ function Engine(nodes) {
     };
   };
 
-  let actionsSelector = function actionsSelector(goalTrees, possibleActions, program, facts) {
+  let actionsSelector = function actionsSelector(goalTrees, possibleActions, program, builtInFunctorProvider, facts) {
     let recursiveSelector = function (actionsSoFar, l) {
       if (l >= goalTrees.length) {
         if (actionsSoFar.length === 0) {
           return new LiteralTreeMap();
         }
-        let constraintSet = program.filter((clause) => {
-          return clause.getHeadLiteralsCount() === 0;
-        });
-        if (constraintSet.length > 0) {
-          let resolutor = new Resolutor(facts.concat(actionsSoFar));
-          // check if chosen actions violate any constraints
-          if (resolutor.resolve(program) === null) {
-            return null;
-          }
+        if (!constraintCheck(program, builtInFunctorProvider, facts, actionsSoFar)) {
+          return null;
         }
 
         let actions = new LiteralTreeMap();
@@ -512,7 +506,7 @@ function Engine(nodes) {
       }
       let goalTree = goalTrees[l];
       let finalResult = null;
-      goalTree.forEachCandidateActions(possibleActions, builtInFunctorProvider, (candidateActions) => {
+      goalTree.forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, (candidateActions) => {
         if (candidateActions.size() === 0) {
           return true;
         }
@@ -556,8 +550,12 @@ function Engine(nodes) {
       updatedState.add(updateTimableFunctor(literal, nextTime));
     });
 
+    let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
+      return Resolutor.findUnifications(literal, [facts, updatedState, executedActions]);
+    });
+
     // update with observations
-    let observationResult = processObservations(updatedState);
+    let observationResult = processObservations(builtInFunctorProvider, updatedState);
     observationResult.activeObservations.forEach((observation) => {
       executedActions.add(observation);
     });
@@ -575,7 +573,7 @@ function Engine(nodes) {
     });
 
     // decide which actions from set of candidate actions to execute
-    let selectedActions = actionsSelector(_goals, currentTimePossibleActions, program, [facts, currentFluents, executedActions]);
+    let selectedActions = actionsSelector(_goals, currentTimePossibleActions, program, builtInFunctorProvider, [facts, currentFluents, executedActions]);
     if (selectedActions === null) {
       selectedActions = [];
     }
@@ -585,7 +583,7 @@ function Engine(nodes) {
         return;
       }
       result.activeActions.push(l);
-      let actors = findFluentActors(l, updatedState);
+      let actors = findFluentActors(l, builtInFunctorProvider, updatedState);
       result.terminated = result.terminated.concat(actors.t);
       result.initiated = result.initiated.concat(actors.i);
       let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, l);
@@ -622,12 +620,12 @@ function Engine(nodes) {
 
     // build goal clauses for each rule
     // we need to derive the partially executed rule here too
-    let newRules = processRules(rules, _goals, _fluents, _actions, _events, [facts, updatedState, executedActions]);
+    let newRules = processRules(rules, _goals, isTimable, builtInFunctorProvider, [facts, updatedState, executedActions]);
     _program.updateRules(newRules);
 
     let newGoals = [];
     _goals.forEach((goalTree) => {
-      let evaluationResult = goalTree.evaluate(program, [facts, updatedState, executedActions]);
+      let evaluationResult = goalTree.evaluate(program, isTimable, builtInFunctorProvider, [facts, updatedState, executedActions]);
       if (evaluationResult === null) {
         return;
       }
