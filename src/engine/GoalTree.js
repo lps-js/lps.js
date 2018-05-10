@@ -221,14 +221,12 @@ function GoalNode(clause, theta) {
     let isTimableLiteral = isTimable(this.clause[0]);
     if (isTimableLiteral || this.children.length === 0) {
       let stateConditionResolutionResult = resolveStateConditions(clause, facts, builtInFunctorProvider);
-      if (this.clause[0].isGround() && stateConditionResolutionResult === null) {
-        this.hasBranchFailed = true;
-        return null;
-      }
-      if (!isTimableLiteral && stateConditionResolutionResult === null) {
-        this.hasBranchFailed = true;
-        // node failed indefinitely
-        return null;
+      if (this.children.length === 0) {
+        if ((!isTimableLiteral || this.clause[0].isGround()) && stateConditionResolutionResult === null) {
+          this.hasBranchFailed = true;
+          // node failed indefinitely
+          return null;
+        }
       }
       if (stateConditionResolutionResult !== null) {
         reductionResult = reductionResult.concat(stateConditionResolutionResult);
