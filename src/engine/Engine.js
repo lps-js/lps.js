@@ -1,6 +1,7 @@
 const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Functor = require('./Functor');
 const List = require('./List');
+const Clause = require('./Clause');
 const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
 const Program = require('./Program');
@@ -10,6 +11,7 @@ const Variable = require('./Variable');
 const processRules = require('../utility/processRules');
 const compactTheta = require('../utility/compactTheta');
 const EventManager = require('../observer/Manager');
+const expandRuleAntecedent = require('../utility/expandRuleAntecedent');
 
 function Engine(nodes) {
   let _maxTime = 20;
@@ -308,6 +310,72 @@ function Engine(nodes) {
       builtInProcessors[id].apply(null, fact.getArguments());
     });
   };
+
+  let preProcessRules = function preProcessRules() {
+    let newRules = [];
+    let rules = _program.getRules();
+
+    rules.forEach((rule) => {
+      let antecedent = rule.getBodyLiterals();
+      let ruleResult = [];
+      expandRuleAntecedent(ruleResult, antecedent, [], _program.getProgram());
+      if (ruleResult.length === 0) {
+        // nothing to do for this rule
+        newRules.push(rule);
+        return;
+      }
+      let consequent = rule.getHeadLiterals();
+
+      let antecedentVariables = {};
+      antecedent.forEach((literal) => {
+        literal.getVariables().forEach((vName) => {
+          antecedentVariables[vName] = true;
+        });
+      });
+
+      let commonVariables = {};
+      consequent.forEach((literal) => {
+        literal.getVariables().forEach((vName) => {
+          if (antecedentVariables[vName]) {
+            commonVariables[vName] = true;
+          }
+        });
+      });
+
+      ruleResult.forEach((tuple) => {
+        let tupleConsequent = consequent.concat([]);
+        let replacement = {};
+        Object.keys(commonVariables).forEach((k) => {
+          replacement[k] = new Variable(k);
+        });
+        tuple.thetaPath.forEach((theta) => {
+          Object.keys(replacement).forEach((k) => {
+            if (replacement[k] instanceof Variable) {
+              let vName = replacement[k].evaluate();
+              if (theta[vName] !== undefined) {
+                replacement[k] = theta[vName];
+              } else if (replacement[vName] !== undefined) {
+                replacement[k] = replacement[vName];
+              }
+            }
+          });
+        });
+        let newReplacement = {};
+        Object.keys(replacement).forEach((k) => {
+          if (commonVariables[k] === undefined) {
+            return;
+          }
+          if (replacement[k] instanceof Variable) {
+            return;
+          }
+          newReplacement[k] = replacement[k];
+        });
+        tupleConsequent = tupleConsequent.map(literal => literal.substitute(newReplacement));
+        newRules.push(new Clause(tupleConsequent, tuple.literalSet));
+      });
+    });
+    _program.updateRules(newRules);
+  }
 
   let findFluentActors = function findFluentActors(action, timeStepFacts) {
     let initiated = [];
@@ -648,6 +716,7 @@ function Engine(nodes) {
   // we preprocess some of the built-in processors by looking at the facts
   // of the program.
   processFacts();
+  preProcessRules();
 }
 
 module.exports = Engine;
