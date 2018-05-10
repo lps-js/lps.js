@@ -169,7 +169,6 @@ function GoalNode(clause, theta) {
       }
       let constraintCheckResult = constraintCheck(program, builtInFunctorProvider, facts, candidateActions);
       if (!constraintCheckResult) {
-        this.hasBranchFailed = true;
         return null;
       }
 
@@ -183,7 +182,6 @@ function GoalNode(clause, theta) {
         return false;
       }
     }
-    this.checkIfBranchFailed();
     return true;
   };
 
