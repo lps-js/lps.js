@@ -31,6 +31,10 @@ module.exports = function processRules(rules, goals, fluents, actions, events, f
       // preserve a rule if it has timeable in its antecedent
       newRules.push(rule);
     }
+    if (rule.getBodyLiteralsCount() === 0) {
+      goals.push(new GoalTree(rule.getHeadLiterals()));
+      return;
+    }
     let resolutions = Resolutor.reduceRuleAntecedent(builtInFunctorProvider, rule, facts);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {

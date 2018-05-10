@@ -316,6 +316,10 @@ function Engine(nodes) {
     let rules = _program.getRules();
 
     rules.forEach((rule) => {
+      if (rule.getBodyLiteralsCount() === 0) {
+        newRules.push(rule);
+        return;
+      }
       let antecedent = rule.getBodyLiterals();
       let ruleResult = [];
       expandRuleAntecedent(ruleResult, antecedent, [], _program.getProgram());
