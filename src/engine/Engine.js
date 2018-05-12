@@ -37,6 +37,7 @@ function Engine(nodes) {
 
   let _lastStepActions = [];
   let _lastStepObservations = [];
+  let _externalActions = {};
 
   let fluentSyntacticSugarProcessing = function fluentSyntacticSugarProcessing(literalArg, timingVariableArg) {
     let literal = literalArg;
@@ -302,10 +303,12 @@ function Engine(nodes) {
   let processFacts = function processFacts() {
     _program.getFacts().forEach((fact) => {
       let id = fact.getId();
-      if (builtInProcessors[id] === undefined) {
-        return;
+      // ensure to prioritise builtInProcessors over external actions
+      if (builtInProcessors[id] !== undefined) {
+        builtInProcessors[id].apply(null, fact.getArguments());
+      } else if (_externalActions[id] !== undefined) {
+        _externalActions[id].apply(null, fact.getArguments());
       }
-      builtInProcessors[id].apply(null, fact.getArguments());
     });
   };
 
@@ -547,7 +550,7 @@ function Engine(nodes) {
       updatedState.add(updateTimableFunctor(literal, nextTime));
     });
 
-    let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
+    let builtInFunctorProvider = new BuiltInFunctorProvider(_externalActions, (literal) => {
       return Resolutor.findUnifications(literal, [facts, currentFluents, executedActions]);
     });
 
@@ -613,7 +616,7 @@ function Engine(nodes) {
       updatedState.add(fluent);
     });
 
-    let builtInFunctorProvider2 = new BuiltInFunctorProvider((literal) => {
+    let builtInFunctorProvider2 = new BuiltInFunctorProvider(_externalActions, (literal) => {
       return Resolutor.findUnifications(literal, [facts, updatedState, executedActions]);
     });
 
@@ -697,6 +700,7 @@ function Engine(nodes) {
         observations: this.getLastStepObservations()
       });
     }
+    _engineEventManager.notify('done', this);
     return result;
   };
 
@@ -707,9 +711,16 @@ function Engine(nodes) {
     }
     _maxTime = null;
     _engineEventManager.notify('runContinuous', this);
-    setInterval(() => {
+    let timer = setInterval(() => {
       this.step();
     }, interval);
+  };
+
+  this.define = function define(identifier, callback) {
+    if (_externalActions[identifier] !== undefined) {
+      throw new Error('External action "' + identifier + '" has been previously defined.');
+    }
+    _externalActions[identifier] = callback;
   };
 
   this.on = function on(event, listener) {

@@ -15,7 +15,7 @@ let assertIsList = function assertIsList(val) {
   }
 };
 
-function BuiltInFunctorProvider(findUnifications) {
+function BuiltInFunctorProvider(externalActions, findUnifications) {
   let resolveValue = (v) => {
     let result = v;
     if (result instanceof Functor && this.has(result.getId())) {
@@ -1165,15 +1165,21 @@ function BuiltInFunctorProvider(findUnifications) {
   };
 
   this.has = function has(id) {
-    return functors[id] !== undefined;
+    if (functors[id] !== undefined) {
+      return true;
+    }
+    return externalActions[id] !== undefined;
   };
 
   this.execute = function execute(literal) {
     let id = literal.getId();
-    if (functors[id] === undefined) {
-      throw new Error('');
+    if (functors[id] !== undefined) {
+      return functors[id].apply(null, literal.getArguments());
     }
-    return functors[id].apply(null, literal.getArguments());
+    if (externalActions[id] !== undefined) {
+      return externalFunctors[id].apply(null, literal.getArguments());
+    }
+    throw new Error('');
   };
 }
 
