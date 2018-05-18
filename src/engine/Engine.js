@@ -35,8 +35,8 @@ function Engine(nodes) {
   let _possibleActions = new LiteralTreeMap();
   let _currentTime = 0;
 
-  let _lastStepActions = [];
-  let _lastStepObservations = [];
+  let _lastStepActions = null;
+  let _lastStepObservations = null;
   let _externalActions = {};
 
   let fluentSyntacticSugarProcessing = function fluentSyntacticSugarProcessing(literalArg, timingVariableArg) {
@@ -649,8 +649,14 @@ function Engine(nodes) {
     });
     _goals = newGoals;
 
-    _lastStepActions = result.activeActions;
-    _lastStepObservations = observationResult.activeObservations;
+    _lastStepActions = new LiteralTreeMap();
+    result.activeActions.forEach((action) => {
+      _lastStepActions.add(action);
+    });
+    _lastStepObservations = new LiteralTreeMap();
+    observationResult.activeObservations.forEach((observation) => {
+      _lastStepObservations.add(observation);
+    });
     return updatedState;
   };
 
@@ -659,11 +665,19 @@ function Engine(nodes) {
   };
 
   this.getLastStepActions = function getLastStepActions() {
-    return _lastStepActions.map(action => action.toString());
+    let actions = [];
+    _lastStepActions.forEach((action) => {
+      actions.push(action.toString());
+    });
+    return actions;
   };
 
   this.getLastStepObservations = function getLastStepObservations() {
-    return _lastStepObservations.map(action => action.toString());
+    let observations = [];
+    _lastStepObservations.forEach((observation) => {
+      observations.push(observation.toString());
+    });
+    return observations;
   };
 
   this.getActiveFluents = function getActiveFluents() {
