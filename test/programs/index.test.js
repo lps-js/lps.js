@@ -12,6 +12,9 @@ let testFunction = function testFunction(file) {
           return engine.test(__dirname + '/' + file + '.spec.lps');
         })
         .then((result) => {
+          if (!result.success) {
+            console.log(result.errors);
+          }
           expect(result.success).to.be.true;
           done();
         });
@@ -20,5 +23,8 @@ let testFunction = function testFunction(file) {
 };
 
 describe('Programs Test', () => {
-  testFunction('bank-terse');
+  [
+    'bank-terse',
+    'fire-simple'
+  ].forEach(testFunction);
 });

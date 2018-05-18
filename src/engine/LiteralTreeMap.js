@@ -279,6 +279,8 @@ function LiteralTreeMap() {
         return false;
       }
       if (i === lastPathIndex) {
+        // only reduce count at root node
+        _count -= 1;
         delete node._tree[index];
         return true;
       }
@@ -287,7 +289,6 @@ function LiteralTreeMap() {
       if (result) {
         node._tree[index]._size -= 1;
         if (node._tree[index]._size === 0) {
-          _count -= 1;
           delete node._tree[index];
           return true;
         }
