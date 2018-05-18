@@ -1,0 +1,18 @@
+expect(maxTime(5)).
+
+expect_num_of(fluent, 1, 1).
+expect_num_of(action, 1, 0).
+expect(fluent, 1, fire).
+
+expect_num_of(fluent, 2, 0).
+expect_num_of(action, 2, 1).
+expect(action, 1, 2, eliminate).
+
+expect_num_of(fluent, 3, 0).
+expect_num_of(action, 3, 0).
+
+expect_num_of(fluent, 4, 0).
+expect_num_of(action, 4, 0).
+
+expect_num_of(fluent, 5, 0).
+expect_num_of(action, 5, 0).

@@ -1,0 +1,13 @@
+maxTime(5).
+fluent(fire).
+actions([eliminate, escape]).
+event(deal_with_fire).
+
+initially(fire).
+
+fire(T1) -> deal_with_fire(T1, T2).
+
+deal_with_fire(T1, T2) <- eliminate(T1, T2).
+deal_with_fire(T1, T2) <- escape(T1, T2).
+
+terminates(eliminate, fire).
