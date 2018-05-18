@@ -673,6 +673,13 @@ function Engine(nodes) {
     return actions;
   };
 
+  this.getNumLastStepActions = function getNumLastStepActions() {
+    if (_lastStepActions === null) {
+      return 0;
+    }
+    return _lastStepActions.size();
+  };
+
   this.getLastStepObservations = function getLastStepObservations() {
     let observations = [];
     _lastStepObservations.forEach((observation) => {
@@ -681,12 +688,23 @@ function Engine(nodes) {
     return observations;
   };
 
+  this.getNumLastStepObservations = function getNumLastStepObservations() {
+    if (_lastStepObservations === null) {
+      return 0;
+    }
+    return _lastStepObservations.size();
+  };
+
   this.getActiveFluents = function getActiveFluents() {
     let fluents = [];
     _activeFluents.forEach((fluent) => {
       fluents.push(fluent.toString());
     });
     return fluents;
+  };
+
+  this.getNumActiveFluents = function getNumActiveFluents() {
+    return _activeFluents.size();
   };
 
   this.query = function query(literalArg, type) {
