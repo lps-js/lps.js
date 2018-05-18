@@ -8,7 +8,7 @@ require('mocha-sinon');
 
 describe('Parser', () => {
   describe('parseLiteral', () => {
-    it('should parse and return a literal correctly', () => {
+    it('should parse and return a literal correctly', (done) => {
       let literal = 'test(X, Y)';
       Parser.parseLiteral(literal)
         .then((node) => {
@@ -20,6 +20,7 @@ describe('Parser', () => {
           expect(children[0].getType()).to.be.equal(NodeTypes.Variable);
           expect(children[1]).to.be.instanceof(AstNode);
           expect(children[1].getType()).to.be.equal(NodeTypes.Variable);
+          done();
         });
     });
   });
