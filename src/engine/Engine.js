@@ -14,6 +14,7 @@ const EventManager = require('../observer/Manager');
 const expandRuleAntecedent = require('../utility/expandRuleAntecedent');
 const variableArrayRename = require('../utility/variableArrayRename');
 const constraintCheck = require('../utility/constraintCheck');
+const Tester = require('./test/Tester');
 
 function Engine(nodes) {
   let _maxTime = 20;
@@ -782,6 +783,11 @@ function Engine(nodes) {
 
   this.reset = function reset() {
 
+  };
+
+  this.test = function test(specFile) {
+    let tester = new Tester(this);
+    return tester.test(specFile);
   };
 
   // we preprocess some of the built-in processors by looking at the facts
