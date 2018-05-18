@@ -688,6 +688,25 @@ function Engine(nodes) {
     return fluents;
   };
 
+  this.query = function query(literalArg, type) {
+    let literal = literalArg;
+    if (type === 'fluent') {
+      literal = fluentSyntacticSugarProcessing(literalArg);
+      return _activeFluents.unifies(literal);
+    }
+
+    if (type === 'action') {
+      literal = actionSyntacticSugarProcessing(literalArg);
+      return _lastStepActions.unifies(literal);
+    }
+
+    if (type === 'observation') {
+      literal = actionSyntacticSugarProcessing(literalArg);
+      return _lastStepObservations.unifies(literal)
+    }
+
+    return _program.query(literal);
+  };
 
   this.hasTerminated = function hasTerminated() {
     return _maxTime !== null && _currentTime >= _maxTime;
@@ -696,6 +715,7 @@ function Engine(nodes) {
   this.terminate = function terminate() {
     _maxTime = _currentTime;
   };
+
   this.step = function step() {
     _engineEventManager.notify('preStep', this);
     if (this.hasTerminated()) {
