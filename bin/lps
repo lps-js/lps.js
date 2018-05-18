@@ -39,6 +39,9 @@ LPS.load(file)
           });
       });
     });
+    server.on('error', (err) => {
+      console.log(err);
+    });
     server.listen(SERVER_PORT, '127.0.0.1');
     
     console.log('TCP Server now listening on ' + SERVER_PORT);
