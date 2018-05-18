@@ -76,6 +76,28 @@ function Tester(engine) {
     });
   };
 
+  // expect_num_of/4
+  // expect_num_of(Type, T1, T2, Num)
+  let processTypeThreeExpectations = function processTypeThreeExpectations(program) {
+    let queryResult = program.query([new Functor('expect_num_of', [new Variable('Type'), new Variable('T1'), new Variable('T2'), new Variable('F')])]);
+    queryResult.forEach((r) => {
+      if (r.unresolved.length > 0) {
+        return;
+      }
+      let time1 = r.theta.T1.evaluate();
+      let time2 = r.theta.T2.evaluate();
+      let type = r.theta.Type.evaluate();
+
+      checkAndCreateExpectation(time1 + 1);
+
+      expectations[time1 + 1].push({
+        num_of: r.theta.F.evaluate(),
+        type: type,
+        endTime: time2
+      });
+    });
+  };
+
   this.test = function test(specFile) {
     expectations = {};
     return Parser.parseFile(specFile)
