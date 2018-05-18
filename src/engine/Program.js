@@ -1,3 +1,4 @@
+const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Clause = require('./Clause');
 const Functor = require('./Functor');
 const NodeTypes = require('../parser/NodeTypes');
@@ -5,6 +6,7 @@ const List = require('./List');
 const Value = require('./Value');
 const Variable = require('./Variable');
 const Resolutor = require('./Resolutor');
+const GoalTree = require('./GoalTree');
 const LiteralTreeMap = require('./LiteralTreeMap');
 
 let processBinaryOperator = function processBinaryOperator(node, singleUnderscoreVariableSet) {
@@ -170,12 +172,12 @@ let getProgramInterpretation = function getProgramInterpretation(facts, program)
   newFacts.forEach((literal) => facts.add(literal));
 };
 
-function Program(tree) {
+function Program(nodeTree) {
   let _rules = [];
   let _program = [];
   let _facts = new LiteralTreeMap();
 
-  processProgram(tree, {
+  processProgram(nodeTree, {
     rules: _rules,
     program: _program,
     facts: _facts
@@ -197,6 +199,22 @@ function Program(tree) {
 
   this.getRules = function getRules() {
     return _rules.map(x => x);
+  };
+
+  this.query = function query(query, otherFacts) {
+    if (otherFacts === undefined) {
+      otherFacts = new LiteralTreeMap();
+    }
+    let facts = [_facts];
+    if (otherFacts instanceof LiteralTreeMap) {
+      facts.push(otherFacts);
+    }
+    let builtInFunctorProvider = new BuiltInFunctorProvider({}, (literal) => {
+      return Resolutor.findUnifications(literal, facts);
+    });
+
+    let evaluationResult = Resolutor.reduceRuleAntecedent(builtInFunctorProvider, new Clause([], query), facts);
+    return evaluationResult;
   };
 }
 
