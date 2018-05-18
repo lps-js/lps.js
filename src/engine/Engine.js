@@ -688,9 +688,17 @@ function Engine(nodes) {
     return fluents;
   };
 
+
+  this.hasTerminated = function hasTerminated() {
+    return _maxTime !== null && _currentTime >= _maxTime;
+  };
+
+  this.terminate = function terminate() {
+    _maxTime = _currentTime;
+  };
   this.step = function step() {
     _engineEventManager.notify('preStep', this);
-    if (_maxTime !== null && _currentTime >= _maxTime) {
+    if (this.hasTerminated()) {
       return;
     }
     let nextStepActiveFluents = performCycle(_activeFluents);
@@ -700,7 +708,7 @@ function Engine(nodes) {
   };
 
   this.run = function run() {
-    if (_currentTime >= _maxTime) {
+    if (this.hasTerminated()) {
       return null;
     }
     let result = [];
