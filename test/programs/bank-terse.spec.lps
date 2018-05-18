@@ -1,0 +1,39 @@
+expect(maxTime(9)).
+
+expect(fluent, initially, balance(bob, 0)).
+expect(fluent, initially, balance(fariba, 100)).
+
+expect(fluent, 1, balance(bob, 0)).
+expect(fluent, 1, balance(fariba, 100)).
+
+expect(fluent, 2, balance(bob, 0)).
+expect(fluent, 2, balance(fariba, 100)).
+
+
+expect(fluent, 3, balance(bob, 10)).
+expect(fluent, 3, balance(fariba, 90)).
+expect(observation, 2, 3, transfer(fariba, bob, 10)).
+
+expect(fluent, 4, balance(fariba, 100)).
+expect(fluent, 4, balance(bob, 0)).
+expect(action, 3, 4, transfer(bob, fariba, 10)).
+
+expect(fluent, 5, balance(bob, 20)).
+expect(fluent, 5, balance(fariba, 80)).
+expect(action, 4, 5, transfer(fariba, bob, 20)).
+
+expect(fluent, 6, balance(bob, 10)).
+expect(fluent, 6, balance(fariba, 90)).
+expect(action, 5, 6, transfer(bob, fariba, 10)).
+
+expect(fluent, 7, balance(bob, 30)).
+expect(fluent, 7, balance(fariba, 70)).
+expect(action, 6, 7, transfer(fariba, bob, 20)).
+
+expect(fluent, 8, balance(bob, 20)).
+expect(fluent, 8, balance(fariba, 80)).
+expect(action, 7, 8, transfer(bob, fariba, 10)).
+
+expect(fluent, 9, balance(bob, 40)).
+expect(fluent, 9, balance(fariba, 60)).
+expect(action, 8, 9, transfer(fariba, bob, 20)).
