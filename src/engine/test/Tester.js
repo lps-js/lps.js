@@ -6,6 +6,7 @@ const Value = require('../../engine/Value');
 
 function Tester(engine) {
   let expectations = {};
+  let timelessExpectations = [];
   let checkAndCreateExpectation = function checkAndCreateExpectation(time) {
     if (expectations[time] === undefined) {
       expectations[time] = [];
@@ -78,7 +79,7 @@ function Tester(engine) {
 
   // expect_num_of/4
   // expect_num_of(Type, T1, T2, Num)
-  let processTypeThreeExpectations = function processTypeThreeExpectations(program) {
+  let processTypeFourExpectations = function processTypeFourExpectations(program) {
     let queryResult = program.query([new Functor('expect_num_of', [new Variable('Type'), new Variable('T1'), new Variable('T2'), new Variable('F')])]);
     queryResult.forEach((r) => {
       if (r.unresolved.length > 0) {
@@ -98,18 +99,51 @@ function Tester(engine) {
     });
   };
 
+  // expect/1
+  // expect(L)
+  let processTypeFiveExpectations = function processTypeFiveExpectations(program) {
+    let queryResult = program.query([new Functor('expect', [new Variable('F')])]);
+    queryResult.forEach((r) => {
+      if (r.unresolved.length > 0) {
+        return;
+      }
+      timelessExpectations.push({
+        fact: r.theta.F
+      });
+    });
+  };
+
   this.test = function test(specFile) {
     expectations = {};
+    timelessExpectations = [];
     return Parser.parseFile(specFile)
       .then((specNode) => {
         let program = new Program(specNode);
         processTypeOneExpectations(program);
         processTypeTwoExpectations(program);
         processTypeThreeExpectations(program);
+        processTypeFourExpectations(program);
+        processTypeFiveExpectations(program);
 
         let totalExpectations = 0;
         let passedExpectations = 0;
         let errors = [];
+
+        engine.on('run', () => {
+          timelessExpectations.forEach((entry) => {
+            let testResult = false;
+            totalExpectations += 1;
+            if (entry.fact !== undefined) {
+              let qResult = engine.query(entry.fact);
+              testResult = qResult.length > 0;
+            }
+            if (testResult) {
+              passedExpectations += 1;
+            } else {
+              errors.push('Expecting ' + entry.fact + ' to hold.');
+            }
+          });
+        });
 
         engine.on('postStep', () => {
           let engineTime = engine.getCurrentTime();
