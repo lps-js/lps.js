@@ -5,13 +5,13 @@ const Variable = require('./Variable');
 
 let assertIsValue = function assertIsValue(val) {
   if (!(val instanceof Value)) {
-    throw new Error('');
+    throw new Error('Must be value');
   }
 };
 
 let assertIsList = function assertIsList(val) {
   if (!(val instanceof List)) {
-    throw new Error('');
+    throw new Error('Must be list');
   }
 };
 
@@ -1151,7 +1151,7 @@ function BuiltInFunctorProvider(externalActions, findUnifications) {
 
     '!/1': function (literal) {
       if (!(literal instanceof Functor)) {
-        throw new Error('');
+        throw new Error('Literal not functor');
       }
       let queryResult = findUnifications(literal);
       let result = [];
