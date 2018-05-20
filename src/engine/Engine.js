@@ -622,20 +622,22 @@ function Engine(nodes) {
       updatedState.add(fluent);
     });
 
-    let builtInFunctorProvider2 = new BuiltInFunctorProvider(_externalActions, (literal) => {
-      return Resolutor.findUnifications(literal, [facts, updatedState, executedActions]);
-    });
-
     // preparation for next cycle
 
     // build goal clauses for each rule
     // we need to derive the partially executed rule here too
-    let newRules = processRules(rules, _goals, isTimable, builtInFunctorProvider2, [facts, updatedState, executedActions]);
+    let newRules = processRules(rules, _goals, isTimable, builtInFunctorProvider, [facts, currentFluents, executedActions]);
     _program.updateRules(newRules);
+
+    let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
+
+    let builtInFunctorProvider2 = new BuiltInFunctorProvider(_externalActions, (literal) => {
+      return Resolutor.findUnifications(literal, [facts, updatedState, executedActions]);
+    });
 
     let newGoals = [];
     _goals.forEach((goalTree) => {
-      let evaluationResult = goalTree.evaluate(program, isTimable, builtInFunctorProvider2, [facts, updatedState, executedActions]);
+      let evaluationResult = goalTree.evaluate(program, isTimable, nextTimePossibleActions, builtInFunctorProvider2, [facts, updatedState, executedActions]);
       if (evaluationResult === null) {
         return;
       }
