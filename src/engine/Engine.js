@@ -527,6 +527,18 @@ function Engine(nodes) {
     return recursiveSelector([], 0);
   };
 
+  let possibleActionsGenerator = function possibleActionsGenerator(time) {
+    let timedPossibleActions = new LiteralTreeMap();
+    let timeTheta = {
+      $T1: new Value(time),
+      $T2: new Value(time + 1)
+    };
+    _possibleActions.forEach((l) => {
+      timedPossibleActions.add(l.substitute(timeTheta));
+    });
+    return timedPossibleActions
+  };
+
   /*
     Perform Cycle
   */
@@ -564,14 +576,7 @@ function Engine(nodes) {
     result.initiated = observationResult.initiated.concat(result.initiated);
 
     // to handle time for this iteration
-    let currentTimePossibleActions = new LiteralTreeMap();
-    let timeTheta = {
-      $T1: new Value(_currentTime),
-      $T2: new Value(_currentTime + 1)
-    };
-    _possibleActions.forEach((l) => {
-      currentTimePossibleActions.add(l.substitute(timeTheta));
-    });
+    let currentTimePossibleActions = possibleActionsGenerator(_currentTime);
 
     // decide which actions from set of candidate actions to execute
     let selectedActions = actionsSelector(_goals, currentTimePossibleActions, program, builtInFunctorProvider, [facts, currentFluents, executedActions]);
