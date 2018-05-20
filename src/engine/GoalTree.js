@@ -204,6 +204,9 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
   });
 
   thetaSet.forEach((tuple) => {
+    if (tuple.unresolved.length > 0) {
+      return;
+    }
     tuple.candidates.forEach((literal) => {
       candidateActions.add(literal);
     });
@@ -284,11 +287,10 @@ function GoalNode(clause, theta) {
 
     // only attempt to resolve the first literal left to right
     let reductionResult = [];
-    let isTimableLiteral = isTimable(this.clause[0]);
-    if (isTimableLiteral || this.children.length === 0) {
-      let stateConditionResolutionResult = resolveStateConditions(clause, facts, builtInFunctorProvider);
+    if (isTimable(this.clause[0]) || this.children.length === 0) {
+      let stateConditionResolutionResult = resolveStateConditions(clause, possibleActions, facts, builtInFunctorProvider);
       if (this.children.length === 0) {
-        if ((!isTimableLiteral || this.clause[0].isGround()) && stateConditionResolutionResult === null) {
+        if (!isTimable(this.clause[0]) && stateConditionResolutionResult === null) {
           this.hasBranchFailed = true;
           // node failed indefinitely
           return null;
