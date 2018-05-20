@@ -22,7 +22,7 @@ makeLoc(Object, Location1, T1, T3) <-
   row(Location2, Location1, T2, T3),
   transport(Object, Location2, Location1, T2, T3),
   dealWithGoat(Location2, Location1, T2, T3).
-  
+
 makeLoc(farmer, Location1, T1, T2) <-
   loc(farmer, Location2, T1),
   Location1 != Location2,
@@ -46,18 +46,18 @@ dealWithGoat(Location2, Location1, T1, T2) <-
   loc(wolf, Location2, T1),
   not loc(cabbage, Location2, T1),
   transport(wolf, Location2, Location1, T1, T2).
-  
+
 dealWithGoat(Location2, Location1, T1, T2) <-
   loc(goat, Location2, T1),
   loc(cabbage, Location2, T1),
   transport(goat, Location2, Location1, T1, T2).
-  
+
 dealWithGoat(Location2, Location1, T1, T2) <-
   loc(goat, Location2, T1),
   loc(cabbage, Location2, T1),
   not loc(wolf, Location2, T1),
-  transpot(cabbage, Location2, Location1, T1, T2).
-  
+  transport(cabbage, Location2, Location1, T1, T2).
+
 makeLoc(Object, Location, T, T) <-
   loc(Object, Location, T).
 
