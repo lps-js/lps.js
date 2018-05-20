@@ -45,50 +45,116 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, use
   return reductions;
 };
 
-let resolveStateConditions = function resolveStateConditions(clause, facts, builtInFunctorProvider) {
+let resolveStateConditions = function resolveStateConditions(clause, possibleActions, facts, builtInFunctorProvider) {
   let thetaSet = [];
-  let literal = clause[0];
-  let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
-  // console.log(substitutedInstances.map(l => ''+l));
-  substitutedInstances.forEach((instance) => {
-    if (thetaSet === null) {
-      return;
+  let newThetaSet = [
+    {
+      theta: {},
+      unresolved: clause,
+      processing: true
     }
-    let literalThetas = [];
-    if (builtInFunctorProvider.has(instance.getId())) {
-      literalThetas = builtInFunctorProvider.execute(instance);
-      if (literalThetas.length === 0) {
-        thetaSet = null;
-        return;
-      }
-    } else {
-      literalThetas = Resolutor.findUnifications(instance, facts);
-    }
-    let isGrounded = instance.isGround();
-    if (literalThetas.length === 0) {
-      if (isGrounded) {
-        thetaSet = null;
-        return;
-      }
-      return;
-    }
+  ];
+  let numResolved = 0;
 
-    // resolved.add(instance);
-    literalThetas.forEach((t) => {
-      let replacement = clause.slice(1, clause.length)
-        .map(l => l.substitute(t.theta));
-      if (t.replacement !== undefined) {
-        replacement = t.replacement.concat(replacement);
+  do {
+    numResolved = 0;
+
+    thetaSet = newThetaSet;
+    newThetaSet = [];
+    thetaSet.forEach((tuple) => {
+      if (!tuple.processing) {
+        newThetaSet.push(tuple);
+        return;
       }
-      thetaSet.push({
-        theta: t.theta,
-        unresolved: replacement
+      let literalThetas = [];
+      let skippedLiterals = [];
+      let backUnprocessed = tuple.unresolved;
+      let hasSelectedLiteral = false;
+      let hasFailedIndefinitely = false;
+      for (let k = 0; k < tuple.unresolved.length; k += 1) {
+        let literal = tuple.unresolved[k];
+        // console.log('Proc ' + literal);
+        let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
+        let numNoUnification = 0;
+        substitutedInstances.forEach((instance) => {
+          let subLiteralThetas = [];
+          if (builtInFunctorProvider.has(instance.getId())) {
+            try {
+              subLiteralThetas = builtInFunctorProvider.execute(instance);
+            } catch(err) {
+              console.log(tuple);
+              console.log(''+tuple.unresolved);
+              throw err;
+            }
+            if (subLiteralThetas.length === 0) {
+              if (instance.isGround()) {
+                // failed indefinitely
+                hasFailedIndefinitely = true;
+              }
+              return;
+            }
+          } else {
+            subLiteralThetas = Resolutor.findUnifications(instance, facts);
+          }
+          if (subLiteralThetas.length === 0) {
+            let possibleActionsCheck = possibleActions.unifies(instance);
+            if (possibleActionsCheck.length === 0) {
+              ++numNoUnification;
+            }
+            return;
+          }
+          literalThetas = literalThetas.concat(subLiteralThetas);
+        });
+        if (hasFailedIndefinitely) {
+          break;
+        }
+        if (numNoUnification === substitutedInstances.length) {
+          break;
+        }
+        if (literalThetas.length > 0) {
+          hasSelectedLiteral = true;
+          backUnprocessed = tuple.unresolved.slice(k + 1, tuple.unresolved.length);
+          break;
+        }
+        skippedLiterals.push(literal);
+      }
+      if (hasFailedIndefinitely) {
+        return;
+      }
+      if (!hasSelectedLiteral) {
+        tuple.processing = false;
+        newThetaSet.push(tuple);
+        return;
+      }
+
+      literalThetas.forEach((t) => {
+        let newTheta = compactTheta(tuple.theta, t.theta);
+        let replacementFront = skippedLiterals
+          .map(l => l.substitute(newTheta));
+        let replacementBack = backUnprocessed
+          .map(l => l.substitute(newTheta));
+        let replacement;
+        if (t.replacement === undefined) {
+          replacement = replacementFront.concat(replacementBack);
+        } else {
+          replacement = replacementFront.concat(t.replacement)
+            .concat(replacementBack);
+        }
+        newThetaSet.push({
+          theta: newTheta,
+          unresolved: replacement,
+          processing: false
+        });
+        numResolved += 1;
       });
     });
-  });
-  if (thetaSet === null) {
-    return null;
-  }
+    if (newThetaSet.length === 0 || newThetaSet === null) {
+      return null;
+    }
+  } while (numResolved > 0);
+  thetaSet = newThetaSet;
+
+  // convert to nodes
   let nodes = [];
   thetaSet.forEach(t => {
     if (t.unresolved.length >= clause.length) {
@@ -207,7 +273,7 @@ function GoalNode(clause, theta) {
     return false;
   };
 
-  this.evaluate = function evaluate(program, isTimable, builtInFunctorProvider, facts) {
+  this.evaluate = function evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts) {
     if (this.hasBranchFailed) {
       return null;
     }
@@ -276,7 +342,7 @@ function GoalNode(clause, theta) {
     });
 
     for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, isTimable, builtInFunctorProvider, facts);
+      let result = this.children[i].evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts);
       if (result === null || result.length === 0) {
         continue;
       }
@@ -306,8 +372,8 @@ function GoalTree(goalClause) {
     return _root.clause.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(program, isTimable, builtInFunctorProvider, facts) {
-    return _root.evaluate(program, isTimable, builtInFunctorProvider, facts);
+  this.evaluate = function evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts) {
+    return _root.evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts);
   };
 
   this.forEachCandidateActions = function forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback) {
