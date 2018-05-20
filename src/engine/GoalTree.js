@@ -232,8 +232,9 @@ function GoalNode(clause, theta) {
         reductionResult = reductionResult.concat(stateConditionResolutionResult);
       }
     }
-    if (this.children.length === 0) {
-      for (let i = 0; i < 1; i += 1) {
+    if (this.children.length === 0 && reductionResult.length === 0) {
+      //console.log(''+this.clause);
+      for (let i = 0; i < this.clause.length; i += 1) {
         let usedVariables = {};
         let otherLiteralsFront = this.clause.slice(0, i);
         let otherLiteralsBack = this.clause.slice(i + 1, this.clause.length);
@@ -265,6 +266,9 @@ function GoalNode(clause, theta) {
             .concat(remappedClauseBack);
           reductionResult.push(new GoalNode(newClause, crrArg.theta));
         });
+        if (reductionResult.length > 0) {
+          break;
+        }
       }
     }
     reductionResult.forEach((r) => {
