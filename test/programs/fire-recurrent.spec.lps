@@ -1,0 +1,35 @@
+expect(maxTime(10)).
+
+expect(fluent, 1, water).
+
+expect(fluent, 2, fire).
+expect(observation, 1, 2, ignite(sofa)).
+expect_num_of(action, 1, 2, 0).
+
+expect_num_of(fluent, 3, 0).
+expect_num_of(observation, 2, 3, 0).
+expect(action, 2, 3, eliminate).
+
+expect_num_of(fluent, 4, 0).
+expect_num_of(observation, 3, 4, 0).
+expect_num_of(action, 3, 4, 0).
+
+expect_num_of(fluent, 5, 7, 1).
+expect_num_of(fluent, 7, 8, 2).
+expect_num_of(fluent, 8, 10, 0).
+
+expect(fluent, 5, 8, fire).
+expect_num_of(observation, 4, 5, 1).
+expect(observation, 4, 5, ignite(bed)).
+expect_num_of(action, 4, 5, 0).
+
+expect_num_of(action, 5, 9, 1).
+expect(action, 5, 8, escape).
+expect(action, 8, 9, eliminate).
+expect_num_of(action, 9, 10, 0).
+
+expect_num_of(observation, 5, 7, 0).
+expect_num_of(observation, 7, 8, 1).
+expect_num_of(observation, 8, 10, 0).
+
+expect(observation, 7, 8, refill).

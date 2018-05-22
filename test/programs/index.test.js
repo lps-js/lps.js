@@ -25,6 +25,7 @@ let testFunction = function testFunction(file) {
 describe('Programs Test', () => {
   [
     'bank-terse',
-    'fire-simple'
+    'fire-simple',
+    'fire-recurrent'
   ].forEach(testFunction);
 });
