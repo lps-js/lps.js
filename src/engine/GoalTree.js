@@ -71,8 +71,18 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
       let backUnprocessed = tuple.unresolved;
       let hasSelectedLiteral = false;
       let hasFailedIndefinitely = false;
+      let variablesSeenBefore = {};
       for (let k = 0; k < tuple.unresolved.length; k += 1) {
         let literal = tuple.unresolved[k];
+        let canProceed = true;
+        literal.getVariables().forEach((v) => {
+          if (variablesSeenBefore[v] !== undefined) {
+            canProceed = false;
+          }
+        });
+        if (!canProceed) {
+          break;
+        }
         // console.log('Proc ' + literal);
         let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
         let numNoUnification = 0;
@@ -117,6 +127,9 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
           break;
         }
         skippedLiterals.push(literal);
+        literal.getVariables().forEach((v) => {
+          variablesSeenBefore[v] = true;
+        });
       }
       if (hasFailedIndefinitely) {
         return;
