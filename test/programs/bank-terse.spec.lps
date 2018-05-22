@@ -1,14 +1,10 @@
 expect(maxTime(9)).
 
-expect(fluent, initially, balance(bob, 0)).
-expect(fluent, initially, balance(fariba, 100)).
-
 expect(fluent, 1, balance(bob, 0)).
 expect(fluent, 1, balance(fariba, 100)).
 
 expect(fluent, 2, balance(bob, 0)).
 expect(fluent, 2, balance(fariba, 100)).
-
 
 expect(fluent, 3, balance(bob, 10)).
 expect(fluent, 3, balance(fariba, 90)).
