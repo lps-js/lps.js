@@ -108,6 +108,7 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
           break;
         }
         if (numNoUnification === substitutedInstances.length) {
+          hasFailedIndefinitely = true;
           break;
         }
         if (literalThetas.length > 0) {
