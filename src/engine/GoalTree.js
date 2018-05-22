@@ -217,9 +217,6 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
   });
 
   thetaSet.forEach((tuple) => {
-    if (tuple.unresolved.length > 0) {
-      return;
-    }
     tuple.candidates.forEach((literal) => {
       candidateActions.add(literal);
     });
