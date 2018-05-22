@@ -1,0 +1,28 @@
+maxTime(5).
+
+fluent(guards(_)).
+fluent(free(_)).
+fluent(fire).
+action(putOutFire).
+action(moveOut(_)).
+action(reportBack(_)).
+
+initially(fire).
+
+fire(T1) -> findguard(P, T1), free(P, T1), activate(P, T2, T3).
+findguard(P, T1) <- guards(G, T1), member(P, G).
+activate(P, T1, T4) <-
+  moveOut(P, T1, T2),
+  putOutFire(T2, T3),
+  reportBack(P, T3, T4).
+
+initially([
+  guards([jo, jill]),
+  free(jill)
+]).
+
+terminates(putOutFire, fire).
+initiates(reportBack(P), free(P)).
+terminates(moveOut(P), free(P)).
+
+<- moveOut(P, T, T1), not free(P, T).

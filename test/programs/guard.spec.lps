@@ -1,0 +1,13 @@
+expect(maxTime(5)).
+
+expect(fluent, 1, 4, guards([jo, jill])).
+
+expect(fluent, 1, free(jill)).
+expect(fluent, 1, fire).
+
+expect(fluent, 2, fire).
+expect(fluent, 4, free(jill)).
+
+expect(action, 1, 2, moveOut(jill)).
+expect(action, 2, 3, putOutFire).
+expect(action, 3, 4, reportBack(jill)).

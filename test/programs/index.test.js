@@ -26,6 +26,7 @@ describe('Programs Test', () => {
   [
     'bank-terse',
     'fire-simple',
-    'fire-recurrent'
+    'fire-recurrent',
+    'guard'
   ].forEach(testFunction);
 });
