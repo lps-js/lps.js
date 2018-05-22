@@ -297,10 +297,11 @@ function GoalNode(clause, theta) {
 
     // only attempt to resolve the first literal left to right
     let reductionResult = [];
-    if (isTimable(this.clause[0]) || this.children.length === 0) {
+    let processCompositeEvent = true;
+    if ((isTimable(this.clause[0]) && !this.clause[0].isGround()) || this.children.length === 0) {
       let stateConditionResolutionResult = resolveStateConditions(clause, possibleActions, facts, builtInFunctorProvider);
       if (this.children.length === 0) {
-        if (!isTimable(this.clause[0]) && stateConditionResolutionResult === null) {
+        if ((!isTimable(this.clause[0]) || this.clause[0].isGround()) && stateConditionResolutionResult === null) {
           this.hasBranchFailed = true;
           // node failed indefinitely
           return null;
@@ -308,11 +309,14 @@ function GoalNode(clause, theta) {
       }
       if (stateConditionResolutionResult !== null) {
         reductionResult = reductionResult.concat(stateConditionResolutionResult);
+      } else {
+        processCompositeEvent = false;
       }
     }
-    if (this.children.length === 0 && reductionResult.length === 0) {
+    if (processCompositeEvent && this.children.length === 0 && reductionResult.length === 0) {
       //console.log(''+this.clause);
       for (let i = 0; i < this.clause.length; i += 1) {
+        let literal = this.clause[i];
         let usedVariables = {};
         let otherLiteralsFront = this.clause.slice(0, i);
         let otherLiteralsBack = this.clause.slice(i + 1, this.clause.length);
@@ -327,7 +331,7 @@ function GoalNode(clause, theta) {
           });
         });
         usedVariables = Object.keys(usedVariables);
-        let compositeReductionResult = reduceCompositeEvent(clause[i], program, usedVariables);
+        let compositeReductionResult = reduceCompositeEvent(literal, program, usedVariables);
         compositeReductionResult.forEach((crrArg) => {
           // crr needs to rename variables to avoid clashes
           // also at the same time handle any output variables
@@ -349,6 +353,7 @@ function GoalNode(clause, theta) {
         }
       }
     }
+
     reductionResult.forEach((r) => {
       this.children.push(r);
     });
