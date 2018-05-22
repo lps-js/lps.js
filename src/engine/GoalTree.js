@@ -396,6 +396,29 @@ function GoalTree(goalClause) {
   this.forEachCandidateActions = function forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback) {
     _root.forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback);
   };
+
+  this.toJSON = function toJSON() {
+    let processNode = function processNode(node) {
+      let children = [];
+      node.children.forEach((childNode) => {
+        let c = processNode(childNode);
+        children.push(c);
+      });
+      if (children.length === 0) {
+        return {
+          hasFailed: node.hasBranchFailed,
+          clause: '' + node.clause
+        };
+      }
+      return {
+        hasFailed: node.hasBranchFailed,
+        clause: ''+node.clause,
+        children: children
+      };
+    };
+
+    return JSON.stringify(processNode(_root));
+  };
 }
 
 module.exports = GoalTree;
