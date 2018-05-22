@@ -97,8 +97,7 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
             subLiteralThetas = Resolutor.findUnifications(instance, facts);
           }
           if (subLiteralThetas.length === 0) {
-            let possibleActionsCheck = possibleActions.unifies(instance);
-            if (possibleActionsCheck.length === 0) {
+            if (instance.isGround()) {
               ++numNoUnification;
             }
             return;
