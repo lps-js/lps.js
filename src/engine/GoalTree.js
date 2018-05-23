@@ -173,6 +173,7 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
 let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, builtInFunctorProvider, candidateActions) {
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
   let hasUnresolvedClause = false;
+  let seenVariables = {};
   clause.forEach((literal) => {
     if (hasUnresolvedClause) {
       return;
@@ -221,10 +222,6 @@ function GoalNode(clause, theta) {
   this.children = [];
   this.hasBranchFailed = false;
 
-  let newFacts = new LiteralTreeMap();
-  if (this.clause.length > 0) {
-    newFacts.add(this.clause[0]);
-  }
 
   this.forEachCandidateActions = function forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback) {
     if (this.hasBranchFailed) {
