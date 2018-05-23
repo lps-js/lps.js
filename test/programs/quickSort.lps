@@ -1,0 +1,25 @@
+maxTime(3).
+action(request(_)).
+action(announce(_)).
+
+observe(request(sort([2, 1, 4, 3])), 1, 2).
+
+request(sort(X), T1, T2) ->
+  quicksort(X, Y),
+  announce(sorted(Y), T2, T3).
+
+quicksort([X|Xs], Ys) <-
+  partition(Xs, X, Left, Right),
+  quicksort(Left, Ls),
+  quicksort(Right, Rs),
+  append(Ls, [X|Rs], Ys).
+  
+quicksort([], []).
+
+partition([X|Xs], Y, L, Rs) <-
+  	X <= Y, partition(Xs, Y, Ls, Rs), append([X], Ls, L).
+
+partition([X|Xs], Y, Ls, R) <-
+  	X > Y, partition(Xs, Y, Ls, Rs), append([X], Rs, R).
+    
+partition([], Y, [], []).

@@ -1,0 +1,6 @@
+expect(maxTime(3)).
+
+expect(observation, 1, 2, request(sort([2, 1, 4, 3]))).
+
+expect_num_of(fluent, 1, 3, 0).
+expect(action, 2, 3, announce(sorted([1, 2, 3, 4]))).
