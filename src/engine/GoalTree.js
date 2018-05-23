@@ -85,7 +85,6 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
         }
         // console.log('Proc ' + literal);
         let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
-        let numNoUnification = 0;
         substitutedInstances.forEach((instance) => {
           let subLiteralThetas = [];
           if (builtInFunctorProvider.has(instance.getId())) {
@@ -107,18 +106,11 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
             subLiteralThetas = Resolutor.findUnifications(instance, facts);
           }
           if (subLiteralThetas.length === 0) {
-            if (instance.isGround()) {
-              ++numNoUnification;
-            }
             return;
           }
           literalThetas = literalThetas.concat(subLiteralThetas);
         });
         if (hasFailedIndefinitely) {
-          break;
-        }
-        if (numNoUnification === substitutedInstances.length) {
-          hasFailedIndefinitely = true;
           break;
         }
         if (literalThetas.length > 0) {
