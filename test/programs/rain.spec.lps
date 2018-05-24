@@ -1,0 +1,17 @@
+expect(action, 1, 20, rain(_)).
+expect(action, 1, 2, rain(1)).
+expect(action, 2, 3, rain(2)).
+expect(action, 3, 4, rain(3)).
+expect(action, 4, 5, rain(4)).
+expect(action, 5, 6, rain(5)).
+expect(action, 6, 7, rain(6)).
+expect(action, 7, 8, rain(7)).
+expect(action, 8, 9, rain(8)).
+expect(action, 9, 10, rain(9)).
+expect(action, 10, 11, rain(10)).
+expect(action, 11, 12, rain(11)).
+expect(action, 12, 13, rain(12)).
+
+expect_num_of(fluent, 1, 20, 0).
+expect_num_of(observation, 1, 20, 0).
+expect_num_of(action, 1, 20, 1).

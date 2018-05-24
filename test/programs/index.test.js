@@ -5,7 +5,7 @@ const expect = chai.expect;
 require('mocha-sinon');
 
 let testFunction = function testFunction(file) {
-  describe(file, () => {
+  describe(file + '.lps', () => {
     it('should pass all expectations', (done) => {
       LPS.load(__dirname + '/' + file + '.lps')
         .then((engine) => {
@@ -28,6 +28,7 @@ describe('Programs Test', () => {
     'fire-simple',
     'fire-recurrent',
     'guard',
-    'quickSort'
+    'quickSort',
+    'rain'
   ].forEach(testFunction);
 });
