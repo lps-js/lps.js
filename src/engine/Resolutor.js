@@ -12,7 +12,7 @@ function Resolutor(factsArg) {
   }
   let newFacts = new LiteralTreeMap();
 
-  let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
+  let builtInFunctorProvider = new BuiltInFunctorProvider({}, (literal) => {
     return Resolutor.findUnifications(literal, facts);
   });
 
