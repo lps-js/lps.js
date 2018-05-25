@@ -3,8 +3,6 @@ const AstNode = require('./AstNode');
 const NodeTypes = require('./NodeTypes');
 const TokenTypes = require('./TokenTypes');
 
-const fs = require('fs');
-
 const END_OF_CLAUSE_SYMBOL = '.';
 const CLAUSE_LITERAL_SEPARATOR_SYMBOL = ',';
 const ARGUMENT_SEPARATOR_SYMBOL = ',';
@@ -271,20 +269,6 @@ Parser.parseClause = function parseLiteral(clause) {
 };
 
 Parser.parseLiteral = function parseLiteral(literal) {
-  });
-};
-
-Parser.parseFile = function parseFile(file) {
-  return new Promise((resolve) => {
-    fs.readFile(file, 'utf8', (err, data) => {
-      if (err) {
-        throw new Error('Parser could not open the file "' + file + '"');
-      }
-      let parser = new Parser(data);
-      let token = parser.build();
-      resolve(token);
-    });
-  });
   let parser = new Parser(literal);
   let token = parser.buildLiteral();
   return token;
