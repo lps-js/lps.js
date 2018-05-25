@@ -4,7 +4,7 @@ const List = require('./List');
 const Clause = require('./Clause');
 const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
-const Program = require('./Program');
+const Program = require('../parser/Program');
 const Unifier = require('./Unifier');
 const Value = require('./Value');
 const Variable = require('./Variable');
@@ -16,7 +16,7 @@ const variableArrayRename = require('../utility/variableArrayRename');
 const constraintCheck = require('../utility/constraintCheck');
 const Tester = require('./test/Tester');
 
-function Engine(nodes) {
+function Engine(program) {
   let _maxTime = 20;
   let _fluents = {};
   let _actions = {};
@@ -29,7 +29,7 @@ function Engine(nodes) {
   let _updaters = [];
   let _observations = {};
 
-  let _program = new Program(nodes);
+  let _program = program;
   let _goals = [];
 
   let _activeFluents = new LiteralTreeMap();
