@@ -265,18 +265,12 @@ function Parser(source) {
 }
 
 Parser.parseClause = function parseLiteral(clause) {
-  return new Promise((resolve) => {
-    let parser = new Parser(clause);
-    let token = parser.buildClause();
-    resolve(token);
-  });
+  let parser = new Parser(clause);
+  let token = parser.buildClause();
+  return token;
 };
 
 Parser.parseLiteral = function parseLiteral(literal) {
-  return new Promise((resolve) => {
-    let parser = new Parser(literal);
-    let token = parser.buildLiteral();
-    resolve(token);
   });
 };
 
@@ -291,6 +285,9 @@ Parser.parseFile = function parseFile(file) {
       resolve(token);
     });
   });
+  let parser = new Parser(literal);
+  let token = parser.buildLiteral();
+  return token;
 };
 
 module.exports = Parser;
