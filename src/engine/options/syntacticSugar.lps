@@ -1,13 +1,9 @@
-fluents([]).
-fluents([X|L]) <- fluent(X), fluents(L).
+fluent(F) <- fluents(L), member(F, L).
+action(F) <- actions(L), member(F, L).
+event(F) <- events(L), member(F, L).
 
-actions([]).
-actions([X|L]) <- action(X), actions(L).
+observe(F, T, T2) <- observe(F, T), T2 = T + 1.
 
-events([]).
-events([X|L]) <- event(X), events(L).
+initially(F) <- initially([H|T]), member(F, [H|T]).
 
-observe(F, T) <- observe(F, T, T + 1).
-
-consult([]).
-consult([X|L]) <- consult(X), consult(L).
+consult(S) <- consult(L), member(S, L).
