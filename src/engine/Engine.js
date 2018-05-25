@@ -22,6 +22,8 @@ function Engine(program) {
   let _actions = {};
   let _events = {};
 
+  let _loadingPromises = [];
+
   let _engineEventManager = new EventManager();
 
   let _terminators = [];
@@ -83,18 +85,23 @@ function Engine(program) {
     return new Functor(literal.getName(), args);
   };
 
-  let builtInProcessors = {
-    'maxTime/1': (val) => {
-      _maxTime = val.evaluate();
-    },
-
-    'fluent/1': (val) => {
-      let fluent = val;
-      try {
-        fluent = fluentSyntacticSugarProcessing(fluent);
-      } catch (_) {
-        throw new Error('Unexpected value "' + val.toString() + '" in fluent/1 argument');
+  let processMaxTimeDeclarations = function processMaxTimeDeclarations() {
+    let result = program.query(Program.literal('maxTime(X)'));
+    result.forEach((r) => {
+      if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
+        return;
       }
+      _maxTime = r.theta.X.evaluate();
+    });
+  };
+
+  let processFluentDeclarations = function processFluentDeclarations() {
+    let result = program.query(Program.literal('fluent(X)'));
+    result.forEach((r) => {
+      if (r.theta.X === undefined) {
+        return;
+      }
+      let fluent = fluentSyntacticSugarProcessing(r.theta.X);
       _fluents[fluent.getId()] = fluent;
     },
     'fluents/1': (val) => {
@@ -110,77 +117,84 @@ function Engine(program) {
       });
     },
 
-    'action/1': (val) => {
-      let literal = val;
-      try {
-        literal = actionSyntacticSugarProcessing(literal);
-      } catch (_) {
-        throw new Error('Unexpected value "' + val.toString() + '" in action/1 argument');
-      }
-      _actions[literal.getId()] = true;
-      _possibleActions.add(literal);
-    },
-    'actions/1': (val) => {
-      if (!(val instanceof List)) {
-        throw new Error('Value for actions/1 expected to be a list.');
-      }
-      val.flatten().forEach((literal) => {
-        try {
-          builtInProcessors['action/1'].apply(null, [literal]);
-        } catch (_) {
-          throw new Error('Unexpected value "' + literal.toString() + '" in actions/1 array argument');
-        }
-      });
-    },
-
-    'event/1': (val) => {
-      let literal = val;
-      try {
-        literal = actionSyntacticSugarProcessing(literal);
-      } catch (_) {
-        throw new Error('Unexpected value "' + val.toString() + '" in event/1 argument');
-      }
-      _events[literal.getId()] = true;
-    },
-    'events/1': (val) => {
-      if (!(val instanceof List)) {
-        throw new Error('Value for events/1 expected to be a list.');
-      }
-      val.flatten().forEach((literal) => {
-        try {
-          builtInProcessors['event/1'].apply(null, [literal]);
-        } catch (_) {
-          throw new Error('Unexpected value "' + literal.toString() + '" in events/1 array argument');
-        }
-      });
-    },
-
-    'initially/1': (val) => {
-      if (val instanceof List) {
-        val.flatten().forEach((v) => {
-          builtInProcessors['initially/1'].apply(null, [v]);
-        });
+  let processActionDeclarations = function processActionDeclarations() {
+    let result = program.query(Program.literal('action(X)'));
+    result.forEach((r) => {
+      if (r.theta.X === undefined) {
         return;
       }
-      if (val instanceof Value) {
-        let name = val.evaluate();
+      let literal = actionSyntacticSugarProcessing(r.theta.X);
+      _actions[literal.getId()] = true;
+      _possibleActions.add(literal);
+    });
+  };
+
+  let processEventDeclarations = function processEventDeclarations() {
+    let result = program.query(Program.literal('event(X)'));
+    result.forEach((r) => {
+      if (r.theta.X === undefined) {
+        return;
+      }
+      let literal = actionSyntacticSugarProcessing(r.theta.X);
+      _events[literal.getId()] = true;
+    });
+  };
+
+  let processInitialFluentDeclarations = function processInitialFluentDeclarations() {
+    let result = program.query(Program.literal('initially(F)'));
+    let processInitialFluent = (valueArg) => {
+      let value = valueArg;
+      if (value instanceof Value) {
+        let name = value.evaluate();
+        if (_fluents[name + '/1'] === undefined) {
+          // invalid fluent
+          throw new Error('Invalid fluent ' + name + '/1');
+          return;
+        }
         _activeFluents.add(new Functor(name, [new Value(1)]));
         return;
       }
-      let initialFluent = new Functor(val.getName(), val.getArguments().concat([new Value(1)]));
-      _activeFluents.add(initialFluent);
-    },
-
-    'terminates/2': (actionArg, fluentArg) => {
-      let action = actionArg;
-      let fluent = fluentArg;
-
-      if (action instanceof Value) {
-        action = new Functor(action.evaluate(), []);
+      if (!(value instanceof Functor)) {
+        // invalid in initially
+        return;
       }
+      let initialFluent = new Functor(value.getName(), value.getArguments().concat([new Value(1)]));
+      if (_fluents[initialFluent.getId()] === undefined) {
+        // invalid fluent
+        return;
+      }
+      _activeFluents.add(initialFluent);
+    };
+    result.forEach((r) => {
+      if (r.theta.F === undefined) {
+        return;
+      }
+      let value = r.theta.F;
+      if (value instanceof List) {
+        let list = value.flatten();
+        list.forEach((v) => {
+          processInitialFluent(v);
+        });
+        return;
+      }
+      processInitialFluent(value);
+    });
+  };
+
+  let processTerminateDeclarations = function processTerminateDeclarations() {
+    let result = program.query(Program.literal('terminates(A, F)'));
+    result.forEach((r) => {
+      if (r.theta.A === undefined || r.theta.F === undefined) {
+        return;
+      }
+      let action = r.theta.A;
+      let fluent = r.theta.F;
 
       action = actionSyntacticSugarProcessing(action);
 
+      if (!(action instanceof Functor)) {
+        return;
+      }
       if (_actions[action.getId()] === undefined) {
         throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
       }
@@ -190,26 +204,29 @@ function Engine(program) {
       if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
         throw new Error('When declaring a fluent terminator as a literal, the action must have the last argument as the time variable.');
       }
-
       fluent = fluentSyntacticSugarProcessing(fluent, lastArgument);
 
       if (_fluents[fluent.getId()] === undefined) {
         throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
-
       _terminators.push({ action: action, fluent: fluent });
-    },
+    });
+  };
 
-    'initiates/2': (actionArg, fluentArg) => {
-      let action = actionArg;
-      let fluent = fluentArg;
-
-      if (action instanceof Value) {
-        action = new Functor(action.evaluate(), []);
+  let processInitiateDeclarations = function processInitiateDeclarations() {
+    let result = program.query(Program.literal('initiates(A, F)'));
+    result.forEach((r) => {
+      if (r.theta.A === undefined || r.theta.F === undefined) {
+        return;
       }
+      let action = r.theta.A;
+      let fluent = r.theta.F;
 
       action = actionSyntacticSugarProcessing(action);
 
+      if (!(action instanceof Functor)) {
+        return;
+      }
       if (_actions[action.getId()] === undefined) {
         throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
       }
@@ -217,28 +234,32 @@ function Engine(program) {
       let actionArguments = action.getArguments();
       let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
       if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
-        throw new Error('When declaring a fluent initiator as a literal, the action must have the last argument as the time variable.');
+        throw new Error('When declaring a fluent terminator as a literal, the action must have the last argument as the time variable.');
       }
-
       fluent = fluentSyntacticSugarProcessing(fluent, lastArgument);
 
       if (_fluents[fluent.getId()] === undefined) {
         throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
       _initiators.push({ action: action, fluent: fluent });
-    },
+    });
+  };
 
-    'updates/3': (actionArg, terminatingFluentArg, initiatingFluentArg) => {
-      let action = actionArg;
-      let terminatingFluent = terminatingFluentArg;
-      let initiatingFluent = initiatingFluentArg;
-
-      if (action instanceof Value) {
-        action = new Functor(action.evaluate(), []);
+  let processUpdateDeclarations = function processUpdateDeclarations() {
+    let result = program.query(Program.literal('updates(A, OF, NF)'));
+    result.forEach((r) => {
+      if (r.theta.A === undefined || r.theta.OF === undefined || r.theta.NF === undefined) {
+        return;
       }
+      let action = r.theta.A;
+      let terminatingFluent = r.theta.OF;
+      let initiatingFluent = r.theta.NF;
 
       action = actionSyntacticSugarProcessing(action);
 
+      if (!(action instanceof Functor)) {
+        return;
+      }
       if (_actions[action.getId()] === undefined) {
         throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
       }
@@ -246,9 +267,8 @@ function Engine(program) {
       let actionArguments = action.getArguments();
       let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
       if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
-        throw new Error('When declaring a fluent initiator as a literal, the action must have the last argument as the time variable.');
+        throw new Error('When declaring a fluent terminator as a literal, the action must have the last argument as the time variable.');
       }
-
       terminatingFluent = fluentSyntacticSugarProcessing(terminatingFluent, lastArgument);
       initiatingFluent = fluentSyntacticSugarProcessing(initiatingFluent, lastArgument);
 
@@ -260,19 +280,19 @@ function Engine(program) {
       }
 
       _updaters.push({ action: action, old: terminatingFluent, new: initiatingFluent });
-    },
+    });
+  };
 
-    'observe/2': (fluent, time) => {
-      if (!(time instanceof Value)) {
-        throw new Error('Time given to observe/2 must be a value.');
+  let processObservationDeclarations = function processObservationDeclarations() {
+    let result = program.query(Program.literal('observe(O, ST, ET)'));
+    result.forEach((r) => {
+      if (r.theta.O === undefined || r.theta.ST === undefined || r.theta.ET === undefined) {
+        return;
       }
-      try {
-        builtInProcessors['observe/3'].apply(null, [fluent, time, new Value(Number(time.evaluate()) + 1)]);
-      } catch (_) {
-        throw new Error('Invalid fluent value given for observe/2.');
-      }
-    },
-    'observe/3': (action, startTime, endTime) => {
+      let observation = r.theta.O;
+      let startTime = r.theta.ST;
+      let endTime = r.theta.ET;
+
       if (!(startTime instanceof Value)) {
         throw new Error('Start time given to observe/3 must be a value.');
       }
@@ -284,32 +304,20 @@ function Engine(program) {
       if (eTime < sTime) {
         throw new Error('Invalid ordering of time given to observe/3: Start time must come before end time.');
       }
-      let literal = action;
       try {
-        literal = actionSyntacticSugarProcessing(literal);
+        observation = actionSyntacticSugarProcessing(observation);
       } catch (_) {
         throw new Error('Invalid action value given for observe/3');
       }
+
       if (_observations[sTime] === undefined) {
         _observations[sTime] = [];
       }
 
       _observations[sTime].push({
-        action: literal,
+        action: observation,
         endTime: eTime
       });
-    }
-  };
-
-  let processFacts = function processFacts() {
-    _program.getFacts().forEach((fact) => {
-      let id = fact.getId();
-      // ensure to prioritise builtInProcessors over external actions
-      if (builtInProcessors[id] !== undefined) {
-        builtInProcessors[id].apply(null, fact.getArguments());
-      } else if (_externalActions[id] !== undefined) {
-        _externalActions[id].apply(null, fact.getArguments());
-      }
     });
   };
 
@@ -816,8 +824,30 @@ function Engine(program) {
 
   // we preprocess some of the built-in processors by looking at the facts
   // of the program.
-  processFacts();
-  preProcessRules();
+  this.on('ready', () => {
+    processMaxTimeDeclarations();
+    processFluentDeclarations();
+    processActionDeclarations();
+    processEventDeclarations();
+    processInitialFluentDeclarations();
+    processInitiateDeclarations();
+    processTerminateDeclarations();
+    processUpdateDeclarations();
+    processObservationDeclarations();
+    preProcessRules();
+  });
+
+  let addOnProgramPromise = Program.fromFile(__dirname + '/options/syntacticSugar.lps')
+    .then((program) => {
+      _program.augment(program);
+      return Promise.resolve();
+    });
+  _loadingPromises.push(addOnProgramPromise);
+
+  Promise.all(_loadingPromises)
+    .then(() => {
+      _engineEventManager.notify('ready', this);
+    });
 }
 
 module.exports = Engine;
