@@ -26,7 +26,9 @@ LPS.load(file)
       console.log('Obs:\t' + engine.getLastStepObservations());
       console.log('');
     });
-    engine.runContinuous();
+    engine.on('ready', () => {
+      engine.runContinuous();
+    });
 
     const server = net.createServer((socket) => {
       socket.on('data', (data) => {
