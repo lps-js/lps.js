@@ -133,6 +133,19 @@ function Parser(source) {
     return expr;
   };
 
+  let _assignmentExpression = function _assignmentExpression() {
+    let expr = _comparisonExpression();
+    while (_foundOneOf(TokenTypes.Symbol, ['='])) {
+      let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
+      _expect(TokenTypes.Symbol);
+      node.addChild(expr);
+      let rightExpr = _comparisonExpression();
+      node.addChild(rightExpr);
+      expr = node;
+    }
+    return expr;
+  };
+
   let _arrayExpression = function _arrayExpression() {
     _expect(TokenTypes.Symbol); // opening [
     let node = new AstNode(NodeTypes.List);
@@ -172,7 +185,7 @@ function Parser(source) {
     if (_foundToBe(TokenTypes.Symbol, '[')) {
       return _arrayExpression();
     }
-    return _comparisonExpression();
+    return _assignmentExpression();
   };
 
   _arguments = function (node) {
