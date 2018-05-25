@@ -36,12 +36,13 @@ module.exports = function processRules(rules, goals, isTimable, builtInFunctorPr
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
         return;
       }
-      let substitutedConsequentLiterals = consequentLiterals.map(l =>  l.substitute(pair.theta));
+      let substitutedConsequentLiterals = consequentLiterals.map(l => l.substitute(pair.theta));
       if (pair.unresolved.length === 0) {
         goals.push(new GoalTree(substitutedConsequentLiterals, builtInFunctorProvider));
         return;
       }
-      newRules.push(new Clause(substitutedConsequentLiterals, pair.unresolved.map(l => l.substitute(pair.theta))));
+      let body = pair.unresolved.map(l => l.substitute(pair.theta));
+      newRules.push(new Clause(substitutedConsequentLiterals, body));
     });
   });
   return newRules;
