@@ -9,7 +9,7 @@ module.exports = function expandRuleAntecedent(result, literals, thetaPath, prog
     literal.getVariables().forEach((v) => {
       usedVariables[v] = true;
     });
-  })
+  });
   usedVariables = Object.keys(usedVariables);
 
   for (let i = 0; i < literalsLength; i += 1) {

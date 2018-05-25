@@ -25,8 +25,9 @@ module.exports = function constraintCheck(program, builtInFunctorProvider, facts
       if (!result) {
         return;
       }
-      let clause = new Clause([], r.literalSet);
-      let reductionResult = Resolutor.reduceRuleAntecedent(builtInFunctorProvider, clause, facts);
+      let newClause = new Clause([], r.literalSet);
+      let reductionResult = Resolutor
+        .reduceRuleAntecedent(builtInFunctorProvider, newClause, facts);
       reductionResult.forEach((tuple) => {
         if (tuple.unresolved.length === 0) {
           result = false;
@@ -35,4 +36,4 @@ module.exports = function constraintCheck(program, builtInFunctorProvider, facts
     });
   });
   return result;
-}
+};
