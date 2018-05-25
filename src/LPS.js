@@ -10,7 +10,9 @@ LPS.load = function load(file) {
     Program.fromFile(file)
       .then((program) => {
         let engine = new Engine(program);
-        resolve(engine);
+        engine.on('ready', () => {
+          resolve(engine);
+        });
       });
   });
 };
