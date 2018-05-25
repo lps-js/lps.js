@@ -216,6 +216,18 @@ function Program(nodeTree) {
     let evaluationResult = Resolutor.reduceRuleAntecedent(builtInFunctorProvider, new Clause([], query), facts);
     return evaluationResult;
   };
+
+  this.augment = function augment(program) {
+    if (!(program instanceof Program)) {
+      throw new Error('Expecting program in the argument for augment function');
+    }
+
+    _rules = _rules.concat(program.getRules());
+    _program = _program.concat(program.getProgram());
+    program.getFacts().forEach((fact) => {
+      _facts.add(fact);
+    });
+  };
 }
 
 Program.constructLiteral = function constructLiteral(node) {
