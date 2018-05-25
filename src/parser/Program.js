@@ -208,7 +208,7 @@ function Program(nodeTree) {
       return Resolutor.findUnifications(literal, facts);
     });
 
-    let evaluationResult = Resolutor.reduceRuleAntecedent(builtInFunctorProvider, new Clause([], query), facts);
+    let evaluationResult = Resolutor.explain(query, builtInFunctorProvider, _program, facts);
     return evaluationResult;
   };
 
