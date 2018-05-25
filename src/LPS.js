@@ -1,4 +1,4 @@
-const Parser = require('./parser/Parser');
+const Program = require('./parser/Program');
 const Engine = require('./engine/Engine');
 
 function LPS() {
@@ -7,9 +7,9 @@ function LPS() {
 
 LPS.load = function load(file) {
   return new Promise((resolve) => {
-    Parser.parseFile(file)
-      .then((root) => {
-        let engine = new Engine(root);
+    Program.fromFile(file)
+      .then((program) => {
+        let engine = new Engine(program);
         resolve(engine);
       });
   });
