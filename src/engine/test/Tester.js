@@ -1,5 +1,4 @@
-const Parser = require('../../parser/Parser');
-const Program = require('../../engine/Program');
+const Program = require('../../parser/Program');
 const Functor = require('../../engine/Functor');
 const Variable = require('../../engine/Variable');
 const Value = require('../../engine/Value');
@@ -116,9 +115,8 @@ function Tester(engine) {
   this.test = function test(specFile) {
     expectations = {};
     timelessExpectations = [];
-    return Parser.parseFile(specFile)
-      .then((specNode) => {
-        let program = new Program(specNode);
+    return Program.fromFile(specFile)
+      .then((program) => {
         processTypeOneExpectations(program);
         processTypeTwoExpectations(program);
         processTypeThreeExpectations(program);
