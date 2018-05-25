@@ -1123,7 +1123,6 @@ function BuiltInFunctorProvider(externalActions, findUnifications) {
       let v2 = resolveValue(v2Arg);
       assertIsList(v2);
       let flattenedList = v2.flatten();
-
       if (v1 instanceof Variable) {
         let variableName = v1.evaluate();
         for (let i = 0; i < flattenedList.length; i += 1) {
@@ -1146,6 +1145,27 @@ function BuiltInFunctorProvider(externalActions, findUnifications) {
         }
       }
 
+      return result;
+    },
+
+    '=/2': function (lhs, rhs) {
+      if (!(lhs instanceof Variable)) {
+        throw new Error('LHS of variable assignment must be a variable. ' + lhs + ' given instead.');
+      }
+
+      let result = [];
+      let resolvedRHS = resolveValue(rhs);
+      if (resolvedRHS instanceof Array) {
+        resolvedRHS.forEach((instance) => {
+          result = result.concat(functors['=/2'](lhs, instance));
+        });
+        return result;
+      }
+      let theta = {};
+      theta[lhs.evaluate()] = resolvedRHS;
+      result.push({
+        theta: theta
+      });
       return result;
     },
 
