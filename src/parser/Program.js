@@ -240,8 +240,15 @@ Program.fromFile = function fromFile(file) {
       if (err) {
         reject(err);
       }
-      let parser = new Parser(data);
-      let token = parser.build();
+      let token;
+      try {
+        let parser = new Parser(data);
+        token = parser.build();
+      } catch (err) {
+        err.message = 'In file ' + file + ', ' + err.message;
+        reject(err);
+        return;
+      }
       resolve(new Program(token));
     });
   });
