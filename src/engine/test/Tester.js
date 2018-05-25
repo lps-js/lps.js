@@ -18,9 +18,6 @@ function Tester(engine) {
     let queryResult = program.query([new Functor('expect', [new Variable('Type'), new Variable('T'), new Variable('F')])]);
 
     queryResult.forEach((r) => {
-      if (r.unresolved.length > 0) {
-        return;
-      }
       let time = r.theta.T.evaluate();
       let type = r.theta.Type.evaluate();
       checkAndCreateExpectation(time);
@@ -38,9 +35,6 @@ function Tester(engine) {
   let processTypeTwoExpectations = function processTypeTwoExpectations(program) {
     let queryResult = program.query([new Functor('expect', [new Variable('Type'), new Variable('T1'), new Variable('T2'), new Variable('F')])]);
     queryResult.forEach((r) => {
-      if (r.unresolved.length > 0) {
-        return;
-      }
       let time1 = r.theta.T1.evaluate();
       let time2 = r.theta.T2.evaluate();
       let type = r.theta.Type.evaluate();
@@ -61,9 +55,6 @@ function Tester(engine) {
     let queryResult = program.query([new Functor('expect_num_of', [new Variable('Type'), new Variable('T'), new Variable('F')])]);
 
     queryResult.forEach((r) => {
-      if (r.unresolved.length > 0) {
-        return;
-      }
       let time = r.theta.T.evaluate();
       let type = r.theta.Type.evaluate();
       checkAndCreateExpectation(time);
@@ -81,9 +72,6 @@ function Tester(engine) {
   let processTypeFourExpectations = function processTypeFourExpectations(program) {
     let queryResult = program.query([new Functor('expect_num_of', [new Variable('Type'), new Variable('T1'), new Variable('T2'), new Variable('F')])]);
     queryResult.forEach((r) => {
-      if (r.unresolved.length > 0) {
-        return;
-      }
       let time1 = r.theta.T1.evaluate();
       let time2 = r.theta.T2.evaluate();
       let type = r.theta.Type.evaluate();
@@ -103,9 +91,6 @@ function Tester(engine) {
   let processTypeFiveExpectations = function processTypeFiveExpectations(program) {
     let queryResult = program.query([new Functor('expect', [new Variable('F')])]);
     queryResult.forEach((r) => {
-      if (r.unresolved.length > 0) {
-        return;
-      }
       timelessExpectations.push({
         fact: r.theta.F
       });
