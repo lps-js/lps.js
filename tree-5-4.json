@@ -1,0 +1,1 @@
+{"hasFailed":false,"clause":"findguard(P, 5),free(P, 5),activate(P, T2, T3)","children":[{"hasFailed":false,"clause":"guards(G, 5),member(VXP, G),free(VXP, 5),activate(VXP, T2, T3)","children":[{"hasFailed":false,"clause":"guards(G, 5),member(P, G),free(P, 5),moveOut(P, T1, T2),putOutFire(T2, T3),reportBack(P, T3, T4)"}]}]}
