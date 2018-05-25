@@ -1,13 +1,16 @@
-const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
-const Clause = require('./Clause');
-const Functor = require('./Functor');
-const NodeTypes = require('../parser/NodeTypes');
-const List = require('./List');
-const Value = require('./Value');
-const Variable = require('./Variable');
-const Resolutor = require('./Resolutor');
-const GoalTree = require('./GoalTree');
-const LiteralTreeMap = require('./LiteralTreeMap');
+const BuiltInFunctorProvider = require('../engine/BuiltInFunctorProvider');
+const Clause = require('../engine/Clause');
+const Functor = require('../engine/Functor');
+const NodeTypes = require('./NodeTypes');
+const List = require('../engine/List');
+const Value = require('../engine/Value');
+const Variable = require('../engine/Variable');
+const Resolutor = require('../engine/Resolutor');
+const GoalTree = require('../engine/GoalTree');
+const LiteralTreeMap = require('../engine/LiteralTreeMap');
+const Parser = require('./Parser');
+
+const fs = require('fs');
 
 let processBinaryOperator = function processBinaryOperator(node, singleUnderscoreVariableSet) {
   let operator = node.getToken().value;
@@ -166,12 +169,6 @@ let processProgram = function processProgram(rootNode, properties) {
   });
 };
 
-let getProgramInterpretation = function getProgramInterpretation(facts, program) {
-  let resolutor = new Resolutor(facts);
-  let newFacts = resolutor.resolve(program);
-  newFacts.forEach((literal) => facts.add(literal));
-};
-
 function Program(nodeTree) {
   let _rules = [];
   let _program = [];
@@ -182,8 +179,6 @@ function Program(nodeTree) {
     program: _program,
     facts: _facts
   });
-
-  getProgramInterpretation(_facts, _program);
 
   this.getFacts = function getFacts() {
     return _facts;
@@ -230,12 +225,26 @@ function Program(nodeTree) {
   };
 }
 
-Program.constructLiteral = function constructLiteral(node) {
+Program.literal = function literal(str) {
+  let node = Parser.parseLiteral(str);
   let singleUnderscoreVariableSet = {
     next: 0,
     set: {}
   };
   return processFunctor(node, singleUnderscoreVariableSet);
+};
+
+Program.fromFile = function fromFile(file) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(file, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      }
+      let parser = new Parser(data);
+      let token = parser.build();
+      resolve(new Program(token));
+    });
+  });
 };
 
 module.exports = Program;
