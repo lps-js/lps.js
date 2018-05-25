@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 const net = require('net');
 const LPS = require('../src/LPS');
-const Parser = require('../src/parser/Parser');
-const Program = require('../src/engine/Program');
+const Program = require('../src/parser/Program');
 
 const SERVER_PORT = 8040;
 const args = process.argv.slice(2);
@@ -32,11 +31,8 @@ LPS.load(file)
     const server = net.createServer((socket) => {
       socket.on('data', (data) => {
         let strData = data.toString('utf8');
-        Parser.parseLiteral(strData)
-          .then((node) => {
-            let literal = Program.constructLiteral(node);
-            engine.observe(literal);
-          });
+        let literal = Program.literal(strData);
+        engine.observe(literal);
       });
     });
     server.on('error', (err) => {
