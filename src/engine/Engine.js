@@ -109,6 +109,17 @@ function Engine(program) {
     });
   };
 
+  let processContinuousExecutionDeclarations = function processContinuousExecutionDeclarations() {
+    let result = program.query(Program.literal('continuousExecution(X)'));
+    result.forEach((r) => {
+      if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
+        return;
+      }
+      let value = r.theta.X.evaluate();
+      _isContinuousExecution = (value === 'yes' || value === 'on' || value === 1);
+    });
+  };
+
   let processFluentDeclarations = function processFluentDeclarations() {
     let result = program.query(Program.literal('fluent(X)'));
     result.forEach((r) => {
@@ -686,6 +697,20 @@ function Engine(program) {
     return _cycleInterval;
   };
 
+  this.isContinuousExecution = function isContinuousExecution() {
+    return _isContinuousExecution;
+  };
+
+  this.setContinuousExecution = function setContinuousExecution(val) {
+    if (typeof val !== 'boolean') {
+      throw new Error('Argument for setContinuousExecution() must be a boolean value.');
+    }
+    if (_isInCycle || _currentTime > 0) {
+      throw new Error('Continuous Execution can only be set before the LPS program starts.');
+    }
+    _isContinuousExecution = val;
+  };
+
   this.getLastStepActions = function getLastStepActions() {
     let actions = [];
     _lastStepActions.forEach((action) => {
@@ -838,6 +863,7 @@ function Engine(program) {
   this.on('loaded', () => {
     processMaxTimeDeclarations();
     processCycleIntervalDeclarations();
+    processContinuousExecutionDeclarations();
     processFluentDeclarations();
     processActionDeclarations();
     processEventDeclarations();
