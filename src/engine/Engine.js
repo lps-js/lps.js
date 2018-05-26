@@ -699,6 +699,16 @@ function Engine(program) {
     return _cycleInterval;
   };
 
+  this.setCycleInterval = function setCycleInterval(newCycleInterval) {
+    if (typeof newCycleInterval !== 'number' || newCycleInterval <= 0) {
+      throw new Error('Argument for setCycleInterval() must be a number greater than zero.');
+    }
+    if (_isInCycle || _currentTime > 0) {
+      throw new Error('Cycle Interval can only be set before the LPS program starts.');
+    }
+    _cycleInterval = newCycleInterval;
+  };
+
   this.isContinuousExecution = function isContinuousExecution() {
     return _isContinuousExecution;
   };
