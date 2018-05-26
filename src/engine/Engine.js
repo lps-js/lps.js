@@ -103,19 +103,8 @@ function Engine(program) {
       }
       let fluent = fluentSyntacticSugarProcessing(r.theta.X);
       _fluents[fluent.getId()] = fluent;
-    },
-    'fluents/1': (val) => {
-      if (!(val instanceof List)) {
-        throw new Error('Value for fluents/1 expected to be a list.');
-      }
-      val.flatten().forEach((literal) => {
-        try {
-          builtInProcessors['fluent/1'].apply(null, [literal]);
-        } catch (_) {
-          throw new Error('Unexpected value "' + literal.toString() + '" in fluents/1 array argument');
-        }
-      });
-    },
+    });
+  };
 
   let processActionDeclarations = function processActionDeclarations() {
     let result = program.query(Program.literal('action(X)'));
