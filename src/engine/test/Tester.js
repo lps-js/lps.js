@@ -15,7 +15,7 @@ function Tester(engine) {
   // expect/3
   // expect(Type, Time, L)
   let processTypeOneExpectations = function processTypeOneExpectations(program) {
-    let queryResult = program.query([new Functor('expect', [new Variable('Type'), new Variable('T'), new Variable('F')])]);
+    let queryResult = program.query(Program.literal('expect(Type, T, F)'));
 
     queryResult.forEach((r) => {
       let time = r.theta.T.evaluate();
@@ -33,7 +33,7 @@ function Tester(engine) {
   // expect/4
   // expect(Type, T1, T2, L)
   let processTypeTwoExpectations = function processTypeTwoExpectations(program) {
-    let queryResult = program.query([new Functor('expect', [new Variable('Type'), new Variable('T1'), new Variable('T2'), new Variable('F')])]);
+    let queryResult = program.query(Program.literal('expect(Type, T1, T2, F)'));
     queryResult.forEach((r) => {
       let time1 = r.theta.T1.evaluate();
       let time2 = r.theta.T2.evaluate();
@@ -52,7 +52,7 @@ function Tester(engine) {
   // expect_num_of/3
   // expect_num_of(Type, Time, Num)
   let processTypeThreeExpectations = function processTypeThreeExpectations(program) {
-    let queryResult = program.query([new Functor('expect_num_of', [new Variable('Type'), new Variable('T'), new Variable('F')])]);
+    let queryResult = program.query(Program.literal('expect_num_of(Type, T, F)'));
 
     queryResult.forEach((r) => {
       let time = r.theta.T.evaluate();
@@ -70,7 +70,7 @@ function Tester(engine) {
   // expect_num_of/4
   // expect_num_of(Type, T1, T2, Num)
   let processTypeFourExpectations = function processTypeFourExpectations(program) {
-    let queryResult = program.query([new Functor('expect_num_of', [new Variable('Type'), new Variable('T1'), new Variable('T2'), new Variable('F')])]);
+    let queryResult = program.query(Program.literal('expect_num_of(Type, T1, T2, Num)'));
     queryResult.forEach((r) => {
       let time1 = r.theta.T1.evaluate();
       let time2 = r.theta.T2.evaluate();
@@ -79,7 +79,7 @@ function Tester(engine) {
       checkAndCreateExpectation(time1 + 1);
 
       expectations[time1 + 1].push({
-        num_of: r.theta.F.evaluate(),
+        num_of: r.theta.Num.evaluate(),
         type: type,
         endTime: time2
       });
@@ -89,10 +89,10 @@ function Tester(engine) {
   // expect/1
   // expect(L)
   let processTypeFiveExpectations = function processTypeFiveExpectations(program) {
-    let queryResult = program.query([new Functor('expect', [new Variable('F')])]);
+    let queryResult = program.query(Program.literal('expect(L)'));
     queryResult.forEach((r) => {
       timelessExpectations.push({
-        fact: r.theta.F
+        fact: r.theta.L
       });
     });
   };
@@ -190,7 +190,7 @@ function Tester(engine) {
             });
           });
 
-          // start engine now.
+          // start engine now
           engine.run();
         });
       });
