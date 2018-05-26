@@ -821,8 +821,9 @@ function Engine(program) {
 
   // we preprocess some of the built-in processors by looking at the facts
   // of the program.
-  this.on('ready', () => {
+  this.on('loaded', () => {
     processMaxTimeDeclarations();
+    processCycleIntervalDeclarations();
     processFluentDeclarations();
     processActionDeclarations();
     processEventDeclarations();
@@ -832,6 +833,7 @@ function Engine(program) {
     processUpdateDeclarations();
     processObservationDeclarations();
     preProcessRules();
+    _engineEventManager.notify('ready', this);
   });
 
   let addOnProgramPromise = Program.fromFile(__dirname + '/options/syntacticSugar.lps')
@@ -843,7 +845,7 @@ function Engine(program) {
 
   Promise.all(_loadingPromises)
     .then(() => {
-      _engineEventManager.notify('ready', this);
+      _engineEventManager.notify('loaded', this);
     });
 }
 
