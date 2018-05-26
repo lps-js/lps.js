@@ -19,14 +19,19 @@ console.log('Loading file: ' + file);
 LPS.load(file)
   .then((engine) => {
     console.log('File loaded.');
+    console.log('Cycle Interval set to ' + engine.getCycleInterval() + 'ms');
     engine.on('postStep', () => {
-      console.log('[ Time ' + engine.getCurrentTime() + ' ] -------------- ');
+      console.log('[ Time ' + engine.getCurrentTime() + ' ] -------------- ' + engine.getLastCycleExecutionTime() + 'ms');
       console.log('Actions:\t' + engine.getLastStepActions());
       console.log('Fluents:\t' + engine.getActiveFluents());
       console.log('Obs:\t' + engine.getLastStepObservations());
       console.log('');
     });
-    engine.runContinuous();
+    engine.on('done', () => {
+      console.log('Execution complete');
+      process.exit(0);
+    });
+    engine.run();
 
     const server = net.createServer((socket) => {
       socket.on('data', (data) => {
