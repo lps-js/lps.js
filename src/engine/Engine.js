@@ -18,6 +18,7 @@ const Tester = require('./test/Tester');
 
 function Engine(program) {
   let _maxTime = 20;
+  let _isInCycle = false;
   let _fluents = {};
   let _actions = {};
   let _events = {};
@@ -739,13 +740,20 @@ function Engine(program) {
   };
 
   this.step = function step() {
+    if (_isInCycle) {
+      // previous cycle has not ended.
+      this.terminate();
+      throw new Error('Previous cycle has exceeded its time limit of ' + _cycleInterval + 'ms. LPS will now terminate.');
+    }
     _engineEventManager.notify('preStep', this);
+    _isInCycle = true;
     if (this.hasTerminated()) {
       return;
     }
     let nextStepActiveFluents = performCycle(_activeFluents);
     _activeFluents = nextStepActiveFluents;
     _currentTime += 1;
+    _isInCycle = false;
     _engineEventManager.notify('postStep', this);
   };
 
