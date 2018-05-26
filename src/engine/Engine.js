@@ -18,7 +18,10 @@ const Tester = require('./test/Tester');
 
 function Engine(program) {
   let _maxTime = 20;
+  let _cycleInterval = 100; // milliseconds
+  let _isContinuousExecution = false;
   let _isInCycle = false;
+
   let _fluents = {};
   let _actions = {};
   let _events = {};
@@ -93,6 +96,16 @@ function Engine(program) {
         return;
       }
       _maxTime = r.theta.X.evaluate();
+    });
+  };
+
+  let processCycleIntervalDeclarations = function processCycleIntervalDeclarations() {
+    let result = program.query(Program.literal('cycleInterval(X)'));
+    result.forEach((r) => {
+      if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
+        return;
+      }
+      _cycleInterval = r.theta.X.evaluate();
     });
   };
 
@@ -669,6 +682,10 @@ function Engine(program) {
     return _currentTime;
   };
 
+  this.getCycleInterval = function getCycleInterval() {
+    return _cycleInterval;
+  };
+
   this.getLastStepActions = function getLastStepActions() {
     let actions = [];
     _lastStepActions.forEach((action) => {
@@ -763,29 +780,26 @@ function Engine(program) {
     }
     let result = [];
     _engineEventManager.notify('run', this);
-    while (_currentTime < _maxTime) {
-      this.step();
-      result.push({
-        time: _currentTime,
-        fluents: this.getActiveFluents(),
-        actions: this.getLastStepActions(),
-        observations: this.getLastStepObservations()
-      });
+    if (_isContinuousExecution) {
+      while(!this.hasTerminated()) {
+        let timer = setTimeout(() => {
+          this.terminate();
+          throw new Error('Previous cycle has exceeded its time limit of ' + _cycleInterval + 'ms. LPS will now terminate.');
+        }, _cycleInterval);
+        this.step();
+        clearTimeout(timer);
+      }
+      _engineEventManager.notify('done', this);
+      return;
     }
-    _engineEventManager.notify('done', this);
-    return result;
-  };
-
-  this.runContinuous = function runContinuous(intervalArg) {
-    let interval = intervalArg;
-    if (intervalArg === undefined) {
-      interval = 150;
-    }
-    _maxTime = null;
-    _engineEventManager.notify('runContinuous', this);
     let timer = setInterval(() => {
+      if (this.hasTerminated()) {
+        clearInterval(timer);
+        _engineEventManager.notify('done', this);
+        return;
+      }
       this.step();
-    }, interval);
+    }, _cycleInterval);
   };
 
   this.define = function define(identifier, callback) {
