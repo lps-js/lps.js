@@ -234,11 +234,26 @@ Program.literal = function literal(str) {
   return processFunctor(node, singleUnderscoreVariableSet);
 };
 
+Program.fromString = function fromString(code) {
+  return new Promise((resolve, reject) => {
+    try {
+      let parser = new Parser(code);
+      token = parser.build();
+    } catch (err) {
+      err.message = 'From string, ' + err.message;
+      reject(err);
+      return;
+    }
+    resolve(new Program(token));
+  });
+};
+
 Program.fromFile = function fromFile(file) {
   return new Promise((resolve, reject) => {
     fs.readFile(file, 'utf8', (err, data) => {
       if (err) {
         reject(err);
+        return;
       }
       let token;
       try {
