@@ -116,6 +116,7 @@ function Tester(engine) {
         engine.setContinuousExecution(true);
 
         engine.on('run', () => {
+          // process timeless expectations
           timelessExpectations.forEach((entry) => {
             let testResult = false;
             totalExpectations += 1;
@@ -133,6 +134,7 @@ function Tester(engine) {
         });
 
         engine.on('postStep', () => {
+          // process expectations after each cycle
           let engineTime = engine.getCurrentTime();
           if (expectations[engineTime] === undefined) {
             return;
@@ -178,6 +180,7 @@ function Tester(engine) {
         });
 
         return new Promise((resolve) => {
+          // only resolve promise when execution is done
           engine.on('done', () => {
             resolve({
               success: passedExpectations === totalExpectations,
@@ -186,6 +189,8 @@ function Tester(engine) {
               errors: errors
             });
           });
+
+          // start engine now.
           engine.run();
         });
       });
