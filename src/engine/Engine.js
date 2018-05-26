@@ -687,7 +687,8 @@ function Engine(program) {
     observationResult.activeObservations.forEach((observation) => {
       _lastStepObservations.add(observation);
     });
-    return updatedState;
+
+    _activeFluents = updatedState;
   };
 
   this.getCurrentTime = function getCurrentTime() {
@@ -797,9 +798,8 @@ function Engine(program) {
     if (this.hasTerminated()) {
       return;
     }
-    let nextStepActiveFluents = performCycle(_activeFluents);
-    _activeFluents = nextStepActiveFluents;
     let startTime = Date.now();
+    performCycle(_activeFluents)
     _currentTime += 1;
     _lastCycleExecutionTime = Date.now() - startTime;
     _isInCycle = false;
