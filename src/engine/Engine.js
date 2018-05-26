@@ -42,6 +42,7 @@ function Engine(program) {
   let _possibleActions = new LiteralTreeMap();
   let _currentTime = 0;
 
+  let _lastCycleExecutionTime = null;
   let _lastStepActions = null;
   let _lastStepObservations = null;
   let _externalActions = {};
@@ -711,6 +712,10 @@ function Engine(program) {
     _isContinuousExecution = val;
   };
 
+  this.getLastCycleExecutionTime = function getLastCycleExecutionTime() {
+    return _lastCycleExecutionTime;
+  };
+
   this.getLastStepActions = function getLastStepActions() {
     let actions = [];
     _lastStepActions.forEach((action) => {
@@ -794,7 +799,9 @@ function Engine(program) {
     }
     let nextStepActiveFluents = performCycle(_activeFluents);
     _activeFluents = nextStepActiveFluents;
+    let startTime = Date.now();
     _currentTime += 1;
+    _lastCycleExecutionTime = Date.now() - startTime;
     _isInCycle = false;
     _engineEventManager.notify('postStep', this);
   };
