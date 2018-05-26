@@ -177,13 +177,16 @@ function Tester(engine) {
           });
         });
 
-        engine.run();
-
-        return Promise.resolve({
-          success: passedExpectations === totalExpectations,
-          passed: passedExpectations,
-          total: totalExpectations,
-          errors: errors
+        return new Promise((resolve) => {
+          engine.on('done', () => {
+            resolve({
+              success: passedExpectations === totalExpectations,
+              passed: passedExpectations,
+              total: totalExpectations,
+              errors: errors
+            });
+          });
+          engine.run();
         });
       });
   };
