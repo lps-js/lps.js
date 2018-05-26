@@ -112,6 +112,9 @@ function Tester(engine) {
         let passedExpectations = 0;
         let errors = [];
 
+        // prevent delay as we're testing
+        engine.setContinuousExecution(true);
+
         engine.on('run', () => {
           timelessExpectations.forEach((entry) => {
             let testResult = false;
