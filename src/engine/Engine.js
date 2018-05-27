@@ -664,7 +664,7 @@ function Engine(program) {
     let i = 0;
     let promise = forEachPromise(_goals)
       .do((goalTree) => {
-        goalTree
+        let treePromise = goalTree
           .evaluate(program, isTimable, nextTimePossibleActions, builtInFunctorProvider2, [facts, updatedState, executedActions])
           .then((evaluationResult) => {
             if (evaluationResult === null) {
@@ -683,24 +683,31 @@ function Engine(program) {
             // goal tree has not been resolved, so let's persist the tree
             // to the next cycle
             newGoals.push(goalTree);
+            return Promise.resolve();
           });
+        goalTreeProcessingPromises.push(treePromise);
       });
 
-    Promise.all(goalTreeProcessingPromises).then(() => {
-      _goals = newGoals;
+    return promise.then(() => {
+      return Promise
+        .all(goalTreeProcessingPromises);
+      })
+      .then(() => {
+        _goals = newGoals;
 
-      _lastStepActions = new LiteralTreeMap();
-      result.activeActions.forEach((action) => {
-        _lastStepActions.add(action);
-      });
-      _lastStepObservations = new LiteralTreeMap();
-      observationResult.activeObservations.forEach((observation) => {
-        _lastStepObservations.add(observation);
-      });
+        _lastStepActions = new LiteralTreeMap();
+        result.activeActions.forEach((action) => {
+          _lastStepActions.add(action);
+        });
+        _lastStepObservations = new LiteralTreeMap();
+        observationResult.activeObservations.forEach((observation) => {
+          _lastStepObservations.add(observation);
+        });
 
-      _activeFluents = updatedState;
-    });
-    return promise;
+        _activeFluents = updatedState;
+        console.log('updating');
+        return Promise.resolve();
+      });
   };
 
   this.getCurrentTime = function getCurrentTime() {
@@ -821,7 +828,7 @@ function Engine(program) {
       return;
     }
     let startTime = Date.now();
-    performCycle(_activeFluents)
+    return performCycle(_activeFluents)
       .then(() => {
         _currentTime += 1;
         _lastCycleExecutionTime = Date.now() - startTime;
@@ -837,17 +844,25 @@ function Engine(program) {
     let result = [];
     _engineEventManager.notify('run', this);
     if (_isContinuousExecution) {
-      while(!this.hasTerminated()) {
+      let continuousExecutionFunc = () => {
         let timer = setTimeout(() => {
           this.terminate();
           throw new Error('Previous cycle has exceeded its time limit of ' + _cycleInterval + 'ms. LPS will now terminate.');
         }, _cycleInterval);
-        this.step();
-        clearTimeout(timer);
-      }
-      _engineEventManager.notify('done', this);
+        this.step()
+          .then(() => {
+            clearTimeout(timer);
+            if (this.hasTerminated()) {
+              _engineEventManager.notify('done', this);
+              return;
+            }
+            continuousExecutionFunc();
+          });
+      };
+      continuousExecutionFunc();
       return;
     }
+
     let timer = setInterval(() => {
       if (this.hasTerminated()) {
         clearInterval(timer);
