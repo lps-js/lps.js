@@ -562,6 +562,29 @@ function Engine(program) {
     return timedPossibleActions
   };
 
+  let updateFluentsChange = function updateFluentsChange(result, updatedState) {
+    let deltaTerminated = new LiteralTreeMap();
+    let deltaInitiated = new LiteralTreeMap();
+    result.terminated.forEach((terminatedFluent) => {
+      deltaTerminated.add(terminatedFluent);
+    });
+
+    // resolve those fluents that are initiated and terminated in the same cycle
+    result.initiated.forEach((initiatedFluent) => {
+      if (!deltaTerminated.remove(initiatedFluent)) {
+        deltaInitiated.add(initiatedFluent);
+      }
+    });
+
+    deltaTerminated.forEach((fluent) => {
+      updatedState.remove(fluent);
+    });
+
+    deltaInitiated.forEach((fluent) => {
+      updatedState.add(fluent);
+    });
+  };
+
   /*
     Perform Cycle
   */
@@ -621,29 +644,7 @@ function Engine(program) {
       });
     });
 
-    let deltaTerminated = new LiteralTreeMap();
-    let deltaInitiated = new LiteralTreeMap();
-    result.terminated.forEach((terminatedFluent) => {
-      // updatedState.forEach((fluent) => {
-      //   if (Unifier.unifies([[fluent, terminatedFluent]]) !== null) {
-      deltaTerminated.add(terminatedFluent);
-      //   }
-      // });
-    });
-
-    result.initiated.forEach((initiatedFluent) => {
-      if (!deltaTerminated.remove(initiatedFluent)) {
-        deltaInitiated.add(updateTimableFunctor(initiatedFluent, nextTime));
-      }
-    });
-
-    deltaTerminated.forEach((fluent) => {
-      updatedState.remove(fluent);
-    });
-
-    deltaInitiated.forEach((fluent) => {
-      updatedState.add(fluent);
-    });
+    updateFluentsChange(result, updatedState);
 
     // preparation for next cycle
     let builtInFunctorProvider2 = new BuiltInFunctorProvider(_externalActions, (literal) => {
