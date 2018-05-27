@@ -15,6 +15,7 @@ const expandRuleAntecedent = require('../utility/expandRuleAntecedent');
 const variableArrayRename = require('../utility/variableArrayRename');
 const constraintCheck = require('../utility/constraintCheck');
 const Tester = require('./test/Tester');
+const forEachPromise = require('../utility/forEachPromise');
 
 function Engine(program) {
   let _maxTime = 20;
