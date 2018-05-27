@@ -659,37 +659,47 @@ function Engine(program) {
     let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
 
     let newGoals = [];
-    _goals.forEach((goalTree) => {
-      let evaluationResult = goalTree.evaluate(program, isTimable, nextTimePossibleActions, builtInFunctorProvider2, [facts, updatedState, executedActions]);
-      if (evaluationResult === null) {
-        return;
-      }
+    let goalTreeProcessingPromises = [];
+    let i = 0;
+    let promise = forEachPromise(_goals)
+      .do((goalTree) => {
+        goalTree
+          .evaluate(program, isTimable, nextTimePossibleActions, builtInFunctorProvider2, [facts, updatedState, executedActions])
+          .then((evaluationResult) => {
+            if (evaluationResult === null) {
+              return;
+            }
 
-      // goal tree has been resolved
-      if (evaluationResult.length > 0) {
-        return;
-      }
+            // goal tree has been resolved
+            if (evaluationResult.length > 0) {
+              return;
+            }
 
-      if (goalTree.checkTreeFailed()) {
-        return;
-      }
+            if (goalTree.checkTreeFailed()) {
+              return;
+            }
 
-      newGoals.push(goalTree);
-      // goal tree has not been resolved, so let's persist the tree
-      // to the next cycle
+            // goal tree has not been resolved, so let's persist the tree
+            // to the next cycle
+            newGoals.push(goalTree);
+          });
+      });
+
+    Promise.all(goalTreeProcessingPromises).then(() => {
+      _goals = newGoals;
+
+      _lastStepActions = new LiteralTreeMap();
+      result.activeActions.forEach((action) => {
+        _lastStepActions.add(action);
+      });
+      _lastStepObservations = new LiteralTreeMap();
+      observationResult.activeObservations.forEach((observation) => {
+        _lastStepObservations.add(observation);
+      });
+
+      _activeFluents = updatedState;
     });
-    _goals = newGoals;
-
-    _lastStepActions = new LiteralTreeMap();
-    result.activeActions.forEach((action) => {
-      _lastStepActions.add(action);
-    });
-    _lastStepObservations = new LiteralTreeMap();
-    observationResult.activeObservations.forEach((observation) => {
-      _lastStepObservations.add(observation);
-    });
-
-    _activeFluents = updatedState;
+    return promise;
   };
 
   this.getCurrentTime = function getCurrentTime() {
@@ -811,10 +821,12 @@ function Engine(program) {
     }
     let startTime = Date.now();
     performCycle(_activeFluents)
-    _currentTime += 1;
-    _lastCycleExecutionTime = Date.now() - startTime;
-    _isInCycle = false;
-    _engineEventManager.notify('postStep', this);
+      .then(() => {
+        _currentTime += 1;
+        _lastCycleExecutionTime = Date.now() - startTime;
+        _isInCycle = false;
+        _engineEventManager.notify('postStep', this);
+      });
   };
 
   this.run = function run() {

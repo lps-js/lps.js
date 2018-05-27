@@ -379,7 +379,12 @@ function GoalTree(goalClause) {
   };
 
   this.evaluate = function evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts) {
-    return _root.evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        let result = _root.evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts);
+        resolve(result);
+      }, 0)
+    });
   };
 
   this.forEachCandidateActions = function forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback) {
