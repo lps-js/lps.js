@@ -1,0 +1,14 @@
+expect(maxTime(5)).
+
+expect(fluent, 1, 5, money(mum)).
+expect_num_of(fluent, 1, 5, 1).
+
+expect(observation, 1, 2, party(bob)).
+
+expect_num_of(observation, 1, 2, 1).
+expect_num_of(observation, 2, 5, 0).
+
+expect(action, 2, 3, askMoney(bob, mum)).
+expect_num_of(action, 1, 2, 0).
+expect_num_of(action, 2, 3, 1).
+expect_num_of(action, 3, 5, 0).

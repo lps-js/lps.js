@@ -24,6 +24,7 @@ let testFunction = function testFunction(file) {
 
 describe('Programs Test', () => {
   [
+    'party',
     'bank-terse',
     'fire-simple',
     'fire-recurrent',
