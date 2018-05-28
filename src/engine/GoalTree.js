@@ -18,7 +18,7 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, use
     }
     // assuming horn clauses only
     let headLiterals = clause.getHeadLiterals();
-    let headLiteral = headLiterals[0].substitute(renameTheta);
+    let headLiteral = headLiterals[0];
     let unifications = assumption.unifies(headLiteral);
     if (unifications.length === 0) {
       return;
