@@ -705,7 +705,6 @@ function Engine(program) {
         });
 
         _activeFluents = updatedState;
-        console.log('updating');
         return Promise.resolve();
       });
   };
@@ -822,7 +821,7 @@ function Engine(program) {
       this.terminate();
       throw new Error('Previous cycle has exceeded its time limit of ' + _cycleInterval + 'ms. LPS will now terminate.');
     }
-    _engineEventManager.notify('preStep', this);
+    _engineEventManager.notify('preCycle', this);
     _isInCycle = true;
     if (this.hasTerminated()) {
       return;
@@ -833,7 +832,7 @@ function Engine(program) {
         _currentTime += 1;
         _lastCycleExecutionTime = Date.now() - startTime;
         _isInCycle = false;
-        _engineEventManager.notify('postStep', this);
+        _engineEventManager.notify('postCycle', this);
       });
   };
 

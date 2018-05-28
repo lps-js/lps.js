@@ -133,7 +133,7 @@ function Tester(engine) {
           });
         });
 
-        engine.on('postStep', () => {
+        engine.on('postCycle', () => {
           // process expectations after each cycle
           let engineTime = engine.getCurrentTime();
           if (expectations[engineTime] === undefined) {
