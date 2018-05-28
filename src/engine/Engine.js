@@ -886,12 +886,17 @@ function Engine(program) {
   };
 
   this.observe = function(observation) {
-    if (_observations[_currentTime] === undefined) {
-      _observations[_currentTime] = [];
+    let observationStartTime = _currentTime;
+    if (_isInCycle) {
+      // already in a cycle, so process it in the next cycle
+      observationStartTime += 1;
     }
-    _observations[_currentTime].push({
+    if (_observations[observationStartTime] === undefined) {
+      _observations[observationStartTime] = [];
+    }
+    _observations[observationStartTime].push({
       action: actionSyntacticSugarProcessing(observation),
-      endTime: _currentTime + 1
+      endTime: observationStartTime + 1
     });
   };
 
