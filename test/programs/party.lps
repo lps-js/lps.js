@@ -1,0 +1,20 @@
+maxTime(5).
+
+event(party(_)).
+action(askMoney(_, _)).
+fluent(money(_)).
+
+observe(party(bob), 1, 2).
+
+initially(money(mum)).
+
+father(bob, dad).
+mother(bob, mum).
+
+parent(X, Y) <- father(X, Y).
+parent(X, Y) <- mother(X, Y).
+
+party(bob, T1, T2), not money(bob, T1) ->
+  parent(bob, X),
+  money(X, T5),
+  askMoney(bob, X, T3, T4).
