@@ -83,7 +83,8 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
         if (!canProceed) {
           break;
         }
-        // console.log('Proc ' + literal);
+
+        let numSubstitutionFailure = 0;
         let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
         substitutedInstances.forEach((instance) => {
           let subLiteralThetas = [];
@@ -91,8 +92,6 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
             try {
               subLiteralThetas = builtInFunctorProvider.execute(instance);
             } catch(err) {
-              console.log(tuple);
-              console.log(''+tuple.unresolved);
               throw err;
             }
             if (subLiteralThetas.length === 0) {
@@ -105,11 +104,18 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
           } else {
             subLiteralThetas = Resolutor.findUnifications(instance, facts);
           }
+          let isActionCheck = possibleActions.unifies(instance);
           if (subLiteralThetas.length === 0) {
+            if (instance.isGround() && isActionCheck.length === 0) {
+              numSubstitutionFailure += 1;
+            }
             return;
           }
           literalThetas = literalThetas.concat(subLiteralThetas);
         });
+        if (numSubstitutionFailure === substitutedInstances.length) {
+          hasFailedIndefinitely = true;
+        }
         if (hasFailedIndefinitely) {
           break;
         }
