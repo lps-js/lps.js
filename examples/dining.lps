@@ -1,4 +1,5 @@
 maxTime(7).
+cycleInterval(200).
 fluent(available(_)).
 actions([pickup(_, _), putdown(_, _)]).
 

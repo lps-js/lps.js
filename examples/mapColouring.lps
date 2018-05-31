@@ -1,4 +1,5 @@
 maxTime(5).
+cycleInterval(200).
 action(paint(_, _)).
 
 country(iz).
