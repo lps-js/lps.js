@@ -116,7 +116,7 @@ function Engine(program) {
         return;
       }
       let value = r.theta.X.evaluate();
-      _isContinuousExecution = (value === 'yes' || value === 'on' || value === 1);
+      _isContinuousExecution = (value === 'yes' || value === 'on' || value === 'true' || value === 1);
     });
   };
 
