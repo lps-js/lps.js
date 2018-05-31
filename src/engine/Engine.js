@@ -39,14 +39,12 @@ function Engine(program) {
   let _program = program;
   let _goals = [];
 
-  let _activeFluents = new LiteralTreeMap();
   let _possibleActions = new LiteralTreeMap();
   let _currentTime = 0;
 
   let _lastCycleExecutionTime = null;
   let _lastStepActions = null;
   let _lastStepObservations = null;
-  let _externalActions = {};
 
   let fluentSyntacticSugarProcessing = function fluentSyntacticSugarProcessing(literalArg, timingVariableArg) {
     let literal = literalArg;
@@ -167,19 +165,19 @@ function Engine(program) {
           throw new Error('Invalid fluent ' + name + '/1');
           return;
         }
-        _activeFluents.add(new Functor(name, [new Value(1)]));
+        program.getState().add(new Functor(name, [new Value(0)]));
         return;
       }
       if (!(value instanceof Functor)) {
         // invalid in initially
         return;
       }
-      let initialFluent = new Functor(value.getName(), value.getArguments().concat([new Value(1)]));
+      let initialFluent = new Functor(value.getName(), value.getArguments().concat([new Value(0)]));
       if (_fluents[initialFluent.getId()] === undefined) {
         // invalid fluent
         return;
       }
-      _activeFluents.add(initialFluent);
+      program.getState().add(initialFluent);
     };
     result.forEach((r) => {
       if (r.theta.F === undefined) {
@@ -354,7 +352,7 @@ function Engine(program) {
       }
       let antecedent = rule.getBodyLiterals();
       let ruleResult = [];
-      expandRuleAntecedent(ruleResult, antecedent, [], _program.getProgram());
+      expandRuleAntecedent(ruleResult, antecedent, [], _program);
       if (ruleResult.length === 0) {
         // nothing to do for this rule
         newRules.push(rule);
@@ -420,9 +418,10 @@ function Engine(program) {
     _program.updateRules(newRules);
   }
 
-  let findFluentActors = function findFluentActors(action, builtInFunctorProvider, timeStepFacts) {
+  let findFluentActors = function findFluentActors(action, timeStepFacts) {
     let initiated = [];
     let terminated = [];
+    let functorProvider = program.getFunctorProvider();
 
     _updaters.forEach((u) => {
       let theta = Unifier.unifies([[u.action, action]]);
@@ -434,12 +433,12 @@ function Engine(program) {
       factThetaSet.forEach((pair) => {
         let currentTheta = compactTheta(theta, pair.theta);
 
-        let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, u.old.substitute(currentTheta));
+        let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, u.old.substitute(currentTheta));
         oldFluentSet.forEach((oldFluent) => {
           terminated.push(oldFluent);
         });
 
-        let newFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, u.new.substitute(currentTheta));
+        let newFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, u.new.substitute(currentTheta));
         newFluentSet.forEach((newFluent) => {
           initiated.push(newFluent);
         });
@@ -451,7 +450,7 @@ function Engine(program) {
       if (theta === null) {
         return;
       }
-      let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, t.fluent.substitute(theta));
+      let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, t.fluent.substitute(theta));
       oldFluentSet.forEach((oldFluent) => {
         terminated.push(oldFluent);
       });
@@ -463,7 +462,7 @@ function Engine(program) {
         return;
       }
 
-      let newFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, i.fluent.substitute(theta));
+      let newFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, i.fluent.substitute(theta));
       newFluentSet.forEach((newFluent) => {
         initiated.push(newFluent);
       });
@@ -475,7 +474,7 @@ function Engine(program) {
     };
   };
 
-  let processObservations = function processObservations(builtInFunctorProvider, timeStepFacts) {
+  let processObservations = function processObservations(timeStepFacts) {
     let observationTerminated = [];
     let observationInitiated = [];
     let activeObservations = [];
@@ -495,7 +494,7 @@ function Engine(program) {
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action.substitute(theta);
       activeObservations.push(action);
-      let result = findFluentActors(action, builtInFunctorProvider, timeStepFacts);
+      let result = findFluentActors(action, timeStepFacts);
       observationTerminated = observationTerminated.concat(result.t);
       observationInitiated = observationInitiated.concat(result.i);
 
@@ -514,13 +513,13 @@ function Engine(program) {
     };
   };
 
-  let actionsSelector = function actionsSelector(goalTrees, possibleActions, program, builtInFunctorProvider, facts) {
+  let actionsSelector = function actionsSelector(goalTrees, possibleActions, program, executedActions) {
     let recursiveSelector = function (actionsSoFar, l) {
       if (l >= goalTrees.length) {
         if (actionsSoFar.length === 0) {
           return new LiteralTreeMap();
         }
-        if (!constraintCheck(program, builtInFunctorProvider, facts, actionsSoFar)) {
+        if (!constraintCheck(program, actionsSoFar)) {
           return null;
         }
 
@@ -534,7 +533,7 @@ function Engine(program) {
       }
       let goalTree = goalTrees[l];
       let finalResult = null;
-      goalTree.forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, (candidateActions) => {
+      goalTree.forEachCandidateActions(program, possibleActions, (candidateActions) => {
         let result = recursiveSelector(actionsSoFar.concat([candidateActions]), l + 1);
         if (result !== null) {
           finalResult = result;
@@ -589,13 +588,12 @@ function Engine(program) {
   /*
     Perform Cycle
   */
-  let performCycle = function performCycle(currentFluents) {
+  let performCycle = function performCycle() {
     let nextTime = _currentTime + 1;
 
     let actions = Object.keys(_actions);
 
     let rules = _program.getRules();
-    let program = _program.getProgram();
     let facts = _program.getFacts();
     let executedActions = new LiteralTreeMap();
 
@@ -606,16 +604,13 @@ function Engine(program) {
     };
 
     let updatedState = new LiteralTreeMap();
-    currentFluents.forEach((literal) => {
-      updatedState.add(updateTimableFunctor(literal, nextTime));
-    });
-
-    let builtInFunctorProvider = new BuiltInFunctorProvider(_externalActions, (literal) => {
-      return Resolutor.findUnifications(literal, [facts, currentFluents, executedActions]);
-    });
+    _program.getState()
+      .forEach((literal) => {
+        updatedState.add(updateTimableFunctor(literal, nextTime));
+      });
 
     // update with observations
-    let observationResult = processObservations(builtInFunctorProvider, updatedState);
+    let observationResult = processObservations(updatedState);
     observationResult.activeObservations.forEach((observation) => {
       executedActions.add(observation);
     });
@@ -624,9 +619,10 @@ function Engine(program) {
 
     // to handle time for this iteration
     let currentTimePossibleActions = possibleActionsGenerator(_currentTime);
+    _program.setExecutedActions(executedActions);
 
     // decide which actions from set of candidate actions to execute
-    let selectedActions = actionsSelector(_goals, currentTimePossibleActions, program, builtInFunctorProvider, [facts, currentFluents, executedActions]);
+    let selectedActions = actionsSelector(_goals, currentTimePossibleActions, program, executedActions);
     if (selectedActions === null) {
       selectedActions = [];
     }
@@ -636,10 +632,10 @@ function Engine(program) {
         return;
       }
       result.activeActions.push(l);
-      let actors = findFluentActors(l, builtInFunctorProvider, updatedState);
+      let actors = findFluentActors(l, updatedState);
       result.terminated = result.terminated.concat(actors.t);
       result.initiated = result.initiated.concat(actors.i);
-      let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, l);
+      let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(program.getFunctorProvider(), l);
       selectedLiterals.forEach((literal) => {
         executedActions.add(literal);
       });
@@ -648,13 +644,12 @@ function Engine(program) {
     updateFluentsChange(result, updatedState);
 
     // preparation for next cycle
-    let builtInFunctorProvider2 = new BuiltInFunctorProvider(_externalActions, (literal) => {
-      return Resolutor.findUnifications(literal, [facts, updatedState, executedActions]);
-    });
+    _program.updateState(updatedState);
+    _program.setExecutedActions(executedActions);
 
     // build goal clauses for each rule
     // we need to derive the partially executed rule here too
-    let newRules = processRules(rules, _goals, isTimable, builtInFunctorProvider2, [facts, updatedState, executedActions]);
+    let newRules = processRules(_program, _goals, isTimable);
     _program.updateRules(newRules);
 
     let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
@@ -665,7 +660,7 @@ function Engine(program) {
     let promise = forEachPromise(_goals)
       .do((goalTree) => {
         let treePromise = goalTree
-          .evaluate(program, isTimable, nextTimePossibleActions, builtInFunctorProvider2, [facts, updatedState, executedActions])
+          .evaluate(program, isTimable, nextTimePossibleActions)
           .then((evaluationResult) => {
             if (evaluationResult === null) {
               return;
@@ -777,21 +772,22 @@ function Engine(program) {
 
   this.getActiveFluents = function getActiveFluents() {
     let fluents = [];
-    _activeFluents.forEach((fluent) => {
-      fluents.push(fluent.toString());
-    });
+    program.getState()
+      .forEach((fluent) => {
+        fluents.push(fluent.toString());
+      });
     return fluents;
   };
 
   this.getNumActiveFluents = function getNumActiveFluents() {
-    return _activeFluents.size();
+    return program.getState().size();
   };
 
   this.query = function query(literalArg, type) {
     let literal = literalArg;
     if (type === 'fluent') {
       literal = fluentSyntacticSugarProcessing(literalArg);
-      return _activeFluents.unifies(literal);
+      return program.getState().unifies(literal);
     }
 
     if (type === 'action') {
@@ -827,7 +823,7 @@ function Engine(program) {
       return;
     }
     let startTime = Date.now();
-    return performCycle(_activeFluents)
+    return performCycle()
       .then(() => {
         _currentTime += 1;
         _lastCycleExecutionTime = Date.now() - startTime;

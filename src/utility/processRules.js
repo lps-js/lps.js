@@ -3,11 +3,14 @@ const LiteralTreeMap = require('../engine/LiteralTreeMap');
 const GoalTree = require('../engine/GoalTree');
 const Resolutor = require('../engine/Resolutor');
 
-module.exports = function processRules(rules, goals, isTimable, builtInFunctorProvider, factsArg) {
-  let facts = factsArg;
-  if (facts instanceof LiteralTreeMap) {
-    facts = [facts];
-  }
+module.exports = function processRules(program, goals, isTimable) {
+  let rules = program.getRules();
+
+  let facts = [
+    program.getFacts(),
+    program.getState(),
+    program.getExecutedActions()
+  ];
 
   let containsTimables = function containsTimables(rule) {
     let bodyLiterals = rule.getBodyLiterals();
@@ -27,10 +30,10 @@ module.exports = function processRules(rules, goals, isTimable, builtInFunctorPr
       newRules.push(rule);
     }
     if (rule.getBodyLiteralsCount() === 0) {
-      goals.push(new GoalTree(rule.getHeadLiterals(), builtInFunctorProvider));
+      goals.push(new GoalTree(rule.getHeadLiterals()));
       return;
     }
-    let resolutions = Resolutor.reduceRuleAntecedent(builtInFunctorProvider, rule, facts);
+    let resolutions = Resolutor.reduceRuleAntecedent(program.getFunctorProvider(), rule, facts);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
@@ -38,7 +41,7 @@ module.exports = function processRules(rules, goals, isTimable, builtInFunctorPr
       }
       let substitutedConsequentLiterals = consequentLiterals.map(l => l.substitute(pair.theta));
       if (pair.unresolved.length === 0) {
-        goals.push(new GoalTree(substitutedConsequentLiterals, builtInFunctorProvider));
+        goals.push(new GoalTree(substitutedConsequentLiterals));
         return;
       }
       let body = pair.unresolved.map(l => l.substitute(pair.theta));

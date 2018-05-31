@@ -3,7 +3,7 @@ const Functor = require('../../src/engine/Functor');
 const Clause = require('../../src/engine/Clause');
 const Variable = require('../../src/engine/Variable');
 const Value = require('../../src/engine/Value');
-const BuiltInFunctorProvider = require('../../src/engine/BuiltInFunctorProvider');
+const Program = require('../../src/parser/Program');
 const LiteralTreeMap = require('../../src/engine/LiteralTreeMap');
 
 describe('processRules', () => {
@@ -17,12 +17,13 @@ describe('processRules', () => {
       ]
     );
 
-    let facts = new LiteralTreeMap();
-    facts.add(new Functor('smoke_detected', [new Value('kitchen'), new Value(14), new Value(15)]));
+    let events = new LiteralTreeMap();
+    events.add(new Functor('smoke_detected', [new Value('kitchen'), new Value(14), new Value(15)]));
 
-    let builtInFunctorProvider = new BuiltInFunctorProvider({}, (literal) => {
-      return Resolutor.findUnifications(literal, facts);
-    });
+    let program = new Program();
+    program.updateRules([rule]);
+
+    program.setExecutedActions(events);
 
     let isTimable = () => {
       return false;
@@ -30,7 +31,7 @@ describe('processRules', () => {
 
 
     let goals = [];
-    let result = processRules([rule], goals, isTimable, builtInFunctorProvider, facts);
+    let result = processRules(program, goals, isTimable);
     console.log(result.map(x => x.toString()));
   });
 });

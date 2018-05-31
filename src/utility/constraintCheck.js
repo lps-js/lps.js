@@ -2,19 +2,23 @@ const expandRuleAntecedent = require('./expandRuleAntecedent');
 const Resolutor = require('../engine/Resolutor');
 const Clause = require('../engine/Clause');
 
-module.exports = function constraintCheck(program, builtInFunctorProvider, factsArg, newFacts) {
-  let facts = factsArg;
-  if (!(facts instanceof Array)) {
-    facts = [facts];
-  }
+module.exports = function constraintCheck(program, newFacts) {
+  let facts = [
+    program.getFacts(),
+    program.getState(),
+    program.getExecutedActions()
+  ];
+
   if (newFacts instanceof Array) {
     facts = facts.concat(newFacts);
   } else if (newFacts !== undefined) {
-    facts = facts.concat([newFacts]);
+    facts.push(newFacts);
   }
 
+  let functorProvider = program.getFunctorProvider();
+
   let result = true;
-  program.forEach((clause) => {
+  program.getClauses().forEach((clause) => {
     if (!result || !clause.isConstraint()) {
       return;
     }
@@ -27,7 +31,7 @@ module.exports = function constraintCheck(program, builtInFunctorProvider, facts
       }
       let newClause = new Clause([], r.literalSet);
       let reductionResult = Resolutor
-        .reduceRuleAntecedent(builtInFunctorProvider, newClause, facts);
+        .reduceRuleAntecedent(functorProvider, newClause, facts);
       reductionResult.forEach((tuple) => {
         if (tuple.unresolved.length === 0) {
           result = false;

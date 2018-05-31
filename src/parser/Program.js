@@ -2,6 +2,7 @@ const BuiltInFunctorProvider = require('../engine/BuiltInFunctorProvider');
 const Clause = require('../engine/Clause');
 const Functor = require('../engine/Functor');
 const NodeTypes = require('./NodeTypes');
+const AstNode = require('./AstNode');
 const List = require('../engine/List');
 const Value = require('../engine/Value');
 const Variable = require('../engine/Variable');
@@ -171,21 +172,27 @@ let processProgram = function processProgram(rootNode, properties) {
 
 function Program(nodeTree) {
   let _rules = [];
-  let _program = [];
+  let _clauses = [];
   let _facts = new LiteralTreeMap();
+  let _currentState = new LiteralTreeMap();
+  let _executedActions = new LiteralTreeMap();
 
-  processProgram(nodeTree, {
-    rules: _rules,
-    program: _program,
-    facts: _facts
-  });
+  let _functorProvider = new BuiltInFunctorProvider({}, this);
+
+  if (nodeTree instanceof AstNode) {
+    processProgram(nodeTree, {
+      rules: _rules,
+      program: _clauses,
+      facts: _facts
+    });
+  }
 
   this.getFacts = function getFacts() {
     return _facts;
   };
 
-  this.getProgram = function getProgram() {
-    return _program.map(x => x);
+  this.getClauses = function getClauses() {
+    return _clauses.map(x => x);
   };
 
   this.updateRules = function updateRules(rules) {
@@ -196,19 +203,28 @@ function Program(nodeTree) {
     return _rules.map(x => x);
   };
 
-  this.query = function query(query, otherFacts) {
-    if (otherFacts === undefined) {
-      otherFacts = new LiteralTreeMap();
-    }
-    let facts = [_facts];
-    if (otherFacts instanceof LiteralTreeMap) {
-      facts.push(otherFacts);
-    }
-    let builtInFunctorProvider = new BuiltInFunctorProvider({}, (literal) => {
-      return Resolutor.findUnifications(literal, facts);
-    });
+  this.getState = function getState() {
+    return _currentState;
+  };
 
-    let evaluationResult = Resolutor.explain(query, builtInFunctorProvider, _program, facts);
+  this.updateState = function updateState(newState) {
+    _currentState = newState;
+  };
+
+  this.getFunctorProvider = function getFunctorProvider() {
+    return _functorProvider;
+  };
+
+  this.getExecutedActions = function getExecutedActions() {
+    return _executedActions;
+  };
+
+  this.setExecutedActions = function setExecutedActions(newSet) {
+    _executedActions = newSet;
+  };
+
+  this.query = function query(query, otherFacts) {
+    let evaluationResult = Resolutor.explain(query, this, otherFacts);
     return evaluationResult;
   };
 
@@ -218,7 +234,7 @@ function Program(nodeTree) {
     }
 
     _rules = _rules.concat(program.getRules());
-    _program = _program.concat(program.getProgram());
+    _clauses = _clauses.concat(program.getClauses());
     program.getFacts().forEach((fact) => {
       _facts.add(fact);
     });

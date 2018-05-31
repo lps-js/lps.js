@@ -9,7 +9,7 @@ const Variable = require('./Variable');
 function Resolutor() {}
 
 Resolutor.handleBuiltInFunctorArgumentInLiteral =
-  function handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal) {
+  function handleBuiltInFunctorArgumentInLiteral(functorProvider, literal) {
     let literalName = literal.getName();
     let literalArgs = literal.getArguments();
 
@@ -20,8 +20,8 @@ Resolutor.handleBuiltInFunctorArgumentInLiteral =
         return;
       }
       let arg = literalArgs[idx];
-      if (arg instanceof Functor && builtInFunctorProvider.has(arg.getId())) {
-        let executionResult = builtInFunctorProvider.execute(arg);
+      if (arg instanceof Functor && functorProvider.has(arg.getId())) {
+        let executionResult = functorProvider.execute(arg);
         executionResult.forEach((instance) => {
           if (instance.replacement === undefined) {
             return;
@@ -50,10 +50,20 @@ Resolutor.findUnifications = function findUnifications(literal, factsArg) {
 };
 
 Resolutor.explain =
-  function explain(queryArg, builtInFunctorProvider, clauses, factsArg) {
-    let facts = factsArg;
-    if (facts instanceof LiteralTreeMap) {
-      facts = [facts];
+  function explain(queryArg, program, otherFacts) {
+    let clauses = program.getClauses();
+    let functorProvider = program.getFunctorProvider();
+    let facts = [
+      program.getFacts(),
+      program.getState(),
+      program.getExecutedActions()
+    ];
+    if (otherFacts !== undefined) {
+      if (otherFacts instanceof LiteralTreeMap) {
+        facts.push(otherFacts)
+      } else if (otherFacts instanceof Array) {
+        facts = facts.concat(otherFacts);
+      }
     }
 
     let query = queryArg;
@@ -72,11 +82,8 @@ Resolutor.explain =
 
       let literal = remainingLiterals[0].substitute(thetaSoFar);
       let literalThetas = [];
-      if (builtInFunctorProvider.has(literal.getId())) {
-        literalThetas = builtInFunctorProvider.execute(literal);
-      }
       let substitutedInstances = Resolutor
-        .handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
+        .handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
       substitutedInstances.forEach((l) => {
         literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
       });
@@ -160,15 +167,11 @@ Resolutor.reduceRuleAntecedent =
 
       let literal = remainingLiterals[0].substitute(theta);
       let literalThetas = [];
-      if (literal.isGround() && builtInFunctorProvider.has(literal.getId())) {
-        literalThetas = builtInFunctorProvider.execute(literal);
-      } else {
-        let substitutedInstances = Resolutor
-          .handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
-        substitutedInstances.forEach((l) => {
-          literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
-        });
-      }
+      let substitutedInstances = Resolutor
+        .handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
+      substitutedInstances.forEach((l) => {
+        literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
+      });
 
       if (literalThetas.length === 0) {
         result.push({

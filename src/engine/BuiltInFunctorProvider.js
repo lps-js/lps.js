@@ -15,7 +15,7 @@ let assertIsList = function assertIsList(val) {
   }
 };
 
-function BuiltInFunctorProvider(externalActions, findUnifications) {
+function BuiltInFunctorProvider(externalActions, program) {
   let resolveValue = (v) => {
     let result = v;
     if (result instanceof Functor && this.has(result.getId())) {
@@ -1173,7 +1173,7 @@ function BuiltInFunctorProvider(externalActions, findUnifications) {
       if (!(literal instanceof Functor)) {
         throw new Error('Literal not functor');
       }
-      let queryResult = findUnifications(literal);
+      let queryResult = program.query(literal);
       let result = [];
       if (queryResult.length === 0) {
         result.push({

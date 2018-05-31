@@ -8,7 +8,7 @@ module.exports = function expandLiteral(literal, program, usedVariables) {
   let renameTheta = variableArrayRename(usedVariables);
 
   let result = [];
-  program.forEach((clause) => {
+  program.getClauses().forEach((clause) => {
     if (clause.isConstraint()) {
       return;
     }

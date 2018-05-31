@@ -6,19 +6,19 @@ const variableArrayRename = require('../utility/variableArrayRename');
 const compactTheta = require('../utility/compactTheta');
 const constraintCheck = require('../utility/constraintCheck');
 
-let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, usedVariables) {
+let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, usedVariables) {
   let reductions = [];
   let assumption = new LiteralTreeMap();
   assumption.add(eventAtom);
   let renameTheta = variableArrayRename(usedVariables);
 
-  program.forEach((clause) => {
+  clauses.forEach((clause) => {
     if (clause.isConstraint()) {
       return;
     }
     // assuming horn clauses only
     let headLiterals = clause.getHeadLiterals();
-    let headLiteral = headLiterals[0];
+    let headLiteral = headLiterals[0].substitute(renameTheta);
     let unifications = assumption.unifies(headLiteral);
     if (unifications.length === 0) {
       return;
@@ -26,6 +26,7 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, use
 
     unifications.forEach((pair) => {
       let theta = pair.theta;
+      // theta = compactTheta(theta, renameTheta)
       let outputTheta = {};
       Object.keys(theta).forEach((varName) => {
         if (theta[varName] instanceof Variable) {
@@ -34,8 +35,9 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, use
           delete theta[varName];
         }
       });
+
       reductions.push({
-        clause: clause.getBodyLiterals().map(l => l.substitute(theta).substitute(renameTheta)),
+        clause: clause.getBodyLiterals().map(l => l.substitute(renameTheta).substitute(theta)),
         theta: outputTheta,
         internalTheta: theta
       });
@@ -45,7 +47,8 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, use
   return reductions;
 };
 
-let resolveStateConditions = function resolveStateConditions(clause, possibleActions, facts, builtInFunctorProvider) {
+let resolveStateConditions = function resolveStateConditions(program, clause, possibleActions) {
+  let functorProvider = program.getFunctorProvider();
   let thetaSet = [];
   let newThetaSet = [
     {
@@ -82,35 +85,21 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
         });
         if (!canProceed) {
           break;
-        }
-
+      }
         let numSubstitutionFailure = 0;
-        let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
+        let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
         substitutedInstances.forEach((instance) => {
           let subLiteralThetas = [];
-          if (builtInFunctorProvider.has(instance.getId())) {
-            try {
-              subLiteralThetas = builtInFunctorProvider.execute(instance);
-            } catch(err) {
-              throw err;
-            }
-            if (subLiteralThetas.length === 0) {
-              if (instance.isGround()) {
-                // failed indefinitely
-                hasFailedIndefinitely = true;
-              }
-              return;
-            }
-          } else {
-            subLiteralThetas = Resolutor.findUnifications(instance, facts);
-          }
-          let isActionCheck = possibleActions.unifies(instance);
+          subLiteralThetas = subLiteralThetas.concat(program.query(instance));
+
           if (subLiteralThetas.length === 0) {
+            let isActionCheck = possibleActions.unifies(instance);
             if (instance.isGround() && isActionCheck.length === 0) {
               numSubstitutionFailure += 1;
             }
             return;
           }
+
           literalThetas = literalThetas.concat(subLiteralThetas);
         });
         if (numSubstitutionFailure === substitutedInstances.length) {
@@ -176,7 +165,7 @@ let resolveStateConditions = function resolveStateConditions(clause, possibleAct
   return nodes;
 };
 
-let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, builtInFunctorProvider, candidateActions) {
+let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, functorProvider, candidateActions) {
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
   let hasUnresolvedClause = false;
   let seenVariables = {};
@@ -187,7 +176,7 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
     let newThetaSet = [];
     thetaSet.forEach((tuple) => {
       let substitutedLiteral = literal.substitute(tuple.theta);
-      let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, substitutedLiteral);
+      let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, substitutedLiteral);
       substitutedInstances.forEach((instance) => {
         let literalThetas = possibleActions.unifies(instance);
         if (literalThetas.length === 0) {
@@ -229,19 +218,19 @@ function GoalNode(clause, theta) {
   this.hasBranchFailed = false;
 
 
-  this.forEachCandidateActions = function forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback) {
+  this.forEachCandidateActions = function forEachCandidateActions(program, functorProvider, possibleActions, callback) {
     if (this.hasBranchFailed) {
       return true;
     }
 
     if (this.children.length === 0) {
       let candidateActions = new LiteralTreeMap();
-      resolveSimpleActions(this.clause, possibleActions, builtInFunctorProvider, candidateActions);
+      resolveSimpleActions(this.clause, possibleActions, functorProvider, candidateActions);
 
       if (candidateActions.size() === 0) {
         return true;
       }
-      let constraintCheckResult = constraintCheck(program, builtInFunctorProvider, facts, candidateActions);
+      let constraintCheckResult = constraintCheck(program, candidateActions);
       if (!constraintCheckResult) {
         return true;
       }
@@ -251,7 +240,7 @@ function GoalNode(clause, theta) {
 
     let result = [];
     for (let i = 0; i < this.children.length; i += 1) {
-      let childResult = this.children[i].forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback);
+      let childResult = this.children[i].forEachCandidateActions(program, functorProvider, possibleActions, callback);
       if (!childResult) {
         return false;
       }
@@ -281,7 +270,7 @@ function GoalNode(clause, theta) {
     return false;
   };
 
-  this.evaluate = function evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts) {
+  this.evaluate = function evaluate(program, isTimable, possibleActions) {
     if (this.hasBranchFailed) {
       return null;
     }
@@ -294,7 +283,7 @@ function GoalNode(clause, theta) {
     let reductionResult = [];
     let processCompositeEvent = true;
     if ((isTimable(this.clause[0]) && !this.clause[0].isGround()) || this.children.length === 0) {
-      let stateConditionResolutionResult = resolveStateConditions(clause, possibleActions, facts, builtInFunctorProvider);
+      let stateConditionResolutionResult = resolveStateConditions(program, clause, possibleActions);
       if (this.children.length === 0) {
         if ((!isTimable(this.clause[0]) || this.clause[0].isGround()) && stateConditionResolutionResult === null) {
           this.hasBranchFailed = true;
@@ -309,7 +298,6 @@ function GoalNode(clause, theta) {
       }
     }
     if (processCompositeEvent && this.children.length === 0 && reductionResult.length === 0) {
-      //console.log(''+this.clause);
       for (let i = 0; i < this.clause.length; i += 1) {
         let literal = this.clause[i];
         let usedVariables = {};
@@ -326,7 +314,7 @@ function GoalNode(clause, theta) {
           });
         });
         usedVariables = Object.keys(usedVariables);
-        let compositeReductionResult = reduceCompositeEvent(literal, program, usedVariables);
+        let compositeReductionResult = reduceCompositeEvent(literal, program.getClauses(), usedVariables);
         compositeReductionResult.forEach((crrArg) => {
           // crr needs to rename variables to avoid clashes
           // also at the same time handle any output variables
@@ -354,7 +342,7 @@ function GoalNode(clause, theta) {
     });
 
     for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts);
+      let result = this.children[i].evaluate(program, isTimable, possibleActions);
       if (result === null || result.length === 0) {
         continue;
       }
@@ -384,17 +372,18 @@ function GoalTree(goalClause) {
     return _root.clause.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts) {
+  this.evaluate = function evaluate(program, isTimable, possibleActions) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        let result = _root.evaluate(program, isTimable, possibleActions, builtInFunctorProvider, facts);
+        let result = _root.evaluate(program, isTimable, possibleActions);
         resolve(result);
       }, 0)
     });
   };
 
-  this.forEachCandidateActions = function forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback) {
-    _root.forEachCandidateActions(program, builtInFunctorProvider, facts, possibleActions, callback);
+  this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, callback) {
+    let functorProvider = program.getFunctorProvider();
+    _root.forEachCandidateActions(program, functorProvider, possibleActions, callback);
   };
 
   this.toJSON = function toJSON() {
