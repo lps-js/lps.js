@@ -444,6 +444,9 @@ function LiteralTreeMap() {
           if (typeof value === 'symbol') {
             let symName = value.toString();
             if (symName.indexOf('Symbol(num:') === 0) {
+              if (node._tree[value] === undefined) {
+                return;
+              }
               // it's a number
               let numValue = Number(symName.substring(11, symName.length - 1));
               newTheta[varName] = new Value(numValue);
@@ -452,6 +455,9 @@ function LiteralTreeMap() {
               return;
             }
             if (symName.indexOf('Symbol(var:') === 0) {
+              if (node._tree[value] === undefined) {
+                return;
+              }
               // it's a variable
               let treeVarName = symName.substring(11, symName.length - 1);
               if (invertUnificationOrder) {
@@ -463,6 +469,9 @@ function LiteralTreeMap() {
               result = result.concat(subResult);
               return;
             }
+            if (node._tree[value] === undefined) {
+              return;
+            }
             let term = _argumentClauses[value];
             newTheta[varName] = term;
             subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
@@ -470,6 +479,9 @@ function LiteralTreeMap() {
             return;
           }
 
+          if (node._tree[value] === undefined) {
+            return;
+          }
           newTheta[varName] = new Value(value);
           subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
           result = result.concat(subResult);
@@ -510,12 +522,18 @@ function LiteralTreeMap() {
               });
               return;
             }
+            if (node._tree[entry.leaf] === undefined) {
+              return;
+            }
             subResult = recursiveUnification(path, node._tree[entry.leaf], i + 1, newTheta);
             result = result.concat(subResult);
           });
         }
         // go through to find variables
         node.indices().forEach((value) => {
+          if (node._tree[value] === undefined) {
+            return;
+          }
           // value is not a variable, functor or list
           if (typeof value !== 'symbol') {
             return;
@@ -580,6 +598,9 @@ function LiteralTreeMap() {
 
       let result = [];
       paths.forEach((tuple) => {
+        if (_root._tree[tuple.idx] === undefined) {
+          return;
+        }
         subResult = recursiveUnification(tuple.path, _root._tree[tuple.idx], 0, existingTheta);
         if (tuple.tail !== null) {
           subResult = subResult.map((pairArg) => {
