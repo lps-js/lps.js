@@ -699,7 +699,6 @@ function Engine(program) {
           _lastStepObservations.add(observation);
         });
 
-        _activeFluents = updatedState;
         return Promise.resolve();
       });
   };

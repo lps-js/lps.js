@@ -85,6 +85,9 @@ Resolutor.explain =
       let substitutedInstances = Resolutor
         .handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
       substitutedInstances.forEach((l) => {
+        if (functorProvider.has(l.getId())) {
+          literalThetas = literalThetas.concat(functorProvider.execute(l));
+        }
         literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
       });
 
@@ -150,7 +153,7 @@ Resolutor.explain =
   };
 
 Resolutor.reduceRuleAntecedent =
-  function reduceRuleAntecedent(builtInFunctorProvider, rule, factsArg) {
+  function reduceRuleAntecedent(functorProvider, rule, factsArg) {
     let facts = factsArg;
     if (facts instanceof LiteralTreeMap) {
       facts = [facts];
@@ -168,8 +171,11 @@ Resolutor.reduceRuleAntecedent =
       let literal = remainingLiterals[0].substitute(theta);
       let literalThetas = [];
       let substitutedInstances = Resolutor
-        .handleBuiltInFunctorArgumentInLiteral(builtInFunctorProvider, literal);
+        .handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
       substitutedInstances.forEach((l) => {
+        if (functorProvider.has(l.getId())) {
+          literalThetas = literalThetas.concat(functorProvider.execute(l));
+        }
         literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
       });
 
