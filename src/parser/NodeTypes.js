@@ -1,7 +1,7 @@
 module.exports = {
   Program: Symbol('Program'),
-  Clause: Symbol('Clause'),
-  LiteralSet: Symbol('LiteralSet'),
+  Sentence: Symbol('Sentence'),
+  Conjunction: Symbol('Conjunction'),
   Constant: Symbol('Constant'),
   Variable: Symbol('Variable'),
   Number: Symbol('Number'),

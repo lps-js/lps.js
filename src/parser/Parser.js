@@ -201,8 +201,8 @@ function Parser(source) {
     return _expression();
   };
 
-  let _logicalExpression = function _logicalExpression() {
-    let node = new AstNode(NodeTypes.LiteralSet);
+  let _conjunction = function _conjunction() {
+    let node = new AstNode(NodeTypes.Conjunction);
     if (_foundToBe(TokenTypes.Keyword, 'true')) {
       _expect(TokenTypes.Keyword);
       return node;
@@ -215,36 +215,36 @@ function Parser(source) {
     return node;
   };
 
-  let _clause = function _clause() {
-    let clauseNode = new AstNode(NodeTypes.Clause);
+  let _sentence = function _sentence() {
+    let sentenceNode = new AstNode(NodeTypes.Sentence);
     let hasImplicationSymbol = true;
 
     if (_foundToBe(TokenTypes.Symbol, '<-')) {
-      clauseNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
+      sentenceNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
       _expect(TokenTypes.Symbol);
     } else if (_foundToBe(TokenTypes.Symbol, '->')) {
-      clauseNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
+      sentenceNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
       _expect(TokenTypes.Symbol);
     } else {
-      clauseNode.addChild(_logicalExpression());
+      sentenceNode.addChild(_conjunction());
       if (_foundToBe(TokenTypes.Symbol, '<-') || _foundToBe(TokenTypes.Symbol, '->')) {
-        clauseNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
+        sentenceNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
         _expect(TokenTypes.Symbol);
       } else {
         hasImplicationSymbol = false;
       }
     }
     if (hasImplicationSymbol) {
-      clauseNode.addChild(_logicalExpression());
+      sentenceNode.addChild(_conjunction());
     }
     _expect(TokenTypes.Symbol, END_OF_CLAUSE_SYMBOL);
-    return clauseNode;
+    return sentenceNode;
   };
 
   let _program = function _program() {
     let node = new AstNode(NodeTypes.Program);
     while (!_found(TokenTypes.Eof)) {
-      node.addChild(_clause());
+      node.addChild(_sentence());
     }
     return node;
   };
