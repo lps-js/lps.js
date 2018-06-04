@@ -24,8 +24,16 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
   }
 
   let theta = thetaArg;
-  let leftOperand = equality[0].substitute(theta);
-  let rightOperand = equality[1].substitute(theta);
+  let leftOperand = equality[0];
+  let rightOperand = equality[1];
+
+  // only perform substitution if operand is a variable
+  if (leftOperand instanceof Variable) {
+    leftOperand = leftOperand.substitute(theta);
+  }
+  if (rightOperand instanceof Variable) {
+    rightOperand = rightOperand.substitute(theta);
+  }
 
   if (leftOperand instanceof Value && rightOperand instanceof Value) {
     // equal value check
