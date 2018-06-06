@@ -921,12 +921,20 @@ function Engine(program) {
     _engineEventManager.notify('ready', this);
   });
 
-  let addOnProgramPromise = Program.fromFile(__dirname + '/options/syntacticSugar.lps')
-    .then((program) => {
-      _program.augment(program);
-      return Promise.resolve();
-    });
-  _loadingPromises.push(addOnProgramPromise);
+  let builtinFiles = [
+    'declarations',
+    'math'
+  ];
+
+  builtinFiles.forEach((filename) => {
+    let path = __dirname + '/builtin/' + filename + '.lps';
+    let promise = Program.fromFile(path)
+      .then((program) => {
+        _program.augment(program);
+        return Promise.resolve();
+      });
+    _loadingPromises.push(promise);
+  });
 
   Promise.all(_loadingPromises)
     .then(() => {
