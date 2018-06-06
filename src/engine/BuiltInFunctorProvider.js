@@ -716,31 +716,6 @@ function BuiltInFunctorProvider(externalActions, program) {
       ];
     },
 
-    'max/3': function (v1Arg, v2Arg, v3Arg) {
-      let result = [];
-      let v1 = resolveValue(v1Arg);
-      if (v1 instanceof Array) {
-        v1.forEach((instance) => {
-          result = result.concat(functors['max/3'](instance, v2Arg, v3Arg));
-        });
-        return result;
-      }
-
-      let v2 = resolveValue(v2Arg);
-      if (v2 instanceof Array) {
-        v2.forEach((instance) => {
-          result = result.concat(functors['max/3'](v1, instance, v3Arg));
-        });
-        return result;
-      }
-
-      assertIsValue(v1);
-      assertIsValue(v2);
-      let value = new Value(Math.max(Number(v1.evaluate()), Number(v2.evaluate())));
-
-      return checkOrSetOutputArg(value, v3Arg);
-    },
-
     'min/2': function (v1Arg, v2Arg) {
       let result = [];
       let v1 = resolveValue(v1Arg);
@@ -769,31 +744,6 @@ function BuiltInFunctorProvider(externalActions, program) {
           replacement: value
         }
       ];
-    },
-
-    'min/3': function (v1Arg, v2Arg, v3Arg) {
-      let result = [];
-      let v1 = resolveValue(v1Arg);
-      if (v1 instanceof Array) {
-        v1.forEach((instance) => {
-          result = result.concat(functors['min/3'](instance, v2Arg, v3Arg));
-        });
-        return result;
-      }
-
-      let v2 = resolveValue(v2Arg);
-      if (v2 instanceof Array) {
-        v2.forEach((instance) => {
-          result = result.concat(functors['min/3'](v1, instance, v3Arg));
-        });
-        return result;
-      }
-
-      assertIsValue(v1);
-      assertIsValue(v2);
-      let value = new Value(Math.min(Number(v1.evaluate()), Number(v2.evaluate())));
-
-      return checkOrSetOutputArg(value, v3Arg);
     },
 
     'exp/1': function (v1Arg) {
