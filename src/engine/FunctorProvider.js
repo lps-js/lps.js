@@ -1136,6 +1136,19 @@ function FunctorProvider(program) {
     }
   };
 
+  this.define = function define(name, func) {
+    if (name === '' || (typeof name !== 'string')) {
+      throw new Error('Invalid name given for functor definition');
+    }
+    let arity = func.length;
+    let functorId = name + '/' + arity;
+    if (_customFunctors[functorId] === undefined) {
+      _customFunctors[functorId] = [];
+    }
+
+    _customFunctors[functorId].push(func);
+  };
+
   this.has = function has(id) {
     if (functors[id] !== undefined) {
       return true;
