@@ -4,7 +4,7 @@ const LiteralTreeMap = require('../../src/engine/LiteralTreeMap');
 const Functor = require('../../src/engine/Functor');
 const Value = require('../../src/engine/Value');
 const Variable = require('../../src/engine/Variable');
-const BuiltInFunctorProvider = require('../../src/engine/BuiltInFunctorProvider');
+const FunctorProvider = require('../../src/engine/FunctorProvider');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -19,11 +19,11 @@ describe('Resolutor', () => {
 
       let facts = new LiteralTreeMap();
       facts.add(new Functor('fire', [new Value(1)]));
-      let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
+      let functorProvider = new FunctorProvider((literal) => {
         return Resolutor.findUnifications(literal, facts);
       });
 
-      let result = Resolutor.reduceRuleAntecedent(builtInFunctorProvider, rule, facts);
+      let result = Resolutor.reduceRuleAntecedent(functorProvider, rule, facts);
       console.log(result);
     });
   });

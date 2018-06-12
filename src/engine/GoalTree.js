@@ -1,5 +1,4 @@
 const LiteralTreeMap = require('./LiteralTreeMap');
-const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Resolutor = require('./Resolutor');
 const Variable = require('./Variable');
 const variableArrayRename = require('../utility/variableArrayRename');

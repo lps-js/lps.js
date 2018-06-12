@@ -1,4 +1,3 @@
-const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
 const Functor = require('./Functor');
 const LiteralTreeMap = require('./LiteralTreeMap');
 const variableArrayRename = require('../utility/variableArrayRename');

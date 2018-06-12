@@ -15,7 +15,7 @@ let assertIsList = function assertIsList(val) {
   }
 };
 
-function BuiltInFunctorProvider(program) {
+function FunctorProvider(program) {
   let _customFunctors = {};
 
   let resolveValue = (v) => {
@@ -1157,4 +1157,4 @@ function BuiltInFunctorProvider(program) {
 }
 
 
-module.exports = BuiltInFunctorProvider;
+module.exports = FunctorProvider;

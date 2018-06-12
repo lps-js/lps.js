@@ -1,4 +1,4 @@
-const BuiltInFunctorProvider = require('../engine/BuiltInFunctorProvider');
+const FunctorProvider = require('../engine/FunctorProvider');
 const Clause = require('../engine/Clause');
 const Functor = require('../engine/Functor');
 const NodeTypes = require('./NodeTypes');
@@ -177,7 +177,7 @@ function Program(nodeTree) {
   let _currentState = new LiteralTreeMap();
   let _executedActions = new LiteralTreeMap();
 
-  let _functorProvider = new BuiltInFunctorProvider(this);
+  let _functorProvider = new FunctorProvider(this);
 
   if (nodeTree instanceof AstNode) {
     processProgram(nodeTree, {
