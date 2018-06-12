@@ -19,7 +19,7 @@ describe('Resolutor', () => {
 
       let facts = new LiteralTreeMap();
       facts.add(new Functor('fire', [new Value(1)]));
-      let builtInFunctorProvider = new BuiltInFunctorProvider({}, (literal) => {
+      let builtInFunctorProvider = new BuiltInFunctorProvider((literal) => {
         return Resolutor.findUnifications(literal, facts);
       });
 

@@ -177,7 +177,7 @@ function Program(nodeTree) {
   let _currentState = new LiteralTreeMap();
   let _executedActions = new LiteralTreeMap();
 
-  let _functorProvider = new BuiltInFunctorProvider({}, this);
+  let _functorProvider = new BuiltInFunctorProvider(this);
 
   if (nodeTree instanceof AstNode) {
     processProgram(nodeTree, {

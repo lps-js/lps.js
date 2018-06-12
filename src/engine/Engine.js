@@ -704,7 +704,7 @@ function Engine(program) {
           _lastStepActions.add(action);
         });
         _lastStepObservations = new LiteralTreeMap();
-        observationResult.activeObservations.forEach((observation) => {
+        cycleObservations.forEach((observation) => {
           _lastStepObservations.add(observation);
         });
 
@@ -877,10 +877,6 @@ function Engine(program) {
   };
 
   this.define = function define(identifier, callback) {
-    if (_externalActions[identifier] !== undefined) {
-      throw new Error('External action "' + identifier + '" has been previously defined.');
-    }
-    _externalActions[identifier] = callback;
   };
 
   this.on = function on(event, listener) {

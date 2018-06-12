@@ -15,7 +15,9 @@ let assertIsList = function assertIsList(val) {
   }
 };
 
-function BuiltInFunctorProvider(externalActions, program) {
+function BuiltInFunctorProvider(program) {
+  let _customFunctors = {};
+
   let resolveValue = (v) => {
     let result = v;
     if (result instanceof Functor && this.has(result.getId())) {
@@ -1138,16 +1140,17 @@ function BuiltInFunctorProvider(externalActions, program) {
     if (functors[id] !== undefined) {
       return true;
     }
-    return externalActions[id] !== undefined;
+    return _customFunctors[id] !== undefined;
   };
 
   this.execute = function execute(literal) {
     let id = literal.getId();
+    // TODO: combine execution
     if (functors[id] !== undefined) {
       return functors[id].apply(null, literal.getArguments());
     }
-    if (externalActions[id] !== undefined) {
-      return externalFunctors[id].apply(null, literal.getArguments());
+    if (_customFunctors[id] !== undefined) {
+      return _customFunctors[id].apply(null, literal.getArguments());
     }
     throw new Error('');
   };
