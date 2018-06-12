@@ -6,6 +6,9 @@ const Value = require('../../src/engine/Value');
 const Program = require('../../src/parser/Program');
 const LiteralTreeMap = require('../../src/engine/LiteralTreeMap');
 
+const chai = require('chai');
+const expect = chai.expect;
+
 describe('processRules', () => {
   it('should return the test result', () => {
     let rule = new Clause(
@@ -29,9 +32,9 @@ describe('processRules', () => {
       return false;
     };
 
-
     let goals = [];
     let result = processRules(program, goals, isTimable);
-    console.log(result.map(x => x.toString()));
+    expect(result).to.be.instanceof(Array);
+    expect(result).to.be.length(0);
   });
 });
