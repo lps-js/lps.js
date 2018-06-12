@@ -3,7 +3,7 @@ const List = require('./List');
 const Value = require('./Value');
 const Variable = require('./Variable');
 
-const functorIdentifierRegex = /^[a-zA-Z_0-9]+\/[1-9][0-9]*$/;
+const functorIdentifierRegex = /^[^0-9_A-Z]{1}[a-zA-Z_0-9]*\/[1-9][0-9]*$/;
 
 let assertIsValue = function assertIsValue(val) {
   if (!(val instanceof Value)) {
@@ -1145,6 +1145,7 @@ function FunctorProvider(program) {
 
     let functorId = name;
     if (functorId.indexOf('/') === -1) {
+      // auto detect arity from given handler function.
       let arity = func.length;
       functorId += '/' + arity;
     }
