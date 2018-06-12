@@ -1142,30 +1142,50 @@ function FunctorProvider(program) {
     }
     let arity = func.length;
     let functorId = name + '/' + arity;
+    // customFunctors contain array of definitions for each functorId
     if (_customFunctors[functorId] === undefined) {
       _customFunctors[functorId] = [];
     }
-
     _customFunctors[functorId].push(func);
   };
 
-  this.has = function has(id) {
-    if (functors[id] !== undefined) {
+  this.has = function has(literal) {
+    let functorId = literal;
+    if (literal instanceof Functor) {
+      functorId = literal.getId();
+    }
+    if (functors[functorId] !== undefined) {
       return true;
     }
-    return _customFunctors[id] !== undefined;
+    // customFunctors contain array of definitions for each functorId
+    return _customFunctors[functorId] !== undefined
+      && _customFunctors[functorId].length > 0;
   };
 
   this.execute = function execute(literal) {
-    let id = literal.getId();
-    // TODO: combine execution
-    if (functors[id] !== undefined) {
-      return functors[id].apply(null, literal.getArguments());
+    let functorId = literal.getId();
+    let functorArgs = literal.getArguments();
+
+    let hasExecution = false;
+    // combine results
+    let result = [];
+    if (functors[functorId] !== undefined) {
+      hasExecution = true;
+      result = result.concat(functors[functorId].apply(null, functorArgs));
     }
-    if (_customFunctors[id] !== undefined) {
-      return _customFunctors[id].apply(null, literal.getArguments());
+    if (_customFunctors[functorId] !== undefined) {
+      hasExecution = true;
+      // customFunctors contain array of definitions for each functorId
+      _customFunctors[functorId].forEach((handler) => {
+        // combine results together
+        result = result.concat(handler.apply(null, functorArgs));
+      });
     }
-    throw new Error('');
+    if (!hasExecution) {
+      // no definition for functor found.
+      throw new Error('Call to undefined functor "' + functorId + '"');
+    }
+    return result;
   };
 }
 
