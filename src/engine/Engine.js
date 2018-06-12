@@ -474,18 +474,14 @@ function Engine(program) {
     };
   };
 
-  let processObservations = function processObservations(timeStepFacts) {
+  let processObservations = function processObservations(state) {
     let observationTerminated = [];
     let observationInitiated = [];
     let activeObservations = [];
 
     if (_observations[_currentTime] === undefined) {
       // no observations for current time
-      return {
-        activeObservations: [],
-        terminated: [],
-        initiated: []
-      };
+      return [];
     }
 
     // process observations
@@ -494,7 +490,7 @@ function Engine(program) {
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action.substitute(theta);
       activeObservations.push(action);
-      let result = findFluentActors(action, timeStepFacts);
+      let result = findFluentActors(action, state);
       observationTerminated = observationTerminated.concat(result.t);
       observationInitiated = observationInitiated.concat(result.i);
 
@@ -506,11 +502,9 @@ function Engine(program) {
       }
     });
 
-    return {
-      activeObservations: activeObservations,
-      terminated: observationTerminated,
-      initiated: observationInitiated
-    };
+    updateFluentsChange(observationTerminated, observationInitiated, state);
+
+    return activeObservations;
   };
 
   let actionsSelector = function actionsSelector(goalTrees, possibleActions, program, executedActions) {
@@ -559,18 +553,18 @@ function Engine(program) {
     _possibleActions.forEach((l) => {
       timedPossibleActions.add(l.substitute(timeTheta));
     });
-    return timedPossibleActions
+    return timedPossibleActions;
   };
 
-  let updateFluentsChange = function updateFluentsChange(result, updatedState) {
+  let updateFluentsChange = function updateFluentsChange(terminated, initiated, updatedState) {
     let deltaTerminated = new LiteralTreeMap();
     let deltaInitiated = new LiteralTreeMap();
-    result.terminated.forEach((terminatedFluent) => {
+    terminated.forEach((terminatedFluent) => {
       deltaTerminated.add(terminatedFluent);
     });
 
     // resolve those fluents that are initiated and terminated in the same cycle
-    result.initiated.forEach((initiatedFluent) => {
+    initiated.forEach((initiatedFluent) => {
       if (!deltaTerminated.remove(initiatedFluent)) {
         deltaInitiated.add(initiatedFluent);
       }
@@ -583,6 +577,23 @@ function Engine(program) {
     deltaInitiated.forEach((fluent) => {
       updatedState.add(fluent);
     });
+  };
+
+  let updateState = function updateState(actions, state) {
+    let newState = new LiteralTreeMap();
+    state
+      .forEach((literal) => {
+        newState.add(literal);
+      });
+    let terminated = [];
+    let initiated = [];
+    actions.forEach((action) => {
+      let actors = findFluentActors(action, state);
+      terminated = terminated.concat(actors.t);
+      initiated = initiated.concat(actors.i);
+    });
+    updateFluentsChange(terminated, initiated, newState);
+    return newState;
   };
 
   /*
@@ -610,12 +621,10 @@ function Engine(program) {
       });
 
     // update with observations
-    let observationResult = processObservations(updatedState);
-    observationResult.activeObservations.forEach((observation) => {
+    let cycleObservations = processObservations(updatedState);
+    cycleObservations.forEach((observation) => {
       executedActions.add(observation);
     });
-    result.terminated = observationResult.terminated.concat(result.terminated);
-    result.initiated = observationResult.initiated.concat(result.initiated);
 
     // to handle time for this iteration
     let currentTimePossibleActions = possibleActionsGenerator(_currentTime);
@@ -641,7 +650,7 @@ function Engine(program) {
       });
     });
 
-    updateFluentsChange(result, updatedState);
+    updateFluentsChange(result.terminated, result.initiated, updatedState);
 
     // preparation for next cycle
     _program.updateState(updatedState);
