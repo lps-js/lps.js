@@ -3,6 +3,8 @@ const List = require('./List');
 const Value = require('./Value');
 const Variable = require('./Variable');
 
+const functorIdentifierRegex = /^[a-zA-Z_0-9]+\/[1-9][0-9]*$/;
+
 let assertIsValue = function assertIsValue(val) {
   if (!(val instanceof Value)) {
     throw new Error('Must be value');
@@ -1140,8 +1142,17 @@ function FunctorProvider(program) {
     if (name === '' || (typeof name !== 'string')) {
       throw new Error('Invalid name given for functor definition');
     }
-    let arity = func.length;
-    let functorId = name + '/' + arity;
+
+    let functorId = name;
+    if (functorId.indexOf('/') === -1) {
+      let arity = func.length;
+      functorId += '/' + arity;
+    }
+
+    if (!functorIdentifierRegex.test(functorId)) {
+      throw new Error('Invalid name given for functor definition');
+    }
+
     // customFunctors contain array of definitions for each functorId
     if (_customFunctors[functorId] === undefined) {
       _customFunctors[functorId] = [];
