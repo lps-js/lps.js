@@ -1,4 +1,4 @@
-const BuiltInFunctorProvider = require('./BuiltInFunctorProvider');
+const FunctorProvider = require('./FunctorProvider');
 const Functor = require('./Functor');
 const List = require('./List');
 const Clause = require('./Clause');
@@ -876,7 +876,8 @@ function Engine(program) {
     }, _cycleInterval);
   };
 
-  this.define = function define(identifier, callback) {
+  this.define = function define(name, callback) {
+    program.getFunctorProvider().define(name, callback);
   };
 
   this.on = function on(event, listener) {
