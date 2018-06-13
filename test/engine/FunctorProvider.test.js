@@ -89,5 +89,35 @@ describe('FunctorProvider', () => {
       let literal2 = new Functor('append', [new Variable('X'), new Variable('Y'), new Variable('Z')]);
       expect(provider.has(literal2)).to.be.true;
     });
+    it('should return false for undefined functors', () => {
+      let provider = new FunctorProvider(() => {
+        return [];
+      });
+      expect(provider.has('_/1')).to.be.false;
+      expect(provider.has('+/5')).to.be.false;
+      expect(provider.has('===/2')).to.be.false;
+      expect(provider.has('==/3')).to.be.false;
+      expect(provider.has('member?/2')).to.be.false;
+      expect(provider.has('Floor/1')).to.be.false;
+
+      let literal = new Functor('!!!', [new Variable('X')]);
+      expect(provider.has(literal)).to.be.false;
+      let literal2 = new Functor('appends', [new Variable('X'), new Variable('Y'), new Variable('Z')]);
+      expect(provider.has(literal2)).to.be.false;
+    });
+
+    it('should return true for user-defined functors', () => {
+      let provider = new FunctorProvider(() => {
+        return [];
+      });
+
+      expect(provider.has('test/2')).to.be.false;
+      provider.define('test/2', noop);
+      expect(provider.has('test/2')).to.be.true;
+
+      expect(provider.has('test/1')).to.be.false;
+      provider.define('test/1', (arg) => {});
+      expect(provider.has('test/1')).to.be.true;
+    });
   });
 });
