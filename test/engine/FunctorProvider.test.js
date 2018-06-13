@@ -133,6 +133,21 @@ describe('FunctorProvider', () => {
       expect(result[0].replacement.evaluate()).to.be.equal(3);
     });
 
+    it('should execute user-defined functors', () => {
+      let program = new Program();
+      let provider = new FunctorProvider(program);
+      let callValue = 0;
+      provider.define('testFunc/1', (arg) => {
+        callValue = arg.evaluate();
+        return [ { theta:{} } ];
+      });
+      let result = provider.execute(Program.literal('testFunc(2)'));
+      expect(result).to.be.instanceof(Array);
+      expect(result).to.be.length(1);
+      expect(Object.keys(result[0].theta)).to.be.empty;
+      expect(callValue).to.be.equal(2);
+    });
+
     it('should throw error for undefined functor', () => {
       let program = new Program();
       let provider = new FunctorProvider(program);
