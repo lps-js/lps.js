@@ -1,6 +1,7 @@
 const FunctorProvider = require('../../src/engine/FunctorProvider');
 const Functor = require('../../src/engine/Functor');
 const Variable = require('../../src/engine/Variable');
+const Value = require('../../src/engine/Value');
 const Program = require('../../src/parser/Program');
 
 const chai = require('chai');
@@ -127,6 +128,9 @@ describe('FunctorProvider', () => {
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(Object.keys(result[0].theta)).to.be.empty;
+      expect(result[0].replacement).to.be.not.undefined;
+      expect(result[0].replacement).to.be.instanceof(Value);
+      expect(result[0].replacement.evaluate()).to.be.equal(3);
     });
   });
 });
