@@ -132,5 +132,13 @@ describe('FunctorProvider', () => {
       expect(result[0].replacement).to.be.instanceof(Value);
       expect(result[0].replacement.evaluate()).to.be.equal(3);
     });
+
+    it('should throw error for undefined functor', () => {
+      let program = new Program();
+      let provider = new FunctorProvider(program);
+      expect(() => {
+        let result = provider.execute(Program.literal('what(5)'));
+      }).to.throw();
+    });
   });
 });
