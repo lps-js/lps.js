@@ -155,5 +155,26 @@ describe('FunctorProvider', () => {
         let result = provider.execute(Program.literal('what(5)'));
       }).to.throw();
     });
+
+    describe('assignment', () => {
+      it('should give correct assignment', () => {
+        let program = new Program();
+        let provider = new FunctorProvider(program);
+        let result = provider.execute(Program.literal('X = 5 * 2'));
+        expect(result).to.be.instanceof(Array);
+        expect(result).to.be.length(1);
+        expect(Object.keys(result[0].theta)).to.be.length(1);
+        expect(result[0].theta.X).to.be.instanceof(Value);
+        expect(result[0].theta.X.evaluate()).to.be.equal(10);
+      });
+
+      it('should throw an error for incorrect assignment', () => {
+        let program = new Program();
+        let provider = new FunctorProvider(program);
+        expect(() => {
+          let result = provider.execute(Program.literal('5 = 5 * 2'));
+        }).to.throw();
+      });
+    });
   });
 });
