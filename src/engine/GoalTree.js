@@ -229,10 +229,6 @@ function GoalNode(clause, theta) {
       if (candidateActions.size() === 0) {
         return true;
       }
-      let constraintCheckResult = constraintCheck(program, candidateActions);
-      if (!constraintCheckResult) {
-        return true;
-      }
 
       return callback(candidateActions);
     }
