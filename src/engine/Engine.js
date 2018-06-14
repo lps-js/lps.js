@@ -556,15 +556,22 @@ function Engine(program) {
         let newState = state;
         actionsSoFar.forEach((t) => {
           newState = updateState(t, newState);
+          t.forEach((l) => {
+            newState.add(l);
+          });
         });
-        let facts = [
-          executedActions
-        ];
-        facts = facts.concat(actionsSoFar);
+
+        executedActions.forEach((l) => {
+          newState.add(l);
+        });
+
         let oldState = program.getState();
+        oldState.forEach((l) => {
+          newState.add(l);
+        });
 
         program.updateState(newState);
-        if (!constraintCheck(program, facts)) {
+        if (!constraintCheck(program)) {
           program.updateState(oldState);
           return null;
         }
