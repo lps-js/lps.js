@@ -507,55 +507,6 @@ function Engine(program) {
     return activeObservations;
   };
 
-  let actionsSelector = function actionsSelector(goalTrees, possibleActions, program, executedActions) {
-    let recursiveSelector = function (actionsSoFar, l) {
-      if (l >= goalTrees.length) {
-        if (actionsSoFar.length === 0) {
-          return new LiteralTreeMap();
-        }
-        if (!constraintCheck(program, actionsSoFar)) {
-          return null;
-        }
-
-        let actions = new LiteralTreeMap();
-        actionsSoFar.forEach((map) => {
-          map.forEach((literal) => {
-            actions.add(literal);
-          });
-        });
-        return actions;
-      }
-      let goalTree = goalTrees[l];
-      let finalResult = null;
-      goalTree.forEachCandidateActions(program, possibleActions, (candidateActions) => {
-        let result = recursiveSelector(actionsSoFar.concat([candidateActions]), l + 1);
-        if (result !== null) {
-          finalResult = result;
-          return false;
-        }
-        // continue
-        return true;
-      });
-      if (finalResult) {
-        return finalResult;
-      }
-      return recursiveSelector(actionsSoFar, l + 1);
-    };
-    return recursiveSelector([], 0);
-  };
-
-  let possibleActionsGenerator = function possibleActionsGenerator(time) {
-    let timedPossibleActions = new LiteralTreeMap();
-    let timeTheta = {
-      $T1: new Value(time),
-      $T2: new Value(time + 1)
-    };
-    _possibleActions.forEach((l) => {
-      timedPossibleActions.add(l.substitute(timeTheta));
-    });
-    return timedPossibleActions;
-  };
-
   let updateFluentsChange = function updateFluentsChange(terminated, initiated, updatedState) {
     let deltaTerminated = new LiteralTreeMap();
     let deltaInitiated = new LiteralTreeMap();
@@ -596,6 +547,69 @@ function Engine(program) {
     return newState;
   };
 
+  let actionsSelector = function actionsSelector(goalTrees, state, possibleActions, program, executedActions) {
+    let recursiveSelector = function (actionsSoFar, l) {
+      if (l >= goalTrees.length) {
+        if (actionsSoFar.length === 0) {
+          return new LiteralTreeMap();
+        }
+        let newState = state;
+        actionsSoFar.forEach((t) => {
+          newState = updateState(t, newState);
+        });
+        let facts = [
+          executedActions
+        ];
+        facts = facts.concat(actionsSoFar);
+        let oldState = program.getState();
+
+        program.updateState(newState);
+        if (!constraintCheck(program, facts)) {
+          program.updateState(oldState);
+          return null;
+        }
+
+        program.updateState(oldState);
+
+        let actions = new LiteralTreeMap();
+        actionsSoFar.forEach((map) => {
+          map.forEach((literal) => {
+            actions.add(literal);
+          });
+        });
+        return actions;
+      }
+      let goalTree = goalTrees[l];
+      let finalResult = null;
+      goalTree.forEachCandidateActions(program, possibleActions, (candidateActions) => {
+        let result = recursiveSelector(actionsSoFar.concat([candidateActions]), l + 1);
+        if (result !== null) {
+          finalResult = result;
+          return false;
+        }
+        // continue
+        return true;
+      });
+      if (finalResult) {
+        return finalResult;
+      }
+      return recursiveSelector(actionsSoFar, l + 1);
+    };
+    return recursiveSelector([], 0);
+  };
+
+  let possibleActionsGenerator = function possibleActionsGenerator(time) {
+    let timedPossibleActions = new LiteralTreeMap();
+    let timeTheta = {
+      $T1: new Value(time),
+      $T2: new Value(time + 1)
+    };
+    _possibleActions.forEach((l) => {
+      timedPossibleActions.add(l.substitute(timeTheta));
+    });
+    return timedPossibleActions;
+  };
+
   /*
     Perform Cycle
   */
@@ -631,7 +645,7 @@ function Engine(program) {
     _program.setExecutedActions(executedActions);
 
     // decide which actions from set of candidate actions to execute
-    let selectedActions = actionsSelector(_goals, currentTimePossibleActions, program, executedActions);
+    let selectedActions = actionsSelector(_goals, updatedState, currentTimePossibleActions, program, executedActions);
     if (selectedActions === null) {
       selectedActions = [];
     }
