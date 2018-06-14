@@ -1,0 +1,10 @@
+expect(maxTime(3)).
+
+expect_num_of(fluent, 1, 0).
+
+expect(action, 1, 2, b).
+
+expect_num_of(action, 1, 2, 1).
+expect_num_of(fluent, 2, 0).
+
+expect_num_of(action, 2, 3, 0).

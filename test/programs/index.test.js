@@ -30,6 +30,7 @@ describe('Programs Test', () => {
     'fire-recurrent',
     'guard',
     'quickSort',
+    'initiates-constraint',
     'rain'
   ].forEach(testFunction);
 });
