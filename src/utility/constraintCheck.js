@@ -2,18 +2,12 @@ const expandRuleAntecedent = require('./expandRuleAntecedent');
 const Resolutor = require('../engine/Resolutor');
 const Clause = require('../engine/Clause');
 
-module.exports = function constraintCheck(program, newFacts) {
+module.exports = function constraintCheck(program) {
   let facts = [
     program.getFacts(),
     program.getState(),
     program.getExecutedActions()
   ];
-
-  if (newFacts instanceof Array) {
-    facts = facts.concat(newFacts);
-  } else if (newFacts !== undefined) {
-    facts.push(newFacts);
-  }
 
   let functorProvider = program.getFunctorProvider();
 
