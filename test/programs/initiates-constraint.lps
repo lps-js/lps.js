@@ -1,0 +1,15 @@
+maxTime(3).
+
+fluent(f).
+actions([
+  a,
+  b
+]).
+initiates(a, f).
+
+<- f(_).
+
+true -> executeSomething(T1, T2).
+
+executeSomething(T1, T2) <- a(T1, T2).
+executeSomething(T1, T2) <- b(T1, T2).
