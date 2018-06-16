@@ -187,12 +187,44 @@ function Program(nodeTree) {
     });
   }
 
+  this.clone = function clone() {
+    let program = new Program();
+    let newFacts = new LiteralTreeMap();
+    _facts.forEach((fact) => {
+      newFacts.add(fact);
+    });
+    program.setFacts(newFacts);
+    program.setClauses(_clauses.concat([]));
+    program.updateRules(_rules.concat([]));
+
+    let newState = new LiteralTreeMap();
+    _currentState.forEach((l) => {
+      newState.add(l);
+    });
+    program.updateState(newState);
+
+    let newExecutedActions = new LiteralTreeMap();
+    _executedActions.forEach((l) => {
+      newExecutedActions.add(l);
+    });
+    program.setExecutedActions(_executedActions);
+    return program;
+  };
+
   this.getFacts = function getFacts() {
     return _facts;
   };
 
+  this.setFacts = function setFacts(newFacts) {
+    _facts = newFacts;
+  };
+
   this.getClauses = function getClauses() {
     return _clauses.map(x => x);
+  };
+
+  this.setClauses = function setClauses(clauses) {
+    _clauses = clauses;
   };
 
   this.updateRules = function updateRules(rules) {
