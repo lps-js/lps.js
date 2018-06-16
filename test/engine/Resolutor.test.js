@@ -24,7 +24,13 @@ describe('Resolutor', () => {
       });
 
       let result = Resolutor.reduceRuleAntecedent(functorProvider, rule, facts);
-      console.log(result);
+      expect(result).to.be.instanceof(Array);
+      expect(result).to.be.length(1);
+      expect(result[0].theta).to.be.not.undefined;
+      expect(Object.keys(result[0].theta)).to.be.length(1);
+      expect(result[0].theta.T1).to.be.not.undefined;
+      expect(result[0].theta.T1).to.be.instanceof(Value);
+      expect(result[0].theta.T1.evaluate()).to.be.equal(1);
     });
   });
 });
