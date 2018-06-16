@@ -547,62 +547,76 @@ function Engine(program) {
     return newState;
   };
 
-  let actionsSelector = function actionsSelector(goalTrees, state, possibleActions, program, executedActions) {
-    let recursiveSelector = function (actionsSoFar, l) {
+  let actionsSelector = function actionsSelector(goalTrees, updatedState, possibleActions, program, executedActions) {
+    let recursiveSelector = function (actionsSoFar, programSoFar, l) {
       if (l >= goalTrees.length) {
-        if (actionsSoFar.length === 0) {
-          return new LiteralTreeMap();
-        }
-        let newState = state;
-        actionsSoFar.forEach((t) => {
-          newState = updateState(t, newState);
-          t.forEach((l) => {
-            newState.add(l);
-          });
-        });
-
-        executedActions.forEach((l) => {
-          newState.add(l);
-        });
-
-        let oldState = program.getState();
-        oldState.forEach((l) => {
-          newState.add(l);
-        });
-
-        program.updateState(newState);
-        if (!constraintCheck(program)) {
-          program.updateState(oldState);
-          return null;
-        }
-
-        program.updateState(oldState);
-
         let actions = new LiteralTreeMap();
         actionsSoFar.forEach((map) => {
           map.forEach((literal) => {
             actions.add(literal);
           });
         });
-        return actions;
+        return Promise.resolve(actions);
       }
       let goalTree = goalTrees[l];
       let finalResult = null;
-      goalTree.forEachCandidateActions(program, possibleActions, (candidateActions) => {
-        let result = recursiveSelector(actionsSoFar.concat([candidateActions]), l + 1);
-        if (result !== null) {
-          finalResult = result;
-          return false;
+      let promises = [];
+      // console.log('l = ' + l);
+      goalTree.forEachCandidateActions(program, possibleActions, (candidateActions, subtree) => {
+        // console.log(candidateActions.toArray().map(l => '' + l));
+        // console.log('Trying ' + subtree.getRootClause());
+        let cloneProgram = programSoFar.clone();
+        let newState = cloneProgram.getState();
+        newState = updateState(candidateActions, newState);
+        candidateActions.forEach((l) => {
+          newState.add(l);
+        });
+
+        cloneProgram.updateState(newState);
+        if (!constraintCheck(cloneProgram)) {
+          return true;
         }
-        // continue
+        let promise = subtree.evaluate(cloneProgram, isTimable, possibleActions)
+          .then((result) => {
+            if (result === null) {
+              return Promise.reject();
+            }
+            return recursiveSelector(
+              actionsSoFar.concat([candidateActions]),
+              cloneProgram,
+              l + 1);
+          });
+        promises.push(promise);
         return true;
       });
-      if (finalResult) {
-        return finalResult;
-      }
-      return recursiveSelector(actionsSoFar, l + 1);
+
+      // race for any first resolve
+      return Promise
+        .all(
+          promises.map((p) => {
+            return p.then(
+              (val) => Promise.reject(val),
+              (err) => Promise.resolve(err)
+            );
+          })
+        )
+        .then(
+          (errs) => {
+            // choice of not choosing any actions from this goal tree to execute
+            return recursiveSelector(actionsSoFar, programSoFar, l + 1);
+          },
+          (val) => Promise.resolve(val)
+        );
     };
-    return recursiveSelector([], 0);
+    let cloneProgram = program.clone();
+    let cloneState = cloneProgram.getState();
+    updatedState.forEach((l) => {
+      cloneState.add(l);
+    });
+    executedActions.forEach((l) => {
+      cloneState.add(l);
+    });
+    return recursiveSelector([], cloneProgram, 0);
   };
 
   let possibleActionsGenerator = function possibleActionsGenerator(time) {
@@ -652,84 +666,84 @@ function Engine(program) {
     _program.setExecutedActions(executedActions);
 
     // decide which actions from set of candidate actions to execute
-    let selectedActions = actionsSelector(_goals, updatedState, currentTimePossibleActions, program, executedActions);
-    if (selectedActions === null) {
-      selectedActions = [];
-    }
-    // process selected actions
-    selectedActions.forEach((l) => {
-      if (executedActions.contains(l)) {
-        return;
-      }
-      result.activeActions.push(l);
-      let actors = findFluentActors(l, updatedState);
-      result.terminated = result.terminated.concat(actors.t);
-      result.initiated = result.initiated.concat(actors.i);
-      let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(program.getFunctorProvider(), l);
-      selectedLiterals.forEach((literal) => {
-        executedActions.add(literal);
-      });
-    });
+    return actionsSelector(_goals, updatedState, currentTimePossibleActions, program, executedActions)
+      .then((selectedActions) => {
+        // process selected actions
+        selectedActions.forEach((l) => {
+          if (executedActions.contains(l)) {
+            return;
+          }
+          result.activeActions.push(l);
+          let actors = findFluentActors(l, updatedState);
+          result.terminated = result.terminated.concat(actors.t);
+          result.initiated = result.initiated.concat(actors.i);
+          let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(program.getFunctorProvider(), l);
+          selectedLiterals.forEach((literal) => {
+            executedActions.add(literal);
+          });
+        });
 
-    updateFluentsChange(result.terminated, result.initiated, updatedState);
+        updateFluentsChange(result.terminated, result.initiated, updatedState);
 
-    // preparation for next cycle
-    _program.updateState(updatedState);
-    _program.setExecutedActions(executedActions);
+        // preparation for next cycle
+        _program.updateState(updatedState);
+        _program.setExecutedActions(executedActions);
 
-    // build goal clauses for each rule
-    // we need to derive the partially executed rule here too
-    let newRules = processRules(_program, _goals, isTimable);
-    _program.updateRules(newRules);
+        // build goal clauses for each rule
+        // we need to derive the partially executed rule here too
+        let newRules = processRules(_program, _goals, isTimable);
+        _program.updateRules(newRules);
+        let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
 
-    let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
+        let newGoals = [];
+        let goalTreeProcessingPromises = [];
+        let i = 0;
+        let promise = forEachPromise(_goals)
+          .do((goalTree) => {
+            console.log('Processing GT ' + goalTree.getRootClause())
+            let treePromise = goalTree
+              .evaluate(program, isTimable, nextTimePossibleActions)
+              .then((evaluationResult) => {
+                if (evaluationResult === null) {
+                  return;
+                }
 
-    let newGoals = [];
-    let goalTreeProcessingPromises = [];
-    let i = 0;
-    let promise = forEachPromise(_goals)
-      .do((goalTree) => {
-        let treePromise = goalTree
-          .evaluate(program, isTimable, nextTimePossibleActions)
-          .then((evaluationResult) => {
-            if (evaluationResult === null) {
-              return;
-            }
+                // goal tree has been resolved
+                if (evaluationResult.length > 0) {
+                  return;
+                }
 
-            // goal tree has been resolved
-            if (evaluationResult.length > 0) {
-              return;
-            }
+                if (goalTree.checkTreeFailed()) {
+                  return;
+                }
 
-            if (goalTree.checkTreeFailed()) {
-              return;
-            }
+                // goal tree has not been resolved, so let's persist the tree
+                // to the next cycle
+                newGoals.push(goalTree);
+                return Promise.resolve();
+              });
+            goalTreeProcessingPromises.push(treePromise);
+          });
 
-            // goal tree has not been resolved, so let's persist the tree
-            // to the next cycle
-            newGoals.push(goalTree);
+        return promise
+          .then(() => {
+            return Promise
+              .all(goalTreeProcessingPromises);
+          })
+          .then(() => {
+            _goals = newGoals;
+
+            _lastStepActions = new LiteralTreeMap();
+            result.activeActions.forEach((action) => {
+              _lastStepActions.add(action);
+            });
+            _lastStepObservations = new LiteralTreeMap();
+            cycleObservations.forEach((observation) => {
+              _lastStepObservations.add(observation);
+            });
+
             return Promise.resolve();
           });
-        goalTreeProcessingPromises.push(treePromise);
-      });
-
-    return promise.then(() => {
-      return Promise
-        .all(goalTreeProcessingPromises);
-      })
-      .then(() => {
-        _goals = newGoals;
-
-        _lastStepActions = new LiteralTreeMap();
-        result.activeActions.forEach((action) => {
-          _lastStepActions.add(action);
-        });
-        _lastStepObservations = new LiteralTreeMap();
-        cycleObservations.forEach((observation) => {
-          _lastStepObservations.add(observation);
-        });
-
-        return Promise.resolve();
       });
   };
 

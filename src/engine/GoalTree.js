@@ -164,7 +164,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
   return nodes;
 };
 
-let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, functorProvider, candidateActions) {
+let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, functorProvider, candidateActionSets) {
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
   let hasUnresolvedClause = false;
   let seenVariables = {};
@@ -204,9 +204,11 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
   });
 
   thetaSet.forEach((tuple) => {
+    let newSet = new LiteralTreeMap();
     tuple.candidates.forEach((literal) => {
-      candidateActions.add(literal);
+      newSet.add(literal);
     });
+    candidateActionSets.push(newSet);
   });
 };
 
@@ -216,26 +218,34 @@ function GoalNode(clause, theta) {
   this.children = [];
   this.hasBranchFailed = false;
 
-
   this.forEachCandidateActions = function forEachCandidateActions(program, functorProvider, possibleActions, callback) {
     if (this.hasBranchFailed) {
       return true;
     }
 
     if (this.children.length === 0) {
-      let candidateActions = new LiteralTreeMap();
-      resolveSimpleActions(this.clause, possibleActions, functorProvider, candidateActions);
+      let candidateActionSets = [];
+      resolveSimpleActions(this.clause, possibleActions, functorProvider, candidateActionSets);
 
-      if (candidateActions.size() === 0) {
-        return true;
-      }
+      let continueCondition = true;
+      candidateActionSets.forEach((candidateActions) => {
+        if (!continueCondition) {
+          return;
+        }
+        if (candidateActions.size() === 0) {
+          return;
+        }
 
-      return callback(candidateActions);
+        let subtree = new GoalTree(this.clause);
+        continueCondition = callback(candidateActions, subtree);
+      });
+      return continueCondition;
     }
 
     let result = [];
     for (let i = 0; i < this.children.length; i += 1) {
-      let childResult = this.children[i].forEachCandidateActions(program, functorProvider, possibleActions, callback);
+      let childResult = this.children[i]
+        .forEachCandidateActions(program, functorProvider, possibleActions, callback);
       if (!childResult) {
         return false;
       }
