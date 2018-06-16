@@ -700,7 +700,6 @@ function Engine(program) {
         let i = 0;
         let promise = forEachPromise(_goals)
           .do((goalTree) => {
-            console.log('Processing GT ' + goalTree.getRootClause())
             let treePromise = goalTree
               .evaluate(program, isTimable, nextTimePossibleActions)
               .then((evaluationResult) => {
