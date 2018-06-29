@@ -264,6 +264,9 @@ function Program(nodeTree) {
     if (!(program instanceof Program)) {
       throw new Error('Expecting program in the argument for augment function');
     }
+    if (program === this) {
+      throw new Error('A program cannot augment itself.');
+    }
 
     _rules = _rules.concat(program.getRules());
     _clauses = _clauses.concat(program.getClauses());
