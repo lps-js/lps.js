@@ -3,7 +3,7 @@ const LiteralTreeMap = require('../engine/LiteralTreeMap');
 const GoalTree = require('../engine/GoalTree');
 const Resolutor = require('../engine/Resolutor');
 
-module.exports = function processRules(program, goals, isTimable) {
+module.exports = function processRules(program, goals) {
   let rules = program.getRules();
 
   let facts = [
@@ -16,7 +16,7 @@ module.exports = function processRules(program, goals, isTimable) {
     let bodyLiterals = rule.getBodyLiterals();
     let result = false;
     bodyLiterals.forEach((literal) => {
-      if (isTimable(literal)) {
+      if (program.isTimable(literal)) {
         result = true;
       }
     });

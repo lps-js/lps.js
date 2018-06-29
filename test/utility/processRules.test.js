@@ -28,12 +28,8 @@ describe('processRules', () => {
 
     program.setExecutedActions(events);
 
-    let isTimable = () => {
-      return false;
-    };
-
     let goals = [];
-    let result = processRules(program, goals, isTimable);
+    let result = processRules(program, goals);
     expect(result).to.be.instanceof(Array);
     expect(result).to.be.length(0);
   });
