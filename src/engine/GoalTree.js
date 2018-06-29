@@ -164,7 +164,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
   return nodes;
 };
 
-let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, functorProvider, candidateActionSets) {
+let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, functorProvider, candidateActions) {
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
   let hasUnresolvedClause = false;
   let seenVariables = {};
@@ -203,13 +203,14 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
     thetaSet = newThetaSet;
   });
 
+  let numAdded = 0;
   thetaSet.forEach((tuple) => {
-    let newSet = new LiteralTreeMap();
     tuple.candidates.forEach((literal) => {
-      newSet.add(literal);
+      numAdded += 1;
+      candidateActions.add(literal);
     });
-    candidateActionSets.push(newSet);
   });
+  return numAdded;
 };
 
 function GoalNode(clause, theta) {
@@ -218,39 +219,25 @@ function GoalNode(clause, theta) {
   this.children = [];
   this.hasBranchFailed = false;
 
-  this.forEachCandidateActions = function forEachCandidateActions(program, functorProvider, possibleActions, callback) {
+  this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, candidateActions, subtrees) {
     if (this.hasBranchFailed) {
-      return true;
+      return;
     }
 
     if (this.children.length === 0) {
-      let candidateActionSets = [];
-      resolveSimpleActions(this.clause, possibleActions, functorProvider, candidateActionSets);
-
-      let continueCondition = true;
-      candidateActionSets.forEach((candidateActions) => {
-        if (!continueCondition) {
-          return;
-        }
-        if (candidateActions.size() === 0) {
-          return;
-        }
-
-        let subtree = new GoalTree(this.clause);
-        continueCondition = callback(candidateActions, subtree);
-      });
-      return continueCondition;
+      let functorProvider = program.getFunctorProvider();
+      let numCandidateActionsAdded = resolveSimpleActions(this.clause, possibleActions, functorProvider, candidateActions);
+      if (numCandidateActionsAdded > 0) {
+        subtrees.push(new GoalTree(this.clause));
+      }
+      return;
     }
 
     let result = [];
     for (let i = 0; i < this.children.length; i += 1) {
-      let childResult = this.children[i]
-        .forEachCandidateActions(program, functorProvider, possibleActions, callback);
-      if (!childResult) {
-        return false;
-      }
+      this.children[i]
+        .forEachCandidateActions(program, possibleActions, candidateActions, subtrees);
     }
-    return true;
   };
 
   this.checkIfBranchFailed = function checkIfBranchFailed() {
@@ -367,10 +354,19 @@ function GoalNode(clause, theta) {
 }
 
 function GoalTree(goalClause) {
-  let _root = new GoalNode(goalClause, {});
+  let _root = undefined;
+  if (goalClause instanceof GoalNode) {
+    _root = goalClause;
+  } else {
+    _root = new GoalNode(goalClause, {});
+  }
 
   this.checkTreeFailed = function checkTreeFailed() {
     return _root.checkIfBranchFailed();
+  };
+
+  this.updateRoot = function updateRoot(newNode) {
+    _root = newNode;
   };
 
   this.getRootClause = function () {
@@ -387,8 +383,37 @@ function GoalTree(goalClause) {
   };
 
   this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, callback) {
-    let functorProvider = program.getFunctorProvider();
-    _root.forEachCandidateActions(program, functorProvider, possibleActions, callback);
+    let candidateActions = new LiteralTreeMap();
+    let subtrees = [];
+    let tree = this;
+    _root.forEachCandidateActions(program, possibleActions, candidateActions, subtrees);
+    let candidateActionsArray = candidateActions.toArray();
+    let candidateActionsSelector = function candidateActionsSelector(actionsSoFar, l) {
+      if (l >= candidateActionsArray.length) {
+        if (actionsSoFar.length === 0) {
+          callback([], []);
+          return;
+        }
+        callback(actionsSoFar, subtrees);
+        return;
+      }
+      candidateActionsSelector(actionsSoFar.concat([candidateActionsArray[l]]), l + 1);
+      candidateActionsSelector(actionsSoFar, l + 1);
+    };
+    candidateActionsSelector([], 0);
+  };
+
+  this.clone = function clone() {
+    let cloneNode = function cloneNode(node) {
+      let clonedNode = new GoalNode(node.clause, node.theta);
+      node.children.forEach((childNode) => {
+        let clonedChild = cloneNode(childNode);
+        clonedNode.children.push(clonedChild);
+      });
+      return clonedNode;
+    }
+    let clonedRoot = cloneNode(_root);
+    return new GoalTree(clonedRoot);
   };
 
   this.toJSON = function toJSON() {
