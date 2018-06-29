@@ -23,10 +23,6 @@ function Engine(program) {
   let _isContinuousExecution = false;
   let _isInCycle = false;
 
-  let _fluents = {};
-  let _actions = {};
-  let _events = {};
-
   let _loadingPromises = [];
 
   let _engineEventManager = new EventManager();
@@ -36,7 +32,6 @@ function Engine(program) {
   let _updaters = [];
   let _observations = {};
 
-  let _program = program;
   let _goals = [];
 
   let _possibleActions = new LiteralTreeMap();
@@ -127,7 +122,7 @@ function Engine(program) {
         return;
       }
       let fluent = fluentSyntacticSugarProcessing(r.theta.X);
-      _fluents[fluent.getId()] = fluent;
+      program.defineFluent(fluent);
     });
   };
 
@@ -138,7 +133,7 @@ function Engine(program) {
         return;
       }
       let literal = actionSyntacticSugarProcessing(r.theta.X);
-      _actions[literal.getId()] = true;
+      program.defineAction(literal);
       _possibleActions.add(literal);
     });
   };
@@ -150,7 +145,7 @@ function Engine(program) {
         return;
       }
       let literal = actionSyntacticSugarProcessing(r.theta.X);
-      _events[literal.getId()] = true;
+      program.defineEvent(literal);
     });
   };
 
@@ -160,12 +155,14 @@ function Engine(program) {
       let value = valueArg;
       if (value instanceof Value) {
         let name = value.evaluate();
-        if (_fluents[name + '/1'] === undefined) {
+        if (!program.isFluent(name + '/1')) {
           // invalid fluent
-          throw new Error('Invalid fluent ' + name + '/1');
+          throw new Error('Invalid fluent "' + name + '/1" given in initially declaration');
           return;
         }
-        program.getState().add(new Functor(name, [new Value(0)]));
+        program
+          .getState()
+          .add(new Functor(name, [new Value(0)]));
         return;
       }
       if (!(value instanceof Functor)) {
@@ -173,11 +170,13 @@ function Engine(program) {
         return;
       }
       let initialFluent = new Functor(value.getName(), value.getArguments().concat([new Value(0)]));
-      if (_fluents[initialFluent.getId()] === undefined) {
+      if (!program.isFluent(initialFluent)) {
         // invalid fluent
         return;
       }
-      program.getState().add(initialFluent);
+      program
+        .getState()
+        .add(initialFluent);
     };
     result.forEach((r) => {
       if (r.theta.F === undefined) {
@@ -209,7 +208,7 @@ function Engine(program) {
       if (!(action instanceof Functor)) {
         return;
       }
-      if (_actions[action.getId()] === undefined) {
+      if (!program.isAction(action) && !program.isEvent(action)) {
         throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
       }
 
@@ -220,7 +219,7 @@ function Engine(program) {
       }
       fluent = fluentSyntacticSugarProcessing(fluent, lastArgument);
 
-      if (_fluents[fluent.getId()] === undefined) {
+      if (!program.isFluent(fluent)) {
         throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
       _terminators.push({ action: action, fluent: fluent });
@@ -241,7 +240,7 @@ function Engine(program) {
       if (!(action instanceof Functor)) {
         return;
       }
-      if (_actions[action.getId()] === undefined) {
+      if (!program.isAction(action) && !program.isEvent(action)) {
         throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
       }
 
@@ -252,7 +251,7 @@ function Engine(program) {
       }
       fluent = fluentSyntacticSugarProcessing(fluent, lastArgument);
 
-      if (_fluents[fluent.getId()] === undefined) {
+      if (!program.isFluent(fluent)) {
         throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
       _initiators.push({ action: action, fluent: fluent });
@@ -274,7 +273,7 @@ function Engine(program) {
       if (!(action instanceof Functor)) {
         return;
       }
-      if (_actions[action.getId()] === undefined) {
+      if (!program.isAction(action) && !program.isEvent(action)) {
         throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
       }
 
@@ -286,10 +285,10 @@ function Engine(program) {
       terminatingFluent = fluentSyntacticSugarProcessing(terminatingFluent, lastArgument);
       initiatingFluent = fluentSyntacticSugarProcessing(initiatingFluent, lastArgument);
 
-      if (_fluents[terminatingFluent.getId()] === undefined) {
+      if (!program.isFluent(terminatingFluent)) {
         throw new Error('Fluent "' + terminatingFluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
-      if (_fluents[initiatingFluent.getId()] === undefined) {
+      if (!program.isFluent(initiatingFluent)) {
         throw new Error('Fluent "' + initiatingFluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
 
@@ -335,15 +334,9 @@ function Engine(program) {
     });
   };
 
-  let isTimable = function isTimable(literal) {
-    return _fluents[literal.getId()]
-      || _actions[literal.getId()]
-      || _events[literal.getId()];
-  };
-
   let preProcessRules = function preProcessRules() {
     let newRules = [];
-    let rules = _program.getRules();
+    let rules = program.getRules();
 
     rules.forEach((rule) => {
       if (rule.getBodyLiteralsCount() === 0) {
@@ -352,7 +345,7 @@ function Engine(program) {
       }
       let antecedent = rule.getBodyLiterals();
       let ruleResult = [];
-      expandRuleAntecedent(ruleResult, antecedent, [], _program);
+      expandRuleAntecedent(ruleResult, antecedent, [], program);
       if (ruleResult.length === 0) {
         // nothing to do for this rule
         newRules.push(rule);
@@ -415,7 +408,7 @@ function Engine(program) {
         newRules.push(new Clause(tupleConsequent, tuple.literalSet));
       });
     });
-    _program.updateRules(newRules);
+    program.updateRules(newRules);
   }
 
   let findFluentActors = function findFluentActors(action, timeStepFacts) {
@@ -584,7 +577,7 @@ function Engine(program) {
         }
         let numFailed = 0;
         let subtreePromises = subtrees.map((subtree) => {
-          return subtree.evaluate(cloneProgram, isTimable, possibleActions)
+          return subtree.evaluate(cloneProgram, possibleActions)
             .then((val) => {
               if (val === null) {
                 numFailed += 1;
@@ -658,10 +651,8 @@ function Engine(program) {
   let performCycle = function performCycle() {
     let nextTime = _currentTime + 1;
 
-    let actions = Object.keys(_actions);
-
-    let rules = _program.getRules();
-    let facts = _program.getFacts();
+    let rules = program.getRules();
+    let facts = program.getFacts();
     let executedActions = new LiteralTreeMap();
 
     let result = {
@@ -671,7 +662,7 @@ function Engine(program) {
     };
 
     let updatedState = new LiteralTreeMap();
-    _program.getState()
+    program.getState()
       .forEach((literal) => {
         updatedState.add(updateTimableFunctor(literal, nextTime));
       });
@@ -684,7 +675,7 @@ function Engine(program) {
 
     // to handle time for this iteration
     let currentTimePossibleActions = possibleActionsGenerator(_currentTime);
-    _program.setExecutedActions(executedActions);
+    program.setExecutedActions(executedActions);
 
     // decide which actions from set of candidate actions to execute
     return actionsSelector(_goals, updatedState, currentTimePossibleActions, program, executedActions)
@@ -707,13 +698,13 @@ function Engine(program) {
         updateFluentsChange(result.terminated, result.initiated, updatedState);
 
         // preparation for next cycle
-        _program.updateState(updatedState);
-        _program.setExecutedActions(executedActions);
+        program.updateState(updatedState);
+        program.setExecutedActions(executedActions);
 
         // build goal clauses for each rule
         // we need to derive the partially executed rule here too
-        let newRules = processRules(_program, _goals, isTimable);
-        _program.updateRules(newRules);
+        let newRules = processRules(program, _goals);
+        program.updateRules(newRules);
         let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
 
         let newGoals = [];
@@ -722,7 +713,7 @@ function Engine(program) {
         let promise = forEachPromise(_goals)
           .do((goalTree) => {
             let treePromise = goalTree
-              .evaluate(program, isTimable, nextTimePossibleActions)
+              .evaluate(program, nextTimePossibleActions)
               .then((evaluationResult) => {
                 if (evaluationResult === null) {
                   return;
@@ -863,7 +854,7 @@ function Engine(program) {
       return _lastStepObservations.unifies(literal)
     }
 
-    return _program.query(literal);
+    return program.query(literal);
   };
 
   this.hasTerminated = function hasTerminated() {
@@ -955,10 +946,6 @@ function Engine(program) {
     });
   };
 
-  this.reset = function reset() {
-
-  };
-
   this.test = function test(specFile) {
     let tester = new Tester(this);
     return tester.test(specFile);
@@ -990,8 +977,8 @@ function Engine(program) {
   builtinFiles.forEach((filename) => {
     let path = __dirname + '/builtin/' + filename + '.lps';
     let promise = Program.fromFile(path)
-      .then((program) => {
-        _program.augment(program);
+      .then((loadedProgram) => {
+        program.augment(loadedProgram);
         return Promise.resolve();
       });
     _loadingPromises.push(promise);
