@@ -17,6 +17,9 @@ let testFunction = function testFunction(file) {
           }
           expect(result.success).to.be.true;
           done();
+        })
+        .catch((err) => {
+          done(err);
         });
     });
   });

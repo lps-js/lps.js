@@ -562,8 +562,7 @@ function Engine(program) {
       let finalResult = null;
       let promises = [];
       // console.log('l = ' + l);
-      goalTree.forEachCandidateActions(program, possibleActions, (candidateActions, subtree) => {
-        // console.log(candidateActions.toArray().map(l => '' + l));
+      goalTree.forEachCandidateActions(program, possibleActions, (candidateActions, subtrees) => {
         // console.log('Trying ' + subtree.getRootClause());
         let cloneProgram = programSoFar.clone();
         let newState = cloneProgram.getState();
@@ -574,20 +573,43 @@ function Engine(program) {
 
         cloneProgram.updateState(newState);
         if (!constraintCheck(cloneProgram)) {
-          return true;
+          return;
         }
-        let promise = subtree.evaluate(cloneProgram, isTimable, possibleActions)
-          .then((result) => {
-            if (result === null) {
-              return Promise.reject();
-            }
+
+        if (subtrees.length === 0) {
+          return recursiveSelector(
+            actionsSoFar,
+            programSoFar,
+            l + 1);
+        }
+        let numFailed = 0;
+        let subtreePromises = subtrees.map((subtree) => {
+          return subtree.evaluate(cloneProgram, isTimable, possibleActions)
+            .then((val) => {
+              if (val === null) {
+                numFailed += 1;
+                return Promise.resolve();
+              }
+              return Promise.reject(subtree.getRootClause());
+            });
+        });
+
+        let promise = Promise
+          .all(subtreePromises)
+          .then(() => {
+            return recursiveSelector(
+              actionsSoFar,
+              programSoFar,
+              l + 1);
+          })
+          .catch((clause) => {
             return recursiveSelector(
               actionsSoFar.concat([candidateActions]),
               cloneProgram,
               l + 1);
           });
+
         promises.push(promise);
-        return true;
       });
 
       // race for any first resolve
@@ -602,8 +624,7 @@ function Engine(program) {
         )
         .then(
           (errs) => {
-            // choice of not choosing any actions from this goal tree to execute
-            return recursiveSelector(actionsSoFar, programSoFar, l + 1);
+            return Promise.resolve(new LiteralTreeMap());
           },
           (val) => Promise.resolve(val)
         );
