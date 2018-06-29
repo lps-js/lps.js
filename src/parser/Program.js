@@ -177,6 +177,10 @@ function Program(nodeTree) {
   let _currentState = new LiteralTreeMap();
   let _executedActions = new LiteralTreeMap();
 
+  let _fluents = {};
+  let _actions = {};
+  let _events = {};
+
   let _functorProvider = new FunctorProvider(this);
 
   if (nodeTree instanceof AstNode) {
@@ -209,6 +213,82 @@ function Program(nodeTree) {
     });
     program.setExecutedActions(_executedActions);
     return program;
+  };
+
+  let isIdDefined = function isIdDefined(id) {
+    return _fluents[id] !== undefined
+      || _events[id] !== undefined
+      || _actions[id] !== undefined;
+  };
+
+  let processLiteralId = function processLiteralId(literal) {
+    let result = literal;
+    if (literal instanceof Functor) {
+      result = literal.getId();
+    }
+    return result;
+  };
+
+  this.defineFluent = function defineFluent(fluent) {
+    let id = processLiteralId(fluent);
+    if (isIdDefined(id)) {
+      throw new Error('Predicate ' + id + ' previously defined.');
+    }
+    _fluents[id] = true;
+  };
+
+  this.defineAction = function defineAction(action) {
+    let id = processLiteralId(action);
+    if (isIdDefined(id)) {
+      throw new Error('Predicate ' + id + ' previously defined.');
+    }
+
+    _actions[id] = true;
+  };
+
+  this.defineEvent = function defineEvent(event) {
+    let id = processLiteralId(event);
+    if (isIdDefined(id)) {
+      throw new Error('Predicate ' + id + ' previously defined.');
+    }
+
+    _events[id] = true;
+  };
+
+  this.isFluent = function isFluent(literal) {
+    let id = processLiteralId(literal);
+    return _fluents[id] !== undefined;
+  };
+
+  this.isAction = function isAction(literal) {
+    let id = processLiteralId(literal);
+    return _actions[id] !== undefined;
+  };
+
+  this.isEvent = function isEvent(literal) {
+    let id = processLiteralId(literal);
+    return _events[id] !== undefined;
+  };
+
+  this.isTimableUntimed = function isTimableUntimed(timable) {
+    let id = processLiteralId(timable);
+    let timableArgs = timable.getArguments();
+    let numArgs = timableArgs.length;
+    if (_fluents[id] !== undefined) {
+      return timableArgs[numArgs - 1] instanceof Variable;
+    }
+    if (_actions[id] !== undefined || _events[id] !== undefined) {
+      return timableArgs[numArgs - 2] instanceof Variable
+        && timableArgs[numArgs - 1] instanceof Variable;
+    }
+    return false;
+  };
+
+  this.isTimable = function isTimable(timable) {
+    let id = processLiteralId(timable);
+    return _fluents[id] !== undefined
+      || _actions[id] !== undefined
+      || _events[id] !== undefined;
   };
 
   this.getFacts = function getFacts() {
@@ -270,9 +350,11 @@ function Program(nodeTree) {
 
     _rules = _rules.concat(program.getRules());
     _clauses = _clauses.concat(program.getClauses());
-    program.getFacts().forEach((fact) => {
-      _facts.add(fact);
-    });
+    program
+      .getFacts()
+      .forEach((fact) => {
+        _facts.add(fact);
+      });
   };
 }
 
