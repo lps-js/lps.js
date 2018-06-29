@@ -262,7 +262,7 @@ function GoalNode(clause, theta) {
     return false;
   };
 
-  this.evaluate = function evaluate(program, isTimable, possibleActions) {
+  this.evaluate = function evaluate(program, possibleActions) {
     if (this.hasBranchFailed) {
       return null;
     }
@@ -274,10 +274,11 @@ function GoalNode(clause, theta) {
     // only attempt to resolve the first literal left to right
     let reductionResult = [];
     let processCompositeEvent = true;
-    if ((isTimable(this.clause[0]) && !this.clause[0].isGround()) || this.children.length === 0) {
+    let conjunct = this.clause[0];
+    if (program.isTimableUntimed(conjunct) || this.children.length === 0) {
       let stateConditionResolutionResult = resolveStateConditions(program, clause, possibleActions);
       if (this.children.length === 0) {
-        if ((!isTimable(this.clause[0]) || this.clause[0].isGround()) && stateConditionResolutionResult === null) {
+        if (!program.isTimableUntimed(conjunct) && stateConditionResolutionResult === null) {
           this.hasBranchFailed = true;
           // node failed indefinitely
           return null;
@@ -334,7 +335,7 @@ function GoalNode(clause, theta) {
     });
 
     for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, isTimable, possibleActions);
+      let result = this.children[i].evaluate(program, possibleActions);
       if (result === null || result.length === 0) {
         continue;
       }
@@ -373,10 +374,10 @@ function GoalTree(goalClause) {
     return _root.clause.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(program, isTimable, possibleActions) {
+  this.evaluate = function evaluate(program, possibleActions) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        let result = _root.evaluate(program, isTimable, possibleActions);
+        let result = _root.evaluate(program, possibleActions);
         resolve(result);
       }, 0)
     });

@@ -234,6 +234,7 @@ function Program(nodeTree) {
     if (isIdDefined(id)) {
       throw new Error('Predicate ' + id + ' previously defined.');
     }
+    console.log('Defining fluent ' + id);
     _fluents[id] = true;
   };
 
