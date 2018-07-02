@@ -201,6 +201,18 @@ function Program(nodeTree) {
     program.setClauses(_clauses.concat([]));
     program.updateRules(_rules.concat([]));
 
+    Object.keys(_actions).forEach((actionId) => {
+      program.defineAction(actionId);
+    });
+
+    Object.keys(_events).forEach((eventId) => {
+      program.defineEvent(eventId);
+    });
+
+    Object.keys(_fluents).forEach((fluentId) => {
+      program.defineFluent(fluentId);
+    });
+
     let newState = new LiteralTreeMap();
     _currentState.forEach((l) => {
       newState.add(l);
