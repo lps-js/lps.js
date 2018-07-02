@@ -23,7 +23,16 @@ let processUnaryOperator = function processUnaryOperator(node, singleUnderscoreV
   if (operator === 'not') {
     operator = '!';
   }
-  return new Functor(operator, processArguments(node.getChildren(), singleUnderscoreVariableSet));
+
+  let arguments = processArguments(node.getChildren(), singleUnderscoreVariableSet);
+  if (operator === '!' && arguments.length === 1) { // negation optimisation
+    if (arguments[0] instanceof Functor && arguments[0].getId() === '!/1') {
+      let operands = arguments[0].getArguments();
+      return operands[0];
+    }
+  }
+
+  return new Functor(operator, arguments);
 };
 
 let processList = function processList(nodes, singleUnderscoreVariableSet) {
