@@ -1,5 +1,6 @@
 const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
+const Functor = require('./Functor');
 const Variable = require('./Variable');
 const variableArrayRename = require('../utility/variableArrayRename');
 const compactTheta = require('../utility/compactTheta');
@@ -10,6 +11,18 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, use
   let assumption = new LiteralTreeMap();
   assumption.add(eventAtom);
   let renameTheta = variableArrayRename(usedVariables);
+  let hasNewRenames = false;
+  do {
+    hasNewRenames = false;
+    Object.keys(renameTheta).forEach((varName) => {
+      let newVarName = renameTheta[varName].evaluate();
+      if (renameTheta[newVarName] !== undefined) {
+        renameTheta[varName] = renameTheta[newVarName];
+        hasNewRenames = true;
+      }
+    });
+  } while (hasNewRenames);
+  let outputVariables = eventAtom.getVariables();
 
   clauses.forEach((clause) => {
     if (clause.isConstraint()) {
@@ -25,20 +38,16 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, use
 
     unifications.forEach((pair) => {
       let theta = pair.theta;
-      // theta = compactTheta(theta, renameTheta)
       let outputTheta = {};
-      Object.keys(theta).forEach((varName) => {
-        if (theta[varName] instanceof Variable) {
-          // output variable
-          outputTheta[theta[varName].evaluate()] = new Variable(varName);
-          delete theta[varName];
+      outputVariables.forEach((varName) => {
+        if (theta[varName] !== undefined) {
+          outputTheta[varName] = theta[varName];
         }
       });
 
       reductions.push({
         clause: clause.getBodyLiterals().map(l => l.substitute(renameTheta).substitute(theta)),
-        theta: outputTheta,
-        internalTheta: theta
+        theta: outputTheta
       });
     });
   });
@@ -84,7 +93,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
         });
         if (!canProceed) {
           break;
-      }
+        }
         let numSubstitutionFailure = 0;
         let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
         substitutedInstances.forEach((instance) => {
@@ -291,22 +300,17 @@ function GoalNode(clause, theta) {
       }
     }
     if (processCompositeEvent && this.children.length === 0 && reductionResult.length === 0) {
+      let usedVariables = {};
+      for (let i = 0; i < this.clause.length; i += 1) {
+        this.clause[i].getVariables().forEach((v) => {
+          usedVariables[v] = true;
+        });
+      }
+      usedVariables = Object.keys(usedVariables);
       for (let i = 0; i < this.clause.length; i += 1) {
         let literal = this.clause[i];
-        let usedVariables = {};
         let otherLiteralsFront = this.clause.slice(0, i);
         let otherLiteralsBack = this.clause.slice(i + 1, this.clause.length);
-        otherLiteralsFront.forEach((l) => {
-          l.getVariables().forEach((v) => {
-            usedVariables[v] = true;
-          });
-        });
-        otherLiteralsBack.forEach((l) => {
-          l.getVariables().forEach((v) => {
-            usedVariables[v] = true;
-          });
-        });
-        usedVariables = Object.keys(usedVariables);
         let compositeReductionResult = reduceCompositeEvent(literal, program.getClauses(), usedVariables);
         compositeReductionResult.forEach((crrArg) => {
           // crr needs to rename variables to avoid clashes
