@@ -541,8 +541,10 @@ function Engine(program) {
   };
 
   let actionsSelector = function actionsSelector(goalTrees, updatedState, possibleActions, program, executedActions) {
-    let recursiveSelector = function (actionsSoFar, programSoFar, l) {
+    let selectionDone = false;
+    let recursiveActionsSelector = function (actionsSoFar, programSoFar, l) {
       if (l >= goalTrees.length) {
+        selectionDone = true;
         let actions = new LiteralTreeMap();
         actionsSoFar.forEach((map) => {
           map.forEach((literal) => {
@@ -550,6 +552,9 @@ function Engine(program) {
           });
         });
         return Promise.resolve(actions);
+      }
+      if (selectionDone) {
+        return Promise.resolve();
       }
       let goalTree = goalTrees[l];
       let finalResult = null;
@@ -569,15 +574,9 @@ function Engine(program) {
           return;
         }
 
-        if (subtrees.length === 0) {
-          return recursiveSelector(
-            actionsSoFar,
-            programSoFar,
-            l + 1);
-        }
         let numFailed = 0;
         let subtreePromises = subtrees.map((subtree) => {
-          return subtree.evaluate(cloneProgram, possibleActions)
+          return subtree.evaluate(cloneProgram, _currentTime + 1, possibleActions)
             .then((val) => {
               if (val === null) {
                 numFailed += 1;
@@ -590,13 +589,10 @@ function Engine(program) {
         let promise = Promise
           .all(subtreePromises)
           .then(() => {
-            return recursiveSelector(
-              actionsSoFar,
-              programSoFar,
-              l + 1);
-          })
-          .catch((clause) => {
-            return recursiveSelector(
+            return Promise.reject();
+          },
+          (clause) => {
+            return recursiveActionsSelector(
               actionsSoFar.concat([candidateActions]),
               cloneProgram,
               l + 1);
@@ -617,7 +613,11 @@ function Engine(program) {
         )
         .then(
           (errs) => {
-            return Promise.resolve(new LiteralTreeMap());
+            // console.log(errs);
+            return recursiveActionsSelector(
+              actionsSoFar,
+              programSoFar,
+              l + 1);
           },
           (val) => Promise.resolve(val)
         );
@@ -630,7 +630,7 @@ function Engine(program) {
     executedActions.forEach((l) => {
       cloneState.add(l);
     });
-    return recursiveSelector([], cloneProgram, 0);
+    return recursiveActionsSelector([], cloneProgram, 0);
   };
 
   let possibleActionsGenerator = function possibleActionsGenerator(time) {
@@ -713,7 +713,7 @@ function Engine(program) {
         let promise = forEachPromise(_goals)
           .do((goalTree) => {
             let treePromise = goalTree
-              .evaluate(program, nextTimePossibleActions)
+              .evaluate(program, _currentTime + 1, nextTimePossibleActions)
               .then((evaluationResult) => {
                 if (evaluationResult === null) {
                   return;
