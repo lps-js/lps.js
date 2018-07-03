@@ -2,6 +2,7 @@ const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
 const Functor = require('./Functor');
 const Variable = require('./Variable');
+const Value = require('./Value');
 const variableArrayRename = require('../utility/variableArrayRename');
 const compactTheta = require('../utility/compactTheta');
 const constraintCheck = require('../utility/constraintCheck');
@@ -271,13 +272,36 @@ function GoalNode(clause, theta) {
     return false;
   };
 
-  this.evaluate = function evaluate(program, possibleActions) {
+  this.evaluate = function evaluate(program, forTime, possibleActions) {
     if (this.hasBranchFailed) {
       return null;
     }
 
     if (this.clause.length === 0) {
       return [[this.theta]];
+    }
+
+    for (let i = 0; i < this.clause.length; i += 1) {
+      let literal = this.clause[i];
+      let literalArgs = literal.getArguments();
+      if (program.isFluent(literal)) {
+        let lastArg = literalArgs[literalArgs.length - 1];
+        if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
+          this.hasBranchFailed = true;
+          return null;
+        }
+      } else if (program.isAction(literal) || program.isEvent(literal)) {
+        let startTimeArg = literalArgs[literalArgs.length - 2];
+        let endTimeArg = literalArgs[literalArgs.length - 1];
+        if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
+          this.hasBranchFailed = true;
+          return null;
+        }
+        if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
+          this.hasBranchFailed = true;
+          return null;
+        }
+      }
     }
 
     // only attempt to resolve the first literal left to right
@@ -342,7 +366,7 @@ function GoalNode(clause, theta) {
     });
 
     for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, possibleActions);
+      let result = this.children[i].evaluate(program, forTime, possibleActions);
       if (result === null || result.length === 0) {
         continue;
       }
@@ -381,10 +405,10 @@ function GoalTree(goalClause) {
     return _root.clause.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(program, possibleActions) {
+  this.evaluate = function evaluate(program, forTime, possibleActions) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        let result = _root.evaluate(program, possibleActions);
+        let result = _root.evaluate(program, forTime, possibleActions);
         resolve(result);
       }, 0)
     });
@@ -400,6 +424,9 @@ function GoalTree(goalClause) {
       if (l >= candidateActionsArray.length) {
         if (actionsSoFar.length === 0) {
           callback([], []);
+          return;
+        }
+        if (subtrees.length === 0) {
           return;
         }
         callback(actionsSoFar, subtrees);
