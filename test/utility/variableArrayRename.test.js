@@ -15,7 +15,7 @@ describe('variableArrayRename()', () => {
     expect(Object.keys(theta)).to.be.not.empty;
     expect(theta.X).to.be.not.equal(null);
     expect(theta.X).to.be.instanceof(Variable);
-    expect(theta.X.evaluate()).to.be.equal('VXX');
+    expect(theta.X.evaluate()).to.be.equal('$_X');
   });
 
   it('should throw error when invalid rename pattern given', () => {
