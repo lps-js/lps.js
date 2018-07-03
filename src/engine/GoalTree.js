@@ -309,6 +309,9 @@ function GoalNode(clause, theta) {
       usedVariables = Object.keys(usedVariables);
       for (let i = 0; i < this.clause.length; i += 1) {
         let literal = this.clause[i];
+        if (program.isFluent(literal) || (literal instanceof Functor && literal.getId() === '!/1' && program.isFluent(literal.getArguments()[0]))) {
+          break;
+        }
         let otherLiteralsFront = this.clause.slice(0, i);
         let otherLiteralsBack = this.clause.slice(i + 1, this.clause.length);
         let compositeReductionResult = reduceCompositeEvent(literal, program.getClauses(), usedVariables);
