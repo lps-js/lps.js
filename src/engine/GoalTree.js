@@ -109,6 +109,20 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
             return;
           }
 
+          let instanceVariables = instance.getVariables();
+
+          subLiteralThetas = subLiteralThetas.map((tupleArg) => {
+            let tuple = tupleArg;
+            let newTheta = {};
+            instanceVariables.forEach((varName) => {
+              if (tuple.theta[varName] !== undefined) {
+                newTheta[varName] = tuple.theta[varName];
+              };
+            });
+            tuple.theta = newTheta;
+            return tuple;
+          });
+
           literalThetas = literalThetas.concat(subLiteralThetas);
         });
         if (numSubstitutionFailure === substitutedInstances.length) {
