@@ -295,29 +295,6 @@ function GoalNode(clause, theta) {
       return [[this.theta]];
     }
 
-    for (let i = 0; i < this.clause.length; i += 1) {
-      let literal = this.clause[i];
-      let literalArgs = literal.getArguments();
-      if (program.isFluent(literal)) {
-        let lastArg = literalArgs[literalArgs.length - 1];
-        if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
-          this.hasBranchFailed = true;
-          return null;
-        }
-      } else if (program.isAction(literal) || program.isEvent(literal)) {
-        let startTimeArg = literalArgs[literalArgs.length - 2];
-        let endTimeArg = literalArgs[literalArgs.length - 1];
-        if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
-          this.hasBranchFailed = true;
-          return null;
-        }
-        if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
-          this.hasBranchFailed = true;
-          return null;
-        }
-      }
-    }
-
     // only attempt to resolve the first literal left to right
     let reductionResult = [];
     let processCompositeEvent = true;
@@ -337,6 +314,32 @@ function GoalNode(clause, theta) {
         processCompositeEvent = false;
       }
     }
+
+    if (reductionResult.length === 0 && this.children.length === 0) {
+      for (let i = 0; i < this.clause.length; i += 1) {
+        let literal = this.clause[i];
+        let literalArgs = literal.getArguments();
+        if (program.isFluent(literal)) {
+          let lastArg = literalArgs[literalArgs.length - 1];
+          if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
+            this.hasBranchFailed = true;
+            return null;
+          }
+        } else if (program.isAction(literal) || program.isEvent(literal)) {
+          let startTimeArg = literalArgs[literalArgs.length - 2];
+          let endTimeArg = literalArgs[literalArgs.length - 1];
+          if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
+            this.hasBranchFailed = true;
+            return null;
+          }
+          if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
+            this.hasBranchFailed = true;
+            return null;
+          }
+        }
+      }
+    }
+
     if (processCompositeEvent && this.children.length === 0 && reductionResult.length === 0) {
       let usedVariables = {};
       for (let i = 0; i < this.clause.length; i += 1) {
@@ -347,7 +350,9 @@ function GoalNode(clause, theta) {
       usedVariables = Object.keys(usedVariables);
       for (let i = 0; i < this.clause.length; i += 1) {
         let literal = this.clause[i];
+        // console.log(''+literal + '--' + (program.isFluent(literal) ? 'TRUE' : 'FALSE'));
         if (program.isFluent(literal) || (literal instanceof Functor && literal.getId() === '!/1' && program.isFluent(literal.getArguments()[0]))) {
+          // console.log('STAPH');
           break;
         }
         let otherLiteralsFront = this.clause.slice(0, i);
