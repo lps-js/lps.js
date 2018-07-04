@@ -253,7 +253,6 @@ function GoalNode(clause, theta) {
       let candidateActions = new LiteralTreeMap();
       let numCandidateActionsAdded = resolveSimpleActions(this.clause, possibleActions, functorProvider, candidateActions);
       if (numCandidateActionsAdded > 0) {
-        subtrees.push(new GoalTree(this.clause));
         let subtrees = [new GoalTree(this.clause)];
         callback(candidateActions, subtrees);
       }
