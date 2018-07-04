@@ -24,15 +24,15 @@ let processUnaryOperator = function processUnaryOperator(node, singleUnderscoreV
     operator = '!';
   }
 
-  let arguments = processArguments(node.getChildren(), singleUnderscoreVariableSet);
-  if (operator === '!' && arguments.length === 1) { // negation optimisation
-    if (arguments[0] instanceof Functor && arguments[0].getId() === '!/1') {
-      let operands = arguments[0].getArguments();
+  let opArgs = processArguments(node.getChildren(), singleUnderscoreVariableSet);
+  if (operator === '!' && opArgs.length === 1) { // negation optimisation
+    if (opArgs[0] instanceof Functor && opArgs[0].getId() === '!/1') {
+      let operands = opArgs[0].getArguments();
       return operands[0];
     }
   }
 
-  return new Functor(operator, arguments);
+  return new Functor(operator, opArgs);
 };
 
 let processList = function processList(nodes, singleUnderscoreVariableSet) {
