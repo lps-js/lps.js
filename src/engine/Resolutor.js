@@ -91,7 +91,6 @@ Resolutor.explain =
       });
 
       let variablesInUse = {};
-      for (let i = 1; i < remainingLiterals.length; i += 1) {
         let otherLiteral = remainingLiterals[i];
         otherLiteral.getVariables().forEach((v) => {
           variablesInUse[v] = true;
@@ -148,6 +147,19 @@ Resolutor.explain =
     };
 
     let result = recursiveResolution(query, {});
+    let variablesToOutput = {};
+    query.forEach((literal) => {
+      literal.getVariables().forEach((varName) => {
+        variablesToOutput[varName] = true;
+      });
+    })
+    result.forEach((tuple) => {
+      Object.keys(tuple.theta).forEach((key) => {
+        if (variablesToOutput[key] === undefined) {
+          delete tuple.theta[key];
+        }
+      });
+    });
     return result;
   };
 
