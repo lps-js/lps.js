@@ -243,16 +243,19 @@ function GoalNode(clause, theta) {
   this.children = [];
   this.hasBranchFailed = false;
 
-  this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, candidateActions, subtrees) {
+  this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, callback) {
     if (this.hasBranchFailed) {
       return;
     }
 
     if (this.children.length === 0) {
       let functorProvider = program.getFunctorProvider();
+      let candidateActions = new LiteralTreeMap();
       let numCandidateActionsAdded = resolveSimpleActions(this.clause, possibleActions, functorProvider, candidateActions);
       if (numCandidateActionsAdded > 0) {
         subtrees.push(new GoalTree(this.clause));
+        let subtrees = [new GoalTree(this.clause)];
+        callback(candidateActions, subtrees);
       }
       return;
     }
@@ -260,7 +263,7 @@ function GoalNode(clause, theta) {
     let result = [];
     for (let i = 0; i < this.children.length; i += 1) {
       this.children[i]
-        .forEachCandidateActions(program, possibleActions, candidateActions, subtrees);
+        .forEachCandidateActions(program, possibleActions, callback);
     }
   };
 
@@ -437,24 +440,7 @@ function GoalTree(goalClause) {
     let candidateActions = new LiteralTreeMap();
     let subtrees = [];
     let tree = this;
-    _root.forEachCandidateActions(program, possibleActions, candidateActions, subtrees);
-    let candidateActionsArray = candidateActions.toArray();
-    let candidateActionsSelector = function candidateActionsSelector(actionsSoFar, l) {
-      if (l >= candidateActionsArray.length) {
-        if (actionsSoFar.length === 0) {
-          callback([], []);
-          return;
-        }
-        if (subtrees.length === 0) {
-          return;
-        }
-        callback(actionsSoFar, subtrees);
-        return;
-      }
-      candidateActionsSelector(actionsSoFar.concat([candidateActionsArray[l]]), l + 1);
-      candidateActionsSelector(actionsSoFar, l + 1);
-    };
-    candidateActionsSelector([], 0);
+    _root.forEachCandidateActions(program, possibleActions, callback);
   };
 
   this.clone = function clone() {
