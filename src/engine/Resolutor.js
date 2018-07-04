@@ -91,6 +91,7 @@ Resolutor.explain =
       });
 
       let variablesInUse = {};
+      for (let i = 0; i < remainingLiterals.length; i += 1) {
         let otherLiteral = remainingLiterals[i];
         otherLiteral.getVariables().forEach((v) => {
           variablesInUse[v] = true;
