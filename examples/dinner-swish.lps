@@ -1,0 +1,24 @@
+maxTime(3).
+
+fluents money(V).
+actions
+  buy_chicken(V),
+  buy_steak(V).
+
+initially money(8).
+
+if true then dinner from T1 to T2.
+
+% Rule 1
+dinner from T1 to T2 if buy_chicken(3) from T1 to T2, buy_steak(5) from T1 to T2.
+ 
+% Rule 2
+dinner from T1 to T2 if buy_chicken(3) from T1 to T2.
+
+% Rule 3
+dinner from T1 to T2 if buy_steak(5) from T1 to T2.
+
+buy_chicken(A) updates Old to New in money(Old) if New is Old - A.
+buy_steak(A) updates Old to New in money(Old) if New is Old - A.
+
+false money(V), V < 0.

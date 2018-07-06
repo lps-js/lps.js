@@ -1,3 +1,5 @@
+maxTime(3).
+
 fluent(money(V)).
 actions([
   buy_chicken(V),
