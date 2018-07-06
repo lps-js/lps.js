@@ -382,8 +382,42 @@ function GoalNode(clause, theta) {
       }
     }
 
+    let functorProvider = program.getFunctorProvider();
+
     reductionResult.forEach((r) => {
-      this.children.push(r);
+      let clause = r.clause;
+      let nodes = [];
+      let recursiveFunctorArgumentProcessing = (clause, l) => {
+        if (l >= clause.length) {
+          nodes.push(new GoalNode(clause, r.theta));
+          return;
+        }
+        let conjunct = clause[l];
+        let isAllArgumentFunctorGround = true;
+        let hasArgumentFunctor = false;
+        clause[l].getArguments().forEach((literalArg) => {
+          if (literalArg instanceof Functor && !literalArg.isGround()) {
+            isAllArgumentFunctorGround = false;
+          }
+          if (literalArg instanceof Functor) {
+            hasArgumentFunctor = true;
+          }
+        })
+        if (hasArgumentFunctor && isAllArgumentFunctorGround) {
+          let instances = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, conjunct);
+          instances.forEach((instance) => {
+            let clauseCopy = clause.concat([]);
+            clauseCopy[l] = instance;
+            recursiveFunctorArgumentProcessing(clauseCopy, l + 1);
+          });
+        } else {
+          recursiveFunctorArgumentProcessing(clause, l + 1);
+        }
+      };
+      recursiveFunctorArgumentProcessing(r.clause, 0);
+      nodes.forEach((n) => {
+        this.children.push(n);
+      });
     });
 
     for (let i = 0; i < this.children.length; i += 1) {
