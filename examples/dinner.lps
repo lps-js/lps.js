@@ -1,0 +1,23 @@
+fluent(money(V)).
+actions([
+  buy_chicken(V),
+  buy_steak(V)
+]).
+
+initially(money(8)).
+
+true -> dinner(T1, T2).
+
+% Rule 1
+dinner(T1, T2) <- buy_chicken(3, T1, T2), buy_steak(5, T1, T2).
+
+% Rule 2
+dinner(T1, T2) <- buy_chicken(3, T1, T2).
+
+% Rule 3
+dinner(T1, T2) <- buy_steak(5, T1, T2).
+
+updates(buy_chicken(A), money(V), money(V - A)).
+updates(buy_steak(A), money(V), money(V - A)).
+
+<- money(V, _), V < 0.

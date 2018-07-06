@@ -27,9 +27,7 @@ function Engine(program) {
 
   let _engineEventManager = new EventManager();
 
-  let _terminators = [];
-  let _initiators = [];
-  let _updaters = [];
+  let _fluentActors = [];
   let _observations = {};
 
   let _goals = [];
@@ -222,7 +220,7 @@ function Engine(program) {
       if (!program.isFluent(fluent)) {
         throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
-      _terminators.push({ action: action, fluent: fluent });
+      _fluentActors.push({ action: action, terminate: fluent });
     });
   };
 
@@ -254,7 +252,7 @@ function Engine(program) {
       if (!program.isFluent(fluent)) {
         throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
-      _initiators.push({ action: action, fluent: fluent });
+      _fluentActors.push({ action: action, initiate: fluent });
     });
   };
 
@@ -292,7 +290,11 @@ function Engine(program) {
         throw new Error('Fluent "' + initiatingFluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
       }
 
-      _updaters.push({ action: action, old: terminatingFluent, new: initiatingFluent });
+      _fluentActors.push({
+        action: action,
+        terminate: terminatingFluent,
+        initiate: initiatingFluent
+      });
     });
   };
 
@@ -409,62 +411,6 @@ function Engine(program) {
       });
     });
     program.updateRules(newRules);
-  }
-
-  let findFluentActors = function findFluentActors(action, timeStepFacts) {
-    let initiated = [];
-    let terminated = [];
-    let functorProvider = program.getFunctorProvider();
-
-    _updaters.forEach((u) => {
-      let theta = Unifier.unifies([[u.action, action]]);
-      if (theta === null) {
-        return;
-      }
-
-      let factThetaSet = timeStepFacts.unifies(u.old.substitute(theta));
-      factThetaSet.forEach((pair) => {
-        let currentTheta = compactTheta(theta, pair.theta);
-
-        let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, u.old.substitute(currentTheta));
-        oldFluentSet.forEach((oldFluent) => {
-          terminated.push(oldFluent);
-        });
-
-        let newFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, u.new.substitute(currentTheta));
-        newFluentSet.forEach((newFluent) => {
-          initiated.push(newFluent);
-        });
-      });
-    });
-
-    _terminators.forEach((t) => {
-      let theta = Unifier.unifies([[t.action, action]]);
-      if (theta === null) {
-        return;
-      }
-      let oldFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, t.fluent.substitute(theta));
-      oldFluentSet.forEach((oldFluent) => {
-        terminated.push(oldFluent);
-      });
-    });
-
-    _initiators.forEach((i) => {
-      let theta = Unifier.unifies([[i.action, action]]);
-      if (theta === null) {
-        return;
-      }
-
-      let newFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, i.fluent.substitute(theta));
-      newFluentSet.forEach((newFluent) => {
-        initiated.push(newFluent);
-      });
-    });
-
-    return {
-      t: terminated,
-      i: initiated
-    };
   };
 
   let processObservations = function processObservations(state) {
@@ -483,9 +429,6 @@ function Engine(program) {
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action.substitute(theta);
       activeObservations.push(action);
-      let result = findFluentActors(action, state);
-      observationTerminated = observationTerminated.concat(result.t);
-      observationInitiated = observationInitiated.concat(result.i);
 
       if (ob.endTime > nextTime) {
         if (_observations[nextTime] === undefined) {
@@ -495,48 +438,47 @@ function Engine(program) {
       }
     });
 
-    updateFluentsChange(observationTerminated, observationInitiated, state);
-
     return activeObservations;
   };
 
-  let updateFluentsChange = function updateFluentsChange(terminated, initiated, updatedState) {
-    let deltaTerminated = new LiteralTreeMap();
-    let deltaInitiated = new LiteralTreeMap();
-    terminated.forEach((terminatedFluent) => {
-      deltaTerminated.add(terminatedFluent);
-    });
-
-    // resolve those fluents that are initiated and terminated in the same cycle
-    initiated.forEach((initiatedFluent) => {
-      if (!deltaTerminated.remove(initiatedFluent)) {
-        deltaInitiated.add(initiatedFluent);
-      }
-    });
-
-    deltaTerminated.forEach((fluent) => {
-      updatedState.remove(fluent);
-    });
-
-    deltaInitiated.forEach((fluent) => {
-      updatedState.add(fluent);
-    });
-  };
-
-  let updateState = function updateState(actions, state) {
+  let updateStateWithFluentActors = function updateStateWithFluentActors(actions, state) {
+    let functorProvider = program.getFunctorProvider();
     let newState = new LiteralTreeMap();
     state
       .forEach((literal) => {
         newState.add(literal);
       });
-    let terminated = [];
-    let initiated = [];
-    actions.forEach((action) => {
-      let actors = findFluentActors(action, state);
-      terminated = terminated.concat(actors.t);
-      initiated = initiated.concat(actors.i);
+    _fluentActors.forEach((actor) => {
+      let thetaSets = actions.unifies(actor.action);
+      thetaSets.forEach((node) => {
+        let initiateThetaSet = [node.theta];
+
+        if (actor.terminate) {
+          let terminatedGroundFluent = actor.terminate.substitute(node.theta);
+          let stateThetaSet = newState.unifies(terminatedGroundFluent);
+          initiateThetaSet = [];
+          stateThetaSet.forEach((terminatedNode) => {
+            let currentTheta = compactTheta(node.theta, terminatedNode.theta);
+            initiateThetaSet.push(currentTheta);
+            let terminatedFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, terminatedGroundFluent.substitute(currentTheta));
+            terminatedFluentSet.forEach((fluent) => {
+              newState.remove(fluent);
+            });
+          });
+        }
+
+        if (actor.initiate) {
+          initiateThetaSet.forEach((theta) => {
+            let initiatedGroundFluent = actor.initiate.substitute(theta);
+            let initiatedFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, initiatedGroundFluent);
+            initiatedFluentSet.forEach((fluent) => {
+              newState.add(fluent);
+            });
+          });
+        }
+      });
     });
-    updateFluentsChange(terminated, initiated, newState);
+
     return newState;
   };
 
@@ -561,10 +503,9 @@ function Engine(program) {
       let promises = [];
       // console.log('l = ' + l);
       goalTree.forEachCandidateActions(program, possibleActions, (candidateActions, subtrees) => {
-        // console.log('Trying ' + subtree.getRootClause());
         let cloneProgram = programSoFar.clone();
         let newState = cloneProgram.getState();
-        newState = updateState(candidateActions, newState);
+        newState = updateStateWithFluentActors(candidateActions, newState);
         candidateActions.forEach((l) => {
           newState.add(l);
         });
@@ -686,16 +627,13 @@ function Engine(program) {
             return;
           }
           result.activeActions.push(l);
-          let actors = findFluentActors(l, updatedState);
-          result.terminated = result.terminated.concat(actors.t);
-          result.initiated = result.initiated.concat(actors.i);
           let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(program.getFunctorProvider(), l);
           selectedLiterals.forEach((literal) => {
             executedActions.add(literal);
           });
         });
 
-        updateFluentsChange(result.terminated, result.initiated, updatedState);
+        updatedState = updateStateWithFluentActors(executedActions, updatedState);
 
         // preparation for next cycle
         program.updateState(updatedState);
