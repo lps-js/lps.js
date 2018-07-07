@@ -334,7 +334,7 @@ function Engine(program) {
     return activeObservations;
   };
 
-  const fluentActorDeclarationLiteral = Program.literal('fluentActorDeclare(T, A, New, Old)');
+  const fluentActorDeclarationLiteral = Program.literal('fluentActorDeclare(T, A, Old, New)');
   let updateStateWithFluentActors = function updateStateWithFluentActors(actions, state) {
     let functorProvider = program.getFunctorProvider();
     let newState = new LiteralTreeMap();
@@ -343,13 +343,17 @@ function Engine(program) {
         newState.add(literal);
       });
     let fluentActors = [];
+
+    // query has to be done on the spot as some of the declarations
+    // may be intensional instead of static
     let result = program.query(fluentActorDeclarationLiteral);
 
     result.forEach((r) => {
       let type = r.theta.T;
       let action = r.theta.A;
-      let newFluent = r.theta.New;
       let oldFluent = r.theta.Old;
+      let newFluent = r.theta.New;
+      action = actionSyntacticSugarProcessing(action);
       if (type === undefined
           || action === undefined
           || !(action instanceof Functor)
@@ -358,7 +362,6 @@ function Engine(program) {
         return;
       }
       type = type.evaluate();
-      action = actionSyntacticSugarProcessing(action);
 
       let actionArguments = action.getArguments();
       let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
@@ -400,6 +403,9 @@ function Engine(program) {
       thetaSets.forEach((node) => {
         let initiateThetaSet = [node.theta];
 
+        // start processing terminate.
+        // when terminating, we also take note of the appropriate theta sets
+        // in case we are performing an update
         if (actor.terminate) {
           let terminatedGroundFluent = actor.terminate.substitute(node.theta);
           let stateThetaSet = newState.unifies(terminatedGroundFluent);
@@ -415,6 +421,8 @@ function Engine(program) {
         }
 
         if (actor.initiate) {
+          // perform initiate
+          // take note of theta sets given by termination
           initiateThetaSet.forEach((theta) => {
             let initiatedGroundFluent = actor.initiate.substitute(theta);
             let initiatedFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, initiatedGroundFluent);
