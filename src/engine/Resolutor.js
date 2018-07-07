@@ -98,6 +98,7 @@ Resolutor.explain =
         });
       }
       variablesInUse = Object.keys(variablesInUse);
+      let renameTheta = variableArrayRename(variablesInUse);
 
       clauses.forEach((clause) => {
         if (clause.isConstraint()) {
@@ -105,14 +106,13 @@ Resolutor.explain =
           return;
         }
         // horn clause guarantees only one literal
-        let headLiteral = clause.getHeadLiterals()[0];
+        let headLiteral = clause.getHeadLiterals()[0].substitute(renameTheta);
         let unificationTheta = Unifier.unifies([[literal, headLiteral]]);
         if (unificationTheta === null) {
           return;
         }
 
         let bodyLiterals = clause.getBodyLiterals();
-        let renameTheta = variableArrayRename(variablesInUse);
         bodyLiterals = bodyLiterals.map((blArg) => {
           let bl = blArg.substitute(unificationTheta);
           return bl.substitute(renameTheta);
