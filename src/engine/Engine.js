@@ -27,7 +27,6 @@ function Engine(program) {
 
   let _engineEventManager = new EventManager();
 
-  let _fluentActors = [];
   let _observations = {};
 
   let _goals = [];
@@ -192,112 +191,6 @@ function Engine(program) {
     });
   };
 
-  let processTerminateDeclarations = function processTerminateDeclarations() {
-    let result = program.query(Program.literal('terminates(A, F)'));
-    result.forEach((r) => {
-      if (r.theta.A === undefined || r.theta.F === undefined) {
-        return;
-      }
-      let action = r.theta.A;
-      let fluent = r.theta.F;
-
-      action = actionSyntacticSugarProcessing(action);
-
-      if (!(action instanceof Functor)) {
-        return;
-      }
-      if (!program.isAction(action) && !program.isEvent(action)) {
-        throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
-      }
-
-      let actionArguments = action.getArguments();
-      let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
-      if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
-        throw new Error('When declaring a fluent terminator as a literal, the action must have the last argument as the time variable.');
-      }
-      fluent = fluentSyntacticSugarProcessing(fluent, lastArgument);
-
-      if (!program.isFluent(fluent)) {
-        throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
-      }
-      _fluentActors.push({ action: action, terminate: fluent });
-    });
-  };
-
-  let processInitiateDeclarations = function processInitiateDeclarations() {
-    let result = program.query(Program.literal('initiates(A, F)'));
-    result.forEach((r) => {
-      if (r.theta.A === undefined || r.theta.F === undefined) {
-        return;
-      }
-      let action = r.theta.A;
-      let fluent = r.theta.F;
-
-      action = actionSyntacticSugarProcessing(action);
-
-      if (!(action instanceof Functor)) {
-        return;
-      }
-      if (!program.isAction(action) && !program.isEvent(action)) {
-        throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
-      }
-
-      let actionArguments = action.getArguments();
-      let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
-      if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
-        throw new Error('When declaring a fluent terminator as a literal, the action must have the last argument as the time variable.');
-      }
-      fluent = fluentSyntacticSugarProcessing(fluent, lastArgument);
-
-      if (!program.isFluent(fluent)) {
-        throw new Error('Fluent "' + fluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
-      }
-      _fluentActors.push({ action: action, initiate: fluent });
-    });
-  };
-
-  let processUpdateDeclarations = function processUpdateDeclarations() {
-    let result = program.query(Program.literal('updates(A, OF, NF)'));
-    result.forEach((r) => {
-      if (r.theta.A === undefined || r.theta.OF === undefined || r.theta.NF === undefined) {
-        return;
-      }
-      let action = r.theta.A;
-      let terminatingFluent = r.theta.OF;
-      let initiatingFluent = r.theta.NF;
-
-      action = actionSyntacticSugarProcessing(action);
-
-      if (!(action instanceof Functor)) {
-        return;
-      }
-      if (!program.isAction(action) && !program.isEvent(action)) {
-        throw new Error('Action "' + action.toString() + '" was not previously declared in action/1 or actions/1.');
-      }
-
-      let actionArguments = action.getArguments();
-      let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
-      if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
-        throw new Error('When declaring a fluent terminator as a literal, the action must have the last argument as the time variable.');
-      }
-      terminatingFluent = fluentSyntacticSugarProcessing(terminatingFluent, lastArgument);
-      initiatingFluent = fluentSyntacticSugarProcessing(initiatingFluent, lastArgument);
-
-      if (!program.isFluent(terminatingFluent)) {
-        throw new Error('Fluent "' + terminatingFluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
-      }
-      if (!program.isFluent(initiatingFluent)) {
-        throw new Error('Fluent "' + initiatingFluent.getId() + '" was not previously declared in fluent/1 or fluents/1.');
-      }
-
-      _fluentActors.push({
-        action: action,
-        terminate: terminatingFluent,
-        initiate: initiatingFluent
-      });
-    });
-  };
-
   let processObservationDeclarations = function processObservationDeclarations() {
     let result = program.query(Program.literal('observe(O, ST, ET)'));
     result.forEach((r) => {
@@ -441,6 +334,7 @@ function Engine(program) {
     return activeObservations;
   };
 
+  const fluentActorDeclarationLiteral = Program.literal('fluentActorDeclare(T, A, New, Old)');
   let updateStateWithFluentActors = function updateStateWithFluentActors(actions, state) {
     let functorProvider = program.getFunctorProvider();
     let newState = new LiteralTreeMap();
@@ -448,7 +342,60 @@ function Engine(program) {
       .forEach((literal) => {
         newState.add(literal);
       });
-    _fluentActors.forEach((actor) => {
+    let fluentActors = [];
+    let result = program.query(fluentActorDeclarationLiteral);
+
+    result.forEach((r) => {
+      let type = r.theta.T;
+      let action = r.theta.A;
+      let newFluent = r.theta.New;
+      let oldFluent = r.theta.Old;
+      if (type === undefined
+          || action === undefined
+          || !(action instanceof Functor)
+          || newFluent === undefined
+          || oldFluent === undefined) {
+        return;
+      }
+      type = type.evaluate();
+      action = actionSyntacticSugarProcessing(action);
+
+      let actionArguments = action.getArguments();
+      let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
+      if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
+        throw new Error('When declaring a fluent updating actor, the action must have the last argument as the time variable.');
+      }
+
+      let terminatingFluent;
+      let initiatingFluent;
+      switch(type) {
+        case 'update':
+          terminatingFluent = fluentSyntacticSugarProcessing(oldFluent, lastArgument);
+          initiatingFluent = fluentSyntacticSugarProcessing(newFluent, lastArgument);
+          fluentActors.push({
+            action: action,
+            initiate: initiatingFluent,
+            terminate: terminatingFluent
+          });
+          break;
+        case 'initiate':
+          initiatingFluent = fluentSyntacticSugarProcessing(newFluent, lastArgument);
+          fluentActors.push({
+            action: action,
+            initiate: initiatingFluent
+          });
+          break;
+        case 'terminate':
+          terminatingFluent = fluentSyntacticSugarProcessing(oldFluent, lastArgument);
+          fluentActors.push({
+            action: action,
+            terminate: terminatingFluent
+          });
+          break;
+      }
+    });
+
+    fluentActors.forEach((actor) => {
       let thetaSets = actions.unifies(actor.action);
       thetaSets.forEach((node) => {
         let initiateThetaSet = [node.theta];
@@ -899,9 +846,6 @@ function Engine(program) {
     processActionDeclarations();
     processEventDeclarations();
     processInitialFluentDeclarations();
-    processInitiateDeclarations();
-    processTerminateDeclarations();
-    processUpdateDeclarations();
     processObservationDeclarations();
     preProcessRules();
     _engineEventManager.notify('ready', this);
