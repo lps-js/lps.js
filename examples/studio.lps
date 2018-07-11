@@ -1,0 +1,46 @@
+maxTime(1000).
+cycleInterval(100).
+event(click(X, Y)).
+
+% %%%%
+click(X, Y, T1, T2) -> draw_circle(test, X, Y, 20, T2, T3).
+
+% %%%%
+% true -> draw_circle(circle, 200, 200, 5, T1, T2).
+% click(X, Y, T1, T2) -> move(circle, X, Y, T2, T3).
+% 
+% %%%%
+% load_image(car, 'https://png.icons8.com/metro/24/car.png').
+% true -> draw_image(car, 200, 200, 24, 24, car, T1, T2).
+% click(X, Y, T1, T2) -> move(car, X, Y, T2, T3).
+
+% %%%%
+% fluent(acceleration(X, Y)).
+% fluent(speed(A, B)).
+% fluent(position(X, Y)).
+% initially(acceleration(0, 0)).
+% initially(speed(0, 0)).
+% initially(position(200, 16)).
+% action(update_speed(X, Y)).
+% action(update_acceleration(X, Y)).
+% action(update_position(X, Y)).
+% action(bounce).
+% 
+% acceleration(X, Y, T) -> acceleration_tick(X, Y, T1, T2).
+% acceleration_tick(X, Y, T1, T2) <- X != 0, Y != 0, update_speed(X, Y, T1, T2).
+% acceleration_tick(X, Y, T1, T2) <- Y != 0, update_speed(0, Y, T1, T2).
+% acceleration_tick(X, Y, T1, T2) <- X != 0, update_speed(X, 0, T1, T2).
+% 
+% speed(X, Y, T) -> speed_tick(X, Y, T1, T2).
+% speed_tick(X, Y, T1, T2) <- X != 0, Y != 0, update_position(X, Y, T1, T2).
+% speed_tick(X, Y, T1, T2) <- Y != 0, update_position(0, Y, T1, T2).
+% speed_tick(X, Y, T1, T2) <- X != 0, update_position(X, 0, T1, T2).
+% 
+% position(X, Y, T) -> move(obj, X, Y, T1, T2).
+% 
+% true -> position(X, Y, T1), draw_circle(obj, X, Y, 16, T1, T2).
+% click(X, Y, T1, T2) -> update_acceleration(0, 5, T2, T3).
+% 
+% updates(update_acceleration(X, Y), acceleration(A, B), acceleration(A + X, B + Y)).
+% updates(update_speed(X, Y), speed(A, B), speed(A + X, B + Y)).
+% updates(update_position(X, Y), position(A, B), position(A + X, B + Y)).
