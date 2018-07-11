@@ -243,29 +243,6 @@ function GoalNode(clause, theta) {
   this.children = [];
   this.hasBranchFailed = false;
 
-  this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, callback) {
-    if (this.hasBranchFailed) {
-      return;
-    }
-
-    if (this.children.length === 0) {
-      let functorProvider = program.getFunctorProvider();
-      let candidateActions = new LiteralTreeMap();
-      let numCandidateActionsAdded = resolveSimpleActions(this.clause, possibleActions, functorProvider, candidateActions);
-      if (numCandidateActionsAdded > 0) {
-        let subtrees = [new GoalTree(this.clause)];
-        callback(candidateActions, subtrees);
-      }
-      return;
-    }
-
-    let result = [];
-    for (let i = 0; i < this.children.length; i += 1) {
-      this.children[i]
-        .forEachCandidateActions(program, possibleActions, callback);
-    }
-  };
-
   this.checkIfBranchFailed = function checkIfBranchFailed() {
     if (this.hasBranchFailed) {
       return true;
@@ -288,7 +265,7 @@ function GoalNode(clause, theta) {
     return false;
   };
 
-  this.evaluate = function evaluate(program, forTime, possibleActions) {
+  this.evaluate = function evaluate(program, forTime, possibleActions, leafNodes) {
     if (this.hasBranchFailed) {
       return null;
     }
@@ -421,7 +398,7 @@ function GoalNode(clause, theta) {
     });
 
     for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, forTime, possibleActions);
+      let result = this.children[i].evaluate(program, forTime, possibleActions, leafNodes);
       if (result === null || result.length === 0) {
         continue;
       }
@@ -436,6 +413,10 @@ function GoalNode(clause, theta) {
       return null;
     }
 
+    if (this.children.length === 0) {
+      leafNodes.push(this);
+    }
+
     return [];
   };
 }
@@ -447,6 +428,8 @@ function GoalTree(goalClause) {
   } else {
     _root = new GoalNode(goalClause, {});
   }
+
+  let _leafNodes = [_root];
 
   this.checkTreeFailed = function checkTreeFailed() {
     return _root.checkIfBranchFailed();
@@ -463,17 +446,26 @@ function GoalTree(goalClause) {
   this.evaluate = function evaluate(program, forTime, possibleActions) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        let result = _root.evaluate(program, forTime, possibleActions);
+        _leafNodes = [];
+        let result = _root.evaluate(program, forTime, possibleActions, _leafNodes);
         resolve(result);
       }, 0)
     });
   };
 
   this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, callback) {
-    let candidateActions = new LiteralTreeMap();
     let subtrees = [];
     let tree = this;
-    _root.forEachCandidateActions(program, possibleActions, callback);
+
+    let functorProvider = program.getFunctorProvider();
+    _leafNodes.forEach((node) => {
+      let candidateActions = new LiteralTreeMap();
+      let numCandidateActionsAdded = resolveSimpleActions(node.clause, possibleActions, functorProvider, candidateActions);
+      if (numCandidateActionsAdded > 0) {
+        let subtrees = [ new GoalTree(node.clause) ];
+        callback(candidateActions, subtrees);
+      }
+    });
   };
 
   this.clone = function clone() {
