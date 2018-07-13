@@ -1123,6 +1123,14 @@ function FunctorProvider(program) {
       return result;
     },
 
+    'is_list/1': function (operand) {
+      let result = [];
+      if (operand instanceof List) {
+        result.push({ theta: {} });
+      }
+      return result;
+    },
+
     '!/1': function (literal) {
       if (!(literal instanceof Functor)) {
         throw new Error('Literal not functor');
