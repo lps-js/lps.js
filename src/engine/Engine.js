@@ -844,6 +844,30 @@ function Engine(program) {
     return tester.test(specFile);
   };
 
+  let consultFile = function consultFile(file) {
+    return Program.fromFile(file)
+      .then((loadedProgram) => {
+        program.augment(loadedProgram);
+        return Promise.resolve(loadedProgram);
+      });
+  };
+
+  let processConsultDeclarations = function processConsultDeclarations(currentProgram) {
+    let promises = [];
+    let result = currentProgram.query(Program.literal('consult(File)'));
+    result.forEach((r) => {
+      if (r.theta.File === undefined || !(r.theta.File instanceof Value)) {
+        return;
+      }
+      let promise = consultFile(r.theta.File.evaluate())
+        .then((loadedProgram) => {
+          return processConsultDeclarations(loadedProgram);
+        });
+      promises.push(promise);
+    });
+    return Promise.all(promises);
+  };
+
   // we preprocess some of the built-in processors by looking at the facts
   // of the program.
   this.on('loaded', () => {
