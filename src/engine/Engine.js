@@ -23,8 +23,6 @@ function Engine(program) {
   let _isContinuousExecution = false;
   let _isInCycle = false;
 
-  let _loadingPromises = [];
-
   let _engineEventManager = new EventManager();
 
   let _observations = {};
@@ -883,22 +881,26 @@ function Engine(program) {
     _engineEventManager.notify('ready', this);
   });
 
-  let builtinFiles = [
-    'declarations',
-    'math'
-  ];
+  let loadBuiltinFiles = function loadBuiltinFiles() {
+    const builtinFiles = [
+      'declarations',
+      'math'
+    ];
 
-  builtinFiles.forEach((filename) => {
-    let path = __dirname + '/builtin/' + filename + '.lps';
-    let promise = Program.fromFile(path)
-      .then((loadedProgram) => {
-        program.augment(loadedProgram);
-        return Promise.resolve();
-      });
-    _loadingPromises.push(promise);
-  });
+    let loadingPromises = [];
 
-  Promise.all(_loadingPromises)
+    builtinFiles.forEach((filename) => {
+      let path = __dirname + '/builtin/' + filename + '.lps';
+      loadingPromises.push(consultFile(path));
+    });
+
+    return Promise.all(loadingPromises);
+  };
+
+  loadBuiltinFiles()
+    .then(() => {
+      return processConsultDeclarations(program);
+    })
     .then(() => {
       _engineEventManager.notify('loaded', this);
     });
