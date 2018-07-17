@@ -11,6 +11,10 @@ LPS.literal = function literal(str) {
   return Program.literal(str);
 };
 
+LPS.literalSet = function literalSet(str) {
+  return Program.literalSet(str);
+};
+
 LPS.load = function load(file) {
   return new Promise((resolve) => {
     Program.fromFile(file)
