@@ -831,10 +831,20 @@ function Engine(program) {
     if (_observations[observationStartTime] === undefined) {
       _observations[observationStartTime] = [];
     }
-    _observations[observationStartTime].push({
-      action: actionSyntacticSugarProcessing(observation),
-      endTime: observationStartTime + 1
-    });
+    let processSingleObservation = (obs) => {
+      _observations[observationStartTime].push({
+        action: actionSyntacticSugarProcessing(obs),
+        endTime: observationStartTime + 1
+      });
+    };
+
+    if (observation instanceof Array) {
+      observation.forEach((obs) => {
+        processSingleObservation(obs);
+      });
+      return;
+    }
+    processSingleObservation(observation);
   };
 
   this.test = function test(specFile) {
