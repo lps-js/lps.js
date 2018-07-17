@@ -249,11 +249,19 @@ function Parser(source) {
     return node;
   };
 
-  this.buildClause = function buildClause() {
+  this.buildSentence = function buildSentence() {
     if (_root) {
       return _root;
     }
-    _root = _clause();
+    _root = _sentence();
+    return _root;
+  };
+
+  this.buildConjunction = function buildConjunction() {
+    if (_root) {
+      return _root;
+    }
+    _root = _conjunction();
     return _root;
   };
 
@@ -275,9 +283,15 @@ function Parser(source) {
   };
 }
 
-Parser.parseClause = function parseLiteral(clause) {
-  let parser = new Parser(clause);
-  let token = parser.buildClause();
+Parser.parseSentence = function parseSentence(sentence) {
+  let parser = new Parser(sentence);
+  let token = parser.buildSentence();
+  return token;
+};
+
+Parser.parseConjunction = function parseConjunction(str) {
+  let parser = new Parser(str);
+  let token = parser.buildConjunction();
   return token;
 };
 

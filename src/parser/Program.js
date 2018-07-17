@@ -389,6 +389,15 @@ Program.literal = function literal(str) {
   return processFunctor(node, singleUnderscoreVariableSet);
 };
 
+Program.literalSet = function literalSet(str) {
+  let node = Parser.parseConjunction(str);
+  let singleUnderscoreVariableSet = {
+    next: 0,
+    set: {}
+  };
+  return processLiteralSet(node.getChildren(), singleUnderscoreVariableSet);
+};
+
 Program.fromString = function fromString(code) {
   return new Promise((resolve, reject) => {
     try {
