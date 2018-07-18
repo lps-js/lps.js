@@ -19,21 +19,21 @@ flammable(sofa).
 flammable(grill).
 
 initially([
-  location(station)
+  location(fireStation)
 ]).
 
-fire(Item, T1), location(station, T1) -> deal_with_fire(Item, T1, T2).
+fire(Item, T1), location(fireStation, T1) -> deal_with_fire(Item, T1, T2).
 
 deal_with_fire(Item, T1, T3) <-
-  location(station, T1),
+  location(fireStation, T1),
   deployFirefighters(T1, T2),
   handleItemWithFire(Item, T2, T3).
 
 deal_with_fire(Item, T1, T3) <-
-  not location(station, T1),
+not location(fireStation, T1),
   handleItemWithFire(Item, T1, T3).
 
-% base case for deal_with_fire, that is no more fire and we return to station
+% base case for deal_with_fire, that is no more fire and we return to fire station
 deal_with_fire(_, T1, T2) <-
   not fire(_, T1),
   returnToStation(T1, T2).
@@ -55,9 +55,10 @@ initiates(ignite(Object), fire(Object)) <- flammable(Object).
 terminates(putOutFire(I), fire(I)).
 updates(deployFirefighters, location(_), location(otw)).
 updates(moveFirefightersTo(L), location(_), location(L)).
-updates(returnToStation, location(_), location(station)).
+updates(returnToStation, location(_), location(fireStation)).
 
-
+% cannot put out fire if not at the location
 <- not location(X, T), putOutFire(X, T, _).
+
 <- moveFirefightersTo(X, T1, T2), moveFirefightersTo(Y, T1, T2), X != Y.
 <- putOutFire(X, T1, T2), putOutFire(Y, T1, T2), X != Y.
