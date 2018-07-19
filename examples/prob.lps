@@ -1,0 +1,16 @@
+maxTime(10).
+action(a(_)).
+action(b(_)).
+action(e).
+fluent(f(_)).
+
+initially(f(1)).
+
+observe(e, 2).
+
+true -> m(X, T1, T2), b(X, T2 + 1, T4).
+
+m(X, T1, T2) <- f(X, T1), a(X, T1, T2).
+
+<- b(1, _, _).
+initiates(e, f(2)).
