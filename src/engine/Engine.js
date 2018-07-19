@@ -854,7 +854,7 @@ function Engine(program) {
     processActionDeclarations();
     processEventDeclarations();
     processInitialFluentDeclarations();
-    processObservationDeclarations();
+    Observation.processDeclarations(this, program);
     preProcessRules();
     _engineEventManager.notify('ready', this);
   });
