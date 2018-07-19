@@ -18,6 +18,7 @@ const Tester = require('./test/Tester');
 const forEachPromise = require('../utility/forEachPromise');
 const Consult = require('./builtin/Consult');
 const BuiltinLoader = require('./builtin/BuiltinLoader');
+const SyntacticSugarProcessor = require('./builtin/SyntacticSugarProcessor');
 
 function Engine(program) {
   let _maxTime = 20;
@@ -37,40 +38,6 @@ function Engine(program) {
   let _lastCycleExecutionTime = null;
   let _lastStepActions = null;
   let _lastStepObservations = null;
-
-  let fluentSyntacticSugarProcessing = function fluentSyntacticSugarProcessing(literalArg, timingVariableArg) {
-    let literal = literalArg;
-    let timingVariable = timingVariableArg;
-    if (timingVariable === undefined) {
-      timingVariable = new Variable('$T');
-    }
-    if (literal instanceof Value) {
-      literal = new Functor(literal.evaluate(), []);
-    }
-    if (!(literal instanceof Functor)) {
-      throw new Error('Unexpected value "' + literal.toString() + '" provided for a literal.');
-    }
-    literal = new Functor(literal.getName(), literal.getArguments().concat([timingVariable]));
-    return literal;
-  };
-
-  let actionSyntacticSugarProcessing = function actionSyntacticSugarProcessing(literalArg) {
-    let literal = literalArg;
-    let timingVariable1 = new Variable('$T1');
-    let timingVariable2 = new Variable('$T2');
-    let additionalArguments = [
-      timingVariable1,
-      timingVariable2
-    ];
-    if (literal instanceof Value) {
-      literal = new Functor(literal.evaluate(), []);
-    }
-    if (!(literal instanceof Functor)) {
-      throw new Error('Unexpected value "' + literal.toString() + '" provided for an event literal.');
-    }
-    literal = new Functor(literal.getName(), literal.getArguments().concat(additionalArguments));
-    return literal;
-  };
 
   let updateTimableFunctor = function updateTimableFunctor(literal, time) {
     if (!(literal instanceof Functor) || literal.getArguments() === 0) {
@@ -118,7 +85,7 @@ function Engine(program) {
       if (r.theta.X === undefined) {
         return;
       }
-      let fluent = fluentSyntacticSugarProcessing(r.theta.X);
+      let fluent = SyntacticSugarProcessor.fluent(r.theta.X);
       program.defineFluent(fluent);
     });
   };
@@ -129,7 +96,7 @@ function Engine(program) {
       if (r.theta.X === undefined) {
         return;
       }
-      let literal = actionSyntacticSugarProcessing(r.theta.X);
+      let literal = SyntacticSugarProcessor.action(r.theta.X);
       program.defineAction(literal);
       _possibleActions.add(literal);
     });
@@ -141,7 +108,7 @@ function Engine(program) {
       if (r.theta.X === undefined) {
         return;
       }
-      let literal = actionSyntacticSugarProcessing(r.theta.X);
+      let literal = SyntacticSugarProcessor.action(r.theta.X);
       program.defineEvent(literal);
     });
   };
@@ -353,7 +320,7 @@ function Engine(program) {
       let action = r.theta.A;
       let oldFluent = r.theta.Old;
       let newFluent = r.theta.New;
-      action = actionSyntacticSugarProcessing(action);
+      action = SyntacticSugarProcessor.action(action);
       if (type === undefined
           || action === undefined
           || !(action instanceof Functor)
@@ -373,8 +340,8 @@ function Engine(program) {
       let initiatingFluent;
       switch(type) {
         case 'update':
-          terminatingFluent = fluentSyntacticSugarProcessing(oldFluent, lastArgument);
-          initiatingFluent = fluentSyntacticSugarProcessing(newFluent, lastArgument);
+          terminatingFluent = SyntacticSugarProcessor.fluent(oldFluent, lastArgument);
+          initiatingFluent = SyntacticSugarProcessor.fluent(newFluent, lastArgument);
           fluentActors.push({
             action: action,
             initiate: initiatingFluent,
@@ -382,14 +349,14 @@ function Engine(program) {
           });
           break;
         case 'initiate':
-          initiatingFluent = fluentSyntacticSugarProcessing(newFluent, lastArgument);
+          initiatingFluent = SyntacticSugarProcessor.fluent(newFluent, lastArgument);
           fluentActors.push({
             action: action,
             initiate: initiatingFluent
           });
           break;
         case 'terminate':
-          terminatingFluent = fluentSyntacticSugarProcessing(oldFluent, lastArgument);
+          terminatingFluent = SyntacticSugarProcessor.fluent(oldFluent, lastArgument);
           fluentActors.push({
             action: action,
             terminate: terminatingFluent
@@ -733,17 +700,17 @@ function Engine(program) {
   this.query = function query(literalArg, type) {
     let literal = literalArg;
     if (type === 'fluent') {
-      literal = fluentSyntacticSugarProcessing(literalArg);
+      literal = SyntacticSugarProcessor.fluent(literalArg);
       return program.getState().unifies(literal);
     }
 
     if (type === 'action') {
-      literal = actionSyntacticSugarProcessing(literalArg);
+      literal = SyntacticSugarProcessor.action(literalArg);
       return _lastStepActions.unifies(literal);
     }
 
     if (type === 'observation') {
-      literal = actionSyntacticSugarProcessing(literalArg);
+      literal = SyntacticSugarProcessor.action(literalArg);
       return _lastStepObservations.unifies(literal)
     }
 
@@ -847,7 +814,7 @@ function Engine(program) {
       return;
     }
     processSingleObservation(observation);
-  };
+  }
 
   this.test = function test(specFile) {
     let tester = new Tester(this);
