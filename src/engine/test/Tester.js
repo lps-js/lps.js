@@ -2,6 +2,7 @@ const Program = require('../../parser/Program');
 const Functor = require('../../engine/Functor');
 const Variable = require('../../engine/Variable');
 const Value = require('../../engine/Value');
+const BuiltinLoader = require('../builtin/BuiltinLoader');
 
 function Tester(engine) {
   let expectations = {};
@@ -100,8 +101,13 @@ function Tester(engine) {
   this.test = function test(specFile) {
     expectations = {};
     timelessExpectations = [];
+    let program;
     return Program.fromFile(specFile)
-      .then((program) => {
+      .then((p) => {
+        program = p;
+        return BuiltinLoader.load(program);
+      })
+      .then(() => {
         processTypeOneExpectations(program);
         processTypeTwoExpectations(program);
         processTypeThreeExpectations(program);
