@@ -26,9 +26,14 @@ function Consult(targetProgram) {
     return Promise.all(promises);
   };
 
-  this.processConsult = function processConsult() {
+  this.processDeclarations = function processDeclarations() {
     return processConsultDeclarations(targetProgram);
-  }
+  };
 }
+
+Consult.processDeclarations = function processDeclarations(program) {
+  let consult = new Consult(program);
+  return consult.processDeclarations();
+};
 
 module.exports = Consult;
