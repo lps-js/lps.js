@@ -792,18 +792,41 @@ function Engine(program) {
   };
 
   this.observe = function(observation) {
-    let observationStartTime = _currentTime;
-    if (_isInCycle) {
+    this.scheduleObservation(observation, _currentTime);
+  };
+
+  this.scheduleObservation = function scheduleObservation(observation, startTime, endTime) {
+    if (startTime === undefined || startTime < _currentTime) {
+      throw new Error('Invalid start time for observation scheduling for ' + observation);
+    }
+
+    if (startTime === _currentTime && _isInCycle) {
       // already in a cycle, so process it in the next cycle
-      observationStartTime += 1;
+      startTime += 1;
     }
-    if (_observations[observationStartTime] === undefined) {
-      _observations[observationStartTime] = [];
+
+    if (endTime === undefined) {
+      endTime = startTime + 1;
     }
-    let processSingleObservation = (obs) => {
-      _observations[observationStartTime].push({
-        action: actionSyntacticSugarProcessing(obs),
-        endTime: observationStartTime + 1
+
+    if (endTime <= startTime) {
+      throw new Error('Invalid end time for observation scheduling for ' + observation);
+    }
+
+    if (_observations[startTime] === undefined) {
+      _observations[startTime] = [];
+    }
+
+    let processSingleObservation = (obsArg) => {
+      let obs;
+      try {
+        obs = SyntacticSugarProcessor.action(obsArg);
+      } catch (_) {
+        throw new Error('Invalid observation for scheduling: ' + obs);
+      }
+      _observations[startTime].push({
+        action: obs,
+        endTime: endTime
       });
     };
 
