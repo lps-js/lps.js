@@ -16,6 +16,8 @@ const variableArrayRename = require('../utility/variableArrayRename');
 const constraintCheck = require('../utility/constraintCheck');
 const Tester = require('./test/Tester');
 const forEachPromise = require('../utility/forEachPromise');
+const Consult = require('./builtin/Consult');
+const BuiltinLoader = require('./builtin/BuiltinLoader');
 
 function Engine(program) {
   let _maxTime = 20;
@@ -852,30 +854,6 @@ function Engine(program) {
     return tester.test(specFile);
   };
 
-  let consultFile = function consultFile(file) {
-    return Program.fromFile(file)
-      .then((loadedProgram) => {
-        program.augment(loadedProgram);
-        return Promise.resolve(loadedProgram);
-      });
-  };
-
-  let processConsultDeclarations = function processConsultDeclarations(currentProgram) {
-    let promises = [];
-    let result = currentProgram.query(Program.literal('consult(File)'));
-    result.forEach((r) => {
-      if (r.theta.File === undefined || !(r.theta.File instanceof Value)) {
-        return;
-      }
-      let promise = consultFile(r.theta.File.evaluate())
-        .then((loadedProgram) => {
-          return processConsultDeclarations(loadedProgram);
-        });
-      promises.push(promise);
-    });
-    return Promise.all(promises);
-  };
-
   // we preprocess some of the built-in processors by looking at the facts
   // of the program.
   this.on('loaded', () => {
@@ -891,25 +869,12 @@ function Engine(program) {
     _engineEventManager.notify('ready', this);
   });
 
-  let loadBuiltinFiles = function loadBuiltinFiles() {
-    const builtinFiles = [
-      'declarations',
-      'math'
-    ];
-
-    let loadingPromises = [];
-
-    builtinFiles.forEach((filename) => {
-      let path = __dirname + '/builtin/' + filename + '.lps';
-      loadingPromises.push(consultFile(path));
-    });
-
-    return Promise.all(loadingPromises);
-  };
-
-  loadBuiltinFiles()
+  BuiltinLoader
+    .load(program)
     .then(() => {
-      return processConsultDeclarations(program);
+      // start processing consult declarations in main program
+      let consult = new Consult(program);
+      return consult.processConsult();
     })
     .then(() => {
       _engineEventManager.notify('loaded', this);
