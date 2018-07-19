@@ -863,8 +863,7 @@ function Engine(program) {
     .load(program)
     .then(() => {
       // start processing consult declarations in main program
-      let consult = new Consult(program);
-      return consult.processConsult();
+      return Consult.processDeclarations(program);
     })
     .then(() => {
       _engineEventManager.notify('loaded', this);
