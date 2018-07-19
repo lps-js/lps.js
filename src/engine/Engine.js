@@ -19,6 +19,7 @@ const forEachPromise = require('../utility/forEachPromise');
 const Consult = require('./builtin/Consult');
 const BuiltinLoader = require('./builtin/BuiltinLoader');
 const SyntacticSugarProcessor = require('./builtin/SyntacticSugarProcessor');
+const Observation = require('./builtin/Observation');
 
 function Engine(program) {
   let _maxTime = 20;
