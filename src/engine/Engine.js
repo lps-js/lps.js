@@ -1,11 +1,9 @@
-const FunctorProvider = require('./FunctorProvider');
 const Functor = require('./Functor');
 const List = require('./List');
 const Clause = require('./Clause');
 const LiteralTreeMap = require('./LiteralTreeMap');
 const Resolutor = require('./Resolutor');
 const Program = require('../parser/Program');
-const Unifier = require('./Unifier');
 const Value = require('./Value');
 const Variable = require('./Variable');
 const processRules = require('../utility/processRules');
@@ -123,7 +121,6 @@ function Engine(program) {
         if (!program.isFluent(name + '/1')) {
           // invalid fluent
           throw new Error('Invalid fluent "' + name + '/1" given in initially declaration');
-          return;
         }
         program
           .getState()
@@ -236,7 +233,7 @@ function Engine(program) {
     program.updateRules(newRules);
   };
 
-  let processObservations = function processObservations(state) {
+  let processCycleObservations = function processCycleObservations() {
     let observationTerminated = [];
     let observationInitiated = [];
     let activeObservations = [];
@@ -494,7 +491,7 @@ function Engine(program) {
       });
 
     // update with observations
-    let cycleObservations = processObservations(updatedState);
+    let cycleObservations = processCycleObservations();
     cycleObservations.forEach((observation) => {
       executedActions.add(observation);
     });
