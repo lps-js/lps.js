@@ -92,6 +92,9 @@ function Clause(head, body) {
       }
       result += '<- ';
     }
+    if (_body.length === 0 && _head.length > 0) {
+      result += ' <- true';
+    }
     for (let i = 0; i < _body.length; i += 1) {
       result += _body[i].toString();
       if (i < _body.length - 1) {
