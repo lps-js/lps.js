@@ -1,4 +1,5 @@
 const Program = require('../../parser/Program');
+const Value = require('../Value');
 
 function Consult(targetProgram) {
   this.consultFile = function consultFile(file) {
@@ -19,21 +20,21 @@ function Consult(targetProgram) {
       let promise = this.consultFile(r.theta.File.evaluate())
         .then((loadedProgram) => {
           // recursively process consult declarations in loaded targetProgram
-          return processConsultDeclarations(loadedProgram);
+          return processConsultDeclarations.call(this, loadedProgram);
         });
       promises.push(promise);
     });
     return Promise.all(promises);
   };
 
-  this.processDeclarations = function processDeclarations() {
-    return processConsultDeclarations(targetProgram);
+  this.process = function process() {
+    return processConsultDeclarations.call(this, targetProgram);
   };
 }
 
 Consult.processDeclarations = function processDeclarations(program) {
   let consult = new Consult(program);
-  return consult.processDeclarations();
+  return consult.process();
 };
 
 module.exports = Consult;
