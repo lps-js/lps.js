@@ -47,4 +47,9 @@ LPS.load(file)
     
     console.log('TCP Server now listening on ' + SERVER_PORT);
     console.log('');
+  })
+  .catch((err) => {
+    console.log('LPS Execution Halted');
+    console.log('An error has occurred');
+    console.log(err);
   });
