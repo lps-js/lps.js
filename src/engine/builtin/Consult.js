@@ -1,6 +1,8 @@
 const Program = require('../../parser/Program');
 const Value = require('../Value');
 
+const consultLiteral1 = Program.literal('consult(File)');
+
 function Consult(targetProgram) {
   this.consultFile = function consultFile(file) {
     return Program.fromFile(file)
@@ -12,7 +14,8 @@ function Consult(targetProgram) {
 
   let processConsultDeclarations = function processConsultDeclarations(currentProgram) {
     let promises = [];
-    let result = currentProgram.query(Program.literal('consult(File)'));
+    let result = [];
+    result = result.concat(currentProgram.query(consultLiteral1));
     result.forEach((r) => {
       if (r.theta.File === undefined || !(r.theta.File instanceof Value)) {
         return;
