@@ -306,7 +306,12 @@ function Program(nodeTree) {
     return false;
   };
 
-  this.isTimable = function isTimable(timable) {
+  this.isTimable = function isTimable(timableArg) {
+    let timable = timableArg;
+    // unfold negations for timable argument
+    while (timable instanceof Functor && timable.getId() === '!/1') {
+      timable = timable.getArguments()[0];
+    }
     let id = processLiteralId(timable);
     return _fluents[id] !== undefined
       || _actions[id] !== undefined
