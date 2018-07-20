@@ -3,6 +3,7 @@ const Functor = require('../../engine/Functor');
 const Variable = require('../../engine/Variable');
 const Value = require('../../engine/Value');
 const BuiltinLoader = require('../builtin/BuiltinLoader');
+const Observation = require('../builtin/Observation');
 
 function Tester(engine) {
   let expectations = {};
@@ -108,6 +109,7 @@ function Tester(engine) {
         return BuiltinLoader.load(program);
       })
       .then(() => {
+        Observation.processDeclarations(engine, program);
         processTypeOneExpectations(program);
         processTypeTwoExpectations(program);
         processTypeThreeExpectations(program);
