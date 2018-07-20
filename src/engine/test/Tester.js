@@ -1,7 +1,4 @@
 const Program = require('../../parser/Program');
-const Functor = require('../../engine/Functor');
-const Variable = require('../../engine/Variable');
-const Value = require('../../engine/Value');
 const BuiltinLoader = require('../builtin/BuiltinLoader');
 const Observation = require('../builtin/Observation');
 
@@ -158,23 +155,23 @@ function Tester(engine) {
               }
             }
             if (entry.num_of !== undefined) {
-              let test_number = 0;
+              let testNumber = 0;
               switch (entry.type) {
                 case 'fluent':
-                  test_number = engine.getNumActiveFluents();
+                  testNumber = engine.getNumActiveFluents();
                   break;
                 case 'action':
-                  test_number = engine.getNumLastStepActions();
+                  testNumber = engine.getNumLastStepActions();
                   break;
                 case 'observation':
-                  test_number = engine.getNumLastStepObservations();
+                  testNumber = engine.getNumLastStepObservations();
                   break;
                 default:
                   errors.push('Invalid number of type "' + entry.type + '" encountered.');
               }
-              testResult = entry.num_of === test_number;
+              testResult = entry.num_of === testNumber;
               if (!testResult) {
-                errors.push('Expecting number of ' + entry.type + ' at time ' + engineTime + ' to be ' + entry.num_of + ', program has ' + test_number);
+                errors.push('Expecting number of ' + entry.type + ' at time ' + engineTime + ' to be ' + entry.num_of + ', program has ' + testNumber);
               }
             }
             if (testResult) {

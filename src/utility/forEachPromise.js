@@ -1,7 +1,7 @@
 module.exports = function forEach(iterable) {
   let len = iterable.length;
   let blockLimit = 100;
-  let iterator = function(action, i, done) {
+  let iterator = function (action, i, done) {
     let upper = i + blockLimit;
     for (let k = i; k < upper; k += 1) {
       if (k >= len) {
@@ -23,4 +23,4 @@ module.exports = function forEach(iterable) {
       });
     }
   };
-}
+};

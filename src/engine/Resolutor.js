@@ -59,7 +59,7 @@ Resolutor.explain =
     ];
     if (otherFacts !== undefined) {
       if (otherFacts instanceof LiteralTreeMap) {
-        facts.push(otherFacts)
+        facts.push(otherFacts);
       } else if (otherFacts instanceof Array) {
         facts = facts.concat(otherFacts);
       }
@@ -70,7 +70,7 @@ Resolutor.explain =
       query = [query];
     }
 
-    let recursiveResolution = function(remainingLiterals, thetaSoFar) {
+    let recursiveResolution = function (remainingLiterals, thetaSoFar) {
       let result = [];
       if (remainingLiterals.length === 0) {
         result.push({
@@ -91,11 +91,13 @@ Resolutor.explain =
       });
 
       let variablesInUse = {};
+      let variableSetFunc = (v) => {
+        variablesInUse[v] = true;
+      };
       for (let i = 0; i < remainingLiterals.length; i += 1) {
         let otherLiteral = remainingLiterals[i];
-        otherLiteral.getVariables().forEach((v) => {
-          variablesInUse[v] = true;
-        });
+        otherLiteral.getVariables()
+          .forEach(variableSetFunc);
       }
       variablesInUse = Object.keys(variablesInUse);
       let renameTheta = variableArrayRename(variablesInUse);
@@ -136,7 +138,7 @@ Resolutor.explain =
         Object.keys(compactedTheta).forEach((k) => {
           if (compactedTheta[k] instanceof Variable) {
             let otherName = compactedTheta[k].evaluate();
-            if (t.theta[otherName] != undefined) {
+            if (t.theta[otherName] !== undefined) {
               compactedTheta[k] = t.theta[otherName];
             }
           }
@@ -149,12 +151,15 @@ Resolutor.explain =
 
     let result = recursiveResolution(query, {});
     let variablesToOutput = {};
+
     query.forEach((literal) => {
       literal.getVariables().forEach((varName) => {
         variablesToOutput[varName] = true;
       });
-    })
-    result.forEach((tuple) => {
+    });
+
+    result.forEach((tupleArg) => {
+      let tuple = tupleArg;
       Object.keys(tuple.theta).forEach((key) => {
         if (variablesToOutput[key] === undefined) {
           delete tuple.theta[key];
@@ -171,7 +176,7 @@ Resolutor.reduceRuleAntecedent =
       facts = [facts];
     }
 
-    let recursiveResolution = function(result, remainingLiterals, theta) {
+    let recursiveResolution = function (result, remainingLiterals, theta) {
       if (remainingLiterals.length === 0) {
         result.push({
           theta: theta,
@@ -200,7 +205,11 @@ Resolutor.reduceRuleAntecedent =
       }
 
       literalThetas.forEach((t) => {
-        recursiveResolution(result, remainingLiterals.slice(1, remainingLiterals.length), compactTheta(theta, t.theta));
+        recursiveResolution(
+          result,
+          remainingLiterals.slice(1, remainingLiterals.length),
+          compactTheta(theta, t.theta)
+        );
       });
     };
 

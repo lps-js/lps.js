@@ -1,5 +1,4 @@
 const Clause = require('../engine/Clause');
-const LiteralTreeMap = require('../engine/LiteralTreeMap');
 const GoalTree = require('../engine/GoalTree');
 const Resolutor = require('../engine/Resolutor');
 

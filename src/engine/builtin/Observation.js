@@ -29,6 +29,6 @@ Observation.processDeclarations = function processDeclarations(engine, program) 
 
     engine.scheduleObservation(observation, sTime, eTime);
   });
-}
+};
 
 module.exports = Observation;

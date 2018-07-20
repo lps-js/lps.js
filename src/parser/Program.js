@@ -7,7 +7,6 @@ const List = require('../engine/List');
 const Value = require('../engine/Value');
 const Variable = require('../engine/Variable');
 const Resolutor = require('../engine/Resolutor');
-const GoalTree = require('../engine/GoalTree');
 const LiteralTreeMap = require('../engine/LiteralTreeMap');
 const Parser = require('./Parser');
 

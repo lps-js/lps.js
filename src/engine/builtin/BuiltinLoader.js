@@ -1,4 +1,5 @@
 const Consult = require('./Consult');
+const path = require('path');
 
 const builtinFiles = [
   'declarations',
@@ -10,7 +11,7 @@ let loadBuiltinFiles = function loadBuiltinFiles(consult) {
   let loadingPromises = [];
 
   builtinFiles.forEach((filename) => {
-    let filepath = __dirname + '/' + filename + '.lps';
+    let filepath = path.join(__dirname, filename + '.lps');
     loadingPromises.push(consult.consultFile(filepath));
   });
 
