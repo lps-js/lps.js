@@ -107,7 +107,7 @@ describe('Clause', () => {
       );
       let theta = { 'X' : new Value(3) };
       let substitutedClause = clause.substitute(theta);
-      expect(substitutedClause.toString()).to.be.equal('test(3).');
+      expect(substitutedClause.toString()).to.be.equal('test(3) <- true.');
     });
 
     it('should return same clause for some irrelevant substitution in a unground fact', () => {
@@ -280,7 +280,7 @@ describe('Clause', () => {
         [new Functor('test', [new Value(5)])],
         []
       );
-      expect(clause.toString()).to.be.equal('test(5).');
+      expect(clause.toString()).to.be.equal('test(5) <- true.');
     });
 
     it('should return correct representation for unground fact', () => {
@@ -288,7 +288,7 @@ describe('Clause', () => {
         [new Functor('test', [new Variable('X')])],
         []
       );
-      expect(clause.toString()).to.be.equal('test(X).');
+      expect(clause.toString()).to.be.equal('test(X) <- true.');
     });
 
     it('should return correct representation for ground query', () => {
