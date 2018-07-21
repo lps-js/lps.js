@@ -6,6 +6,7 @@ const Value = require('./Value');
 const variableArrayRename = require('../utility/variableArrayRename');
 const compactTheta = require('../utility/compactTheta');
 const constraintCheck = require('../utility/constraintCheck');
+const hasExpiredTimable = require('../utility/hasExpiredTimable');
 
 let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, usedVariables) {
   let reductions = [];
@@ -188,7 +189,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
   return nodes;
 };
 
-let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, functorProvider, candidateActions) {
+let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, functorProvider, candidateActionSets, unresolvedSets) {
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
   let hasUnresolvedClause = false;
   let seenVariables = {};
@@ -229,11 +230,15 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
 
   let numAdded = 0;
   thetaSet.forEach((tuple) => {
+    let candidateActions = new LiteralTreeMap();
     tuple.candidates.forEach((literal) => {
       numAdded += 1;
       candidateActions.add(literal);
     });
+    unresolvedSets.push(tuple.unresolved.map(c => c.substitute(tuple.theta)));
+    candidateActionSets.push(candidateActions);
   });
+
   return numAdded;
 };
 
@@ -453,17 +458,32 @@ function GoalTree(goalClause) {
     });
   };
 
-  this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, callback) {
+  this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, currentTime, callback) {
     let subtrees = [];
     let tree = this;
 
     let functorProvider = program.getFunctorProvider();
     _leafNodes.forEach((node) => {
-      let candidateActions = new LiteralTreeMap();
-      let numCandidateActionsAdded = resolveSimpleActions(node.clause, possibleActions, functorProvider, candidateActions);
-      if (numCandidateActionsAdded > 0) {
-        let subtrees = [ new GoalTree(node.clause) ];
-        callback(candidateActions, subtrees);
+      let candidateActionSets = [];
+      let unresolvedSets = [];
+      let numCandidateActionsAdded = resolveSimpleActions(
+        node.clause,
+        possibleActions,
+        functorProvider,
+        candidateActionSets,
+        unresolvedSets);
+
+      if (numCandidateActionsAdded === 0) {
+        return;
+      }
+
+      for (let i = 0; i < candidateActionSets.length; i += 1) {
+        let unresolved = unresolvedSets[i];
+        if (hasExpiredTimable(unresolved, program, currentTime)) {
+          continue;
+        }
+        let candidateActions = candidateActionSets[i];
+        callback(candidateActions);
       }
     });
   };

@@ -383,8 +383,7 @@ function Engine(program) {
       let goalTree = goalTrees[l];
       let finalResult = null;
       let promises = [];
-      // console.log('l = ' + l);
-      goalTree.forEachCandidateActions(program, possibleActions, (candidateActions, subtrees) => {
+      goalTree.forEachCandidateActions(program, possibleActions, _currentTime, (candidateActions) => {
         let cloneProgram = programSoFar.clone();
         let newState = cloneProgram.getState();
         newState = updateStateWithFluentActors(candidateActions, newState);
@@ -396,31 +395,10 @@ function Engine(program) {
         if (!constraintCheck(cloneProgram)) {
           return;
         }
-
-        let numFailed = 0;
-        let subtreePromises = subtrees.map((subtree) => {
-          return subtree.evaluate(cloneProgram, _currentTime + 1, possibleActions)
-            .then((val) => {
-              if (val === null) {
-                numFailed += 1;
-                return Promise.resolve();
-              }
-              return Promise.reject(subtree.getRootClause());
-            });
-        });
-
-        let promise = Promise
-          .all(subtreePromises)
-          .then(() => {
-            return Promise.reject();
-          },
-          (clause) => {
-            return recursiveActionsSelector(
-              actionsSoFar.concat([candidateActions]),
-              cloneProgram,
-              l + 1);
-          });
-
+        let promise = recursiveActionsSelector(
+            actionsSoFar.concat([candidateActions]),
+            cloneProgram,
+            l + 1);
         promises.push(promise);
       });
 
@@ -523,7 +501,7 @@ function Engine(program) {
 
         // build goal clauses for each rule
         // we need to derive the partially executed rule here too
-        let newRules = processRules(program, _goals);
+        let newRules = processRules(program, _goals, _currentTime + 1);
         program.updateRules(newRules);
         let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
 
