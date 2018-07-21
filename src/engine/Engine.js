@@ -366,19 +366,21 @@ function Engine(program) {
 
   let actionsSelector = function actionsSelector(goalTrees, updatedState, possibleActions, program, executedActions) {
     let selectionDone = false;
+    let selection;
     let recursiveActionsSelector = function (actionsSoFar, programSoFar, l) {
       if (l >= goalTrees.length) {
-        selectionDone = true;
         let actions = new LiteralTreeMap();
         actionsSoFar.forEach((map) => {
           map.forEach((literal) => {
             actions.add(literal);
           });
         });
+        selectionDone = true;
+        selection = actions;
         return Promise.resolve(actions);
       }
       if (selectionDone) {
-        return Promise.resolve();
+        return Promise.resolve(selection);
       }
       let goalTree = goalTrees[l];
       let finalResult = null;
