@@ -777,7 +777,7 @@ function Engine(program) {
       return;
     }
     processSingleObservation(observation);
-  }
+  };
 
   this.test = function test(specFile) {
     let tester = new Tester(this);

@@ -57,135 +57,112 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, use
   return reductions;
 };
 
-let resolveStateConditions = function resolveStateConditions(program, clause, possibleActions) {
+let resolveStateConditions = function resolveStateConditions(program, clause, possibleActions, currentTime) {
   let functorProvider = program.getFunctorProvider();
-  let thetaSet = [];
-  let newThetaSet = [
-    {
-      theta: {},
-      unresolved: clause,
-      processing: true
-    }
-  ];
-  let numResolved = 0;
 
-  do {
-    numResolved = 0;
-
-    thetaSet = newThetaSet;
-    newThetaSet = [];
-    thetaSet.forEach((tuple) => {
-      if (!tuple.processing) {
-        newThetaSet.push(tuple);
-        return;
-      }
-      let literalThetas = [];
-      let skippedLiterals = [];
-      let backUnprocessed = tuple.unresolved;
-      let hasSelectedLiteral = false;
-      let hasFailedIndefinitely = false;
-      let variablesSeenBefore = {};
-      for (let k = 0; k < tuple.unresolved.length; k += 1) {
-        let literal = tuple.unresolved[k];
-        let canProceed = true;
-        literal.getVariables().forEach((v) => {
-          if (variablesSeenBefore[v] !== undefined) {
-            canProceed = false;
-          }
-        });
-        if (!canProceed) {
-          break;
-        }
-        let numSubstitutionFailure = 0;
-        let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
-        substitutedInstances.forEach((instance) => {
-          let subLiteralThetas = [];
-          subLiteralThetas = subLiteralThetas.concat(program.query(instance));
-
-          if (subLiteralThetas.length === 0) {
-            let isActionCheck = possibleActions.unifies(instance);
-            if (instance.isGround() && isActionCheck.length === 0) {
-              numSubstitutionFailure += 1;
-            }
-            return;
-          }
-
-          let instanceVariables = instance.getVariables();
-
-          subLiteralThetas = subLiteralThetas.map((tupleArg) => {
-            let tuple = tupleArg;
-            let newTheta = {};
-            instanceVariables.forEach((varName) => {
-              if (tuple.theta[varName] !== undefined) {
-                newTheta[varName] = tuple.theta[varName];
-              };
-            });
-            tuple.theta = newTheta;
-            return tuple;
-          });
-
-          literalThetas = literalThetas.concat(subLiteralThetas);
-        });
-        if (numSubstitutionFailure === substitutedInstances.length) {
-          hasFailedIndefinitely = true;
-        }
-        if (hasFailedIndefinitely) {
-          break;
-        }
-        if (literalThetas.length > 0) {
-          hasSelectedLiteral = true;
-          backUnprocessed = tuple.unresolved.slice(k + 1, tuple.unresolved.length);
-          break;
-        }
-        skippedLiterals.push(literal);
-        literal.getVariables().forEach((v) => {
-          variablesSeenBefore[v] = true;
-        });
-      }
-      if (hasFailedIndefinitely) {
-        return;
-      }
-      if (!hasSelectedLiteral) {
-        tuple.processing = false;
-        newThetaSet.push(tuple);
-        return;
-      }
-
-      literalThetas.forEach((t) => {
-        let newTheta = compactTheta(tuple.theta, t.theta);
-        let replacementFront = skippedLiterals
-          .map(l => l.substitute(newTheta));
-        let replacementBack = backUnprocessed
-          .map(l => l.substitute(newTheta));
-        let replacement;
-        if (t.replacement === undefined) {
-          replacement = replacementFront.concat(replacementBack);
-        } else {
-          replacement = replacementFront.concat(t.replacement)
-            .concat(replacementBack);
-        }
-        newThetaSet.push({
-          theta: newTheta,
-          unresolved: replacement,
-          processing: false
-        });
-        numResolved += 1;
-      });
-    });
-    if (newThetaSet.length === 0 || newThetaSet === null) {
-      return null;
-    }
-  } while (numResolved > 0);
-  thetaSet = newThetaSet;
-
-  // convert to nodes
+  let hasFailedIndefinitely = false;
   let nodes = [];
-  thetaSet.forEach(t => {
-    if (t.unresolved.length >= clause.length) {
+  let processClause = function processClause(unresolvedClause, clauseSoFar, thetaSoFar, variablesSeenSoFar) {
+    if (hasFailedIndefinitely) {
       return;
     }
-    nodes.push(new GoalNode(t.unresolved, t.theta));
-  });
+    if (unresolvedClause.length === 0) {
+      if (clauseSoFar.length >= clause.length) {
+        return;
+      }
+
+      nodes.push(new GoalNode(clauseSoFar, thetaSoFar));
+      return;
+    }
+    let conjunct = unresolvedClause[0];
+    let remainingUnresolvedClause = unresolvedClause.slice(1);
+
+    let conjunctVariables = conjunct.getVariables();
+    let isConjunctAction = program.isAction(conjunct);
+
+    // variables check
+    let canProceed = true;
+    if (!isConjunctAction) {
+      conjunctVariables.forEach((v) => {
+        if (variablesSeenSoFar[v] !== undefined) {
+          canProceed = false;
+        }
+      });
+
+      // don't attempt to resolve conjuncts that has output variables from earlier conjuncts
+      if (!canProceed) {
+        processClause([], clauseSoFar.concat(unresolvedClause), thetaSoFar, variablesSeenSoFar);
+        return;
+      }
+    }
+    let literalThetas = program.query(conjunct);
+
+    if (literalThetas.length === 0) {
+      // check for indefinite failure
+      if (conjunct.isGround() && !program.isTimable(conjunct)) {
+        hasFailedIndefinitely = true;
+        return;
+      }
+
+      let newVariablesSeenSoFar = {};
+
+      conjunctVariables.forEach((varName) => {
+        newVariablesSeenSoFar[varName] = true;
+      });
+
+      Object.keys(variablesSeenSoFar).forEach((v) => {
+        newVariablesSeenSoFar[v] = variablesSeenSoFar[v];
+      });
+
+      processClause(remainingUnresolvedClause, clauseSoFar.concat([conjunct]), thetaSoFar, newVariablesSeenSoFar);
+      return;
+    }
+
+    literalThetas.forEach((tupleArg) => {
+      let tuple = tupleArg;
+      let newTheta = {};
+      conjunctVariables.forEach((varName) => {
+        if (tuple.theta[varName] !== undefined) {
+          newTheta[varName] = tuple.theta[varName];
+        };
+      });
+      tuple.theta = newTheta;
+      let newThetaSoFar = compactTheta(thetaSoFar, tuple.theta);
+      let newVariablesSeenSoFar = {};
+
+      conjunctVariables.forEach((varName) => {
+        newVariablesSeenSoFar[varName] = true;
+      });
+
+      Object.keys(variablesSeenSoFar).forEach((v) => {
+        newVariablesSeenSoFar[v] = variablesSeenSoFar[v];
+      });
+
+      Object.keys(newThetaSoFar).forEach((v) => {
+        if (newThetaSoFar[v] instanceof Variable) {
+          let newVarName = newThetaSoFar[v].evaluate();
+          newVariablesSeenSoFar[newVarName] = true;
+          delete newVariablesSeenSoFar[v];
+        }
+      });
+
+      let substitutedClauseSoFar = clauseSoFar.map((c) => {
+        return c.substitute(newThetaSoFar);
+      });
+
+      let substitutedRemainingUnresolvedClause = remainingUnresolvedClause.map((c) => {
+        return c.substitute(newThetaSoFar);
+      });
+
+      processClause(substitutedRemainingUnresolvedClause, substitutedClauseSoFar, newThetaSoFar, newVariablesSeenSoFar);
+    });
+  };
+
+  processClause(clause, [], {}, {});
+
+  if (hasFailedIndefinitely) {
+    return null;
+  }
   return nodes;
 };
 
@@ -270,6 +247,18 @@ function GoalNode(clause, theta) {
     return false;
   };
 
+  let hasUntimedConjunct = function hasUntimedConjunct(program) {
+    let result = false;
+    for (let i = 0; i < clause.length; i += 1) {
+      let conjunct = clause[i];
+      if (program.isTimableUntimed(conjunct)) {
+        result = true;
+        break;
+      }
+    }
+    return result;
+  };
+
   this.evaluate = function evaluate(program, forTime, possibleActions, leafNodes) {
     if (this.hasBranchFailed) {
       return null;
@@ -283,48 +272,8 @@ function GoalNode(clause, theta) {
     let reductionResult = [];
     let processCompositeEvent = true;
     let conjunct = this.clause[0];
-    if (program.isTimableUntimed(conjunct) || this.children.length === 0) {
-      let stateConditionResolutionResult = resolveStateConditions(program, clause, possibleActions);
-      if (this.children.length === 0) {
-        if (!program.isTimableUntimed(conjunct) && stateConditionResolutionResult === null) {
-          this.hasBranchFailed = true;
-          // node failed indefinitely
-          return null;
-        }
-      }
-      if (stateConditionResolutionResult !== null) {
-        reductionResult = reductionResult.concat(stateConditionResolutionResult);
-      } else {
-        processCompositeEvent = false;
-      }
-    }
 
-    if (reductionResult.length === 0 && this.children.length === 0) {
-      for (let i = 0; i < this.clause.length; i += 1) {
-        let literal = this.clause[i];
-        let literalArgs = literal.getArguments();
-        if (program.isFluent(literal)) {
-          let lastArg = literalArgs[literalArgs.length - 1];
-          if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
-            this.hasBranchFailed = true;
-            return null;
-          }
-        } else if (program.isAction(literal) || program.isEvent(literal)) {
-          let startTimeArg = literalArgs[literalArgs.length - 2];
-          let endTimeArg = literalArgs[literalArgs.length - 1];
-          if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
-            this.hasBranchFailed = true;
-            return null;
-          }
-          if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
-            this.hasBranchFailed = true;
-            return null;
-          }
-        }
-      }
-    }
-
-    if (processCompositeEvent && this.children.length === 0 && reductionResult.length === 0) {
+    if (this.children.length === 0 && reductionResult.length === 0) {
       let usedVariables = {};
       for (let i = 0; i < this.clause.length; i += 1) {
         this.clause[i].getVariables().forEach((v) => {
@@ -332,11 +281,9 @@ function GoalNode(clause, theta) {
         });
       }
       usedVariables = Object.keys(usedVariables);
-      for (let i = 0; i < this.clause.length; i += 1) {
+      for (let i = 0; i < 1; i += 1) {
         let literal = this.clause[i];
-        // console.log(''+literal + '--' + (program.isFluent(literal) ? 'TRUE' : 'FALSE'));
         if (program.isFluent(literal) || (literal instanceof Functor && literal.getId() === '!/1' && program.isFluent(literal.getArguments()[0]))) {
-          // console.log('STAPH');
           break;
         }
         let otherLiteralsFront = this.clause.slice(0, i);
@@ -360,6 +307,44 @@ function GoalNode(clause, theta) {
         });
         if (reductionResult.length > 0) {
           break;
+        }
+      }
+    }
+
+    let hasUntimedConjunctInClause = hasUntimedConjunct(program);
+    if (hasUntimedConjunctInClause || (reductionResult.length === 0 && this.children.length === 0)) {
+      let stateConditionResolutionResult = resolveStateConditions(program, clause, possibleActions, forTime);
+      if (stateConditionResolutionResult === null) {
+        this.hasBranchFailed = true;
+        return null;
+      } else {
+        reductionResult = reductionResult.concat(stateConditionResolutionResult);
+      }
+    }
+
+    if (reductionResult.length === 0 && this.children.length === 0) {
+      // check for expired conjuncts
+      for (let i = 0; i < this.clause.length; i += 1) {
+        let literal = this.clause[i];
+        let literalArgs = literal.getArguments();
+        if (program.isFluent(literal)) {
+          let lastArg = literalArgs[literalArgs.length - 1];
+          if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
+            this.hasBranchFailed = true;
+            return null;
+          }
+        } else if (program.isAction(literal) || program.isEvent(literal)) {
+          let startTimeArg = literalArgs[literalArgs.length - 2];
+          let endTimeArg = literalArgs[literalArgs.length - 1];
+
+          if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
+            this.hasBranchFailed = true;
+            return null;
+          }
+          if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
+            this.hasBranchFailed = true;
+            return null;
+          }
         }
       }
     }
