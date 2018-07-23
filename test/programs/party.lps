@@ -14,7 +14,14 @@ mother(bob, mum).
 parent(X, Y) <- father(X, Y).
 parent(X, Y) <- mother(X, Y).
 
-party(bob, T1, T2), not money(bob, T1) ->
+party(bob, T1, T2), not money(bob, T1) -> askForMoney(T2, T3).
+
+
+askForMoney(T1, T2) <-
   parent(bob, X),
-  money(X, T5),
-  askMoney(bob, X, T3, T4).
+  money(X, T1),
+  askMoney(bob, X, T1, T2).
+  
+askForMoney(T1, T1) <- money(bob, T).
+
+updates(askMoney(X, Y), money(Y), money(X)).

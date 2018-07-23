@@ -1,6 +1,7 @@
 expect(maxTime(5)).
 
-expect(fluent, 1, 5, money(mum)).
+expect(fluent, 1, 2, money(mum)).
+expect(fluent, 3, 5, money(bob)).
 expect_num_of(fluent, 1, 5, 1).
 
 expect(observation, 1, 2, party(bob)).
