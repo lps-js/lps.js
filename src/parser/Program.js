@@ -46,7 +46,8 @@ let processList = function processList(nodes, singleUnderscoreVariableSet) {
   return new List(head);
 };
 
-let processArguments = function processArguments(nodes, singleUnderscoreVariableSet) {
+let processArguments = function processArguments(nodes, singleUnderscoreVariableSetArg) {
+  let singleUnderscoreVariableSet = singleUnderscoreVariableSetArg;
   let result = [];
 
   nodes.forEach((node) => {
@@ -151,7 +152,8 @@ let processLine = function processLine(clauseNode, properties) {
 
   if (children.length === 2 && children[0].getToken().value === '<-') {
     // a constraint format
-    properties.program.push(processConstraint(children[1].getChildren()));
+    properties.program
+      .push(processConstraint(children[1].getChildren()));
     return;
   }
 
@@ -163,12 +165,14 @@ let processLine = function processLine(clauseNode, properties) {
   let operator = children[1].getToken().value;
   if (operator === '<-') {
     // a program clause in the form: consequent <- antecedent
-    properties.program.push(processRuleOrClause(children[0].getChildren(), children[2].getChildren()));
+    properties.program
+      .push(processRuleOrClause(children[0].getChildren(), children[2].getChildren()));
     return;
   }
 
   // a LPS rule in the form: conditions -> consequent
-  properties.rules.push(processRuleOrClause(children[2].getChildren(), children[0].getChildren()));
+  properties.rules
+    .push(processRuleOrClause(children[2].getChildren(), children[0].getChildren()));
 };
 
 let processProgram = function processProgram(rootNode, properties) {
@@ -361,8 +365,8 @@ function Program(nodeTree) {
     _executedActions = newSet;
   };
 
-  this.query = function query(query, otherFacts) {
-    let evaluationResult = Resolutor.explain(query, this, otherFacts);
+  this.query = function query(goal, otherFacts) {
+    let evaluationResult = Resolutor.explain(goal, this, otherFacts);
     return evaluationResult;
   };
 
@@ -404,6 +408,7 @@ Program.literalSet = function literalSet(str) {
 
 Program.fromString = function fromString(code) {
   return new Promise((resolve, reject) => {
+    let token;
     try {
       let parser = new Parser(code);
       token = parser.build();
@@ -427,9 +432,9 @@ Program.fromFile = function fromFile(file) {
       try {
         let parser = new Parser(data);
         token = parser.build();
-      } catch (err) {
-        err.message = 'In file ' + file + ', ' + err.message;
-        reject(err);
+      } catch (e) {
+        e.message = 'In file ' + file + ', ' + err.message;
+        reject(e);
         return;
       }
       resolve(new Program(token));
