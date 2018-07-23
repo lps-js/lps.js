@@ -4,7 +4,7 @@ const Functor = require('../engine/Functor');
 module.exports = function hasExpiredTimable(conjunction, program, currentTime) {
   let hasExpired = false;
   conjunction.forEach((conjunct) => {
-    if (!program.isTimable(conjunct)) {
+    if (hasExpired || !program.isTimable(conjunct)) {
       return;
     }
     let literal = conjunct;
@@ -18,19 +18,17 @@ module.exports = function hasExpiredTimable(conjunction, program, currentTime) {
       let timeArg = conjunctArgs[conjunctArgs.length - 1];
       if (timeArg instanceof Value && timeArg.evaluate() <= currentTime) {
         hasExpired = true;
-        return
+        return;
       }
-    } else {
-      let startTimeArg = conjunctArgs[conjunctArgs.length - 2];
-      if (startTimeArg instanceof Value && startTimeArg.evaluate() <= currentTime) {
-        hasExpired = true;
-        return
-      }
-      let endTimeArg = conjunctArgs[conjunctArgs.length - 1];
-      if (endTimeArg instanceof Value && endTimeArg.evaluate() <= currentTime) {
-        hasExpired = true;
-        return
-      }
+    }
+    let startTimeArg = conjunctArgs[conjunctArgs.length - 2];
+    if (startTimeArg instanceof Value && startTimeArg.evaluate() <= currentTime) {
+      hasExpired = true;
+      return;
+    }
+    let endTimeArg = conjunctArgs[conjunctArgs.length - 1];
+    if (endTimeArg instanceof Value && endTimeArg.evaluate() <= currentTime) {
+      hasExpired = true;
     }
   });
   return hasExpired;
