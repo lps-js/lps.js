@@ -1,0 +1,9 @@
+% consult('examples/consult-agent.lps', 15).
+% consult('examples/consult-agent.lps', 20).
+
+%%%%%%%%
+
+agentIdentifier(55).
+agentIdentifier(6).
+
+consult('examples/consult-agent.lps', X) <- agentIdentifier(X).
