@@ -19,7 +19,7 @@ const BuiltinLoader = require('./builtin/BuiltinLoader');
 const SyntacticSugarProcessor = require('./builtin/SyntacticSugarProcessor');
 const Observation = require('./builtin/Observation');
 
-function Engine(program) {
+function Engine(program, workingDirectory) {
   let _maxTime = 20;
   let _cycleInterval = 100; // milliseconds
   let _isContinuousExecution = false;
@@ -807,7 +807,7 @@ function Engine(program) {
     .load(program)
     .then(() => {
       // start processing consult declarations in main program
-      return Consult.processDeclarations(program);
+      return Consult.processDeclarations(program, workingDirectory);
     })
     .then(() => {
       _engineEventManager.notify('loaded', this);

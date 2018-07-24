@@ -62,7 +62,11 @@ function Consult(targetProgram) {
       });
   };
 
-  let processConsultDeclarations = function processConsultDeclarations(currentProgram) {
+  let processConsultDeclarations = function processConsultDeclarations(currentProgram, workingDirectoryArg) {
+    let workingDirectory = workingDirectoryArg;
+    if (workingDirectory === undefined) {
+      workingDirectory = '';
+    }
     let promises = [];
     let result = [];
     result = result.concat(currentProgram.query(consultLiteral1));
@@ -72,30 +76,36 @@ function Consult(targetProgram) {
         return;
       }
       let promise;
+      let filepath = r.theta.File.evaluate();
+      if (!path.isAbsolute(filepath) && workingDirectory !== '') {
+        // work path from the current working directory given
+        filepath = path.resolve([workingDirectory, filepath]);
+      }
       if (r.theta.Id === undefined || !(r.theta.Id instanceof Value)) {
-        promise = this.consultFile(r.theta.File.evaluate());
+        promise = this.consultFile(filepath);
       } else {
-        promise = this.consultFileWithId(r.theta.File.evaluate(), r.theta.Id.evaluate());
+        promise = this.consultFileWithId(filepath, r.theta.Id.evaluate());
       }
 
       promise
         .then((loadedProgram) => {
           // recursively process consult declarations in loaded targetProgram
-          return processConsultDeclarations.call(this, loadedProgram);
+          // also pass in the working directory from this loaded file
+          return processConsultDeclarations.call(this, loadedProgram, path.dirname(filepath));
         });
       promises.push(promise);
     });
     return Promise.all(promises);
   };
 
-  this.process = function process() {
-    return processConsultDeclarations.call(this, targetProgram);
+  this.process = function process(workingDirectory) {
+    return processConsultDeclarations.call(this, targetProgram, workingDirectory);
   };
 }
 
-Consult.processDeclarations = function processDeclarations(program) {
+Consult.processDeclarations = function processDeclarations(program, workingDirectory) {
   let consult = new Consult(program);
-  return consult.process();
+  return consult.process(workingDirectory);
 };
 
 module.exports = Consult;
