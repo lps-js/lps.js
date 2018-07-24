@@ -471,6 +471,10 @@ function Engine(program) {
       });
 
     // update with observations
+    // observation needs to take precedence in processing over
+    // action selection so that we "cleverly" do not select
+    // actions for exection that has been observed in the same cycle.
+    // the idea of "someone else has done something I needed to do, thanks anyway"
     let cycleObservations = processCycleObservations();
     cycleObservations.forEach((observation) => {
       executedActions.add(observation);
