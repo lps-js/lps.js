@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 const net = require('net');
 const LPS = require('../src/LPS');
 const Program = require('../src/parser/Program');

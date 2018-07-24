@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+const net = require('net');
+
+const args = process.argv.slice(2);
+const port = args.length > 0 ? args[0] : 4100;
+
+let nodes = [];
+let addresses = [];
+
+const server = net.createServer((socket) => {
+  let entry = [socket.remoteAddress, socket.remotePort];
+  console.log('[Info] ' + entry + ' has connected.');
+  socket.write(JSON.stringify(addresses));
+  nodes.forEach((node) => {
+    node.write(JSON.stringify({ newNode: entry }))
+  });
+  nodes.push(socket);
+  addresses.push(entry);
+  console.log('[Info] ' + entry + ' has registered.');
+  
+  socket.on('end', () => {
+    let index = null;
+    
+    // announce node exit
+    nodes.forEach((node, idx) => {
+      if (node === socket) {
+        index = idx;
+        return;
+      }
+      node.write(JSON.stringify({ removeNode: entry }))
+    });
+    
+    socket.destroy();
+    console.log('[Info] ' + entry + ' has left.');
+    
+    if (index === null) {
+      return;
+    }
+    
+    nodes = nodes.slice(0, index).concat(nodes.slice(index + 1));
+    addresses = addresses.slice(0, index).concat(addresses.slice(index + 1));
+  });
+});
+
+server.on('error', (err) => {
+  console.error('[Error] ' + err);
+});
+
+server.listen(port, '127.0.0.1');
