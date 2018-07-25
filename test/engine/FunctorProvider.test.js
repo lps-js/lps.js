@@ -3,6 +3,7 @@ const Functor = require('../../src/engine/Functor');
 const Variable = require('../../src/engine/Variable');
 const Value = require('../../src/engine/Value');
 const Program = require('../../src/parser/Program');
+const coreModule = require('../../src/engine/modules/core');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -14,16 +15,16 @@ describe('FunctorProvider', () => {
     it('should throw error for invalid names', () => {
       let provider = new FunctorProvider(null);
       expect(() => {
-        provider.define('*invalidName*/2', noop);
+        provider.define('*invali dName*/2', noop);
       }).to.throw();
       expect(() => {
-        provider.define('invalidName/+2', noop);
+        provider.define('invalid  Name/+2', noop);
       }).to.throw();
       expect(() => {
-        provider.define('invalidNum/02', noop);
+        provider.define('invali dNum/02', noop);
       }).to.throw();
       expect(() => {
-        provider.define('invalidName/Abc', noop);
+        provider.define('inval idName/Abc', noop);
       }).to.throw();
       expect(() => {
         provider.define('__/5', noop);
@@ -64,7 +65,10 @@ describe('FunctorProvider', () => {
 
   describe('has(name)', () => {
     it('should return true for built-in functors', () => {
-      let provider = new FunctorProvider(null);
+      let program = new Program();
+      let provider = program.getFunctorProvider();
+      coreModule(null, program);
+
       expect(provider.has('!/1')).to.be.true;
       expect(provider.has('+/2')).to.be.true;
       expect(provider.has('=/2')).to.be.true;
@@ -114,7 +118,8 @@ describe('FunctorProvider', () => {
   describe('execute(literal)', () => {
     it('should execute built-in functors', () => {
       let program = new Program();
-      let provider = new FunctorProvider(program);
+      let provider = program.getFunctorProvider();
+      coreModule(null, program);
       let result = provider.execute(Program.literal('!fact(1)'));
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
@@ -123,7 +128,8 @@ describe('FunctorProvider', () => {
 
     it('should execute built-in functors', () => {
       let program = new Program();
-      let provider = new FunctorProvider(program);
+      let provider = program.getFunctorProvider();
+      coreModule(null, program);
       let result = provider.execute(Program.literal('1+2'));
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
@@ -135,7 +141,8 @@ describe('FunctorProvider', () => {
 
     it('should execute user-defined functors', () => {
       let program = new Program();
-      let provider = new FunctorProvider(program);
+      let provider = program.getFunctorProvider();
+      coreModule(null, program);
       let callValue = 0;
       provider.define('testFunc/1', (arg) => {
         callValue = arg.evaluate();
@@ -150,7 +157,8 @@ describe('FunctorProvider', () => {
 
     it('should throw error for undefined functor', () => {
       let program = new Program();
-      let provider = new FunctorProvider(program);
+      let provider = program.getFunctorProvider();
+      coreModule(null, program);
       expect(() => {
         let result = provider.execute(Program.literal('what(5)'));
       }).to.throw();
@@ -159,7 +167,8 @@ describe('FunctorProvider', () => {
     describe('assignment', () => {
       it('should give correct assignment', () => {
         let program = new Program();
-        let provider = new FunctorProvider(program);
+        let provider = program.getFunctorProvider();
+        coreModule(null, program);
         let result = provider.execute(Program.literal('X = 5 * 2'));
         expect(result).to.be.instanceof(Array);
         expect(result).to.be.length(1);
@@ -170,7 +179,8 @@ describe('FunctorProvider', () => {
 
       it('should throw an error for incorrect assignment', () => {
         let program = new Program();
-        let provider = new FunctorProvider(program);
+        let provider = program.getFunctorProvider();
+        coreModule(null, program);
         expect(() => {
           let result = provider.execute(Program.literal('5 = 5 * 2'));
         }).to.throw();
