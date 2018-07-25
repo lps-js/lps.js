@@ -1,12 +1,14 @@
 const Program = require('../../parser/Program');
 const Value = require('../Value');
 
+const observeLiteral = Program.literal('observe(O, ST, ET)');
+
 function Observation() {
 
 }
 
 Observation.processDeclarations = function processDeclarations(engine, program) {
-  let result = program.query(Program.literal('observe(O, ST, ET)'));
+  let result = program.query(observeLiteral);
   result.forEach((r) => {
     if (r.theta.O === undefined || r.theta.ST === undefined || r.theta.ET === undefined) {
       return;
