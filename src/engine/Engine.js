@@ -803,6 +803,9 @@ function Engine(program, workingDirectory) {
     _engineEventManager.notify('ready', this);
   });
 
+  let coreModule = require('./modules/core');
+  coreModule(this, program);
+
   BuiltinLoader
     .load(program)
     .then(() => {

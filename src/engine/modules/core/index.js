@@ -1,11 +1,11 @@
-const Value = require('../Value');
-const Variable = require('../Variable');
-const List = require('../List');
-const Functor = require('../Functor');
+const Value = require('../../Value');
+const Variable = require('../../Variable');
+const List = require('../../List');
+const Functor = require('../../Functor');
 
 let assertIsValue = function assertIsValue(val) {
   if (!(val instanceof Value)) {
-    throw new Error('Must be value');
+    throw new Error('Must be value, ' + val + ' given');
   }
 };
 
@@ -1127,4 +1127,6 @@ let functors = {
   }
 };
 
-module.exports = functors;
+module.exports = (engine, program) => {
+  program.getFunctorProvider().load(functors);
+};

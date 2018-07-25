@@ -5,7 +5,7 @@ const Variable = require('./Variable');
 const fs = require('fs');
 const path = require('path');
 
-const functorIdentifierRegex = /^[^0-9_A-Z]{1}[a-zA-Z_0-9]*\/[1-9][0-9]*$/;
+const functorIdentifierRegex = /^[^\s_A-Z][^\s]*\/[1-9][0-9]*$/;
 
 function FunctorProvider(program) {
   let _functors = {
@@ -26,27 +26,24 @@ function FunctorProvider(program) {
     ]
   };
 
-  let loadByPassed = function loadByPassed(filepath) {
-    if (!fs.existsSync(filepath)) {
-      throw new Error('Loading non-existent file ' + filepath + ' for predicate definitions in LPS');
-    }
-    let definitions = require(filepath);
-    Object.keys(definitions).forEach((key) => {
-      let func = definitions[key];
-      if (_functors[key] === undefined) {
-        _functors[key] = [];
-      }
-      _functors[key].push(func);
-    });
-  };
-
   this.load = function load(filepath) {
-    if (!fs.existsSync(filepath)) {
-      throw new Error('Loading non-existent file ' + filepath + ' for predicate definitions in LPS');
+    let definitions = filepath;
+    if (typeof filepath === 'string') {
+      if (!fs.existsSync(filepath)) {
+        throw new Error('File not found' + filepath + ' for loading predicate definitions in LPS');
+      }
+      definitions = require(filepath);
+      this.load(definitions);
+      return;
     }
-    let definitions = require(filepath);
     Object.keys(definitions).forEach((key) => {
       let func = definitions[key];
+      if (func instanceof Array) {
+        func.forEach((f) => {
+          this.define(key, f);
+        });
+        return;
+      }
       this.define(key, func);
     });
   };
@@ -110,8 +107,6 @@ function FunctorProvider(program) {
     }
     return result;
   };
-
-  loadByPassed(path.join(__dirname, 'modules/core.js'));
 }
 
 
