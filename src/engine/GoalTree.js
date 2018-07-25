@@ -60,19 +60,15 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, use
 let resolveStateConditions = function resolveStateConditions(program, clause, possibleActions, currentTime) {
   let functorProvider = program.getFunctorProvider();
 
-  let hasFailedIndefinitely = false;
   let nodes = [];
   let processClause = function processClause(unresolvedClause, clauseSoFar, thetaSoFar, variablesSeenSoFar) {
-    if (hasFailedIndefinitely) {
-      return;
-    }
     if (unresolvedClause.length === 0) {
       if (clauseSoFar.length >= clause.length) {
-        return;
+        return true;
       }
 
       nodes.push(new GoalNode(clauseSoFar, thetaSoFar));
-      return;
+      return true;
     }
     let conjunct = unresolvedClause[0];
     let remainingUnresolvedClause = unresolvedClause.slice(1);
@@ -91,8 +87,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
 
       // don't attempt to resolve conjuncts that has output variables from earlier conjuncts
       if (!canProceed) {
-        processClause([], clauseSoFar.concat(unresolvedClause), thetaSoFar, variablesSeenSoFar);
-        return;
+        return processClause([], clauseSoFar.concat(unresolvedClause), thetaSoFar, variablesSeenSoFar);
       }
     }
     let literalThetas = program.query(conjunct);
@@ -100,8 +95,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
     if (literalThetas.length === 0) {
       // check for indefinite failure
       if (conjunct.isGround() && !program.isTimable(conjunct)) {
-        hasFailedIndefinitely = true;
-        return;
+        return false;
       }
 
       let newVariablesSeenSoFar = {};
@@ -114,10 +108,10 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
         newVariablesSeenSoFar[v] = variablesSeenSoFar[v];
       });
 
-      processClause(remainingUnresolvedClause, clauseSoFar.concat([conjunct]), thetaSoFar, newVariablesSeenSoFar);
-      return;
+      return processClause(remainingUnresolvedClause, clauseSoFar.concat([conjunct]), thetaSoFar, newVariablesSeenSoFar);
     }
 
+    let numFailures = 0;
     literalThetas.forEach((tupleArg) => {
       let tuple = tupleArg;
       let newTheta = {};
@@ -154,13 +148,17 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
         return c.substitute(newThetaSoFar);
       });
 
-      processClause(substitutedRemainingUnresolvedClause, substitutedClauseSoFar, newThetaSoFar, newVariablesSeenSoFar);
+      let subResult = processClause(substitutedRemainingUnresolvedClause, substitutedClauseSoFar, newThetaSoFar, newVariablesSeenSoFar);
+      if (!subResult) {
+        numFailures += 1;
+      }
     });
+    return numFailures < literalThetas.length;
   };
 
-  processClause(clause, [], {}, {});
+  let hasSucceeded = processClause(clause, [], {}, {});
 
-  if (hasFailedIndefinitely) {
+  if (!hasSucceeded) {
     return null;
   }
   return nodes;
