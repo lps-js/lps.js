@@ -8,37 +8,52 @@ let nodes = [];
 let addresses = [];
 
 const server = net.createServer((socket) => {
-  let entry = [socket.remoteAddress, socket.remotePort];
-  console.log('[Info] ' + entry + ' has connected.');
-  socket.write(JSON.stringify(addresses));
-  nodes.forEach((node) => {
-    node.write(JSON.stringify({ newNode: entry }))
+  console.log('[Info] ' + socket.remoteAddress + ' has connected.');
+  
+  socket.on('data', (buf) => {
+    let data;
+    try {
+      data = JSON.parse(buf.toString('utf8'));
+    } catch (e) {
+      return;
+    }
+    if (data === undefined) {
+      return;
+    }
+    if (data.register !== undefined) {
+      let entry = [socket.remoteAddress, data.register];
+      socket.write(JSON.stringify({ peers: addresses }));
+      nodes.forEach((node) => {
+        node.write(JSON.stringify({ newNode: entry }))
+      });
+      nodes.push(socket);
+      addresses.push(entry);
+      console.log('[Info] ' + entry + ' has registered.');
+    }
   });
-  nodes.push(socket);
-  addresses.push(entry);
-  console.log('[Info] ' + entry + ' has registered.');
   
   socket.on('end', () => {
-    let index = null;
+    let indices = [];
     
     // announce node exit
     nodes.forEach((node, idx) => {
       if (node === socket) {
-        index = idx;
+        indices.push(idx);
         return;
       }
-      node.write(JSON.stringify({ removeNode: entry }))
     });
     
-    socket.destroy();
-    console.log('[Info] ' + entry + ' has left.');
+    indices.forEach((index) => {
+      let address = addresses[index];
+      nodes = nodes.slice(0, index).concat(nodes.slice(index + 1));
+      addresses = addresses.slice(0, index).concat(addresses.slice(index + 1));
+      
+      nodes.forEach((node) => {
+        node.write(JSON.stringify({ removeNode: address }));
+      });
+    });
     
-    if (index === null) {
-      return;
-    }
-    
-    nodes = nodes.slice(0, index).concat(nodes.slice(index + 1));
-    addresses = addresses.slice(0, index).concat(addresses.slice(index + 1));
+    console.log('[Info] ' + socket.remoteAddress + ' has left.');
   });
 });
 
@@ -46,4 +61,4 @@ server.on('error', (err) => {
   console.error('[Error] ' + err);
 });
 
-server.listen(port, '127.0.0.1');
+server.listen(port);
