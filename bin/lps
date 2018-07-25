@@ -4,8 +4,8 @@ const net = require('net');
 const LPS = require('../src/LPS');
 const Program = require('../src/parser/Program');
 
-const SERVER_PORT = 8040;
 const args = process.argv.slice(2);
+let serverPort = 0;
 
 if (args.length === 0) {
   console.log('Logic Production Systems (LPS)');
@@ -16,6 +16,10 @@ if (args.length === 0) {
 
 let file = args[0];
 console.log('Loading file: ' + file);
+
+if (args.length > 1) {
+  serverPort = Number(args[1]);
+}
 
 LPS.load(file)
   .then((engine) => {
@@ -44,9 +48,10 @@ LPS.load(file)
     server.on('error', (err) => {
       console.log(err);
     });
-    server.listen(SERVER_PORT, '127.0.0.1');
+    server.listen(serverPort, function() {
+      console.log('Observation server listening on port ' + server.address().port);
+    });
     
-    console.log('TCP Server now listening on ' + SERVER_PORT);
     console.log('');
   })
   .catch((err) => {
