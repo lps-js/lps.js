@@ -2,6 +2,7 @@ const Program = require('../../parser/Program');
 const LiteralTreeMap = require('../LiteralTreeMap');
 const Value = require('../Value');
 const Clause = require('../Clause');
+const path = require('path');
 
 const consultLiteral1 = Program.literal('consult(File)');
 const consultLiteral2 = Program.literal('consult(File, Id)');
