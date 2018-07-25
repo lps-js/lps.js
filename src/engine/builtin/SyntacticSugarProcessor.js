@@ -34,7 +34,7 @@ SyntacticSugarProcessor.action = function action(literalArg) {
     literal = new Functor(literal.evaluate(), []);
   }
   if (!(literal instanceof Functor)) {
-    throw new Error('Unexpected value "' + literal.toString() + '" provided for an event literal.');
+    throw new Error('Unexpected value "' + literal + '" provided for an event literal.');
   }
   literal = new Functor(literal.getName(), literal.getArguments().concat(additionalArguments));
   return literal;
