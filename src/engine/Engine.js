@@ -290,6 +290,7 @@ function Engine(program, workingDirectory) {
       }
       type = type.evaluate();
 
+      // take end-time argument because updates are observed in post-execution of actions
       let actionArguments = action.getArguments();
       let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
       if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
