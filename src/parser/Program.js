@@ -182,7 +182,7 @@ let processProgram = function processProgram(rootNode, properties) {
   });
 };
 
-function Program(nodeTree) {
+function Program(nodeTree, functorProviderArg) {
   let _rules = [];
   let _clauses = [];
   let _facts = new LiteralTreeMap();
@@ -193,7 +193,10 @@ function Program(nodeTree) {
   let _actions = {};
   let _events = {};
 
-  let _functorProvider = new FunctorProvider(this);
+  let _functorProvider = functorProviderArg;
+  if (functorProviderArg === undefined) {
+    _functorProvider = new FunctorProvider(this);
+  }
 
   if (nodeTree instanceof AstNode) {
     processProgram(nodeTree, {
@@ -204,7 +207,7 @@ function Program(nodeTree) {
   }
 
   this.clone = function clone() {
-    let program = new Program();
+    let program = new Program(null, _functorProvider);
     let newFacts = new LiteralTreeMap();
     _facts.forEach((fact) => {
       newFacts.add(fact);
@@ -433,7 +436,7 @@ Program.fromFile = function fromFile(file) {
         let parser = new Parser(data);
         token = parser.build();
       } catch (e) {
-        e.message = 'In file ' + file + ', ' + err.message;
+        e.message = 'In file ' + file + ', ' + e.message;
         reject(e);
         return;
       }
