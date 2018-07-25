@@ -1,5 +1,5 @@
 % load main program
-consult('../lps/examples/fire-example.lps').
+consult('./fire-example.lps').
 
 action(changeDirection).
 event(click(X, Y)).
