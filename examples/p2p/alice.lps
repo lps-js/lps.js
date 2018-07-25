@@ -1,0 +1,40 @@
+load(p2p).
+
+p2pJoin(lending, 4100).
+
+event(wantToBuy(I)).
+event(p2pReceive(N, P, M)).
+
+fluent(money(A)).
+action(buy(I)).
+action(receiveLoan).
+
+
+initially(money(1)).
+observe(wantToBuy(cereal), 3, 4).
+
+itemPrice(cereal, 4).
+itemPrice(potatos, 1).
+itemPrice(milk, 1).
+
+wantToBuy(I, T1, T2) ->
+  itemPrice(I, Price),
+  money(Amount, T2),
+  loanIfNotEnough(Price, Amount),
+  buy(I, T3, T4),
+  T3 >= T2.
+  
+loanIfNotEnough(Price, Amount) <-
+  Price <= Amount.
+  
+loanIfNotEnough(Price, Amount) <-
+  Price > Amount,
+  p2pPeer(lending, P),
+  p2pSend(lending, P, borrow).
+
+p2pReceive(lending, P, lend, T1, T2) -> receiveLoan(T2, T3).
+
+updates(receiveLoan, money(A), money(A + 10)).
+updates(buy(I), money(A), money(A - P)) <- itemPrice(I, P).
+
+<- money(Amt, T1), buy(I, T1, T2), itemPrice(I, Price), Amt < Price.

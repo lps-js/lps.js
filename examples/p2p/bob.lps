@@ -1,0 +1,17 @@
+maxTime(1000).
+
+load(p2p).
+
+p2pJoin(lending, 4100).
+
+event(p2pReceive(N, P, M)).
+
+fluent(money(A)).
+initially(money(10)).
+action(lend).
+
+p2pReceive(lending, P, borrow, T1, T2) ->
+  lend(T2, T3),
+  p2pSend(lending, P, lend).
+
+updates(lend, money(A), money(A - 10)).
