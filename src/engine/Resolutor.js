@@ -70,7 +70,7 @@ Resolutor.explain =
       query = [query];
     }
 
-    let recursiveResolution = function (remainingLiterals, thetaSoFar) {
+    let recursiveResolution = function (remainingLiterals, thetaSoFar, variablesInUseSoFar) {
       let result = [];
       if (remainingLiterals.length === 0) {
         result.push({
@@ -99,7 +99,7 @@ Resolutor.explain =
         otherLiteral.getVariables()
           .forEach(variableSetFunc);
       }
-      variablesInUse = Object.keys(variablesInUse);
+      variablesInUse = variablesInUseSoFar.concat(Object.keys(variablesInUse));
       let renameTheta = variableArrayRename(variablesInUse);
 
       clauses.forEach((clause) => {
@@ -116,12 +116,19 @@ Resolutor.explain =
 
         let bodyLiterals = clause.getBodyLiterals();
         bodyLiterals = bodyLiterals.map((blArg) => {
-          let bl = blArg.substitute(unificationTheta);
-          return bl.substitute(renameTheta);
+          let bl = blArg.substitute(renameTheta);
+          return bl.substitute(unificationTheta);
         });
         let newTheta = compactTheta(thetaSoFar, unificationTheta);
-        let subResult = recursiveResolution(bodyLiterals, newTheta);
-        literalThetas = literalThetas.concat(subResult);
+        let subResult = recursiveResolution(bodyLiterals, newTheta, variablesInUse);
+        subResult.forEach((r) => {
+          let updatedHeadLiteral = headLiteral.substitute(r.theta);
+          let unificationTheta = Unifier.unifies([[literal, updatedHeadLiteral]]);
+          if (unificationTheta === null) {
+            return;
+          }
+          literalThetas.push({ theta: unificationTheta });
+        });
       });
 
       if (literalThetas.length === 0) {
@@ -143,13 +150,13 @@ Resolutor.explain =
             }
           }
         });
-        let subResult = recursiveResolution(newRemainingLiterals, compactedTheta);
+        let subResult = recursiveResolution(newRemainingLiterals, compactedTheta, variablesInUse);
         result = result.concat(subResult);
       });
       return result;
     };
 
-    let result = recursiveResolution(query, {});
+    let result = recursiveResolution(query, {}, []);
     let variablesToOutput = {};
 
     query.forEach((literal) => {
