@@ -80,7 +80,7 @@ function Consult(targetProgram) {
       let filepath = r.theta.File.evaluate();
       if (!path.isAbsolute(filepath) && workingDirectory !== '') {
         // work path from the current working directory given
-        filepath = path.resolve([workingDirectory, filepath]);
+        filepath = path.resolve(workingDirectory, filepath);
       }
       if (r.theta.Id === undefined || !(r.theta.Id instanceof Value)) {
         promise = this.consultFile(filepath);
