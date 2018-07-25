@@ -1,18 +1,17 @@
 maxTime(9).
 
 initially([
-  balance(bob,0),
-  balance(fariba,100)
+  balance(bob, 0),
+  balance(fariba, 100)
 ]).
 
 fluent(balance(_Person, _Value)).
-
 action(transfer(From, To, Amount)).
 
 updates(transfer(F, T, A), balance(T, Old), balance(T, Old + A)).
 updates(transfer(F, T, A), balance(F, Old), balance(F, Old - A)).
 
-observe(transfer(fariba,bob,10), 2).
+observe(transfer(fariba, bob, 10), 2).
 
 transfer(fariba, bob, _, T1, T2) -> transfer(bob, fariba, 10, T2, T3).
 transfer(bob, fariba, _, T1, T2) -> transfer(fariba, bob, 20, T2, T3).
