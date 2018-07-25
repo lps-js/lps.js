@@ -3,14 +3,13 @@ const hasExpiredTimable = require('./hasExpiredTimable');
 const GoalTree = require('../engine/GoalTree');
 const Resolutor = require('../engine/Resolutor');
 
-module.exports = function processRules(program, goals, updatedState, currentTime) {
+module.exports = function processRules(program, goals, currentTime) {
   let rules = program.getRules();
 
   let facts = [
     program.getFacts(),
     program.getState(),
-    program.getExecutedActions(),
-    updatedState
+    program.getExecutedActions()
   ];
 
   let containsTimables = function containsTimables(rule) {

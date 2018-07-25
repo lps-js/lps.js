@@ -502,14 +502,14 @@ function Engine(program, workingDirectory) {
 
         program.setExecutedActions(executedActions);
 
-        // build goal clauses for each rule
-        // we need to derive the partially executed rule here too
-        let newRules = processRules(program, _goals, updatedState, _currentTime + 1);
-        program.updateRules(newRules);
-
         // preparation for next cycle
         updatedState = updateStateWithFluentActors(executedActions, updatedState);
         program.updateState(updatedState);
+
+        // build goal clauses for each rule
+        // we need to derive the partially executed rule here too
+        let newRules = processRules(program, _goals, _currentTime);
+        program.updateRules(newRules);
 
         let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
 
