@@ -70,7 +70,7 @@ Resolutor.explain =
       query = [query];
     }
 
-    let recursiveResolution = function (remainingLiterals, thetaSoFar, variablesInUseSoFar) {
+    let recursiveResolution = function (remainingLiterals, thetaSoFar) {
       let result = [];
       if (remainingLiterals.length === 0) {
         result.push({
@@ -99,7 +99,7 @@ Resolutor.explain =
         otherLiteral.getVariables()
           .forEach(variableSetFunc);
       }
-      variablesInUse = variablesInUseSoFar.concat(Object.keys(variablesInUse));
+      variablesInUse = Object.keys(variablesInUse);
       let renameTheta = variableArrayRename(variablesInUse);
 
       clauses.forEach((clause) => {
@@ -116,17 +116,18 @@ Resolutor.explain =
 
         let bodyLiterals = clause.getBodyLiterals();
         bodyLiterals = bodyLiterals.map((blArg) => {
-          let bl = blArg.substitute(renameTheta);
-          return bl.substitute(unificationTheta);
+          let bl = blArg.substitute(unificationTheta);
+          return bl.substitute(renameTheta);
         });
         let newTheta = compactTheta(thetaSoFar, unificationTheta);
-        let subResult = recursiveResolution(bodyLiterals, newTheta, variablesInUse);
+        let subResult = recursiveResolution(bodyLiterals, {});
         subResult.forEach((r) => {
-          let updatedHeadLiteral = headLiteral.substitute(r.theta);
+          let updatedHeadLiteral = headLiteral.substitute(r.theta).substitute(renameTheta);
           let unificationTheta = Unifier.unifies([[literal, updatedHeadLiteral]]);
           if (unificationTheta === null) {
             return;
           }
+
           literalThetas.push({ theta: unificationTheta });
         });
       });
@@ -138,19 +139,8 @@ Resolutor.explain =
       let newRemainingLiterals = remainingLiterals.slice(1, remainingLiterals.length);
 
       literalThetas.forEach((t) => {
-        if (result === null) {
-          return;
-        }
         let compactedTheta = compactTheta(thetaSoFar, t.theta);
-        Object.keys(compactedTheta).forEach((k) => {
-          if (compactedTheta[k] instanceof Variable) {
-            let otherName = compactedTheta[k].evaluate();
-            if (t.theta[otherName] !== undefined) {
-              compactedTheta[k] = t.theta[otherName];
-            }
-          }
-        });
-        let subResult = recursiveResolution(newRemainingLiterals, compactedTheta, variablesInUse);
+        let subResult = recursiveResolution(newRemainingLiterals, compactedTheta);
         result = result.concat(subResult);
       });
       return result;
