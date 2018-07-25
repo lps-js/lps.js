@@ -809,6 +809,10 @@ function Engine(program, workingDirectory) {
   BuiltinLoader
     .load(program)
     .then(() => {
+      if (program.query(Program.literal('load(p2p)')).length > 0) {
+        let p2pModule = require('./modules/p2p');
+        p2pModule(this, program);
+      }
       // start processing consult declarations in main program
       return Consult.processDeclarations(program, workingDirectory);
     })
