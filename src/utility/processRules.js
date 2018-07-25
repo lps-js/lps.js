@@ -3,23 +3,25 @@ const hasExpiredTimable = require('./hasExpiredTimable');
 const GoalTree = require('../engine/GoalTree');
 const Resolutor = require('../engine/Resolutor');
 
-module.exports = function processRules(program, goals, currentTime) {
+module.exports = function processRules(program, goals, updatedState, currentTime) {
   let rules = program.getRules();
 
   let facts = [
     program.getFacts(),
     program.getState(),
-    program.getExecutedActions()
+    program.getExecutedActions(),
+    updatedState
   ];
 
   let containsTimables = function containsTimables(rule) {
     let bodyLiterals = rule.getBodyLiterals();
     let result = false;
-    bodyLiterals.forEach((literal) => {
-      if (program.isTimable(literal)) {
+    for (let i = 0; i < bodyLiterals.length; i += 1) {
+      if (program.isTimable(bodyLiterals[i])) {
         result = true;
+        break;
       }
-    });
+    }
     return result;
   };
 

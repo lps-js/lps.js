@@ -500,16 +500,17 @@ function Engine(program, workingDirectory) {
           });
         });
 
-        updatedState = updateStateWithFluentActors(executedActions, updatedState);
-
-        // preparation for next cycle
-        program.updateState(updatedState);
         program.setExecutedActions(executedActions);
 
         // build goal clauses for each rule
         // we need to derive the partially executed rule here too
-        let newRules = processRules(program, _goals, _currentTime + 1);
+        let newRules = processRules(program, _goals, updatedState, _currentTime + 1);
         program.updateRules(newRules);
+
+        // preparation for next cycle
+        updatedState = updateStateWithFluentActors(executedActions, updatedState);
+        program.updateState(updatedState);
+
         let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
 
         let newGoals = [];
