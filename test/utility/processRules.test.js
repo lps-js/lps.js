@@ -28,9 +28,8 @@ describe('processRules', () => {
 
     program.setExecutedActions(events);
 
-    let updatedState = new LiteralTreeMap();
     let goals = [];
-    let result = processRules(program, goals, updatedState, 15);
+    let result = processRules(program, goals, 15);
     expect(result).to.be.instanceof(Array);
     expect(result).to.be.length(0);
   });
