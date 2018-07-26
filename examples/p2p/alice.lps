@@ -3,7 +3,6 @@ load(p2p).
 p2pJoin(lending, 4100).
 
 event(wantToBuy(I)).
-event(p2pReceive(N, P, M)).
 
 fluent(money(A)).
 action(buy(I)).

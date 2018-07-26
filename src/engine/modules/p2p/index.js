@@ -5,10 +5,13 @@ const Value = require('../../Value');
 const Program = require('../../../parser/Program');
 
 const net = require('net');
+const path = require('path');
 
 const receiveEventLiteral = Program.literal('p2pReceive(NetworkId, Peer, Message)');
 
 module.exports = (engine, program) => {
+  program.defineEvent('p2pReceive/5');
+
   let declarationProcessor = new P2P2PDeclarationProcessor(engine, program);
 
   let listeningPort = declarationProcessor.processListenDeclarations();
