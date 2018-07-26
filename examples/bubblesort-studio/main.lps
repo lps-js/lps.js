@@ -1,0 +1,29 @@
+maxTime(20).
+
+fluent(locked(Item)).
+fluent(location(Item, Position)).
+action(lock(Item)).
+action(unlock(Item)).
+action(swap(Item1, Pos1, Item2, Pos2)).
+
+initially([
+  location(d, 1),
+  location(c, 2),
+  location(b, 3),
+  location(a, 4)
+]).
+
+initiates(swap(X, N1, Y, N2), location(X, N2)).
+initiates(swap(X, N1, Y, N2), location(Y, N1)).
+
+terminates(swap(X, N1, Y, N2), location(X, N1)).
+terminates(swap(X, N1, Y, N2), location(Y, N2)).
+
+initiates(lock(Item), locked(Item)).
+terminates(unlock(Item), locked(Item)).
+
+<- swap(X, N1, Y, N2, T1, T2), swap(Y, N2, Z, N3, T1, T2).
+<- lock(X, T1, T2), locked(X, T1).
+% <- swap(X, N1, Y, N2, T1, T2), swap(A, N3, B, N4, T1, T2), X != A, Y != B.
+
+consult('./sorter.lps').
