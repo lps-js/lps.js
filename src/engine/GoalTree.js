@@ -257,7 +257,7 @@ function GoalNode(clause, theta) {
     return result;
   };
 
-  this.evaluate = function evaluate(program, forTime, possibleActions, leafNodes) {
+  this.evaluate = function evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue) {
     if (this.hasBranchFailed) {
       return null;
     }
@@ -349,6 +349,7 @@ function GoalNode(clause, theta) {
 
     let functorProvider = program.getFunctorProvider();
 
+    let newChildren = [];
     reductionResult.forEach((r) => {
       let clause = r.clause;
       let nodes = [];
@@ -381,12 +382,35 @@ function GoalNode(clause, theta) {
       };
       recursiveFunctorArgumentProcessing(r.clause, 0);
       nodes.forEach((n) => {
-        this.children.push(n);
+        newChildren.push(n);
       });
     });
 
+    if (hasUntimedConjunctInClause && this.children.length > 0) {
+      for (let i = 0; i < newChildren.length; i += 1) {
+        let result = newChildren[i].evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue);
+        if (result === null || result.length === 0) {
+          continue;
+        }
+        let nodeResult = [];
+        result.forEach((subpath) => {
+          nodeResult.push([this.theta].concat(subpath));
+        });
+        return nodeResult;
+      }
+      this.children = this.children.concat(newChildren);
+
+      if (this.checkIfBranchFailed()) {
+        return null;
+      }
+
+      evaluationQueue.push(this);
+      return [];
+    }
+    this.children = this.children.concat(newChildren);
+
     for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, forTime, possibleActions, leafNodes);
+      let result = this.children[i].evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue);
       if (result === null || result.length === 0) {
         continue;
       }
@@ -405,6 +429,10 @@ function GoalNode(clause, theta) {
       leafNodes.push(this);
     }
 
+    if (this.children.length === 0 || hasUntimedConjunctInClause) {
+      evaluationQueue.push(this);
+    }
+
     return [];
   };
 }
@@ -418,6 +446,7 @@ function GoalTree(goalClause) {
   }
 
   let _leafNodes = [_root];
+  let _evaluateQueue = [_root];
 
   this.checkTreeFailed = function checkTreeFailed() {
     return _root.checkIfBranchFailed();
@@ -435,7 +464,19 @@ function GoalTree(goalClause) {
     return new Promise((resolve) => {
       setTimeout(() => {
         _leafNodes = [];
-        let result = _root.evaluate(program, forTime, possibleActions, _leafNodes);
+        let newEvaluateQueue = [];
+        let result = [];
+
+        for (let i = 0; i < _evaluateQueue.length; i += 1) {
+          let node = _evaluateQueue[i];
+          let nodeResult = node.evaluate(program, forTime, possibleActions, _leafNodes, newEvaluateQueue);
+          if (nodeResult !== null && nodeResult.length !== 0) {
+            result = nodeResult;
+            break;
+          }
+        }
+
+        _evaluateQueue = newEvaluateQueue;
         resolve(result);
       }, 0)
     });
