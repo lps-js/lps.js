@@ -1,4 +1,4 @@
-maxTime(5).
+maxTime(10).
 fluent(location(X, Y)).
 action(swap(A, B, C, D)).
 
@@ -36,3 +36,4 @@ terminates(swap(X, N1, Y, N2), location(X, N1)).
 terminates(swap(X, N1, Y, N2), location(Y, N2)).
 
 <- swap(X, N1, Y, N2, T1, T2), swap(Y, N2, Z, N3, T1, T2).
+% <- swap(X, N1, Y, N2, T1, T2), swap(A, N3, B, N4, T1, T2), X != A, Y != B.
