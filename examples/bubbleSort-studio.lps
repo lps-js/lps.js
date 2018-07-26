@@ -1,0 +1,24 @@
+consult('./bubbleSort.lps').
+
+cycleInterval(1000).
+
+locationScreen(1, 100, 100).
+locationScreen(2, 200, 100).
+locationScreen(3, 300, 100).
+locationScreen(4, 400, 100).
+
+load_image(a, 'https://png.icons8.com/metro/64/a-lowercase.png').
+load_image(b, 'https://png.icons8.com/metro/64/b-lowercase.png').
+load_image(c, 'https://png.icons8.com/metro/64/c-lowercase.png').
+load_image(d, 'https://png.icons8.com/metro/64/d-lowercase.png').
+
+true ->
+  location(Item, Loc, 1),
+  locationScreen(Loc, X, Y),
+  draw_image(Item, X, Y, 64, 64, Item).
+
+swap(A, J, B, K, T1, T2) ->
+  locationScreen(J, X1, Y1),
+  locationScreen(K, X2, Y2),
+  move(A, X2, Y2),
+  move(B, X1, Y1).
