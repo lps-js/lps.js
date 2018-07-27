@@ -94,6 +94,9 @@ let functors = {
       return result;
     }
 
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
+    }
     assertIsValue(v1);
     assertIsValue(v2);
 
@@ -123,6 +126,9 @@ let functors = {
       return result;
     }
 
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
+    }
     assertIsValue(v1);
     assertIsValue(v2);
 
@@ -152,6 +158,9 @@ let functors = {
       return result;
     }
 
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
+    }
     assertIsValue(v1);
     assertIsValue(v2);
 
@@ -179,6 +188,10 @@ let functors = {
         result = result.concat(functors['//2'](v1, instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -210,6 +223,10 @@ let functors = {
       return result;
     }
 
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
+    }
+
     assertIsValue(v1);
     assertIsValue(v2);
 
@@ -229,6 +246,10 @@ let functors = {
         result = result.concat(functors['-/1'](instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -259,6 +280,10 @@ let functors = {
       return result;
     }
 
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
+    }
+
     assertIsValue(v1);
     assertIsValue(v2);
     let num1 = Number(v1.evaluate());
@@ -280,6 +305,10 @@ let functors = {
         result = result.concat(functors['>=/2'](instance, v2Arg));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
     }
 
     let v2 = resolveValue.call(this, v2Arg);
@@ -319,6 +348,10 @@ let functors = {
         result = result.concat(functors['</2'](v1, instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -368,6 +401,10 @@ let functors = {
       return result;
     }
 
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
+    }
+
     assertIsValue(v1);
     assertIsValue(v2);
 
@@ -398,6 +435,10 @@ let functors = {
         result = result.concat(functors['==/2'](v1, instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -431,6 +472,10 @@ let functors = {
       return result;
     }
 
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
+    }
+
     assertIsValue(v1);
     assertIsValue(v2);
     let num1 = v1.evaluate();
@@ -453,6 +498,10 @@ let functors = {
         result = result.concat(functors['abs/1'](instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);

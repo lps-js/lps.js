@@ -94,7 +94,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
 
     if (literalThetas.length === 0) {
       // check for indefinite failure
-      if (conjunct.isGround() && !program.isTimable(conjunct)) {
+      if (conjunct.isGround()) {
         return false;
       }
 
@@ -257,21 +257,34 @@ function GoalNode(clause, theta) {
     return result;
   };
 
-  this.evaluate = function evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue) {
+  this.evaluate = function evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses) {
+    if (resolvedGoalClauses['' + this.clause] !== undefined) {
+      if (resolvedGoalClauses['' + this.clause] === null) {
+        this.hasBranchFailed = true;
+      }
+      return resolvedGoalClauses['' + this.clause];
+    }
+
     if (this.hasBranchFailed) {
+      resolvedGoalClauses['' + this.clause] = null;
       return null;
     }
 
     if (this.clause.length === 0) {
+      resolvedGoalClauses['' + this.clause] = [[this.theta]];
       return [[this.theta]];
     }
+
+    // if (this.children.length > 0 && !hasUntimedConjunct) {
+    //   return [];
+    // }
 
     // only attempt to resolve the first literal left to right
     let reductionResult = [];
     let processCompositeEvent = true;
     let conjunct = this.clause[0];
 
-    if (this.children.length === 0 && reductionResult.length === 0) {
+    if (reductionResult.length === 0) {
       let usedVariables = {};
       for (let i = 0; i < this.clause.length; i += 1) {
         this.clause[i].getVariables().forEach((v) => {
@@ -309,18 +322,20 @@ function GoalNode(clause, theta) {
       }
     }
 
-    let hasUntimedConjunctInClause = hasUntimedConjunct(program);
-    if (hasUntimedConjunctInClause || (reductionResult.length === 0 && this.children.length === 0)) {
+    let hasUntimedConjunctInClause = program.isTimableUntimed(conjunct);
+    // console.log('' + conjunct + ' ' + hasUntimedConjunctInClause)
+    if (hasUntimedConjunctInClause || reductionResult.length === 0) {
       let stateConditionResolutionResult = resolveStateConditions(program, clause, possibleActions, forTime);
       if (stateConditionResolutionResult === null) {
         this.hasBranchFailed = true;
+        resolvedGoalClauses['' + this.clause] = null;
         return null;
       } else {
         reductionResult = reductionResult.concat(stateConditionResolutionResult);
       }
     }
 
-    if (reductionResult.length === 0 && this.children.length === 0) {
+    if (reductionResult.length === 0) {
       // check for expired conjuncts
       for (let i = 0; i < this.clause.length; i += 1) {
         let literal = this.clause[i];
@@ -329,6 +344,7 @@ function GoalNode(clause, theta) {
           let lastArg = literalArgs[literalArgs.length - 1];
           if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
             this.hasBranchFailed = true;
+            resolvedGoalClauses['' + this.clause] = null;
             return null;
           }
         } else if (program.isAction(literal) || program.isEvent(literal)) {
@@ -337,10 +353,12 @@ function GoalNode(clause, theta) {
 
           if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
             this.hasBranchFailed = true;
+            resolvedGoalClauses['' + this.clause] = null;
             return null;
           }
           if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
             this.hasBranchFailed = true;
+            resolvedGoalClauses['' + this.clause] = null;
             return null;
           }
         }
@@ -386,53 +404,51 @@ function GoalNode(clause, theta) {
       });
     });
 
-    if (hasUntimedConjunctInClause && this.children.length > 0) {
-      for (let i = 0; i < newChildren.length; i += 1) {
-        let result = newChildren[i].evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue);
-        if (result === null || result.length === 0) {
-          continue;
+    let numFailed = 0;
+    for (let i = 0; i < newChildren.length; i += 1) {
+      if (resolvedGoalClauses[''+newChildren[i].clause] !== undefined) {
+        if (resolvedGoalClauses[''+newChildren[i].clause] === null) {
+          numFailed += 1;
         }
-        let nodeResult = [];
-        result.forEach((subpath) => {
-          nodeResult.push([this.theta].concat(subpath));
-        });
-        return nodeResult;
+        continue;
       }
-      this.children = this.children.concat(newChildren);
-
-      if (this.checkIfBranchFailed()) {
-        return null;
-      }
-
-      evaluationQueue.push(this);
-      return [];
-    }
-    this.children = this.children.concat(newChildren);
-
-    for (let i = 0; i < this.children.length; i += 1) {
-      let result = this.children[i].evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue);
+      this.children.push(newChildren[i]);
+      let result = newChildren[i].evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses);
       if (result === null || result.length === 0) {
+        if (result === null) {
+          numFailed += 1;
+        }
         continue;
       }
       let nodeResult = [];
       result.forEach((subpath) => {
         nodeResult.push([this.theta].concat(subpath));
       });
+      resolvedGoalClauses['' + this.clause] = nodeResult;
       return nodeResult;
     }
+    // this.children = this.children.concat(newChildren);
 
-    if (this.checkIfBranchFailed()) {
+    if (numFailed > 0 && numFailed === newChildren.length) {
+      resolvedGoalClauses['' + this.clause] = null;
+      this.hasBranchFailed = true;
       return null;
     }
 
-    if (this.children.length === 0) {
+    if (this.checkIfBranchFailed()) {
+      resolvedGoalClauses['' + this.clause] = null;
+      return null;
+    }
+
+    if (newChildren.length === 0 && this.children.length === 0) {
       leafNodes.push(this);
     }
 
-    if (this.children.length === 0 || hasUntimedConjunctInClause) {
+    if (this.children.length === 0) {
       evaluationQueue.push(this);
     }
 
+    resolvedGoalClauses['' + this.clause] = [];
     return [];
   };
 }
@@ -466,10 +482,11 @@ function GoalTree(goalClause) {
         _leafNodes = [];
         let newEvaluateQueue = [];
         let result = [];
+        let resolvedGoalClauses = {};
 
         for (let i = 0; i < _evaluateQueue.length; i += 1) {
           let node = _evaluateQueue[i];
-          let nodeResult = node.evaluate(program, forTime, possibleActions, _leafNodes, newEvaluateQueue);
+          let nodeResult = node.evaluate(program, forTime, possibleActions, _leafNodes, newEvaluateQueue, resolvedGoalClauses);
           if (nodeResult !== null && nodeResult.length !== 0) {
             result = nodeResult;
             break;
