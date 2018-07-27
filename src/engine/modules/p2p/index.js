@@ -10,17 +10,23 @@ const path = require('path');
 const receiveEventLiteral = Program.literal('p2pReceive(NetworkId, Peer, Message)');
 
 module.exports = (engine, program) => {
+  // ensure that p2pReceive/5 is defined in the program so that developer do not
+  // need to do it manually.
   program.defineEvent('p2pReceive/5');
 
   let declarationProcessor = new P2P2PDeclarationProcessor(engine, program);
 
+  // check if a user-preferred port number is defined
   let listeningPort = declarationProcessor.processListenDeclarations();
   if (listeningPort === undefined) {
+    // default to a random port
     listeningPort = 0;
-
   }
+
+  // process network declarations
   let networks = declarationProcessor.processNetworkDeclarations();
 
+  // start listening server
   const server = net.createServer((socket) => {
     socket.on('data', (buf) => {
       let data;
