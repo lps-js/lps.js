@@ -5,7 +5,6 @@ const Variable = require('./Variable');
 const Value = require('./Value');
 const variableArrayRename = require('../utility/variableArrayRename');
 const compactTheta = require('../utility/compactTheta');
-const constraintCheck = require('../utility/constraintCheck');
 const hasExpiredTimable = require('../utility/hasExpiredTimable');
 
 let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, usedVariables) {
@@ -245,18 +244,6 @@ function GoalNode(clause, theta) {
     return false;
   };
 
-  let hasUntimedConjunct = function hasUntimedConjunct(program) {
-    let result = false;
-    for (let i = 0; i < clause.length; i += 1) {
-      let conjunct = clause[i];
-      if (program.isTimableUntimed(conjunct)) {
-        result = true;
-        break;
-      }
-    }
-    return result;
-  };
-
   this.evaluate = function evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses) {
     if (resolvedGoalClauses['' + this.clause] !== undefined) {
       if (resolvedGoalClauses['' + this.clause] === null) {
@@ -274,10 +261,6 @@ function GoalNode(clause, theta) {
       resolvedGoalClauses['' + this.clause] = [[this.theta]];
       return [[this.theta]];
     }
-
-    // if (this.children.length > 0 && !hasUntimedConjunct) {
-    //   return [];
-    // }
 
     // only attempt to resolve the first literal left to right
     let reductionResult = [];
@@ -468,10 +451,6 @@ function GoalTree(goalClause) {
     return _root.checkIfBranchFailed();
   };
 
-  this.updateRoot = function updateRoot(newNode) {
-    _root = newNode;
-  };
-
   this.getRootClause = function () {
     return _root.clause.map(l => '' + l);
   };
@@ -500,9 +479,6 @@ function GoalTree(goalClause) {
   };
 
   this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, currentTime, callback) {
-    let subtrees = [];
-    let tree = this;
-
     let functorProvider = program.getFunctorProvider();
     _leafNodes.forEach((node) => {
       let candidateActionSets = [];
