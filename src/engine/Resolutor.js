@@ -3,7 +3,6 @@ const LiteralTreeMap = require('./LiteralTreeMap');
 const variableArrayRename = require('../utility/variableArrayRename');
 const compactTheta = require('../utility/compactTheta');
 const Unifier = require('./Unifier');
-const Variable = require('./Variable');
 
 function Resolutor() {}
 
@@ -119,11 +118,10 @@ Resolutor.explain =
           let bl = blArg.substitute(unificationTheta);
           return bl.substitute(renameTheta);
         });
-        let newTheta = compactTheta(thetaSoFar, unificationTheta);
         let subResult = recursiveResolution(bodyLiterals, {});
         subResult.forEach((r) => {
           let updatedHeadLiteral = headLiteral.substitute(r.theta).substitute(renameTheta);
-          let unificationTheta = Unifier.unifies([[literal, updatedHeadLiteral]]);
+          unificationTheta = Unifier.unifies([[literal, updatedHeadLiteral]]);
           if (unificationTheta === null) {
             return;
           }

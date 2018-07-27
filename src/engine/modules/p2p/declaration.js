@@ -10,7 +10,6 @@ const defaultPort = 4100;
 const defaultAddress = '127.0.0.1';
 
 function P2PDeclarationProcessor(engine, program) {
-
   this.processListenDeclarations = function processListenDeclarations() {
     let result = [];
     result = result.concat(program.query(listenLiteral));
@@ -59,7 +58,6 @@ function P2PDeclarationProcessor(engine, program) {
 
     return networks;
   };
-
 }
 
 module.exports = P2PDeclarationProcessor;

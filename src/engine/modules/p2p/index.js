@@ -5,7 +5,6 @@ const Value = require('../../Value');
 const Program = require('../../../parser/Program');
 
 const net = require('net');
-const path = require('path');
 
 const receiveEventLiteral = Program.literal('p2pReceive(NetworkId, Peer, Message)');
 
@@ -39,7 +38,6 @@ module.exports = (engine, program) => {
       if (data === undefined) {
         return;
       }
-      console.log('Received from ' + socket.remoteAddress + ':' + data.port);
 
       let theta = {
         NetworkId: new Value(data.networkId),

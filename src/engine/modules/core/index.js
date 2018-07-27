@@ -307,16 +307,16 @@ let functors = {
       return result;
     }
 
-    if (v1 instanceof Variable || v2 instanceof Variable) {
-      return [];
-    }
-
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
         result = result.concat(functors['>=/2'](v1, instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
