@@ -1,7 +1,4 @@
 const Functor = require('./Functor');
-const List = require('./List');
-const Value = require('./Value');
-const Variable = require('./Variable');
 const fs = require('fs');
 
 const functorIdentifierRegex = /^[^\s_A-Z][^\s]*\/[1-9][0-9]*$/;
