@@ -6,7 +6,8 @@ require('mocha-sinon');
 
 let testFunction = function testFunction(file) {
   describe(file + '.lps', () => {
-    it('should pass all expectations', (done) => {
+    it('should pass all expectations', function (done) {
+      this.timeout(5000);
       LPS.load(__dirname + '/' + file + '.lps')
         .then((engine) => {
           return engine.test(__dirname + '/' + file + '.spec.lps');
