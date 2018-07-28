@@ -6,9 +6,9 @@ const functorIdentifierRegex = /^[^\s_A-Z][^\s]*\/[1-9][0-9]*$/;
 function FunctorProvider(program) {
   let _functors = {
     '!/1': [
-      function (literal) {
+      (literal) => {
         if (!(literal instanceof Functor)) {
-          throw new Error('Literal not functor');
+          throw new Error('Literal not functor in !/1 argument');
         }
         let queryResult = program.query(literal);
         let result = [];
