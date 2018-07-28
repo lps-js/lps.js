@@ -509,19 +509,6 @@ function GoalTree(goalClause) {
     });
   };
 
-  this.clone = function clone() {
-    let cloneNode = function cloneNode(node) {
-      let clonedNode = new GoalNode(node.clause, node.theta);
-      node.children.forEach((childNode) => {
-        let clonedChild = cloneNode(childNode);
-        clonedNode.children.push(clonedChild);
-      });
-      return clonedNode;
-    }
-    let clonedRoot = cloneNode(_root);
-    return new GoalTree(clonedRoot);
-  };
-
   this.toJSON = function toJSON() {
     let processNode = function processNode(node) {
       let children = [];
