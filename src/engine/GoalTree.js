@@ -327,35 +327,34 @@ function GoalNode(clause, theta) {
       }
     }
 
-    if (reductionResult.length === 0) {
-      // check for expired conjuncts
-      for (let i = 0; i < this.clause.length; i += 1) {
-        let literal = this.clause[i];
+    // check for expired conjuncts
+    reductionResult = reductionResult.filter((n) => {
+      for (let i = 0; i < n.clause.length; i += 1) {
+        let literal = n.clause[i];
         let literalArgs = literal.getArguments();
         if (program.isFluent(literal)) {
           let lastArg = literalArgs[literalArgs.length - 1];
           if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
-            this.hasBranchFailed = true;
-            resolvedGoalClauses['' + this.clause] = null;
-            return null;
+            return false;
           }
         } else if (program.isAction(literal) || program.isEvent(literal)) {
           let startTimeArg = literalArgs[literalArgs.length - 2];
           let endTimeArg = literalArgs[literalArgs.length - 1];
 
           if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
-            this.hasBranchFailed = true;
-            resolvedGoalClauses['' + this.clause] = null;
-            return null;
+            return false;
           }
           if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
-            this.hasBranchFailed = true;
-            resolvedGoalClauses['' + this.clause] = null;
-            return null;
+            return false;
+          }
+
+          if (startTimeArg instanceof Value && endTimeArg instanceof Value && startTimeArg.evaluate() > endTimeArg.evaluate()) {
+            return false;
           }
         }
       }
-    }
+      return true;
+    });
 
     let functorProvider = program.getFunctorProvider();
 
