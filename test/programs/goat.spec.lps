@@ -1,0 +1,30 @@
+expect(maxTime(8)).
+
+expect(fluent, 1, 8, loc(wolf, _)).
+expect(fluent, 1, 8, loc(goat, _)).
+expect(fluent, 1, 8, loc(cabbage, _)).
+expect(fluent, 1, 8, loc(farmer, _)).
+
+expect(fluent, 8, loc(wolf, north)).
+expect(fluent, 8, loc(goat, north)).
+expect(fluent, 8, loc(cabbage, north)).
+expect(fluent, 8, loc(farmer, north)).
+
+expect(action, 1, 2, row(south, north)).
+expect(action, 1, 2, transport(goat, south, north)).
+
+expect(action, 2, 3, row(north, south)).
+
+expect(action, 3, 4, row(south, north)).
+expect(action, 3, 4, transport(wolf, south, north)).
+
+expect(action, 4, 5, row(north, south)).
+expect(action, 4, 5, transport(goat, north, south)).
+
+expect(action, 5, 6, row(south, north)).
+expect(action, 5, 6, transport(cabbage, south, north)).
+
+expect(action, 6, 7, row(north, south)).
+
+expect(action, 7, 8, row(south, north)).
+expect(action, 7, 8, transport(goat, south, north)).

@@ -1,5 +1,5 @@
 maxTime(8).
-cycleInterval(350).
+cycleInterval(400).
 
 actions([
   row(_, _),
