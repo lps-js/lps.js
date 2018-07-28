@@ -12,8 +12,7 @@ load_image(b, 'https://png.icons8.com/metro/64/b-lowercase.png').
 load_image(c, 'https://png.icons8.com/metro/64/c-lowercase.png').
 load_image(d, 'https://png.icons8.com/metro/64/d-lowercase.png').
 
-true ->
-  location(Item, Loc, 1),
+location(Item, Loc, 1) ->
   locationScreen(Loc, X, Y),
   draw_image(Item, X, Y, 64, 64, Item).
 
