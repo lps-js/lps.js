@@ -1,4 +1,6 @@
 maxTime(8).
+cycleInterval(350).
+
 actions([
   row(_, _),
   transport(_, _, _)
@@ -12,7 +14,8 @@ initially([
   loc(farmer, south)
 ]).
 
-loc(Object, south, T1), Object != farmer -> makeLoc(Object, north, T2, T3).
+loc(Object, south, T1), Object != farmer ->
+  makeLoc(Object, north, T2, T3).
 
 makeLoc(Object, Location1, T1, T3) <-
   Object != farmer,
