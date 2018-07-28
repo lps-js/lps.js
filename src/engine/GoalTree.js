@@ -394,16 +394,10 @@ function GoalNode(clause, theta) {
         newChildren.push(n);
       });
     });
+    this.children = this.children.concat(newChildren);
 
     let numFailed = 0;
     for (let i = 0; i < newChildren.length; i += 1) {
-      if (resolvedGoalClauses[''+newChildren[i].clause] !== undefined) {
-        if (resolvedGoalClauses[''+newChildren[i].clause] === null) {
-          numFailed += 1;
-        }
-        continue;
-      }
-      this.children.push(newChildren[i]);
       let result = newChildren[i].evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses);
       if (result === null || result.length === 0) {
         if (result === null) {
@@ -420,7 +414,7 @@ function GoalNode(clause, theta) {
     }
     // this.children = this.children.concat(newChildren);
 
-    if (numFailed > 0 && numFailed === newChildren.length) {
+    if (!isFirstConjunctUntimed && newChildren.length > 0 && numFailed === newChildren.length) {
       resolvedGoalClauses['' + this.clause] = null;
       this.hasBranchFailed = true;
       return null;
