@@ -248,9 +248,13 @@ function Program(nodeTree, functorProviderArg) {
       || _actions[id] !== undefined;
   };
 
-  let processLiteralId = function processLiteralId(literal) {
-    let result = literal;
-    if (literal instanceof Functor) {
+  let processLiteralId = function processLiteralId(literalArg) {
+    let result = literalArg;
+    if (literalArg instanceof Functor) {
+      let literal = literalArg;
+      while (literal instanceof Functor && literal.getId() === '!/1') {
+        literal = literal.getArguments()[0];
+      }
       result = literal.getId();
     }
     return result;
