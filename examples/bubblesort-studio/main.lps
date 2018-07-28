@@ -2,8 +2,8 @@ maxTime(20).
 
 fluent(locked(Item)).
 fluent(location(Item, Position)).
-action(lock(Item)).
-action(unlock(Item)).
+action(lock(Item1, Item2)).
+action(unlock(Item1, Item2)).
 action(swap(Item1, Pos1, Item2, Pos2)).
 
 initially([
@@ -19,11 +19,15 @@ initiates(swap(X, N1, Y, N2), location(Y, N1)).
 terminates(swap(X, N1, Y, N2), location(X, N1)).
 terminates(swap(X, N1, Y, N2), location(Y, N2)).
 
-initiates(lock(Item), locked(Item)).
-terminates(unlock(Item), locked(Item)).
+initiates(lock(Item1, Item2), locked(Item1)).
+initiates(lock(Item1, Item2), locked(Item2)).
+terminates(unlock(Item1, Item2), locked(Item1)).
+terminates(unlock(Item1, Item2), locked(Item2)).
 
 <- swap(X, N1, Y, N2, T1, T2), swap(Y, N2, Z, N3, T1, T2).
-<- lock(X, T1, T2), locked(X, T1).
+<- lock(X, Y, T1, T2), lock(Y, Z, T1, T2).
+<- lock(X, Y, T1, T2), locked(X, T1).
+<- lock(X, Y, T1, T2), locked(Y, T1).
 % <- swap(X, N1, Y, N2, T1, T2), swap(A, N3, B, N4, T1, T2), X != A, Y != B.
 
 consult('./sorter.lps').

@@ -6,11 +6,9 @@ decideSwap(X, N1, Y, N2, T1, T2) <-
   location(X, N1, T1),
   location(Y, N2, T1),
   Y @< X,
-  lock(X, T1, T2),
-  lock(Y, T1, T2),
+  lock(X, Y, T1, T2),
   swap(X, N1, Y, N2, T2, T3),
-  unlock(X, T2, T3),
-  unlock(Y, T2, T3).
+  unlock(X, Y, T2, T3).
 
 
 decideSwap(X, N1, Y, N2, T, T) <- 
