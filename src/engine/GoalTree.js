@@ -494,9 +494,6 @@ function GoalTree(goalClause) {
 
       for (let i = 0; i < candidateActionSets.length; i += 1) {
         let unresolved = unresolvedSets[i];
-        if (hasExpiredTimable(unresolved, program, currentTime)) {
-          continue;
-        }
         let candidateActions = candidateActionSets[i];
         callback(candidateActions);
       }
