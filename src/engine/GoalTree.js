@@ -426,20 +426,16 @@ function GoalNode(clause, theta) {
       return null;
     }
 
-    if (this.checkIfBranchFailed()) {
-      resolvedGoalClauses['' + this.clause] = null;
-      return null;
-    }
-
-    if (newChildren.length === 0 && this.children.length === 0) {
+    if (this.children.length === 0) {
       leafNodes.push(this);
     }
 
-    if (this.children.length === 0) {
+    if (newChildren.length === 0 || isFirstConjunctUntimed) {
       evaluationQueue.push(this);
+    } else {
+      resolvedGoalClauses['' + this.clause] = [];
     }
 
-    resolvedGoalClauses['' + this.clause] = [];
     return [];
   };
 }
