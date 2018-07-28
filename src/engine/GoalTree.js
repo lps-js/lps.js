@@ -147,7 +147,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
         return c.substitute(newThetaSoFar);
       });
 
-      let subResult = processClause(substitutedRemainingUnresolvedClause, substitutedClauseSoFar, newThetaSoFar, newVariablesSeenSoFar);
+      let subResult = processClause([], substitutedClauseSoFar.concat(substitutedRemainingUnresolvedClause), newThetaSoFar, newVariablesSeenSoFar);
       if (!subResult) {
         numFailures += 1;
       }
@@ -258,7 +258,6 @@ function GoalNode(clause, theta) {
     }
 
     if (this.clause.length === 0) {
-      resolvedGoalClauses['' + this.clause] = [[this.theta]];
       return [[this.theta]];
     }
 
@@ -275,11 +274,15 @@ function GoalNode(clause, theta) {
         });
       }
       usedVariables = Object.keys(usedVariables);
-      for (let i = 0; i < 1; i += 1) {
+      for (let i = 0; i < this.clause.length; i += 1) {
         let literal = this.clause[i];
         if (program.isFluent(literal) || (literal instanceof Functor && literal.getId() === '!/1' && program.isFluent(literal.getArguments()[0]))) {
           break;
         }
+        if (program.isAction(literal)) {
+          continue;
+        }
+
         let otherLiteralsFront = this.clause.slice(0, i);
         let otherLiteralsBack = this.clause.slice(i + 1, this.clause.length);
         let compositeReductionResult = reduceCompositeEvent(literal, program.getClauses(), usedVariables);
@@ -299,21 +302,27 @@ function GoalNode(clause, theta) {
             .concat(remappedClauseBack);
           reductionResult.push(new GoalNode(newClause, crrArg.theta));
         });
-        if (reductionResult.length > 0) {
-          break;
-        }
+        break;
       }
     }
 
-    let hasUntimedConjunctInClause = program.isTimableUntimed(conjunct);
-    // console.log('' + conjunct + ' ' + hasUntimedConjunctInClause)
-    if (hasUntimedConjunctInClause || reductionResult.length === 0) {
+    let hasUntimedConjunctInClause = false;
+    for (let i = 0; i < this.clause.length; i += 1) {
+      if (program.isFluent(this.clause[i]) && program.isTimableUntimed(this.clause[i])) {
+        hasUntimedConjunctInClause = true;
+        break;
+      }
+    }
+
+    let isFirstConjunctUntimed = program.isTimableUntimed(conjunct);
+    if (reductionResult.length === 0) {
       let stateConditionResolutionResult = resolveStateConditions(program, clause, possibleActions, forTime);
-      if (stateConditionResolutionResult === null) {
+      if (stateConditionResolutionResult === null && !hasUntimedConjunctInClause) {
         this.hasBranchFailed = true;
         resolvedGoalClauses['' + this.clause] = null;
         return null;
-      } else {
+      }
+      if (stateConditionResolutionResult !== null) {
         reductionResult = reductionResult.concat(stateConditionResolutionResult);
       }
     }
