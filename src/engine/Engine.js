@@ -24,6 +24,7 @@ function Engine(program, workingDirectory) {
   let _cycleInterval = 100; // milliseconds
   let _isContinuousExecution = false;
   let _isInCycle = false;
+  let _isPaused = false;
 
   let _engineEventManager = new EventManager();
 
@@ -669,6 +670,7 @@ function Engine(program, workingDirectory) {
 
   this.terminate = function terminate() {
     _maxTime = _currentTime;
+    _isPaused = false;
   };
 
   this.step = function step() {
@@ -676,6 +678,9 @@ function Engine(program, workingDirectory) {
       // previous cycle has not ended.
       this.terminate();
       throw new Error('Previous cycle has exceeded its time limit of ' + _cycleInterval + 'ms. LPS will now terminate.');
+    }
+    if (_isPaused) {
+      return Promise.resolve();
     }
     _engineEventManager.notify('preCycle', this);
     _isInCycle = true;
@@ -692,40 +697,54 @@ function Engine(program, workingDirectory) {
       });
   };
 
-  this.run = function run() {
-    if (this.hasTerminated()) {
-      return null;
-    }
-    let result = [];
-    _engineEventManager.notify('run', this);
-    if (_isContinuousExecution) {
-      let continuousExecutionFunc = () => {
-        let timer = setTimeout(() => {
-          this.terminate();
-          throw new Error('Previous cycle has exceeded its time limit of ' + _cycleInterval + 'ms. LPS will now terminate.');
-        }, _cycleInterval);
-        this.step()
-          .then(() => {
-            clearTimeout(timer);
-            if (this.hasTerminated()) {
-              _engineEventManager.notify('done', this);
-              return;
-            }
-            continuousExecutionFunc();
-          });
-      };
-      continuousExecutionFunc();
-      return;
-    }
+  let _startContinuousExecution = () => {
+    let continuousExecutionFunc = () => {
+      if (_isPaused) {
+        return;
+      }
+      let timer = setTimeout(() => {
+        this.terminate();
+        throw new Error('Previous cycle has exceeded its time limit of ' + _cycleInterval + 'ms. LPS will now terminate.');
+      }, _cycleInterval);
+      this.step()
+        .then(() => {
+          clearTimeout(timer);
+          if (this.hasTerminated()) {
+            _engineEventManager.notify('done', this);
+            return;
+          }
+          continuousExecutionFunc();
+        });
+    };
+    continuousExecutionFunc();
+  };
 
+  let _startNormalExecution = () => {
     let timer = setInterval(() => {
       if (this.hasTerminated()) {
         clearInterval(timer);
         _engineEventManager.notify('done', this);
         return;
       }
+      if (_isPaused) {
+        clearInterval(timer);
+        return;
+      }
       this.step();
     }, _cycleInterval);
+  };
+
+  this.run = function run() {
+    if (this.hasTerminated()) {
+      return;
+    }
+    let result = [];
+    _engineEventManager.notify('run', this);
+    if (_isContinuousExecution) {
+      _startContinuousExecution();
+      return;
+    }
+    _startNormalExecution();
   };
 
   this.define = function define(name, callback) {
@@ -737,8 +756,27 @@ function Engine(program, workingDirectory) {
     return this;
   };
 
-  this.observe = function(observation) {
+  this.observe = function observe(observation) {
     this.scheduleObservation(observation, _currentTime);
+  };
+
+  this.pause = function pause() {
+    if (this.hasTerminated()) {
+      return;
+    }
+    _isPaused = true;
+  };
+
+  this.unpause = function unpause() {
+    if (this.hasTerminated()) {
+      return;
+    }
+    _isPaused = false;
+    if (_isContinuousExecution) {
+      _startContinuousExecution();
+      return;
+    }
+    _startNormalExecution();
   };
 
   this.scheduleObservation = function scheduleObservation(observation, startTime, endTime) {
