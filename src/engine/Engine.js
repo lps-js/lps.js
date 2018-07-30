@@ -670,6 +670,9 @@ function Engine(program, workingDirectory) {
 
   this.terminate = function terminate() {
     _maxTime = _currentTime;
+    if (_isPaused) {
+      _engineEventManager.notify('done', this);
+    }
     _isPaused = false;
   };
 
