@@ -1,0 +1,3 @@
+loadModule('./module.js').
+
+true -> testPrint('Hello World').
