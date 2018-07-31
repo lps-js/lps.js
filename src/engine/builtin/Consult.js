@@ -8,7 +8,14 @@ const consultLiteral1 = Program.literal('consult(File)');
 const consultLiteral2 = Program.literal('consult(File, Id)');
 const processIdLiteral = Program.literal('processId(Id)');
 
-function Consult(targetProgram) {
+const loadModuleLiteral = Program.literal('loadModule(Module)');
+
+const builtinModulePath = path.join(__dirname, '../modules');
+const builtinModules = [
+  'p2p'
+];
+
+function Consult(engine, targetProgram) {
   this.consultFile = function consultFile(file) {
     return Program.fromFile(file)
       .then((loadedProgram) => {
@@ -96,6 +103,25 @@ function Consult(targetProgram) {
         });
       promises.push(promise);
     });
+
+    let moduleResult = currentProgram.query(loadModuleLiteral);
+    moduleResult.forEach((r) => {
+      if (r.theta.Module === undefined || !(r.theta.Module instanceof Value)) {
+        return;
+      }
+      let moduleArg = r.theta.Module.evaluate();
+      let builtinIndex = builtinModules.indexOf(moduleArg);
+      if (builtinIndex !== -1) {
+        let moduleName = builtinModules[builtinIndex];
+        let module = require(path.join(builtinModulePath, moduleName));
+        module(engine, targetProgram);
+        return;
+      }
+      let pathname = path.resolve(workingDirectory, moduleArg);
+      let module = require(pathname);
+      module(engine, targetProgram);
+    });
+
     return Promise.all(promises);
   };
 
@@ -104,8 +130,8 @@ function Consult(targetProgram) {
   };
 }
 
-Consult.processDeclarations = function processDeclarations(program, workingDirectory) {
-  let consult = new Consult(program);
+Consult.processDeclarations = function processDeclarations(engine, program, workingDirectory) {
+  let consult = new Consult(engine, program);
   return consult.process(workingDirectory);
 };
 
