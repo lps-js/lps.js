@@ -25,6 +25,7 @@ function Engine(program, workingDirectory) {
   let _isContinuousExecution = false;
   let _isInCycle = false;
   let _isPaused = false;
+  let _isRunning = false;
 
   let _engineEventManager = new EventManager();
 
@@ -577,8 +578,8 @@ function Engine(program, workingDirectory) {
     if (typeof newCycleInterval !== 'number' || newCycleInterval <= 0) {
       throw new Error('Argument for setCycleInterval() must be a number greater than zero.');
     }
-    if (_isInCycle || _currentTime > 0) {
-      throw new Error('Cycle Interval can only be set before the LPS program starts.');
+    if (_isRunning) {
+      throw new Error('Cannot set cycle interval. Cycle Interval can only be set before the LPS program starts.');
     }
     _cycleInterval = newCycleInterval;
   };
@@ -591,8 +592,8 @@ function Engine(program, workingDirectory) {
     if (typeof val !== 'boolean') {
       throw new Error('Argument for setContinuousExecution() must be a boolean value.');
     }
-    if (_isInCycle || _currentTime > 0) {
-      throw new Error('Continuous Execution can only be set before the LPS program starts.');
+    if (_isRunning) {
+      throw new Error('Cannot set execution mode. Continuous Execution can only be set before the LPS program starts.');
     }
     _isContinuousExecution = val;
   };
@@ -747,6 +748,7 @@ function Engine(program, workingDirectory) {
     if (this.hasTerminated()) {
       return;
     }
+    _isRunning = true;
     let result = [];
     _engineEventManager.notify('run', this);
     if (_isContinuousExecution) {
@@ -757,6 +759,9 @@ function Engine(program, workingDirectory) {
   };
 
   this.define = function define(name, callback) {
+    if (_isRunning) {
+      throw new Error('Cannot define JS predicates after starting LPS execution');
+    }
     program.getFunctorProvider().define(name, callback);
   };
 
@@ -833,6 +838,9 @@ function Engine(program, workingDirectory) {
   };
 
   this.test = function test(specFile) {
+    if (_isRunning) {
+      throw new Error('Cannot test LPS program with specification file after starting LPS execution');
+    }
     let tester = new Tester(this);
     return tester.test(specFile);
   };
