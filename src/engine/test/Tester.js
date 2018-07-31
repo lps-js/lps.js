@@ -103,7 +103,7 @@ function Tester(engine) {
     return Program.fromFile(specFile)
       .then((p) => {
         program = p;
-        return BuiltinLoader.load(program);
+        return BuiltinLoader.load(engine, program);
       })
       .then(() => {
         Observation.processDeclarations(engine, program);
