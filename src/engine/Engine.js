@@ -603,6 +603,9 @@ function Engine(program, workingDirectory) {
 
   this.getLastStepActions = function getLastStepActions() {
     let actions = [];
+    if (_lastStepActions === null) {
+      return actions;
+    }
     _lastStepActions.forEach((action) => {
       actions.push(action.toString());
     });
@@ -618,6 +621,9 @@ function Engine(program, workingDirectory) {
 
   this.getLastStepObservations = function getLastStepObservations() {
     let observations = [];
+    if (_lastStepObservations === null) {
+      return actions;
+    }
     _lastStepObservations.forEach((observation) => {
       observations.push(observation.toString());
     });
