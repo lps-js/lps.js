@@ -1,4 +1,4 @@
-load(p2p).
+loadModule(p2p).
 
 p2pJoin(lending, 4100).
 
