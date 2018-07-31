@@ -7,6 +7,7 @@ observe(F, T, T2) <- observe(F, T), T2 = T + 1.
 initially(F) <- initially([H|T]), member(F, [H|T]).
 
 consult(F) <- consult([H|T]), member(F, [H|T]).
+loadModule(F) <- loadModule([H|T]), member(F, [H|T]).
 
 fluentActorDeclare(update, A, Old, New) <- updates(A, Old, New).
 fluentActorDeclare(initiate, A, 0, F) <- initiates(A, F).
