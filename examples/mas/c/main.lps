@@ -1,0 +1,49 @@
+maxTime(8).
+fluent(money(Agent, Amount)).
+
+action(borrow(Agent1, Agent2, Amount)).
+action(lend(Agent1, Agent2, Amount)).
+action(buy(Agent, Item)).
+
+event(wantToBuy(Agent, Item)).
+
+itemPrice(cereal, 4).
+itemPrice(potatos, 1).
+itemPrice(milk, 1).
+
+initially([
+  money(alice, 1),
+  money(bob, 10)
+]).
+
+observe(wantToBuy(alice, cereal), 3, 4).
+
+%% ---------------------
+% This section would be better modelled in the agent file
+% but because of the duplication issues, i'm leaving it here for now.
+loanIfNotEnough(Agent, Price, Amount, T, T) <-
+  Price <= Amount.
+
+loanIfNotEnough(Agent, Price, Amount, T1, T2) <-
+  Price > Amount,
+  consult(_, Peer),
+  % Peer != Agent,
+  borrow(Agent, Peer, Price - Amount, T1, T2).
+%% ---------------------
+
+% You cannot buy unless you have the money for the item
+<- buy(Agent, Item, T1, T2), money(Agent, Amt, T1), itemPrice(Item, Price), Price > Amt.
+
+% You cannot lend unless you have the money
+<- lend(Lender, Borrower, Amount, T1, T2), money(Lender, Balance), Balance < Amount.
+
+% you cannot borrow or lend yourself
+<- borrow(A, A, _, _, _).
+<- lend(A, A, _, _, _).
+
+updates(lend(Lender, Borrower, Amount), money(Lender, Balance), money(Lender, Balance - Amount)).
+updates(lend(Lender, Borrower, Amount), money(Borrower, Balance), money(Borrower, Balance + Amount)).
+updates(buy(Agent, Item), money(Agent, Balance), money(Agent, Balance - Price)) <- itemPrice(Item, Price).
+
+consult('./agent.lps', alice).
+consult('./agent.lps', bob).

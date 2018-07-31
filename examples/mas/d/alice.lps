@@ -1,3 +1,5 @@
+maxTime(8).
+ 
 loadModule(p2p).
 
 p2pJoin(lending, 4100).
