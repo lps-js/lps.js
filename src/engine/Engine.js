@@ -532,10 +532,6 @@ function Engine(program, workingDirectory) {
                   return;
                 }
 
-                if (goalTree.checkTreeFailed()) {
-                  return;
-                }
-
                 // goal tree has not been resolved, so let's persist the tree
                 // to the next cycle
                 newGoals.push(goalTree);
