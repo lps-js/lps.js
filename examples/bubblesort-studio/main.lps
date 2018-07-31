@@ -1,7 +1,8 @@
-maxTime(20).
+maxTime(500).
 
 fluent(locked(Item)).
 fluent(location(Item, Position)).
+
 action(lock(Item1, Item2)).
 action(unlock(Item1, Item2)).
 action(swap(Item1, Pos1, Item2, Pos2)).
@@ -10,7 +11,9 @@ initially([
   location(d, 1),
   location(c, 2),
   location(b, 3),
-  location(a, 4)
+  location(a, 4),
+  location(e, 6),
+  location(f, 5)
 ]).
 
 initiates(swap(X, N1, Y, N2), location(X, N2)).

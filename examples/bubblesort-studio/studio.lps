@@ -1,16 +1,24 @@
 consult('./main.lps').
 
+event(mousedown(A, X, Y)).
+event(draggedTo(A, X, Y)).
+event(decideSwapLocation(I, X, Y)).
+
 cycleInterval(500).
 
 locationScreen(1, 100, 100).
 locationScreen(2, 200, 100).
 locationScreen(3, 300, 100).
 locationScreen(4, 400, 100).
+locationScreen(5, 500, 100).
+locationScreen(6, 600, 100).
 
 load_image(a, 'https://png.icons8.com/metro/64/a-lowercase.png').
 load_image(b, 'https://png.icons8.com/metro/64/b-lowercase.png').
 load_image(c, 'https://png.icons8.com/metro/64/c-lowercase.png').
 load_image(d, 'https://png.icons8.com/metro/64/d-lowercase.png').
+load_image(e, 'https://png.icons8.com/metro/64/e-lowercase.png').
+load_image(f, 'https://png.icons8.com/metro/64/f-lowercase.png').
 
 location(Item, Loc, 1) ->
   locationScreen(Loc, X, Y),
@@ -21,3 +29,22 @@ swap(A, J, B, K, T1, T2) ->
   locationScreen(K, X2, Y2),
   move(A, X2, Y2),
   move(B, X1, Y1).
+
+mousedown(A, X, Y, T1, T2), not locked(A, T2) -> not locked(A, T3), enable_drag(A).
+
+draggedTo(Item, X, Y, T1, T2) ->
+  decideSwapLocation(Item, X, Y, T2, T4).
+  
+decideSwapLocation(Item, X, Y, T3, T4) <-
+  locationScreen(OtherLoc, SX, SY),
+  abs(SX - X) < 100,
+  abs(SY - Y) < 100,
+  location(OtherItem, OtherLoc, T3),
+  OtherItem != Item,
+  location(Item, Loc, T3),
+  swap(Item, Loc, OtherItem, OtherLoc, T3, T4).
+  
+decideSwapLocation(Item, X, Y, T1, T2) <-
+  location(Item, Loc, T1 + 1),
+  locationScreen(Loc, SX, SY),
+  move(Item, SX, SY).
