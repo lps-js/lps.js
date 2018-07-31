@@ -850,14 +850,10 @@ function Engine(program, workingDirectory) {
   coreModule(this, program);
 
   BuiltinLoader
-    .load(program)
-    .then(() => {
-      if (program.query(Program.literal('load(p2p)')).length > 0) {
-        let p2pModule = require('./modules/p2p');
-        p2pModule(this, program);
-      }
-      // start processing consult declarations in main program
-      return Consult.processDeclarations(program, workingDirectory);
+    .load(this, program)
+    .then((consult) => {
+      // start processing consult/1, consult/2 and loadModule/1 declarations in main program
+      return consult.process(workingDirectory);
     })
     .then(() => {
       _engineEventManager.notify('loaded', this);

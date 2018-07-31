@@ -15,14 +15,15 @@ let loadBuiltinFiles = function loadBuiltinFiles(consult) {
     loadingPromises.push(consult.consultFile(filepath));
   });
 
-  return Promise.all(loadingPromises);
+  return Promise.all(loadingPromises)
+    .then(() => Promise.resolve(consult));
 };
 
 function BuiltinLoader() {
 }
 
-BuiltinLoader.load = function load(program) {
-  let consult = new Consult(program);
+BuiltinLoader.load = function load(engine, program) {
+  let consult = new Consult(engine, program);
   return loadBuiltinFiles(consult);
 };
 
