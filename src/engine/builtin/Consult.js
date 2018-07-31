@@ -12,6 +12,7 @@ const loadModuleLiteral = Program.literal('loadModule(Module)');
 
 const builtinModulePath = path.join(__dirname, '../modules');
 const builtinModules = [
+  'fs',
   'p2p'
 ];
 
