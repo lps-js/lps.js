@@ -182,7 +182,6 @@ module.exports = (engine, program) => {
           port: listeningPort,
           message: message
         };
-        console.log('Sending to ' + address + ':' + port);
         client.write(JSON.stringify(payload));
         client.destroy();
       });
