@@ -3,11 +3,11 @@ const Value = lpsRequire('engine/Value');
 
 const observeLiteral = Program.literal('observe(O, ST, ET)');
 
-function Observation() {
+function Observe() {
 
 }
 
-Observation.processDeclarations = function processDeclarations(engine, program) {
+Observe.processDeclarations = function processDeclarations(engine, program) {
   let result = program.query(observeLiteral);
   result.forEach((r) => {
     if (r.theta.O === undefined || r.theta.ST === undefined || r.theta.ET === undefined) {
@@ -33,4 +33,4 @@ Observation.processDeclarations = function processDeclarations(engine, program) 
   });
 };
 
-module.exports = Observation;
+module.exports = Observe;

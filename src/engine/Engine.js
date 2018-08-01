@@ -14,10 +14,9 @@ const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const constraintCheck = lpsRequire('utility/constraintCheck');
 const Tester = lpsRequire('engine/test/Tester');
 const forEachPromise = lpsRequire('utility/forEachPromise');
-const Consult = lpsRequire('engine/builtin/Consult');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const SyntacticSugarProcessor = lpsRequire('engine/builtin/SyntacticSugarProcessor');
-const Observation = lpsRequire('engine/builtin/Observation');
+const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
 
 const stringLiterals = lpsRequire('utility/stringLiterals');
 
@@ -853,7 +852,7 @@ function Engine(program, workingDirectory) {
     processActionDeclarations();
     processEventDeclarations();
     processInitialFluentDeclarations();
-    Observation.processDeclarations(this, program);
+    ObserveDeclarationProcessor.processDeclarations(this, program);
     preProcessRules();
     _engineEventManager.notify('ready', this);
   });
