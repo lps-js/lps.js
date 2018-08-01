@@ -1,5 +1,6 @@
 maxTime(100).
-cycleInterval(500).
+cycleInterval(1000).
+
 fluents([
   fire(I),
   location(L)
