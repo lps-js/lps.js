@@ -6,3 +6,8 @@ node_js:
   - "8"
   - "9"
   - "10"
+os:
+  - linux
+  - osx
+matrix:
+  fast_finish: true
