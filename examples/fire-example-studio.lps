@@ -2,7 +2,7 @@
 consult('./fire-example.lps').
 
 action(changeDirection).
-event(click(X, Y)).
+event(click(I, X, Y)).
 
 load_image(fire, 'https://png.icons8.com/cotton/64/gas-industry.png').
 load_image(fireTruck, 'https://png.icons8.com/cotton/64/fire-truck.png').
@@ -20,7 +20,7 @@ fluent(fireTruckDirection(D)).
 
 initially(fireTruckDirection(right)).
 
-click(X, Y, T1, T2), flammable(I) -> positionItem(I, X1, Y1), pow(X1 - X, 2) < 1024, pow(Y1 - Y, 2) < 1024, ignite(I, T2, T3).
+click(I, X, Y, T1, T2), flammable(I) -> ignite(I, T2, T3).
 
 % draw fire station icon
 true -> I = fireStation, positionItem(I, X, Y), draw_image(I, X, Y, 64, 64, fireStation).
