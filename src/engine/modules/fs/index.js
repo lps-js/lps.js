@@ -6,6 +6,11 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = (engine, program) => {
+  if (process.browser) {
+    // in browserify mode
+    throw new Error(stringLiterals(['modules', 'browserModeModuleLoadFailure'], ['fs']));
+  }
+
   engine.define('fsFiles', (dir, fileVar) => {
     if (!(dir instanceof Value)) {
       throw new Error('fsFiles/2 does not support non-value in directory argument');

@@ -9,6 +9,10 @@ const net = require('net');
 const receiveEventLiteral = Program.literal('p2pReceive(NetworkId, Peer, Message)');
 
 module.exports = (engine, program) => {
+  if (process.browser) {
+    // in browserify mode
+    throw new Error(stringLiterals(['modules', 'browserModeModuleLoadFailure'], ['p2p']));
+  }
   // ensure that p2pReceive/5 is defined in the program so that developer do not
   // need to do it manually.
   program.defineEvent('p2pReceive/5');
