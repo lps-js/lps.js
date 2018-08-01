@@ -17,14 +17,6 @@ const builtinModules = [
 ];
 
 function Consult(engine, targetProgram) {
-  this.consultFile = function consultFile(file) {
-    return Program.fromFile(file)
-      .then((loadedProgram) => {
-        targetProgram.augment(loadedProgram);
-        return Promise.resolve(loadedProgram);
-      });
-  };
-
   let createReplacementFunc = function createReplacementFunc(set, treeMap) {
     return (statement) => {
       let bodyLiterals = statement.getBodyLiterals();
@@ -62,10 +54,12 @@ function Consult(engine, targetProgram) {
     program.setClauses(newClauses);
   };
 
-  this.consultFileWithId = function consultFileWithId(file, id) {
+  this.consultFile = function consultFile(file, id) {
     return Program.fromFile(file)
       .then((loadedProgram) => {
-        processProgramWithId(loadedProgram, id);
+        if (id !== undefined) {
+          processProgramWithId(loadedProgram, id);
+        }
         targetProgram.augment(loadedProgram);
         return Promise.resolve(loadedProgram);
       });
@@ -93,7 +87,7 @@ function Consult(engine, targetProgram) {
       if (r.theta.Id === undefined || !(r.theta.Id instanceof Value)) {
         promise = this.consultFile(filepath);
       } else {
-        promise = this.consultFileWithId(filepath, r.theta.Id.evaluate());
+        promise = this.consultFile(filepath, r.theta.Id.evaluate());
       }
 
       promise
