@@ -1,4 +1,4 @@
-const stringLiterals = lpsRequire('utility/stringLiterals');
+const stringLiterals = lpsRequire('utility/strings');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 

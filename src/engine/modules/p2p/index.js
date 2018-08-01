@@ -1,5 +1,5 @@
 const P2P2PDeclarationProcessor = lpsRequire('engine/modules/p2p/declaration');
-const stringLiterals = lpsRequire('utility/stringLiterals');
+const stringLiterals = lpsRequire('utility/strings');
 const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');

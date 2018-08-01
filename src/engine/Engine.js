@@ -18,7 +18,7 @@ const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const SyntacticSugarProcessor = lpsRequire('engine/builtin/SyntacticSugarProcessor');
 const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
 
-const stringLiterals = lpsRequire('utility/stringLiterals');
+const stringLiterals = lpsRequire('utility/strings');
 
 function Engine(program, workingDirectory) {
   let _maxTime = 20;
