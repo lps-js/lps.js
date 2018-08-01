@@ -55,6 +55,7 @@ module.exports = (engine, program) => {
   });
 
   server.on('error', (err) => {
+    // TODO: log to universal logger instead
     console.error('[P2P Error] ' + err);
   });
 

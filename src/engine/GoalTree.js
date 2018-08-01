@@ -117,7 +117,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
       conjunctVariables.forEach((varName) => {
         if (tuple.theta[varName] !== undefined) {
           newTheta[varName] = tuple.theta[varName];
-        };
+        }
       });
       tuple.theta = newTheta;
       let newThetaSoFar = compactTheta(thetaSoFar, tuple.theta);
@@ -380,7 +380,7 @@ function GoalNode(clause, theta) {
           if (literalArg instanceof Functor) {
             hasArgumentFunctor = true;
           }
-        })
+        });
         if (hasArgumentFunctor && isAllArgumentFunctorGround) {
           let instances = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, conjunct);
           instances.forEach((instance) => {
@@ -438,7 +438,7 @@ function GoalNode(clause, theta) {
 }
 
 function GoalTree(goalClause) {
-  let _root = undefined;
+  let _root;
   if (goalClause instanceof GoalNode) {
     _root = goalClause;
   } else {
@@ -471,7 +471,7 @@ function GoalTree(goalClause) {
 
         _evaluateQueue = newEvaluateQueue;
         resolve(result);
-      }, 0)
+      }, 0);
     });
   };
 
@@ -486,7 +486,8 @@ function GoalTree(goalClause) {
         possibleActions,
         functorProvider,
         candidateActionSets,
-        unresolvedSets);
+        unresolvedSets
+      );
 
       if (numCandidateActionsAdded === 0) {
         return;
@@ -518,7 +519,7 @@ function GoalTree(goalClause) {
       }
       return {
         hasFailed: node.hasBranchFailed,
-        clause: ''+node.clause,
+        clause: '' + node.clause,
         children: children
       };
     };

@@ -33,8 +33,8 @@ function Consult(engine, targetProgram) {
           set.push(newStatement.substitute(u.theta));
         });
       });
-    }
-  }
+    };
+  };
 
   let processProgramWithId = function processProgramWithId(program, id) {
     let treeMap = new LiteralTreeMap();
@@ -65,7 +65,8 @@ function Consult(engine, targetProgram) {
       });
   };
 
-  let processConsultDeclarations = function processConsultDeclarations(currentProgram, workingDirectoryArg) {
+  let processConsultDeclarations = function processConsultDeclarations(
+      currentProgram, workingDirectoryArg) {
     let workingDirectory = workingDirectoryArg;
     if (workingDirectory === undefined) {
       workingDirectory = '';

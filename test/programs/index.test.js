@@ -1,5 +1,6 @@
 const LPS = lpsRequire('LPS');
 
+const path = require('path');
 const chai = require('chai');
 const expect = chai.expect;
 require('mocha-sinon');
@@ -8,9 +9,9 @@ let testFunction = function testFunction(file) {
   describe(file + '.lps', () => {
     it('should pass all expectations', function (done) {
       this.timeout(5000);
-      LPS.load(__dirname + '/' + file + '.lps')
+      LPS.load(path.join(__dirname, file + '.lps'))
         .then((engine) => {
-          return engine.test(__dirname + '/' + file + '.spec.lps');
+          return engine.test(path.join(__dirname, file + '.spec.lps'));
         })
         .then((result) => {
           if (!result.success) {
