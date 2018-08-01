@@ -1,7 +1,9 @@
-const Program = require('./parser/Program');
-const Engine = require('./engine/Engine');
-const Value = require('./engine/Value');
-const Variable = require('./engine/Variable');
+global.lpsRequire = name => require(`${__dirname}/${name}`);
+const Program = lpsRequire('parser/Program');
+const Engine = lpsRequire('engine/Engine');
+const Value = lpsRequire('engine/Value');
+const Variable = lpsRequire('engine/Variable');
+
 const path = require('path');
 
 function LPS() {
