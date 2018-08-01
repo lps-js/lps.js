@@ -1,6 +1,6 @@
 const Program = lpsRequire('parser/Program');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
-const Observation = lpsRequire('engine/builtin/Observation');
+const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
 
 function Tester(engine) {
   let expectations = {};
@@ -106,7 +106,7 @@ function Tester(engine) {
         return BuiltinLoader.load(engine, program);
       })
       .then(() => {
-        Observation.processDeclarations(engine, program);
+        ObserveDeclarationProcessor.processDeclarations(engine, program);
         processTypeOneExpectations(program);
         processTypeTwoExpectations(program);
         processTypeThreeExpectations(program);
