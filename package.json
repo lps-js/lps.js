@@ -5,11 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "nyc --all mocha \"test/**/*.test.js\"",
-    "lint": "eslint test src"
+    "lint": "eslint test src",
+    "build:browser": "browserify index.js -o dist/lps.browser.js && uglifyjs dist/lps.browser.js --comments all --compress -o dist/lps.browser.min.js"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "browserify": "^16.2.2",
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
@@ -17,6 +19,7 @@
     "mocha": "^5.2.0",
     "mocha-sinon": "^2.1.0",
     "nyc": "^11.9.0",
-    "sinon": "^4.5.0"
+    "sinon": "^4.5.0",
+    "uglify-es": "^3.3.9"
   }
 }
