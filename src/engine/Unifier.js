@@ -1,6 +1,6 @@
-const Functor = require('./Functor');
-const Value = require('./Value');
-const Variable = require('./Variable');
+const Functor = lpsRequire('engine/Functor');
+const Value = lpsRequire('engine/Value');
+const Variable = lpsRequire('engine/Variable');
 
 let processNewSubstitution = function processNewSubstitution(newVar, newValue, thetaArg) {
   let theta = thetaArg;

@@ -1,4 +1,4 @@
-const forEachPromise = require('../../src/utility/forEachPromise');
+const forEachPromise = lpsRequire('utility/forEachPromise');
 
 const chai = require('chai');
 const expect = chai.expect;

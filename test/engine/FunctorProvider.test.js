@@ -1,9 +1,9 @@
-const FunctorProvider = require('../../src/engine/FunctorProvider');
-const Functor = require('../../src/engine/Functor');
-const Variable = require('../../src/engine/Variable');
-const Value = require('../../src/engine/Value');
-const Program = require('../../src/parser/Program');
-const coreModule = require('../../src/engine/modules/core');
+const FunctorProvider = lpsRequire('engine/FunctorProvider');
+const Functor = lpsRequire('engine/Functor');
+const Variable = lpsRequire('engine/Variable');
+const Value = lpsRequire('engine/Value');
+const Program = lpsRequire('parser/Program');
+const coreModule = lpsRequire('engine/modules/core');
 
 const chai = require('chai');
 const expect = chai.expect;

@@ -1,10 +1,10 @@
-const processRules = require('../../src/utility/processRules');
-const Functor = require('../../src/engine/Functor');
-const Clause = require('../../src/engine/Clause');
-const Variable = require('../../src/engine/Variable');
-const Value = require('../../src/engine/Value');
-const Program = require('../../src/parser/Program');
-const LiteralTreeMap = require('../../src/engine/LiteralTreeMap');
+const processRules = lpsRequire('utility/processRules');
+const Functor = lpsRequire('engine/Functor');
+const Clause = lpsRequire('engine/Clause');
+const Variable = lpsRequire('engine/Variable');
+const Value = lpsRequire('engine/Value');
+const Program = lpsRequire('parser/Program');
+const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 
 const chai = require('chai');
 const expect = chai.expect;

@@ -1,11 +1,11 @@
-const LiteralTreeMap = require('./LiteralTreeMap');
-const Resolutor = require('./Resolutor');
-const Functor = require('./Functor');
-const Variable = require('./Variable');
-const Value = require('./Value');
-const variableArrayRename = require('../utility/variableArrayRename');
-const compactTheta = require('../utility/compactTheta');
-const hasExpiredTimable = require('../utility/hasExpiredTimable');
+const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
+const Resolutor = lpsRequire('engine/Resolutor');
+const Functor = lpsRequire('engine/Functor');
+const Variable = lpsRequire('engine/Variable');
+const Value = lpsRequire('engine/Value');
+const variableArrayRename = lpsRequire('utility/variableArrayRename');
+const compactTheta = lpsRequire('utility/compactTheta');
+const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 
 let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, usedVariables) {
   let reductions = [];

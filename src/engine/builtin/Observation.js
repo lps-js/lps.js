@@ -1,5 +1,5 @@
-const Program = require('../../parser/Program');
-const Value = require('../Value');
+const Program = lpsRequire('parser/Program');
+const Value = lpsRequire('engine/Value');
 
 const observeLiteral = Program.literal('observe(O, ST, ET)');
 

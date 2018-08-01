@@ -1,8 +1,8 @@
-const P2P2PDeclarationProcessor = require('./declaration');
-const Functor = require('../../Functor');
-const Variable = require('../../Variable');
-const Value = require('../../Value');
-const Program = require('../../../parser/Program');
+const P2P2PDeclarationProcessor = lpsRequire('engine/modules/p2p/declaration');
+const Functor = lpsRequire('engine/Functor');
+const Variable = lpsRequire('engine/Variable');
+const Value = lpsRequire('engine/Value');
+const Program = lpsRequire('parser/Program');
 
 const net = require('net');
 

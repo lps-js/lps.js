@@ -1,7 +1,7 @@
-const Functor = require('./Functor');
-const List = require('./List');
-const Value = require('./Value');
-const Variable = require('./Variable');
+const Functor = lpsRequire('engine/Functor');
+const List = lpsRequire('engine/List');
+const Value = lpsRequire('engine/Value');
+const Variable = lpsRequire('engine/Variable');
 
 function __TreeLoaderType() {}
 

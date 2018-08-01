@@ -1,7 +1,7 @@
-const Lexer = require('./Lexer');
-const AstNode = require('./AstNode');
-const NodeTypes = require('./NodeTypes');
-const TokenTypes = require('./TokenTypes');
+const Lexer = lpsRequire('parser/Lexer');
+const AstNode = lpsRequire('parser/AstNode');
+const NodeTypes = lpsRequire('parser/NodeTypes');
+const TokenTypes = lpsRequire('parser/TokenTypes');
 
 const END_OF_CLAUSE_SYMBOL = '.';
 const CLAUSE_LITERAL_SEPARATOR_SYMBOL = ',';

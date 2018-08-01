@@ -1,4 +1,4 @@
-const Program = require('../../../parser/Program');
+const Program = lpsRequire('parser/Program');
 
 const listenLiteral = Program.literal('p2pListen(Port)');
 

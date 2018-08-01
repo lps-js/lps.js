@@ -1,4 +1,4 @@
-const Variable = require('../engine/Variable');
+const Variable = lpsRequire('engine/Variable');
 
 module.exports = function compactTheta(theta1, theta2) {
   let theta = {};

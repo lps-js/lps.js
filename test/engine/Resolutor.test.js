@@ -1,9 +1,9 @@
 const Resolutor = require('../../src/engine/Resolutor');
-const Clause = require('../../src/engine/Clause');
-const LiteralTreeMap = require('../../src/engine/LiteralTreeMap');
-const Functor = require('../../src/engine/Functor');
-const Value = require('../../src/engine/Value');
-const Variable = require('../../src/engine/Variable');
+const Clause = lpsRequire('engine/Clause');
+const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
+const Functor = lpsRequire('engine/Functor');
+const Value = lpsRequire('engine/Value');
+const Variable = lpsRequire('engine/Variable');
 const FunctorProvider = require('../../src/engine/FunctorProvider');
 
 const chai = require('chai');

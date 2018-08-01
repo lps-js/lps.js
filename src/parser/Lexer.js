@@ -1,6 +1,6 @@
-const Scanner = require('./Scanner');
-const Lexicon = require('./Lexicon');
-const TokenTypes = require('./TokenTypes');
+const Scanner = lpsRequire('parser/Scanner');
+const Lexicon = lpsRequire('parser/Lexicon');
+const TokenTypes = lpsRequire('parser/TokenTypes');
 
 function Lexer(source) {
   let _scanner = new Scanner(source);

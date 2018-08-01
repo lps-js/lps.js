@@ -8,7 +8,7 @@
     "lps-p2p-tracker": "./bin/tracker"
   },
   "scripts": {
-    "test": "nyc --all mocha \"test/**/*.test.js\"",
+    "test": "nyc --all mocha --require ./test/init.js \"test/**/*.test.js\"",
     "lint": "eslint test src",
     "build:browser": "browserify index.js -o dist/lps.browser.js && uglifyjs dist/lps.browser.js --comments all --compress -o dist/lps.browser.min.js"
   },

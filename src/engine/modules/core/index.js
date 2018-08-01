@@ -1,7 +1,7 @@
-const Value = require('../../Value');
-const Variable = require('../../Variable');
-const List = require('../../List');
-const Functor = require('../../Functor');
+const Value = lpsRequire('engine/Value');
+const Variable = lpsRequire('engine/Variable');
+const List = lpsRequire('engine/List');
+const Functor = lpsRequire('engine/Functor');
 
 let assertIsValue = function assertIsValue(val) {
   if (!(val instanceof Value)) {

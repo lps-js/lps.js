@@ -1,6 +1,6 @@
-const Program = require('../../parser/Program');
-const BuiltinLoader = require('../builtin/BuiltinLoader');
-const Observation = require('../builtin/Observation');
+const Program = lpsRequire('parser/Program');
+const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
+const Observation = lpsRequire('engine/builtin/Observation');
 
 function Tester(engine) {
   let expectations = {};

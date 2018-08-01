@@ -1,7 +1,8 @@
-const Functor = require('../../src/engine/Functor');
-const LiteralTreeMap = require('../../src/engine/LiteralTreeMap');
-const Value = require('../../src/engine/Value');
-const Variable = require('../../src/engine/Variable');
+const Functor = lpsRequire('engine/Functor');
+const List = lpsRequire('engine/List');
+const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
+const Value = lpsRequire('engine/Value');
+const Variable = lpsRequire('engine/Variable');
 
 const chai = require('chai');
 const expect = chai.expect;

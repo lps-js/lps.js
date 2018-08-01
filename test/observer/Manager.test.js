@@ -1,4 +1,4 @@
-const Manager = require('../../src/observer/Manager');
+const Manager = lpsRequire('observer/Manager');
 
 const chai = require('chai');
 const expect = chai.expect;

@@ -1,6 +1,6 @@
-const Functor = require('../Functor');
-const Variable = require('../Variable');
-const Value = require('../Value');
+const Functor = lpsRequire('engine/Functor');
+const Variable = lpsRequire('engine/Variable');
+const Value = lpsRequire('engine/Value');
 
 function SyntacticSugarProcessor() {
 

@@ -1,5 +1,6 @@
-const Variable = require('../../Variable');
-const Value = require('../../Value');
+const stringLiterals = lpsRequire('utility/stringLiterals');
+const Variable = lpsRequire('engine/Variable');
+const Value = lpsRequire('engine/Value');
 
 const fs = require('fs');
 const path = require('path');

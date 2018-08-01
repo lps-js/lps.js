@@ -1,4 +1,4 @@
-const Value = require('../../src/engine/Value');
+const Value = lpsRequire('engine/Value');
 
 const chai = require('chai');
 const expect = chai.expect;

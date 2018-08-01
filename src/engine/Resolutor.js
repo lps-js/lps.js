@@ -1,7 +1,7 @@
-const Functor = require('./Functor');
-const LiteralTreeMap = require('./LiteralTreeMap');
-const variableArrayRename = require('../utility/variableArrayRename');
-const compactTheta = require('../utility/compactTheta');
+const Functor = lpsRequire('engine/Functor');
+const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
+const variableArrayRename = lpsRequire('utility/variableArrayRename');
+const compactTheta = lpsRequire('utility/compactTheta');
 const Unifier = require('./Unifier');
 
 function Resolutor() {}

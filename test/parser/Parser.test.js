@@ -1,6 +1,6 @@
-const AstNode = require('../../src/parser/AstNode');
-const NodeTypes = require('../../src/parser/NodeTypes');
-const Parser = require('../../src/parser/Parser');
+const AstNode = lpsRequire('parser/AstNode');
+const NodeTypes = lpsRequire('parser/NodeTypes');
+const Parser = lpsRequire('parser/Parser');
 
 const chai = require('chai');
 const expect = chai.expect;

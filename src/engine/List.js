@@ -1,4 +1,4 @@
-const Variable = require('./Variable');
+const Variable = lpsRequire('engine/Variable');
 
 function List(head, tail) {
   let _head = head;

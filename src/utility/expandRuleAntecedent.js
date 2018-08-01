@@ -1,4 +1,4 @@
-const expandLiteral = require('./expandLiteral');
+const expandLiteral = lpsRequire('utility/expandLiteral');
 
 module.exports = function expandRuleAntecedent(result, literals, thetaPath, program) {
   let isLeaf = true;

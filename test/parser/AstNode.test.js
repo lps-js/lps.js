@@ -1,4 +1,4 @@
-const AstNode = require('../../src/parser/AstNode');
+const AstNode = lpsRequire('parser/AstNode');
 
 const chai = require('chai');
 const expect = chai.expect;

@@ -1,4 +1,4 @@
-const Variable = require('../engine/Variable');
+const Variable = lpsRequire('engine/Variable');
 
 module.exports = function variableArrayRename(varArr, namePatternArg) {
   let namePattern = namePatternArg;

@@ -1,7 +1,7 @@
-const Program = require('../../parser/Program');
-const LiteralTreeMap = require('../LiteralTreeMap');
-const Value = require('../Value');
-const Clause = require('../Clause');
+const Program = lpsRequire('parser/Program');
+const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
+const Value = lpsRequire('engine/Value');
+const Clause = lpsRequire('engine/Clause');
 const path = require('path');
 
 const consultLiteral1 = Program.literal('consult(File)');

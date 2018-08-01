@@ -1,4 +1,4 @@
-const Consult = require('./Consult');
+const Consult = lpsRequire('engine/builtin/Consult');
 const path = require('path');
 
 const builtinFiles = [

@@ -1,14 +1,14 @@
-const FunctorProvider = require('../engine/FunctorProvider');
-const Clause = require('../engine/Clause');
-const Functor = require('../engine/Functor');
-const NodeTypes = require('./NodeTypes');
-const AstNode = require('./AstNode');
-const List = require('../engine/List');
-const Value = require('../engine/Value');
-const Variable = require('../engine/Variable');
-const Resolutor = require('../engine/Resolutor');
-const LiteralTreeMap = require('../engine/LiteralTreeMap');
-const Parser = require('./Parser');
+const FunctorProvider = lpsRequire('engine/FunctorProvider');
+const Clause = lpsRequire('engine/Clause');
+const Functor = lpsRequire('engine/Functor');
+const NodeTypes = lpsRequire('parser/NodeTypes');
+const AstNode = lpsRequire('parser/AstNode');
+const List = lpsRequire('engine/List');
+const Value = lpsRequire('engine/Value');
+const Variable = lpsRequire('engine/Variable');
+const Resolutor = lpsRequire('engine/Resolutor');
+const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
+const Parser = lpsRequire('parser/Parser');
 
 const fs = require('fs');
 

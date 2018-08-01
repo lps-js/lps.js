@@ -1,7 +1,7 @@
-const Clause = require('../engine/Clause');
-const hasExpiredTimable = require('./hasExpiredTimable');
-const GoalTree = require('../engine/GoalTree');
-const Resolutor = require('../engine/Resolutor');
+const Clause = lpsRequire('engine/Clause');
+const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
+const GoalTree = lpsRequire('engine/GoalTree');
+const Resolutor = lpsRequire('engine/Resolutor');
 
 module.exports = function processRules(program, goals, currentTime) {
   let rules = program.getRules();

@@ -1,5 +1,5 @@
-const Variable = require('../../src/engine/Variable');
-const variableArrayRename = require('../../src/utility/variableArrayRename');
+const Variable = lpsRequire('engine/Variable');
+const variableArrayRename = lpsRequire('utility/variableArrayRename');
 
 const chai = require('chai');
 const expect = chai.expect;

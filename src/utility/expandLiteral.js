@@ -1,6 +1,6 @@
-const LiteralTreeMap = require('../engine/LiteralTreeMap');
-const Variable = require('../engine/Variable');
-const variableArrayRename = require('./variableArrayRename');
+const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
+const Variable = lpsRequire('engine/Variable');
+const variableArrayRename = lpsRequire('utility/variableArrayRename');
 
 module.exports = function expandLiteral(literal, program, usedVariables) {
   let literalTreeMap = new LiteralTreeMap();

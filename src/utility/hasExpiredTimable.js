@@ -1,5 +1,5 @@
-const Value = require('../engine/Value');
-const Functor = require('../engine/Functor');
+const Value = lpsRequire('engine/Value');
+const Functor = lpsRequire('engine/Functor');
 
 module.exports = function hasExpiredTimable(conjunction, program, currentTime) {
   let hasExpired = false;
