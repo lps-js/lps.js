@@ -11,11 +11,7 @@ const formattable = function (strArg, replacementsArg) {
   return str;
 };
 
-const messages = {
-  'modules': {
-    'browserModeModuleLoadFailure': 'Not possible to use \'%s\' module when in browser'
-  }
-};
+const messages = lpsRequire('utility/messages.json');
 
 const invalidPathMessage = 'Invalid path for string literal retrival';
 const nonStringLiteralPositionMessage = 'String literal retrival: Path does not point to a string';
