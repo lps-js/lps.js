@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "lps": "./bin/lps",
+    "lps-p2p-tracker": "./bin/tracker"
+  },
   "scripts": {
     "test": "nyc --all mocha \"test/**/*.test.js\"",
     "lint": "eslint test src",
