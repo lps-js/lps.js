@@ -10,8 +10,9 @@ module.exports = {
     "no-underscore-dangle": "off",
     "func-names": "off",
     "no-continue": "off",
+    "global-require": "off"
   },
-  overrides: [
+  "overrides": [
     {
       files: "*.test.js",
       rules: {
@@ -19,6 +20,9 @@ module.exports = {
       }
     }
   ],
+  "globals": {
+    "lpsRequire": false
+  },
   "parserOptions": {
     "sourceType": "module"
   }
