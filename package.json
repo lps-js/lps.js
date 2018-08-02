@@ -12,7 +12,11 @@
     "lint": "eslint test src",
     "build:browser": "browserify index.js -o dist/lps.browser.js && uglifyjs dist/lps.browser.js --comments all --compress -o dist/lps.browser.min.js"
   },
-  "author": "",
+  "author": {
+    "name" : "Sam Yong",
+    "email" : "samyonggit@gmail.com",
+    "url" : "http://mauris.sg/"
+  },
   "license": "MIT",
   "devDependencies": {
     "browserify": "^16.2.2",

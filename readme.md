@@ -1,3 +1,7 @@
+# lps.js [![Build Status](https://travis-ci.com/mauris/lps.js.svg?token=nG8zWvvk7DtqtXkE8Tff&branch=master)](https://travis-ci.com/mauris/lps.js)
+
+[LPS](http://lps.doc.ic.ac.uk/) is a logic-based programming language and production system implemented in JavaScript based on research by Robert Kowalski and Fariba Sadri at Imperial College London.
+
 # Resources
 
 - https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
