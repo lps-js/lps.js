@@ -17,6 +17,10 @@ function Functor(name, args) {
     return _name + '/' + _argsCount;
   };
 
+  this.evaluate = function evaluate() {
+    return this.toString();
+  };
+
   this.getArgumentCount = function getArgumentCount() {
     return _argsCount;
   };
@@ -61,14 +65,16 @@ function Functor(name, args) {
 
   this.toString = function toString() {
     let result = _name;
-    result += '(';
-    for (let i = 0; i < _argsCount; i += 1) {
-      result += _args[i].toString();
-      if (i < _argsCount - 1) {
-        result += ', ';
+    if (_argsCount > 0) {
+      result += '(';
+      for (let i = 0; i < _argsCount; i += 1) {
+        result += _args[i].toString();
+        if (i < _argsCount - 1) {
+          result += ', ';
+        }
       }
+      result += ')';
     }
-    result += ')';
     return result;
   };
 }

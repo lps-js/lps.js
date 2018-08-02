@@ -4,7 +4,7 @@ const List = lpsRequire('engine/List');
 const Functor = lpsRequire('engine/Functor');
 
 let assertIsValue = function assertIsValue(val) {
-  if (!(val instanceof Value)) {
+  if (!(val instanceof Value) && !(val instanceof Functor)) {
     throw new Error('Must be value, ' + val + ' given');
   }
 };
