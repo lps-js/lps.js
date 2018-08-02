@@ -13,9 +13,9 @@
     "build:browser": "browserify index.js -o dist/lps.browser.js && uglifyjs dist/lps.browser.js --comments all --compress -o dist/lps.browser.min.js"
   },
   "author": {
-    "name" : "Sam Yong",
-    "email" : "samyonggit@gmail.com",
-    "url" : "http://mauris.sg/"
+    "name": "Sam Yong",
+    "email": "samyonggit@gmail.com",
+    "url": "http://mauris.sg/"
   },
   "license": "MIT",
   "devDependencies": {
