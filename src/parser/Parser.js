@@ -48,17 +48,15 @@ function Parser(source) {
   let _arguments;
   let _expression;
 
-  let _functorOrConstantExpression = function _functorOrConstantExpression() {
+  let _functorExpression = function _functorExpression() {
     let nameToken = currentToken;
     _expect(TokenTypes.Constant);
+    let funcNode = new AstNode(NodeTypes.Functor, nameToken);
     if (_foundToBe(TokenTypes.Symbol, '(')) {
-      // we assume a bracket to symbolize a function
-      _expect(TokenTypes.Symbol);
-      let funcNode = new AstNode(NodeTypes.Functor, nameToken);
+      // functor has arguments
       _arguments(funcNode);
-      return funcNode;
     }
-    return new AstNode(NodeTypes.Constant, nameToken);
+    return funcNode;
   };
 
   let _simpleExpression = function _simpleExpression() {
@@ -67,7 +65,7 @@ function Parser(source) {
       node = _expression();
       _expectToBe(TokenTypes.Symbol, ')');
     } else if (_found(TokenTypes.Constant)) {
-      node = _functorOrConstantExpression();
+      node = _functorExpression();
     } else if (_found(TokenTypes.Variable)) {
       node = new AstNode(NodeTypes.Variable, currentToken);
       _expect(TokenTypes.Variable);
@@ -189,6 +187,7 @@ function Parser(source) {
   };
 
   _arguments = function (node) {
+    _expect(TokenTypes.Symbol);
     node.addChild(_expression());
     while (_foundToBe(TokenTypes.Symbol, ARGUMENT_SEPARATOR_SYMBOL)) {
       _expect(TokenTypes.Symbol);
