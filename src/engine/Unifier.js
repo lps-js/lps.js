@@ -1,4 +1,5 @@
 const Functor = lpsRequire('engine/Functor');
+const List = lpsRequire('engine/List');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 
@@ -58,7 +59,7 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
   }
 
   // we swap the order for processing
-  if ((leftOperand instanceof Functor || leftOperand instanceof Value)
+  if ((leftOperand instanceof List || leftOperand instanceof Functor || leftOperand instanceof Value)
       && rightOperand instanceof Variable) {
     let temp = leftOperand;
     leftOperand = rightOperand;
@@ -66,7 +67,7 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
   }
 
   if (leftOperand instanceof Variable
-      && (rightOperand instanceof Functor || rightOperand instanceof Value)) {
+      && (rightOperand instanceof List || rightOperand instanceof Functor || rightOperand instanceof Value)) {
     let varName = leftOperand.evaluate();
     if (rightOperand.getVariables().indexOf(varName) === -1) {
       return processNewSubstitution(varName, rightOperand, theta);
