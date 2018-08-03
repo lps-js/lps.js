@@ -38,14 +38,14 @@ function Engine(program, workingDirectory) {
   let _currentTime = 0;
 
   let _lastCycleExecutionTime = null;
-  let _numLastStepActions = 0;
-  let _numLastStepObservations = 0;
-  let _numLastStepFiredRules = 0;
-  let _numLastStepResolvedRules = 0;
-  let _numLastStepFailedRules = 0;
+  let _numLastCycleActions = 0;
+  let _numLastCycleObservations = 0;
+  let _numLastCycleFiredRules = 0;
+  let _numLastCycleResolvedRules = 0;
+  let _numLastCycleFailedRules = 0;
 
-  let _lastStepActions = null;
-  let _lastStepObservations = null;
+  let _lastCycleActions = null;
+  let _lastCycleObservations = null;
 
   let updateTimableFunctor = function updateTimableFunctor(literal, time) {
     if (!(literal instanceof Functor) || literal.getArguments() === 0) {
@@ -514,7 +514,7 @@ function Engine(program, workingDirectory) {
         // we need to derive the partially executed rule here too
         let newFiredGoals = [];
         let newRules = processRules(program, newFiredGoals, _currentTime);
-        _numLastStepFiredRules = newFiredGoals.length;
+        _numLastCycleFiredRules = newFiredGoals.length;
         _goals = _goals.concat(newFiredGoals);
         program.updateRules(newRules);
 
@@ -524,8 +524,8 @@ function Engine(program, workingDirectory) {
         let goalTreeProcessingPromises = [];
 
         // reset statistics
-        _numLastStepFailedRules = 0;
-        _numLastStepResolvedRules = 0;
+        _numLastCycleFailedRules = 0;
+        _numLastCycleResolvedRules = 0;
 
         let promise = forEachPromise(_goals)
           .do((goalTree) => {
@@ -533,13 +533,13 @@ function Engine(program, workingDirectory) {
               .evaluate(program, _currentTime + 1, nextTimePossibleActions)
               .then((evaluationResult) => {
                 if (evaluationResult === null) {
-                  _numLastStepFailedRules += 1;
+                  _numLastCycleFailedRules += 1;
                   return;
                 }
 
                 // goal tree has been resolved
                 if (evaluationResult.length > 0) {
-                  _numLastStepResolvedRules += 1;
+                  _numLastCycleResolvedRules += 1;
                   return;
                 }
 
@@ -559,12 +559,12 @@ function Engine(program, workingDirectory) {
           .then(() => {
             _goals = newGoals;
 
-            _lastStepActions = selectedAndExecutedActions;
-            _lastStepObservations = cycleObservations;
+            _lastCycleActions = selectedAndExecutedActions;
+            _lastCycleObservations = cycleObservations;
 
             // update statistics
-            _numLastStepActions = _lastStepActions.size();
-            _numLastStepObservations = _lastStepObservations.size();
+            _numLastCycleActions = _lastCycleActions.size();
+            _numLastCycleObservations = _lastCycleObservations.size();
 
             return Promise.resolve();
           });
@@ -611,40 +611,40 @@ function Engine(program, workingDirectory) {
     return _lastCycleExecutionTime;
   };
 
-  this.getLastStepActions = function getLastStepActions() {
+  this.getLastCycleActions = function getLastCycleActions() {
     let actions = [];
-    if (_lastStepActions === null) {
+    if (_lastCycleActions === null) {
       return actions;
     }
-    _lastStepActions.forEach((action) => {
+    _lastCycleActions.forEach((action) => {
       actions.push(action.toString());
     });
     return actions;
   };
 
-  this.getNumLastStepActions = function getNumLastStepActions() {
-    if (_lastStepActions === null) {
+  this.getNumLastCycleActions = function getNumLastCycleActions() {
+    if (_lastCycleActions === null) {
       return 0;
     }
-    return _numLastStepActions;
+    return _numLastCycleActions;
   };
 
-  this.getLastStepObservations = function getLastStepObservations() {
+  this.getLastCycleObservations = function getLastCycleObservations() {
     let observations = [];
-    if (_lastStepObservations === null) {
+    if (_lastCycleObservations === null) {
       return actions;
     }
-    _lastStepObservations.forEach((observation) => {
+    _lastCycleObservations.forEach((observation) => {
       observations.push(observation.toString());
     });
     return observations;
   };
 
-  this.getNumLastStepObservations = function getNumLastStepObservations() {
-    if (_lastStepObservations === null) {
+  this.getNumLastCycleObservations = function getNumLastCycleObservations() {
+    if (_lastCycleObservations === null) {
       return 0;
     }
-    return _numLastStepObservations;
+    return _numLastCycleObservations;
   };
 
   this.getActiveFluents = function getActiveFluents() {
@@ -660,16 +660,16 @@ function Engine(program, workingDirectory) {
     return program.getState().size();
   };
 
-  this.getNumLastStepFiredRules = function getNumLastStepFiredRules() {
-    return _numLastStepFiredRules;
+  this.getNumLastCycleFiredRules = function getNumLastCycleFiredRules() {
+    return _numLastCycleFiredRules;
   };
 
-  this.getNumLastStepResolvedRules = function getNumLastStepResolvedRules() {
-    return _numLastStepResolvedRules;
+  this.getNumLastCycleResolvedRules = function getNumLastCycleResolvedRules() {
+    return _numLastCycleResolvedRules;
   };
 
-  this.getNumLastStepFailedRules = function getNumLastStepFailedRules() {
-    return _numLastStepFailedRules;
+  this.getNumLastCycleFailedRules = function getNumLastCycleFailedRules() {
+    return _numLastCycleFailedRules;
   };
 
   this.query = function query(literalArg, type) {
@@ -681,12 +681,12 @@ function Engine(program, workingDirectory) {
 
     if (type === 'action') {
       literal = SyntacticSugarProcessor.action(literalArg);
-      return _lastStepActions.unifies(literal);
+      return _lastCycleActions.unifies(literal);
     }
 
     if (type === 'observation') {
       literal = SyntacticSugarProcessor.action(literalArg);
-      return _lastStepObservations.unifies(literal)
+      return _lastCycleObservations.unifies(literal)
     }
 
     return program.query(literal);

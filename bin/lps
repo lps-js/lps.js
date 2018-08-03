@@ -27,9 +27,9 @@ LPS.load(file)
     console.log('Cycle Interval set to ' + engine.getCycleInterval() + 'ms');
     engine.on('postCycle', () => {
       console.log('[ Time ' + engine.getCurrentTime() + ' ] -------------- ' + engine.getLastCycleExecutionTime() + 'ms');
-      console.log('Actions:\t' + engine.getLastStepActions());
+      console.log('Actions:\t' + engine.getLastCycleActions());
       console.log('Fluents:\t' + engine.getActiveFluents());
-      console.log('Obs:\t' + engine.getLastStepObservations());
+      console.log('Obs:\t' + engine.getLastCycleObservations());
       console.log('');
     });
     engine.on('done', () => {

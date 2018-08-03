@@ -161,10 +161,10 @@ function Tester(engine) {
                   testNumber = engine.getNumActiveFluents();
                   break;
                 case 'action':
-                  testNumber = engine.getNumLastStepActions();
+                  testNumber = engine.getNumLastCycleActions();
                   break;
                 case 'observation':
-                  testNumber = engine.getNumLastStepObservations();
+                  testNumber = engine.getNumLastCycleObservations();
                   break;
                 default:
                   errors.push('Invalid number of type "' + entry.type + '" encountered.');
