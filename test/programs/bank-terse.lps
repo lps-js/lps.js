@@ -1,3 +1,6 @@
+% Original file:
+% https://bitbucket.org/lpsmasters/lps_corner/src/06b0de6227f751547e8d25937c05fa30208e45f5/examples/bank%20account_terse.lps?at=master
+
 maxTime(9).
 
 initially([
