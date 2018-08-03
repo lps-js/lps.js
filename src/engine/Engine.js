@@ -38,6 +38,12 @@ function Engine(program, workingDirectory) {
   let _currentTime = 0;
 
   let _lastCycleExecutionTime = null;
+  let _numLastStepActions = 0;
+  let _numLastStepObservations = 0;
+  let _numLastStepFiredRules = 0;
+  let _numLastStepResolvedRules = 0;
+  let _numLastStepFailedRules = 0;
+
   let _lastStepActions = null;
   let _lastStepObservations = null;
 
@@ -506,25 +512,34 @@ function Engine(program, workingDirectory) {
 
         // build goal clauses for each rule
         // we need to derive the partially executed rule here too
-        let newRules = processRules(program, _goals, _currentTime);
+        let newFiredGoals = [];
+        let newRules = processRules(program, newFiredGoals, _currentTime);
+        _numLastStepFiredRules = newFiredGoals.length;
+        _goals = _goals.concat(newFiredGoals);
         program.updateRules(newRules);
 
         let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
 
         let newGoals = [];
         let goalTreeProcessingPromises = [];
-        let i = 0;
+
+        // reset statistics
+        _numLastStepFailedRules = 0;
+        _numLastStepResolvedRules = 0;
+
         let promise = forEachPromise(_goals)
           .do((goalTree) => {
             let treePromise = goalTree
               .evaluate(program, _currentTime + 1, nextTimePossibleActions)
               .then((evaluationResult) => {
                 if (evaluationResult === null) {
+                  _numLastStepFailedRules += 1;
                   return;
                 }
 
                 // goal tree has been resolved
                 if (evaluationResult.length > 0) {
+                  _numLastStepResolvedRules += 1;
                   return;
                 }
 
@@ -546,6 +561,10 @@ function Engine(program, workingDirectory) {
 
             _lastStepActions = selectedAndExecutedActions;
             _lastStepObservations = cycleObservations;
+
+            // update statistics
+            _numLastStepActions = _lastStepActions.size();
+            _numLastStepObservations = _lastStepObservations.size();
 
             return Promise.resolve();
           });
@@ -607,7 +626,7 @@ function Engine(program, workingDirectory) {
     if (_lastStepActions === null) {
       return 0;
     }
-    return _lastStepActions.size();
+    return _numLastStepActions;
   };
 
   this.getLastStepObservations = function getLastStepObservations() {
@@ -625,7 +644,7 @@ function Engine(program, workingDirectory) {
     if (_lastStepObservations === null) {
       return 0;
     }
-    return _lastStepObservations.size();
+    return _numLastStepObservations;
   };
 
   this.getActiveFluents = function getActiveFluents() {
@@ -639,6 +658,18 @@ function Engine(program, workingDirectory) {
 
   this.getNumActiveFluents = function getNumActiveFluents() {
     return program.getState().size();
+  };
+
+  this.getNumLastStepFiredRules = function getNumLastStepFiredRules() {
+    return _numLastStepFiredRules;
+  };
+
+  this.getNumLastStepResolvedRules = function getNumLastStepResolvedRules() {
+    return _numLastStepResolvedRules;
+  };
+
+  this.getNumLastStepFailedRules = function getNumLastStepFailedRules() {
+    return _numLastStepFailedRules;
   };
 
   this.query = function query(literalArg, type) {
@@ -739,7 +770,6 @@ function Engine(program, workingDirectory) {
       return;
     }
     _isRunning = true;
-    let result = [];
     _engineEventManager.notify('run', this);
     if (_isContinuousExecution) {
       _startContinuousExecution();
