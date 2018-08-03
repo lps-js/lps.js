@@ -462,12 +462,6 @@ function Engine(program, workingDirectory) {
     let facts = program.getFacts();
     let executedActions = new LiteralTreeMap();
 
-    let result = {
-      terminated: [],
-      initiated: [],
-      activeActions: []
-    };
-
     let updatedState = new LiteralTreeMap();
     program.getState()
       .forEach((literal) => {
@@ -491,12 +485,13 @@ function Engine(program, workingDirectory) {
     // decide which actions from set of candidate actions to execute
     return actionsSelector(_goals, updatedState, currentTimePossibleActions, program, executedActions)
       .then((selectedActions) => {
+        let selectedAndExecutedActions = new LiteralTreeMap();
         // process selected actions
         selectedActions.forEach((l) => {
           if (executedActions.contains(l)) {
             return;
           }
-          result.activeActions.push(l);
+          selectedAndExecutedActions.add(l);
           let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(program.getFunctorProvider(), l);
           selectedLiterals.forEach((literal) => {
             executedActions.add(literal);
@@ -549,14 +544,8 @@ function Engine(program, workingDirectory) {
           .then(() => {
             _goals = newGoals;
 
-            _lastStepActions = new LiteralTreeMap();
-            result.activeActions.forEach((action) => {
-              _lastStepActions.add(action);
-            });
-            _lastStepObservations = new LiteralTreeMap();
-            cycleObservations.forEach((observation) => {
-              _lastStepObservations.add(observation);
-            });
+            _lastStepActions = selectedAndExecutedActions;
+            _lastStepObservations = cycleObservations;
 
             return Promise.resolve();
           });
