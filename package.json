@@ -5,6 +5,7 @@
   "main": "index.js",
   "bin": {
     "lps": "./bin/lps",
+    "lps-test": "./bin/test",
     "lps-p2p-tracker": "./bin/tracker"
   },
   "scripts": {
