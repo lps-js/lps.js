@@ -1,1 +1,32 @@
 #!/usr/bin/env node
+
+const LPS = require('../src/LPS');
+const args = process.argv.slice(2);
+const programFile = args.length > 0 ? args[0] : null;
+const specFile = args.length > 1 ? args[1]: null;
+
+if (programFile === null || specFile === null) {
+  console.error('A LPS program file and its specification file must be supplied as arguments to the LPS testing program.');
+  process.exit(1);
+}
+
+LPS.load(programFile)
+  .then((engine) => {
+    console.log('Testing\t' + programFile);
+    console.log('using\t' + specFile);
+    console.log('-----');
+    return engine.test(specFile);
+  })
+  .then((result) => {
+    if (result.success) {
+      console.log('Successful');
+      return;
+    }
+    console.error(result.errors.length + ' errors:');
+    result.errors.forEach((err) => {
+      console.error('\t' + err);
+    });
+  })
+  .catch((err) => {
+    console.error(err);
+  });
