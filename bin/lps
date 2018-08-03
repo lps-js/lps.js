@@ -29,7 +29,7 @@ LPS.load(file)
       console.log('[ Time ' + engine.getCurrentTime() + ' ] -------------- ' + engine.getLastCycleExecutionTime() + 'ms');
       console.log('Actions:\t' + engine.getLastCycleActions());
       console.log('Fluents:\t' + engine.getActiveFluents());
-      console.log('Obs:\t' + engine.getLastCycleObservations());
+      console.log('Obs:    \t' + engine.getLastCycleObservations());
       console.log('');
     });
     engine.on('done', () => {
