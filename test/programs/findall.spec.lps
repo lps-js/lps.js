@@ -1,0 +1,9 @@
+expect(maxTime(3)).
+
+expect_num_of(fluent, 1, 3, 0).
+expect_num_of(action, 1, 2, 4).
+
+expect(action, 1, 2, act(child(jane))).
+expect(action, 1, 2, act(child(julius))).
+expect(action, 1, 2, act(child(joey))).
+expect(action, 1, 2, act(child(rey))).

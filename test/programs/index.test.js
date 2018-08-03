@@ -37,6 +37,7 @@ describe('Programs Test', () => {
     'quickSort',
     'initiates-constraint',
     'rain',
-    'goat'
+    'goat',
+    'findall'
   ].forEach(testFunction);
 });

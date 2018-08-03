@@ -1,0 +1,10 @@
+maxTime(3).
+
+action(act(X)).
+
+mother(alice, jane).
+mother(sarah, julius).
+mother(sarah, joey).
+mother(roe, rey).
+
+findall(child(X), mother(Y, X), L), member(S, L) -> act(S, T1, T2).
