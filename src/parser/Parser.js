@@ -137,7 +137,7 @@ function Parser(source) {
       let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
       _expect(TokenTypes.Symbol);
       node.addChild(expr);
-      let rightExpr = _comparisonExpression();
+      let rightExpr = _expression();
       node.addChild(rightExpr);
       expr = node;
     }
