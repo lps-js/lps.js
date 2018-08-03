@@ -567,6 +567,10 @@ function Engine(program, workingDirectory) {
     return _currentTime;
   };
 
+  this.getMaxTime = function getMaxTime() {
+    return _maxTime;
+  };
+
   this.getCycleInterval = function getCycleInterval() {
     return _cycleInterval;
   };

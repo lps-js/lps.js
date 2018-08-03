@@ -8,9 +8,9 @@ require('mocha-sinon');
 let testFunction = function testFunction(file) {
   describe(file + '.lps', () => {
     it('should pass all expectations', function (done) {
-      this.timeout(5000);
       LPS.load(path.join(__dirname, file + '.lps'))
         .then((engine) => {
+          this.timeout(engine.getMaxTime() * engine.getCycleInterval() + 1000);
           return engine.test(path.join(__dirname, file + '.spec.lps'));
         })
         .then((result) => {
@@ -38,6 +38,7 @@ describe('Programs Test', () => {
     'initiates-constraint',
     'rain',
     'goat',
-    'findall'
+    'findall',
+    'towers-simple'
   ].forEach(testFunction);
 });

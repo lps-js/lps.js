@@ -1183,7 +1183,6 @@ module.exports = (engine, program) => {
       let goalResult = program.query(goal);
       let outputResult = [];
       goalResult.forEach((tuple) => {
-        console.log(tuple);
         outputResult.push(template.substitute(tuple.theta));
       });
       let theta = {};
