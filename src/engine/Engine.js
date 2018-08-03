@@ -776,6 +776,7 @@ function Engine(program, workingDirectory) {
       return;
     }
     _isPaused = true;
+    _engineEventManager.notify('paused', this);
   };
 
   this.unpause = function unpause() {
@@ -783,6 +784,7 @@ function Engine(program, workingDirectory) {
       return;
     }
     _isPaused = false;
+    _engineEventManager.notify('unpaused', this);
     if (_isContinuousExecution) {
       _startContinuousExecution();
       return;
