@@ -239,11 +239,11 @@ function Engine(program, workingDirectory) {
   let processCycleObservations = function processCycleObservations() {
     let observationTerminated = [];
     let observationInitiated = [];
-    let activeObservations = [];
+    let activeObservations = new LiteralTreeMap();
 
     if (_observations[_currentTime] === undefined) {
       // no observations for current time
-      return [];
+      return activeObservations;
     }
 
     // process observations
@@ -251,7 +251,7 @@ function Engine(program, workingDirectory) {
     let nextTime = _currentTime + 1;
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action.substitute(theta);
-      activeObservations.push(action);
+      activeObservations.add(action);
 
       if (ob.endTime > nextTime) {
         if (_observations[nextTime] === undefined) {
