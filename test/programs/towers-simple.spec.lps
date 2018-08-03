@@ -1,0 +1,33 @@
+expect(maxTime(5)).
+
+expect_num_of(fluent, 1, 5, 3).
+
+expect(fluent, 1, location(f, floor)).
+expect(fluent, 1, location(d, f)).
+expect(fluent, 1, location(e, d)).
+
+expect(fluent, 2, location(f, floor)).
+expect(fluent, 2, location(d, f)).
+expect(fluent, 2, location(e, floor)).
+
+expect(fluent, 3, location(f, floor)).
+expect(fluent, 3, location(d, floor)).
+expect(fluent, 3, location(e, floor)).
+
+expect(fluent, 4, location(f, floor)).
+expect(fluent, 4, location(d, floor)).
+expect(fluent, 4, location(e, d)).
+
+expect(fluent, 5, location(f, e)).
+expect(fluent, 5, location(d, floor)).
+expect(fluent, 5, location(e, d)).
+
+expect_num_of(action, 1, 2, 1).
+expect_num_of(action, 2, 3, 1).
+expect_num_of(action, 3, 4, 1).
+expect_num_of(action, 4, 5, 1).
+
+expect(action, 1, 2, move(e, floor)).
+expect(action, 2, 3, move(d, floor)).
+expect(action, 3, 4, move(e, d)).
+expect(action, 4, 5, move(f, e)).
