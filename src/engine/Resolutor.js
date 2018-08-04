@@ -79,6 +79,7 @@ Resolutor.explain =
       }
 
       let literal = remainingLiterals[0].substitute(thetaSoFar);
+
       let literalThetas = [];
       let substitutedInstances = Resolutor
         .handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
@@ -112,7 +113,7 @@ Resolutor.explain =
         if (unificationTheta === null) {
           return;
         }
-
+        headLiteral = headLiteral.substitute(unificationTheta);
         let bodyLiterals = clause.getBodyLiterals();
         bodyLiterals = bodyLiterals.map((blArg) => {
           let bl = blArg.substitute(unificationTheta);
