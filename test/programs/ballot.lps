@@ -1,12 +1,13 @@
 % By BK, modified by MC:
 % single ballot per program instance, added pre conditions and method names as in Solidity original
 
+% Original File: https://bitbucket.org/lpsmasters/lps_corner/src/06b0de6227f751547e8d25937c05fa30208e45f5/examples/forTesting/ballotTest.pl?at=master
 % Translated by Sam Yong
 
 maxTime(15).
 
 events([
-	ballot(_Chairman, _Proposals),
+  ballot(_Chairman, _Proposals),
   giveRightToVote(_Chairman, _Voter),
   delegate(_FromVoter, _ToVoter),
   vote(_Voter, _Candidate)
@@ -17,8 +18,12 @@ fluents([
   voter(_Voter, _Weight),
   voted(_Voter, _Candidate),
   delegateOf(_Voter,_D),
-  voteCount(_Candidate, _Votes)
+  voteCount(_Candidate, _Votes),
+  won(_Candidate)
 ]).
+
+action(selectCandidate(_Candidate)).
+action(initiateVoting(_Candidate)).
 
 observe(ballot(chair, [trump, clinton]), 1).
 observe(giveRightToVote(chair, miguel), 3).
@@ -30,57 +35,72 @@ observe(vote(miguel, clinton), 5).
 observe(delegate(jacinto, bob), 6).
 observe(delegate(fariba, miguel), 7).
 
-initiates(ballot(_Chairman, Proposals), voteCount(Candidate, 0)) <-
-  member(Candidate, Proposals).
+initiates(ballot(Chairman, _Proposals), voter(Chairman, 1)).
+initiates(ballot(Chairman, _Proposals), chairman(Chairman)).
+initiates(ballot(_Chairman, Proposals), voteCount(Candidate, 0), [member(Candidate, Proposals)]).
 
+<- ballot(_, _, T1, T2), voteCount(_, _, T1).
 
-ballot(_Chairman, Proposals) initiates voteCount(Candidate, 0) if
-	member(Candidate, Proposals).
-ballot(Chairman, _Proposals) initiates voter(Chairman,1).
-ballot(Chairman, _Proposals) initiates chairman(Chairman).
+initiates(giveRightToVote(Chairman, Voter), voter(Voter, 1), [chairman(Chairman, T1), not voter(Voter, _, T1)]).
 
-% the ballot is new:
-false ballot(_,_), voteCount(_,_).
-
-giveRightToVote(Chairman, Voter) initiates voter(Voter, 1) if chairman(Chairman), not voter(Voter,_).
-
-delegate(Voter1, _Voter2) updates Old to 0 in voter(Voter1, Old).
-delegate(Voter1, Voter2) updates Old to New in voter(Voter3, Old) if
-		delegateOf(Voter2,Voter3), voter(Voter1, N1), New is N1 + Old.
 % The next clause deals with the case a delegate has already voted when a delegation is made:
-delegate(Voter1, Voter2) updates OldVotes to NewVotes in voteCount(Candidate, OldVotes) if
-		delegateOf(Voter2,Voter3), voted(Voter3, Candidate),  voter(Voter1, N), NewVotes is OldVotes + N.
-delegate(Voter1,Voter2) initiates voted(Voter1,delegated(Voter2)).
+updates(
+  delegate(Voter1, Voter2),
+  voteCount(Candidate, OldVotes),
+  voteCount(Candidate, OldVotes + N),
+  [
+    delegateOf(Voter2, Voter3, T),
+    voted(Voter3, Candidate, T),
+    voter(Voter1, N, T)
+  ]
+).
+
+updates(delegate(Voter1, Voter2), voter(Voter1, Old), voter(Voter1, 0)).
+updates(delegate(Voter1, Voter2), voter(Voter3, Old), voter(Voter3, N1 + Old), [
+  delegateOf(Voter2, Voter3, T1),
+  voter(Voter1, N1, T1)
+]).
+
+initiates(delegate(Voter1, Voter2), voted(Voter1, delegated(Voter2))).
 
 % deal with delegate chains
-delegateOf(Voter,D) if voted(Voter,delegated(DD)), delegateOf(DD,D).
-delegateOf(Voter,Voter) if not voted(Voter,delegated(_)).
+delegateOf(Voter, D, T) <-
+  voted(Voter, delegated(DD), T),
+  delegateOf(DD, D, T).
+delegateOf(Voter, Voter, T) <-
+  not voted(Voter, delegated(_), T).
 
 /* This allows only one delegation to Voter2 at a time.
  * We may need to extend LPS to have several delegations simultaneously. */
-false delegate(Voter1, Voter), delegate(Voter2, Voter), Voter1 \= Voter2.
+<- delegate(Voter1, Voter, T), delegate(Voter2, Voter, T), Voter1 != Voter2.
+
 /* This allows only one weighted vote for the same candidate at a time.
  * We may need to extend LPS to have several votes for the same candidate simultaneously.*/
-false delegate(Voter,_), voted(Voter,_).
-false delegate(Voter1,Voter2), Voter1==Voter2.
-false delegate(Voter, Voter1), delegate(Voter, Voter2), Voter1 \= Voter2.
-% prevent delegation loops:
-false delegate(Voter1,Voter2), delegateOf(Voter2,Voter1).
+<- delegate(Voter, _, T, T2), voted(Voter, _, T).
+<- delegate(Voter, Voter, _, _).
+<- delegate(Voter, Voter1, T1, T2), delegate(Voter, Voter2, T1, T2), Voter1 != Voter2.
 
-vote(Voter, Candidate) initiates voted(Voter, Candidate).
+% prevent delegation loops:
+<- delegate(Voter1, Voter2, T1, T2), delegateOf(Voter2, Voter1, T1).
+
+intitates(vote(Voter, Candidate), voted(Voter, Candidate)).
 
 /* This allows only one weighted vote for the same candidate at a time.
  * We need to extend LPS to have several votes for the same candidate simultaneously. */
-vote(Voter, Candidate) updates OldVotes to NewVotes in voteCount(Candidate, OldVotes)	if
-		voter(Voter, N),
-		NewVotes is OldVotes + N.
+updates(vote(Voter, Candidate), voteCount(Candidate, OldVotes), voteCount(Candidate, OldVotes + Weight), [voter(Voter, Weight, T)]).
+  
+% no two voters can vote in the same cycle
+<- vote(Voter1, Candidate, T1, T2), vote(Voter2, Candidate, T1, T2), Voter1 != Voter2.
+% a voter cannot vote if the voter has already voted
+<- vote(Voter, _, T1, T2), voted(Voter, _, T1).
 
-false vote(Voter1, Candidate), vote(Voter2, Candidate), Voter1 \= Voter2.
-false vote(Voter,_), voted(Voter,_).
-false vote(Voter, Candidate1), vote(Voter, Candidate2), Candidate1 \= Candidate2.
+<- vote(Voter, Candidate1, T1, T2), vote(Voter, Candidate2, T1, T2), Candidate1 != Candidate2.
 
-winningProposal(Candidate,N) at T if
-	findall(N-Candidate, voteCount(Candidate,N), L) at T,
-	sort(L,SL), append(_,[N-Candidate],SL).
+initiates(vote(Voter, Candidate), voted(Voter, Candidate)).
 
-if winningProposal(_Candidate,4) then lps_terminate from _.
+% winningProposal(Candidate, N, T) <-
+%   findall(pair(N, Candidate), voteCount(Candidate, N, T), L),
+%   sort(L, SL),
+%   append(_, pair(N, Candidate), SL).
+% 
+% winningProposal(_Candidate, 4, _) -> selectCandidate(_Candate, T1).
