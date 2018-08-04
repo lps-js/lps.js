@@ -25,16 +25,6 @@ fluents([
 action(selectCandidate(_Candidate)).
 action(initiateVoting(_Candidate)).
 
-observe(ballot(chair, [trump, clinton]), 1).
-observe(giveRightToVote(chair, miguel), 3).
-observe(giveRightToVote(chair, fariba), 3).
-observe(giveRightToVote(chair, bob), 3).
-observe(giveRightToVote(chair, jacinto), 3).
-observe(delegate(bob, miguel), 4).
-observe(vote(miguel, clinton), 5).
-observe(delegate(jacinto, bob), 6).
-observe(delegate(fariba, miguel), 7).
-
 initiates(ballot(Chairman, _Proposals), voter(Chairman, 1)).
 initiates(ballot(Chairman, _Proposals), chairman(Chairman)).
 initiates(ballot(_Chairman, Proposals), voteCount(Candidate, 0), [member(Candidate, Proposals)]).

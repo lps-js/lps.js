@@ -1,0 +1,39 @@
+expect(fluent, 1, _, chairman(chair)).
+expect(fluent, 2, 5, voteCount(clinton, 0)).
+expect(fluent, 2, _, voteCount(trump, 0)).
+
+expect(fluent, 6, voteCount(clinton, 2)).
+expect(fluent, 7, voteCount(clinton, 3)).
+expect(fluent, 8, voteCount(clinton, 4)).
+
+expect(fluent, 5, _, voted(bob, delegated(miguel))).
+expect(fluent, 6, _, voted(miguel, clinton)).
+expect(fluent, 7, _, voted(jacinto, delegated(bob))).
+expect(fluent, 8, _, voted(fariba, delegated(miguel))).
+
+expect(fluent, 2, _, voter(chair, 1)).
+expect(fluent, 5, _, voter(bob, 0)).
+
+expect(fluent, 4, voter(miguel, 1)).
+expect(fluent, 5, 6, voter(miguel, 2)).
+expect(fluent, 7, voter(miguel, 3)).
+expect(fluent, 8, _, voter(miguel, 4)).
+
+expect(fluent, 4, 7, voter(fariba, 1)).
+expect(fluent, 8, _, voter(fariba, 0)).
+
+expect(fluent, 4, voter(bob, 1)).
+expect(fluent, 5, _, voter(bob, 0)).
+
+expect(fluent, 4, 6, voter(jacinto, 1)).
+expect(fluent, 7, _, voter(jacinto, 0)).
+
+observe(ballot(chair, [trump, clinton]), 1).
+observe(giveRightToVote(chair, miguel), 3).
+observe(giveRightToVote(chair, fariba), 3).
+observe(giveRightToVote(chair, bob), 3).
+observe(giveRightToVote(chair, jacinto), 3).
+observe(delegate(bob, miguel), 4).
+observe(vote(miguel, clinton), 5).
+observe(delegate(jacinto, bob), 6).
+observe(delegate(fariba, miguel), 7).
