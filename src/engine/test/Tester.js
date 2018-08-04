@@ -2,6 +2,7 @@ const Program = lpsRequire('parser/Program');
 const Variable = lpsRequire('engine/Variable');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
+const coreModule = lpsRequire('engine/modules/core');
 
 function Tester(engine) {
   let expectations = {};
@@ -114,6 +115,8 @@ function Tester(engine) {
     return Program.fromFile(specFile)
       .then((p) => {
         program = p;
+        coreModule(engine, program);
+
         return BuiltinLoader.load(engine, program);
       })
       .then(() => {
