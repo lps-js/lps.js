@@ -270,7 +270,7 @@ function Engine(program, workingDirectory) {
     return activeObservations;
   };
 
-  const fluentActorDeclarationLiteral = Program.literal('fluentActorDeclare(T, A, Old, New)');
+  const fluentActorDeclarationLiteral = Program.literal('fluentActorDeclare(T, A, Old, New, Conds)');
   let updateStateWithFluentActors = function updateStateWithFluentActors(actions, state) {
     let functorProvider = program.getFunctorProvider();
     let newState = new LiteralTreeMap();
@@ -289,12 +289,14 @@ function Engine(program, workingDirectory) {
       let action = r.theta.A;
       let oldFluent = r.theta.Old;
       let newFluent = r.theta.New;
+      let conditions = r.theta.Conds;
       action = SyntacticSugarProcessor.action(action);
       if (type === undefined
           || action === undefined
           || !(action instanceof Functor)
           || newFluent === undefined
-          || oldFluent === undefined) {
+          || oldFluent === undefined
+          || !(conditions instanceof List)) {
         return;
       }
       type = type.evaluate();
@@ -310,33 +312,50 @@ function Engine(program, workingDirectory) {
       let initiatingFluent;
       switch(type) {
         case 'update':
+          // console.log('adding update ' + action + ' for ' + oldFluent + ' to ' + newFluent);
           terminatingFluent = SyntacticSugarProcessor.fluent(oldFluent, lastArgument);
           initiatingFluent = SyntacticSugarProcessor.fluent(newFluent, lastArgument);
           fluentActors.push({
             action: action,
             initiate: initiatingFluent,
-            terminate: terminatingFluent
+            terminate: terminatingFluent,
+            conditions: conditions
           });
           break;
         case 'initiate':
+          // console.log('adding initiate ' + action + ' for ' + newFluent);
           initiatingFluent = SyntacticSugarProcessor.fluent(newFluent, lastArgument);
           fluentActors.push({
             action: action,
-            initiate: initiatingFluent
+            initiate: initiatingFluent,
+            conditions: conditions
           });
           break;
         case 'terminate':
           terminatingFluent = SyntacticSugarProcessor.fluent(oldFluent, lastArgument);
           fluentActors.push({
             action: action,
-            terminate: terminatingFluent
+            terminate: terminatingFluent,
+            conditions: conditions
           });
           break;
       }
     });
 
     fluentActors.forEach((actor) => {
-      let thetaSets = actions.unifies(actor.action);
+      let thetaSets = [];
+      actions.unifies(actor.action)
+        .forEach((node) => {
+          let substitutedCondition = actor.conditions.substitute(node.theta);
+          let subQueryResult = program.query(substitutedCondition.flatten());
+          subQueryResult.forEach((tuple) => {
+
+            thetaSets.push({
+              theta: compactTheta(node.theta, tuple.theta)
+            });
+          });
+        });
+
       thetaSets.forEach((node) => {
         let initiateThetaSet = [node.theta];
 

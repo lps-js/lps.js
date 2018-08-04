@@ -4,15 +4,13 @@ event(F) <- events(L), member(F, L).
 
 observe(F, T, T2) <- observe(F, T), T2 = T + 1.
 
-initially(F) <- initially([H|T]), member(F, [H|T]).
+loadModule(F) <- loadModules(L), member(F, L).
 
-consult(F) <- consult([H|T]), member(F, [H|T]).
-loadModule(F) <- loadModule([H|T]), member(F, [H|T]).
-
-fluentActorDeclare(update, A, Old, New, []) <- updates(A, Old, New).
-fluentActorDeclare(initiate, A, 0, F, []) <- initiates(A, F).
-fluentActorDeclare(terminate, A, F, 0, []) <- terminates(A, F).
-
+updates(A, Old, New, []) <- updates(A, Old, New).
 fluentActorDeclare(update, A, Old, New, Conds) <- updates(A, Old, New, Conds).
-fluentActorDeclare(initiate, A, 0, F, Conds) <- initiates(A, F, Conds).
+
+terminates(A, F, []) <- terminates(A, F).
 fluentActorDeclare(terminate, A, F, 0, Conds) <- terminates(A, F, Conds).
+
+initiates(A, F, []) <- initiates(A, F).
+fluentActorDeclare(initiate, A, 0, F, Conds) <- initiates(A, F, Conds).
