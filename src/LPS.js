@@ -3,6 +3,8 @@ const Program = lpsRequire('parser/Program');
 const Engine = lpsRequire('engine/Engine');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
+const Functor = lpsRequire('engine/Functor');
+const List = lpsRequire('engine/List');
 
 const path = require('path');
 
@@ -33,5 +35,7 @@ LPS.load = function load(file) {
 
 LPS.Value = Value;
 LPS.Variable = Variable;
+LPS.List = List;
+LPS.Functor = Functor;
 
 module.exports = LPS;
