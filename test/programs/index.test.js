@@ -5,30 +5,22 @@ const chai = require('chai');
 const expect = chai.expect;
 require('mocha-sinon');
 
-let testFunction = function testFunction(file) {
-  describe(file + '.lps', () => {
-    it('should pass all expectations', function (done) {
-      LPS.load(path.join(__dirname, file + '.lps'))
-        .then((engine) => {
-          this.timeout(engine.getMaxTime() * engine.getCycleInterval() + 1000);
-          return engine.test(path.join(__dirname, file + '.spec.lps'));
-        })
-        .then((result) => {
-          if (!result.success) {
-            console.log(result.errors);
-          }
-          expect(result.success).to.be.true;
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
+let testFunction = function testFunction(file, updateTimeout) {
+  return LPS.load(path.join(__dirname, file + '.lps'))
+    .then((engine) => {
+      updateTimeout(engine.getMaxTime() * engine.getCycleInterval());
+      return engine.test(path.join(__dirname, file + '.spec.lps'));
+    })
+    .then((result) => {
+      if (!result.success) {
+        console.log(result.errors);
+      }
+      expect(result.success).to.be.true;
     });
-  });
 };
 
 describe('Programs Test', () => {
-  [
+  let files = [
     'party',
     'bank-terse',
     'badlight2',
@@ -42,5 +34,22 @@ describe('Programs Test', () => {
     'goat',
     'findall',
     'towers-simple'
-  ].forEach(testFunction);
+  ];
+
+  let totalTimeout = 1000;
+  let promise = Promise.resolve();
+  files.forEach((file) => {
+    it('should test ' + file + '.lps', function (done) {
+    // promise = promise.then(() => {
+      let updateTimeout = (timeout) => {
+        this.slow(0.8 * timeout);
+        this.timeout(timeout);
+      };
+
+      testFunction(file, updateTimeout)
+        .then(() => {
+          done();
+        });
+    });
+  });
 });
