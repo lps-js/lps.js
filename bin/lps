@@ -40,6 +40,12 @@ LPS.load(file)
       console.log('Execution complete');
       process.exit(0);
     });
+    
+    engine.on('error', (err) => {
+      console.error(err);
+      process.exit(1);
+    });
+    
     engine.run();
 
     const server = net.createServer((socket) => {
