@@ -944,6 +944,43 @@ module.exports = (engine, program) => {
       return checkOrSetOutputArg.call(this, value, v2Arg);
     },
 
+    'round/1': function (v1Arg) {
+      let result = [];
+      let v1 = resolveValue.call(this, v1Arg);
+      if (v1 instanceof Array) {
+        v1.forEach((instance) => {
+          result = result.concat(functors['round/1'](instance));
+        });
+        return result;
+      }
+
+      assertIsValue(v1);
+      let value = new Value(Math.round(Number(v1.evaluate())));
+
+      return [
+        {
+          theta: {},
+          replacement: value
+        }
+      ];
+    },
+
+    'round/2': function (v1Arg, v2Arg) {
+      let result = [];
+      let v1 = resolveValue.call(this, v1Arg);
+      if (v1 instanceof Array) {
+        v1.forEach((instance) => {
+          result = result.concat(functors['round/2'](instance, v2Arg));
+        });
+        return result;
+      }
+
+      assertIsValue(v1);
+      let value = new Value(Math.round(v1.evaluate()));
+
+      return checkOrSetOutputArg.call(this, value, v2Arg);
+    },
+
     '@</2': function (v1Arg, v2Arg) {
       let result = [];
       let v1 = resolveValue.call(this, v1Arg);
