@@ -20,12 +20,18 @@ Resolutor.handleBuiltInFunctorArgumentInLiteral =
       let arg = literalArgs[idx];
       if (arg instanceof Functor && functorProvider.has(arg.getId())) {
         let executionResult = functorProvider.execute(arg);
+        let replaceCount = 0;
         executionResult.forEach((instance) => {
           if (instance.replacement === undefined) {
             return;
           }
+          replaceCount += 1;
           handleLiteralArg(argsSoFar.concat([instance.replacement]), idx + 1);
         });
+
+        if (replaceCount === 0) {
+          handleLiteralArg(argsSoFar.concat(arg), idx + 1);
+        }
         return;
       }
       handleLiteralArg(argsSoFar.concat([arg]), idx + 1);
