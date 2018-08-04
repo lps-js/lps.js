@@ -41,7 +41,7 @@ function Tester(engine) {
       if (r.theta.T2 instanceof Variable) {
         time2 = null;
       } else {
-        time2 = r.theta.T2.evaluate()
+        time2 = r.theta.T2.evaluate();
       }
       let type = r.theta.Type.evaluate();
 
@@ -83,7 +83,7 @@ function Tester(engine) {
       if (r.theta.T2 instanceof Variable) {
         time2 = null;
       } else {
-        time2 = r.theta.T2.evaluate()
+        time2 = r.theta.T2.evaluate();
       }
       let type = r.theta.Type.evaluate();
 
@@ -165,7 +165,7 @@ function Tester(engine) {
               let qResult = engine.query(entry.literal, entry.type);
               testResult = qResult.length > 0;
               if (!testResult) {
-                errors.push('Expecting ' + entry.type + ' \"' + entry.literal + '\" at time ' + engineTime);
+                errors.push('Expecting ' + entry.type + ' "' + entry.literal + '" at time ' + engineTime);
               }
             }
             if (entry.num_of !== undefined) {

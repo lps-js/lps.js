@@ -5,6 +5,7 @@ const Value = lpsRequire('engine/Value');
 const fs = require('fs');
 const path = require('path');
 
+// eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
   if (process.browser) {
     // in browserify mode

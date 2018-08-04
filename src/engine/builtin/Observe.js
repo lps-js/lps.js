@@ -28,7 +28,6 @@ Observe.processDeclarations = function processDeclarations(engine, program) {
     if (eTime < sTime) {
       throw new Error('Invalid ordering of time given to observe/3: Start time must come before end time.');
     }
-
     engine.scheduleObservation(observation, sTime, eTime);
   });
 };

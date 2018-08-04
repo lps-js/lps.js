@@ -38,8 +38,6 @@ describe('Programs Test', function () {
     'towers-simple'
   ];
 
-  let totalTimeout = 1000;
-  let promise = Promise.resolve();
   files.forEach((file) => {
     it('should test ' + file + '.lps', function (done) {
       let updateTimeout = (timeout) => {

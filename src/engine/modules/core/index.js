@@ -74,6 +74,7 @@ let checkOrSetOutputArg = function checkOrSetOutputArg(value, outputArg) {
   return result;
 };
 
+// eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
   let functors = {
     '+/2': function (v1Arg, v2Arg) {

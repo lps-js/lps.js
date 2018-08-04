@@ -13,15 +13,16 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, use
   assumption.add(eventAtom);
   let renameTheta = variableArrayRename(usedVariables);
   let hasNewRenames = false;
+  let processRenameTheta = (varName) => {
+    let newVarName = renameTheta[varName].evaluate();
+    if (renameTheta[newVarName] !== undefined) {
+      renameTheta[varName] = renameTheta[newVarName];
+      hasNewRenames = true;
+    }
+  };
   do {
     hasNewRenames = false;
-    Object.keys(renameTheta).forEach((varName) => {
-      let newVarName = renameTheta[varName].evaluate();
-      if (renameTheta[newVarName] !== undefined) {
-        renameTheta[varName] = renameTheta[newVarName];
-        hasNewRenames = true;
-      }
-    });
+    Object.keys(renameTheta).forEach(processRenameTheta);
   } while (hasNewRenames);
   let outputVariables = eventAtom.getVariables();
 
@@ -47,7 +48,8 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, use
       });
 
       reductions.push({
-        clause: clause.getBodyLiterals().map(l => l.substitute(renameTheta).substitute(theta)),
+        clause: clause.getBodyLiterals()
+          .map(l => l.substitute(renameTheta).substitute(theta)),
         theta: outputTheta
       });
     });
@@ -56,17 +58,23 @@ let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, use
   return reductions;
 };
 
-let resolveStateConditions = function resolveStateConditions(program, clause, possibleActions, currentTime) {
-  let functorProvider = program.getFunctorProvider();
-
+let resolveStateConditions = function resolveStateConditions(program, clause) {
   let nodes = [];
-  let processClause = function processClause(unresolvedClause, clauseSoFar, thetaSoFar, variablesSeenSoFar) {
+  let processClause = function processClause(
+    unresolvedClause,
+    clauseSoFar,
+    thetaSoFar,
+    variablesSeenSoFar
+  ) {
     if (unresolvedClause.length === 0) {
       if (clauseSoFar.length >= clause.length) {
         return true;
       }
 
-      nodes.push(new GoalNode(program, clauseSoFar, thetaSoFar));
+      nodes.push({
+        clause: clauseSoFar,
+        theta: thetaSoFar
+      });
       return true;
     }
     let conjunct = unresolvedClause[0];
@@ -86,7 +94,12 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
 
       // don't attempt to resolve conjuncts that has output variables from earlier conjuncts
       if (!canProceed) {
-        return processClause([], clauseSoFar.concat(unresolvedClause), thetaSoFar, variablesSeenSoFar);
+        return processClause(
+          [],
+          clauseSoFar.concat(unresolvedClause),
+          thetaSoFar,
+          variablesSeenSoFar
+        );
       }
     }
     let literalThetas = program.query(conjunct);
@@ -163,10 +176,16 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
   return nodes;
 };
 
-let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions, functorProvider, candidateActionSets, unresolvedSets) {
+let resolveSimpleActions = function resolveSimpleActions(
+  clause,
+  possibleActions,
+  functorProvider,
+  candidateActionSets,
+  unresolvedSets
+) {
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
   let hasUnresolvedClause = false;
-  let seenVariables = {};
+
   clause.forEach((literal) => {
     if (hasUnresolvedClause) {
       thetaSet = thetaSet.map((tupleArg) => {
@@ -221,6 +240,35 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
   return numAdded;
 };
 
+let checkClauseExpiry = (program, conjunction, forTime) => {
+  for (let i = 0; i < conjunction.length; i += 1) {
+    let conjunct = conjunction[i];
+    let conjunctArgs = conjunct.getArguments();
+    if (program.isFluent(conjunct)) {
+      let lastArg = conjunctArgs[conjunctArgs.length - 1];
+      if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
+        return false;
+      }
+    } else if (program.isAction(conjunct) || program.isEvent(conjunct)) {
+      let startTimeArg = conjunctArgs[conjunctArgs.length - 2];
+      let endTimeArg = conjunctArgs[conjunctArgs.length - 1];
+
+      if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
+        return false;
+      }
+      if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
+        return false;
+      }
+
+      if (startTimeArg instanceof Value && endTimeArg instanceof Value
+          && startTimeArg.evaluate() > endTimeArg.evaluate()) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
 function GoalNode(program, clause, theta) {
   this.clause = clause;
   this.theta = theta;
@@ -235,6 +283,12 @@ function GoalNode(program, clause, theta) {
     if (this.clause.length === 0) {
       return -1;
     }
+    let checkAndUpdateDeadline = (timing) => {
+      if (earliestDeadline === null
+          || (currentTime <= timing && timing < earliestDeadline)) {
+        earliestDeadline = timing;
+      }
+    };
     if (this.children.length === 0) {
       this.clause.forEach((conjunct) => {
         if (!program.isTimable(conjunct) || program.isTimableUntimed(conjunct)) {
@@ -248,17 +302,13 @@ function GoalNode(program, clause, theta) {
         if (program.isFluent(conjunct)) {
           // only one timing variable
           timing = conjunctArgs[conjunctArgs.length - 1].evaluate();
-          if (earliestDeadline === null || (currentTime <= timing && timing < earliestDeadline)) {
-            earliestDeadline = timing;
-          }
+          checkAndUpdateDeadline(timing);
           return;
         }
 
         // two timing variable, take start time
         timing = conjunctArgs[conjunctArgs.length - 2].evaluate();
-        if (earliestDeadline === null || (currentTime <= timing && timing < earliestDeadline)) {
-          earliestDeadline = timing;
-        }
+        checkAndUpdateDeadline(timing);
       });
       return earliestDeadline;
     }
@@ -271,9 +321,7 @@ function GoalNode(program, clause, theta) {
       if (deadline === null) {
         return;
       }
-      if (earliestDeadline === null || (currentTime <= deadline && deadline < earliestDeadline)) {
-        earliestDeadline = deadline;
-      }
+      checkAndUpdateDeadline(deadline);
     });
     return earliestDeadline;
   };
@@ -300,40 +348,19 @@ function GoalNode(program, clause, theta) {
     return false;
   };
 
-  this.evaluate = function evaluate(forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses) {
-    let checkClauseExpiry = (clause) => {
-      for (let i = 0; i < clause.length; i += 1) {
-        let literal = clause[i];
-        let literalArgs = literal.getArguments();
-        if (program.isFluent(literal)) {
-          let lastArg = literalArgs[literalArgs.length - 1];
-          if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
-            return false;
-          }
-        } else if (program.isAction(literal) || program.isEvent(literal)) {
-          let startTimeArg = literalArgs[literalArgs.length - 2];
-          let endTimeArg = literalArgs[literalArgs.length - 1];
-
-          if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
-            return false;
-          }
-          if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
-            return false;
-          }
-
-          if (startTimeArg instanceof Value && endTimeArg instanceof Value && startTimeArg.evaluate() > endTimeArg.evaluate()) {
-            return false;
-          }
-        }
-      }
-      return true;
-    };
+  this.evaluate = function evaluate(
+    forTime,
+    possibleActions,
+    leafNodes,
+    evaluationQueue,
+    resolvedGoalClauses
+  ) {
 
     if (resolvedGoalClauses['' + this.clause] !== undefined) {
       return resolvedGoalClauses['' + this.clause];
     }
 
-    if (!checkClauseExpiry(this.clause)) {
+    if (!checkClauseExpiry(program, this.clause, forTime)) {
       resolvedGoalClauses['' + this.clause] = null;
       return null;
     }
@@ -344,7 +371,6 @@ function GoalNode(program, clause, theta) {
 
     // only attempt to resolve the first literal left to right
     let reductionResult = [];
-    let processCompositeEvent = true;
     let conjunct = this.clause[0];
 
     let usedVariables = {};
@@ -395,19 +421,21 @@ function GoalNode(program, clause, theta) {
 
     let isFirstConjunctUntimed = program.isTimableUntimed(conjunct);
 
-    let stateConditionResolutionResult = resolveStateConditions(program, clause, possibleActions, forTime);
+    let stateConditionResolutionResult = resolveStateConditions(program, clause);
     if (stateConditionResolutionResult === null && !hasUntimedConjunctInClause) {
       this.hasBranchFailed = true;
       resolvedGoalClauses['' + this.clause] = null;
       return null;
     }
     if (stateConditionResolutionResult !== null) {
-      reductionResult = reductionResult.concat(stateConditionResolutionResult);
+      stateConditionResolutionResult.forEach((tuple) => {
+        reductionResult.push(new GoalNode(program, tuple.clause, tuple.theta));
+      });
     }
 
     // check for expired conjuncts
     reductionResult = reductionResult.filter((n) => {
-      return checkClauseExpiry(n.clause);
+      return checkClauseExpiry(program, n.clause, forTime);
     });
 
     let functorProvider = program.getFunctorProvider();

@@ -2,6 +2,7 @@ const Program = lpsRequire('parser/Program');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Value = lpsRequire('engine/Value');
 const Clause = lpsRequire('engine/Clause');
+const List = lpsRequire('engine/List');
 const path = require('path');
 
 const consultLiteral1 = Program.literal('consult(File)');
@@ -66,7 +67,9 @@ function Consult(engine, targetProgram) {
   };
 
   let processConsultDeclarations = function processConsultDeclarations(
-      currentProgram, workingDirectoryArg) {
+    currentProgram,
+    workingDirectoryArg
+  ) {
     let workingDirectory = workingDirectoryArg;
     if (workingDirectory === undefined) {
       workingDirectory = '';
@@ -78,7 +81,7 @@ function Consult(engine, targetProgram) {
 
     let handleEntry = (theta) => {
       if (!(theta.File instanceof Value)) {
-        return;
+        return Promise.reject();
       }
       let promise;
       let filepath = theta.File.evaluate();
@@ -98,8 +101,9 @@ function Consult(engine, targetProgram) {
           // also pass in the working directory from this loaded file
           return processConsultDeclarations.call(this, loadedProgram, path.dirname(filepath));
         });
-      return promise
-    }
+      return promise;
+    };
+
     result.forEach((r) => {
       if (r.theta.File === undefined) {
         return;

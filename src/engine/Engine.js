@@ -311,7 +311,7 @@ function Engine(program, workingDirectory) {
 
       let terminatingFluent;
       let initiatingFluent;
-      switch(type) {
+      switch (type) {
         case 'update':
           // console.log('adding update ' + action + ' for ' + oldFluent + ' to ' + newFluent);
           terminatingFluent = SyntacticSugarProcessor.fluent(oldFluent, lastArgument);
@@ -340,6 +340,8 @@ function Engine(program, workingDirectory) {
             conditions: conditions
           });
           break;
+        default:
+          break;
       }
     });
 
@@ -350,7 +352,6 @@ function Engine(program, workingDirectory) {
           let substitutedCondition = actor.conditions.substitute(node.theta);
           let subQueryResult = program.query(substitutedCondition.flatten());
           subQueryResult.forEach((tuple) => {
-
             thetaSets.push({
               theta: compactTheta(node.theta, tuple.theta)
             });
@@ -419,8 +420,8 @@ function Engine(program, workingDirectory) {
         let cloneProgram = programSoFar.clone();
         let newState = cloneProgram.getState();
         newState = updateStateWithFluentActors(candidateActions, newState);
-        candidateActions.forEach((l) => {
-          newState.add(l);
+        candidateActions.forEach((a) => {
+          newState.add(a);
         });
 
         cloneProgram.updateState(newState);
@@ -428,29 +429,29 @@ function Engine(program, workingDirectory) {
           return;
         }
         let promise = recursiveActionsSelector(
-            actionsSoFar.concat([candidateActions]),
-            cloneProgram,
-            l + 1);
+          actionsSoFar.concat([candidateActions]),
+          cloneProgram,
+          l + 1
+        );
         promises.push(promise);
       });
 
       // race for any first resolve
+      let mappedPromises = promises.map((p) => {
+        return p.then(
+          (val) => Promise.reject(val),
+          (err) => Promise.resolve(err)
+        );
+      });
       return Promise
-        .all(
-          promises.map((p) => {
-            return p.then(
-              (val) => Promise.reject(val),
-              (err) => Promise.resolve(err)
-            );
-          })
-        )
+        .all(mappedPromises)
         .then(
-          (errs) => {
-            // console.log(errs);
+          () => {
             return recursiveActionsSelector(
               actionsSoFar,
               programSoFar,
-              l + 1);
+              l + 1
+            );
           },
           (val) => Promise.resolve(val)
         );
@@ -483,9 +484,6 @@ function Engine(program, workingDirectory) {
   */
   let performCycle = function performCycle() {
     let nextTime = _currentTime + 1;
-
-    let rules = program.getRules();
-    let facts = program.getFacts();
     let executedActions = new LiteralTreeMap();
 
     let updatedState = new LiteralTreeMap();
@@ -509,7 +507,13 @@ function Engine(program, workingDirectory) {
     program.setExecutedActions(executedActions);
 
     // decide which actions from set of candidate actions to execute
-    return actionsSelector(_goals, updatedState, currentTimePossibleActions, program, executedActions)
+    return actionsSelector(
+      _goals,
+      updatedState,
+      currentTimePossibleActions,
+      program,
+      executedActions
+    )
       .then((selectedActions) => {
         let selectedAndExecutedActions = new LiteralTreeMap();
         // process selected actions
@@ -518,7 +522,8 @@ function Engine(program, workingDirectory) {
             return;
           }
           selectedAndExecutedActions.add(l);
-          let selectedLiterals = Resolutor.handleBuiltInFunctorArgumentInLiteral(program.getFunctorProvider(), l);
+          let selectedLiterals = Resolutor
+            .handleBuiltInFunctorArgumentInLiteral(program.getFunctorProvider(), l);
           selectedLiterals.forEach((literal) => {
             executedActions.add(literal);
           });
@@ -554,13 +559,13 @@ function Engine(program, workingDirectory) {
               .then((evaluationResult) => {
                 if (evaluationResult === null) {
                   _numLastCycleFailedRules += 1;
-                  return;
+                  return Promise.reject();
                 }
 
                 // goal tree has been resolved
                 if (evaluationResult.length > 0) {
                   _numLastCycleResolvedRules += 1;
-                  return;
+                  return Promise.resolve();
                 }
 
                 // goal tree has not been resolved, so let's persist the tree
@@ -718,7 +723,7 @@ function Engine(program, workingDirectory) {
 
     if (type === 'observation') {
       literal = SyntacticSugarProcessor.action(literalArg);
-      return _lastCycleObservations.unifies(literal)
+      return _lastCycleObservations.unifies(literal);
     }
 
     return program.query(literal);
@@ -776,7 +781,9 @@ function Engine(program, workingDirectory) {
             _engineEventManager.notify('done', this);
             return;
           }
-          continuousExecutionFunc();
+          setTimeout(() => {
+            continuousExecutionFunc();
+          }, 0);
         });
     };
     continuousExecutionFunc();

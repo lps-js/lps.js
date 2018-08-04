@@ -9,6 +9,7 @@ const net = require('net');
 
 const receiveEventLiteral = Program.literal('p2pReceive(NetworkId, Peer, Message)');
 
+// eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
   if (process.browser) {
     // in browserify mode
@@ -56,6 +57,7 @@ module.exports = (engine, program) => {
 
   server.on('error', (err) => {
     // TODO: log to universal logger instead
+    // eslint-disable-next-line no-console
     console.error('[P2P Error] ' + err);
   });
 
