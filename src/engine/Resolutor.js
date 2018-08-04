@@ -199,6 +199,10 @@ Resolutor.reduceRuleAntecedent =
       });
 
       if (literalThetas.length === 0) {
+        if (literal.isGround()) {
+          // indefinite failures
+          return;
+        }
         result.push({
           theta: theta,
           unresolved: remainingLiterals.concat([])
