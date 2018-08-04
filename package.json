@@ -1,7 +1,7 @@
 {
   "name": "lps",
   "version": "1.0.0",
-  "description": "",
+  "description": "Logic Production Systems (LPS) interpreter written in JavaScript",
   "main": "index.js",
   "bin": {
     "lps": "./bin/lps",
