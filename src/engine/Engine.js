@@ -94,7 +94,9 @@ function Engine(program, workingDirectory) {
       if (r.theta.X === undefined) {
         return;
       }
-      let fluent = SyntacticSugarProcessor.fluent(r.theta.X);
+
+      let fluent = SyntacticSugarProcessor.shorthand(r.theta.X);
+      fluent = SyntacticSugarProcessor.fluent(fluent);
       program.defineFluent(fluent);
     });
   };
@@ -105,7 +107,8 @@ function Engine(program, workingDirectory) {
       if (r.theta.X === undefined) {
         return;
       }
-      let literal = SyntacticSugarProcessor.action(r.theta.X);
+      let literal = SyntacticSugarProcessor.shorthand(r.theta.X);
+      literal = SyntacticSugarProcessor.action(literal);
       program.defineAction(literal);
       _possibleActions.add(literal);
     });
@@ -117,7 +120,8 @@ function Engine(program, workingDirectory) {
       if (r.theta.X === undefined) {
         return;
       }
-      let literal = SyntacticSugarProcessor.action(r.theta.X);
+      let literal = SyntacticSugarProcessor.shorthand(r.theta.X);
+      literal = SyntacticSugarProcessor.action(literal);
       program.defineEvent(literal);
     });
   };
