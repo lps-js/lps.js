@@ -62,6 +62,7 @@ function Parser(source) {
   let _simpleExpression = function _simpleExpression() {
     let node;
     if (_foundToBe(TokenTypes.Symbol, '(')) {
+      _expect(TokenTypes.Symbol);
       node = _expression();
       _expectToBe(TokenTypes.Symbol, ')');
     } else if (_found(TokenTypes.Constant)) {
@@ -134,8 +135,8 @@ function Parser(source) {
   let _assignmentExpression = function _assignmentExpression() {
     let expr = _comparisonExpression();
     while (_foundOneOf(TokenTypes.Symbol, ['='])) {
-      let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
       _expect(TokenTypes.Symbol);
+      let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
       node.addChild(expr);
       let rightExpr = _expression();
       node.addChild(rightExpr);
