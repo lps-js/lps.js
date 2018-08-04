@@ -1,4 +1,5 @@
 const Program = lpsRequire('parser/Program');
+const Variable = lpsRequire('engine/Variable');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
 
@@ -17,8 +18,8 @@ function Tester(engine) {
     let queryResult = program.query(Program.literal('expect(Type, T, F)'));
 
     queryResult.forEach((r) => {
-      let time = r.theta.T.evaluate();
       let type = r.theta.Type.evaluate();
+      let time = r.theta.T.evaluate();
       checkAndCreateExpectation(time);
 
       expectations[time].push({
@@ -35,7 +36,12 @@ function Tester(engine) {
     let queryResult = program.query(Program.literal('expect(Type, T1, T2, F)'));
     queryResult.forEach((r) => {
       let time1 = r.theta.T1.evaluate();
-      let time2 = r.theta.T2.evaluate();
+      let time2;
+      if (r.theta.T2 instanceof Variable) {
+        time2 = null;
+      } else {
+        time2 = r.theta.T2.evaluate()
+      }
       let type = r.theta.Type.evaluate();
 
       checkAndCreateExpectation(time1 + 1);
@@ -72,7 +78,12 @@ function Tester(engine) {
     let queryResult = program.query(Program.literal('expect_num_of(Type, T1, T2, Num)'));
     queryResult.forEach((r) => {
       let time1 = r.theta.T1.evaluate();
-      let time2 = r.theta.T2.evaluate();
+      let time2;
+      if (r.theta.T2 instanceof Variable) {
+        time2 = null;
+      } else {
+        time2 = r.theta.T2.evaluate()
+      }
       let type = r.theta.Type.evaluate();
 
       checkAndCreateExpectation(time1 + 1);
@@ -151,7 +162,7 @@ function Tester(engine) {
               let qResult = engine.query(entry.literal, entry.type);
               testResult = qResult.length > 0;
               if (!testResult) {
-                errors.push('Expecting ' + entry.literal + ' at time ' + engineTime);
+                errors.push('Expecting ' + entry.type + ' \"' + entry.literal + '\" at time ' + engineTime);
               }
             }
             if (entry.num_of !== undefined) {
@@ -177,7 +188,7 @@ function Tester(engine) {
             if (testResult) {
               passedExpectations += 1;
             }
-            if (entry.endTime > engineTime) {
+            if (entry.endTime === null || entry.endTime > engineTime) {
               checkAndCreateExpectation(engineTime + 1);
               expectations[engineTime + 1].push(entry);
             }
