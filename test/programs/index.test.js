@@ -31,6 +31,7 @@ describe('Programs Test', () => {
   [
     'party',
     'bank-terse',
+    'ballot',
     'fire-simple',
     'fire-recurrent',
     'guard',
