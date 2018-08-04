@@ -134,9 +134,9 @@ function Parser(source) {
 
   let _assignmentExpression = function _assignmentExpression() {
     let expr = _comparisonExpression();
-    while (_foundOneOf(TokenTypes.Symbol, ['='])) {
-      _expect(TokenTypes.Symbol);
+    if (_foundOneOf(TokenTypes.Symbol, ['='])) {
       let node = new AstNode(NodeTypes.BinaryOperator, currentToken);
+      _expect(TokenTypes.Symbol);
       node.addChild(expr);
       let rightExpr = _expression();
       node.addChild(rightExpr);
