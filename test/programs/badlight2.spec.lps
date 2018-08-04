@@ -1,0 +1,130 @@
+expect_num(fluent, 1, 6).
+  expect(fluent, 1, light(livingroom, off)).
+  expect(fluent, 1, light(kitchen, on)).
+  expect(fluent, 1, light(bedroom, on)).
+  expect(fluent, 1, light(bathroom, on)).
+  expect(fluent, 1, location(bob, livingroom)).
+  expect(fluent, 1, location(dad, kitchen)).
+
+expect_num(fluent, 2, 6).
+  expect(fluent, 2, light(bedroom, on)).
+  expect(fluent, 2, light(bathroom, on)).
+  expect(fluent, 2, light(kitchen, off)).
+  expect(fluent, 2, light(livingroom, on)).
+  expect(fluent, 2, location(bob, livingroom)).
+  expect(fluent, 2, location(dad, kitchen)).
+expect_num(action, 1, 2, 2).
+  expect(action, 1, 2, switch(dad, kitchen, off)).
+  expect(action, 1, 2, switch(bob, livingroom, on)).
+expect_num(observation, 1, 2, 0).
+
+expect_num(fluent, 3, 6).
+  expect(fluent, 3, light(bedroom, on)).
+  expect(fluent, 3, light(bathroom, on)).
+  expect(fluent, 3, light(kitchen, off)).
+  expect(fluent, 3, light(livingroom, on)).
+  expect(fluent, 3, location(bob, livingroom)).
+  expect(fluent, 3, location(dad, bedroom)).
+expect_num(action, 2, 3, 1).
+  expect(action, 2, 3, goto(dad, bedroom)).
+expect_num(observation, 2, 3, 0).
+
+expect_num(fluent, 4, 6).
+  expect(fluent, 4, light(bathroom, on)).
+  expect(fluent, 4, light(kitchen, off)).
+  expect(fluent, 4, light(livingroom, on)).
+  expect(fluent, 4, light(bedroom, off)).
+  expect(fluent, 4, location(bob, livingroom)).
+  expect(fluent, 4, location(dad, bedroom)).
+expect_num(action, 3, 4, 1).
+  expect(action, 3, 4, switch(dad, bedroom, off)).
+expect_num(observation, 3, 4, 0).
+
+expect_num(fluent, 5, 6).
+  expect(fluent, 5, light(bathroom, on)).
+  expect(fluent, 5, light(kitchen, off)).
+  expect(fluent, 5, light(livingroom, on)).
+  expect(fluent, 5, light(bedroom, off)).
+  expect(fluent, 5, location(bob, livingroom)).
+  expect(fluent, 5, location(dad, bathroom)).
+expect_num(action, 4, 5, 1).
+  expect(action, 4, 5, goto(dad, bathroom)).
+expect_num(observation, 4, 5, 0).
+
+expect_num(fluent, 6, 6).
+  expect(fluent, 6, light(kitchen, off)).
+  expect(fluent, 6, light(livingroom, on)).
+  expect(fluent, 6, light(bedroom, off)).
+  expect(fluent, 6, light(bathroom, off)).
+  expect(fluent, 6, location(bob, livingroom)).
+  expect(fluent, 6, location(dad, bathroom)).
+expect_num(action, 5, 6, 1).
+  expect(action, 5, 6, switch(dad, bathroom, off)).
+expect_num(observation, 5, 6, 0).
+
+expect_num(fluent, 7, 6).
+  expect(fluent, 7, light(kitchen, off)).
+  expect(fluent, 7, light(livingroom, on)).
+  expect(fluent, 7, light(bedroom, off)).
+  expect(fluent, 7, light(bathroom, off)).
+  expect(fluent, 7, location(bob, livingroom)).
+  expect(fluent, 7, location(dad, livingroom)).
+expect_num(action, 6, 7, 1).
+  expect(action, 6, 7, goto(dad, livingroom)).
+expect_num(observation, 6, 7, 0).
+
+expect_num(fluent, 8, 6).
+  expect(fluent, 8, light(kitchen, off)).
+  expect(fluent, 8, light(bedroom, off)).
+  expect(fluent, 8, light(bathroom, off)).
+  expect(fluent, 8, light(livingroom, off)).
+  expect(fluent, 8, location(bob, livingroom)).
+  expect(fluent, 8, location(dad, livingroom)).
+expect_num(action, 7, 8, 1).
+  expect(action, 7, 8, switch(dad, livingroom, off)).
+expect_num(observation, 7, 8, 0).
+
+expect_num(fluent, 9, 6).
+  expect(fluent, 9, light(kitchen, off)).
+  expect(fluent, 9, light(bedroom, off)).
+  expect(fluent, 9, light(bathroom, off)).
+  expect(fluent, 9, light(livingroom, on)).
+  expect(fluent, 9, location(bob, livingroom)).
+  expect(fluent, 9, location(dad, livingroom)).
+expect_num(action, 8, 9, 1).
+  expect(action, 8, 9, switch(bob, livingroom, on)).
+expect_num(observation, 8, 9, 0).
+
+expect_num(fluent, 10, 6).
+  expect(fluent, 10, light(kitchen, off)).
+  expect(fluent, 10, light(bedroom, off)).
+  expect(fluent, 10, light(bathroom, off)).
+  expect(fluent, 10, light(livingroom, off)).
+  expect(fluent, 10, location(bob, livingroom)).
+  expect(fluent, 10, location(dad, livingroom)).
+expect_num(action, 9, 10, 1).
+  expect(action, 9, 10, switch(dad, livingroom, off)).
+expect_num(observation, 9, 10, 0).
+
+expect_num(fluent, 11, 6).
+  expect(fluent, 11, light(kitchen, off)).
+  expect(fluent, 11, light(bedroom, off)).
+  expect(fluent, 11, light(bathroom, off)).
+  expect(fluent, 11, light(livingroom, on)).
+  expect(fluent, 11, location(bob, livingroom)).
+  expect(fluent, 11, location(dad, livingroom)).
+expect_num(action, 10, 11, 1).
+  expect(action, 10, 11, switch(bob, livingroom, on)).
+expect_num(observation, 10, 11, 0).
+
+expect_num(fluent, 12, 6).
+  expect(fluent, 12, light(kitchen, off)).
+  expect(fluent, 12, light(bedroom, off)).
+  expect(fluent, 12, light(bathroom, off)).
+  expect(fluent, 12, light(livingroom, off)).
+  expect(fluent, 12, location(bob, livingroom)).
+  expect(fluent, 12, location(dad, livingroom)).
+expect_num(action, 11, 12, 1).
+  expect(action, 11, 12, switch(dad, livingroom, off)).
+expect_num(observation, 11, 12, 0).
+

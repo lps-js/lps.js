@@ -1,0 +1,45 @@
+% Original file:
+% https://bitbucket.org/lpsmasters/lps_corner/src/06b0de6227f751547e8d25937c05fa30208e45f5/examples/forTesting/badlight2.lps?at=master
+
+maxTime(12).
+
+fluents([
+  light(_, _),
+  location(_, _)
+]).
+
+actions([
+  switch(_, _, _),
+  goto(_, _)
+]).
+
+initially([
+  light(livingroom, off),
+  light(kitchen, on), 
+  light(bedroom, on),
+  light(bathroom, on),
+  location(bob, livingroom),
+  location(dad, kitchen)
+]).
+
+light(Place, on, T1), location(dad, Place, T1) ->
+  switch(dad, Place, off, T1, T2).
+  
+light(Place, on, T1), not location(dad, Place, T1) ->
+  check(dad, Place, T2, T3).
+
+location(bob, Place, T1), light(Place, off, T1) ->
+  switch(bob, Place, on, T1, T2).
+  
+check(dad, Place, T1, T2) <-
+  light(Place, on, T1),
+  goto(dad, Place, T1, T2).
+  
+check(dad, Place, T, T) <-
+  light(Place, off, T).
+
+updates(switch(Person, Place, New), light(Place, _), light(Place, New)).
+updates(goto(Person, Place), location(Person, _), location(Person, Place)).
+
+<- goto(dad, Place1, T1, T2), goto(dad, Place2, T1, T2), Place1 != Place2.
+<- goto(Person, _, T1, T2), switch(Person, _, _, T1, T2).

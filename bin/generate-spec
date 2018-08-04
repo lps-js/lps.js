@@ -13,6 +13,7 @@ if (programFile === null) {
 }
 
 let buffer = '';
+const INDENTATION = '  ';
 
 const writeOutput = (output) => {
   if (specFile !== null) {
@@ -35,11 +36,11 @@ LPS.load(programFile)
         let args = lpsTerm.getArguments();
         args.splice(-1);
         let term = new LPS.Functor(lpsTerm.getName(), args);
-        writeOutput('\texpect(' + ['fluent', currentTime, term.toString()].join(', ') + ').\n');
+        writeOutput(INDENTATION + 'expect(' + ['fluent', currentTime, term.toString()].join(', ') + ').\n');
       });
       
       if (startTime === 0) {
-        writeOutput('\r\n');
+        writeOutput('\n');
         return;
       }
       
@@ -49,7 +50,7 @@ LPS.load(programFile)
         let args = lpsTerm.getArguments();
         args.splice(-2);
         let term = new LPS.Functor(lpsTerm.getName(), args);
-        writeOutput('\texpect(' + ['action', startTime, endTime, term.toString()].join(', ') + ').\n');
+        writeOutput(INDENTATION + 'expect(' + ['action', startTime, endTime, term.toString()].join(', ') + ').\n');
       });
       
       writeOutput('expect_num(' + ['observation', startTime, endTime, engine.getNumLastCycleObservations()].join(', ') + ').\n');
@@ -58,10 +59,10 @@ LPS.load(programFile)
         let args = lpsTerm.getArguments();
         args.splice(-2);
         let term = new LPS.Functor(lpsTerm.getName(), args);
-        writeOutput('\texpect(' + ['action', startTime, endTime, term.toString()].join(', ') + ').\n');
+        writeOutput(INDENTATION + 'expect(' + ['action', startTime, endTime, term.toString()].join(', ') + ').\n');
       });
       
-      writeOutput('\r\n');
+      writeOutput('\n');
     });
     
     if (specFile !== null) {
