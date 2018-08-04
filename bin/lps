@@ -30,6 +30,10 @@ LPS.load(file)
       console.log('Actions:\t' + engine.getLastCycleActions());
       console.log('Fluents:\t' + engine.getActiveFluents());
       console.log('Obs:    \t' + engine.getLastCycleObservations());
+      console.log('Num Rules Fired: ' + engine.getNumLastCycleFiredRules());
+      console.log('Num Rules Resolved: ' + engine.getNumLastCycleResolvedRules());
+      console.log('Num Rules Failed: ' + engine.getNumLastCycleFailedRules());
+      console.log('');
       console.log('');
     });
     engine.on('done', () => {
