@@ -670,6 +670,15 @@ function Engine(program, workingDirectory) {
     return _numLastCycleObservations;
   };
 
+  this.getTimelessFacts = function getTimelessFacts() {
+    let facts = [];
+    program.getFacts()
+      .forEach((fact) => {
+        facts.push(fact.toString());
+      });
+    return facts;
+  };
+
   this.getActiveFluents = function getActiveFluents() {
     let fluents = [];
     program.getState()
