@@ -27,6 +27,7 @@ describe('Programs Test', function () {
     'bank-terse',
     'badlight2',
     'ballot',
+    'binary-search',
     'fire-simple',
     'fire-recurrent',
     'guard',

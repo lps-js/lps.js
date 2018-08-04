@@ -1,0 +1,76 @@
+% Original File:
+% https://bitbucket.org/lpsmasters/lps_corner/src/1b5d571b834a9040289fdcbb448da7cbd916b850/examples/binaryChop.lps?at=master
+
+maxTime(9).
+
+fluents([
+  left/1,
+  right/1,
+  searching/1,
+  middle/1
+]).
+actions([
+  initiate/1,
+  terminate/1,
+  update/1,
+  result/2
+]).
+
+location(a, 0).
+location(b, 1).
+location(c, 2).
+location(d, 3).
+
+true -> find(c, T1, T2).
+
+find(Content, T1, T2) <-
+  initiate(left(0), T1, T2),
+  initiate(right(4), T1, T2),
+  initiate(searching(Content), T1, T2).
+
+searching(Content, T1),
+  left(L, T1),
+  right(R, T1),
+  L < R,
+  middle(M, T1),
+  location(Item, M),
+  Item @< Content ->
+    NewL = M + 1,
+    update(left(NewL), T2, T3).
+
+searching(Content, T1), 
+  left(L, T1),
+  right(R, T1),
+  L < R,
+  middle(M, T1),
+  location(Item, M),
+  !(Item @< Content) ->
+    update(right(M), T2, T3).
+
+searching(Content, T1),
+  left(L, T1),
+  right(R, T1),
+  R <= L ->
+    terminate(searching(Content), T2, T3),
+    terminate(left(L), T2, T3),
+    terminate(right(R), T2, T3),
+    result(Content, L, T2, T3).
+
+middle(M, T) <-
+  right(R, T),
+  left(L, T),
+  M = round((R + L) / 2).
+
+initiates(update(left(A)), left(A)).
+initiates(update(right(A)), right(A)).
+initiates(initiate(left(A)), left(A)).
+initiates(initiate(right(A)), right(A)).
+
+terminates(terminate(right(_)), right(_)).
+terminates(terminate(left(_)), left(_)).
+
+terminates(update(right(_)), right(_)).
+terminates(update(left(_)), left(_)).
+
+initiates(initiate(searching(C)), searching(C)).
+terminates(terminate(searching(C)), searching(_)).

@@ -1,0 +1,52 @@
+expect_num(fluent, 1, 0).
+
+expect_num(fluent, 2, 3).
+  expect(fluent, 2, left(0)).
+  expect(fluent, 2, right(4)).
+  expect(fluent, 2, searching(c)).
+expect_num(action, 1, 2, 3).
+  expect(action, 1, 2, initiate(left(0))).
+  expect(action, 1, 2, initiate(right(4))).
+  expect(action, 1, 2, initiate(searching(c))).
+expect_num(observation, 1, 2, 0).
+
+expect_num(fluent, 3, 3).
+  expect(fluent, 3, left(0)).
+  expect(fluent, 3, searching(c)).
+  expect(fluent, 3, right(2)).
+expect_num(action, 2, 3, 1).
+  expect(action, 2, 3, update(right(2))).
+expect_num(observation, 2, 3, 0).
+
+expect_num(fluent, 4, 3).
+  expect(fluent, 4, searching(c)).
+  expect(fluent, 4, right(2)).
+  expect(fluent, 4, left(2)).
+expect_num(action, 3, 4, 1).
+  expect(action, 3, 4, update(left(2))).
+expect_num(observation, 3, 4, 0).
+
+expect_num(fluent, 5, 0).
+expect_num(action, 4, 5, 4).
+  expect(action, 4, 5, terminate(searching(c))).
+  expect(action, 4, 5, terminate(left(2))).
+  expect(action, 4, 5, terminate(right(2))).
+  expect(action, 4, 5, result(c, 2)).
+expect_num(observation, 4, 5, 0).
+
+expect_num(fluent, 6, 0).
+expect_num(action, 5, 6, 0).
+expect_num(observation, 5, 6, 0).
+
+expect_num(fluent, 7, 0).
+expect_num(action, 6, 7, 0).
+expect_num(observation, 6, 7, 0).
+
+expect_num(fluent, 8, 0).
+expect_num(action, 7, 8, 0).
+expect_num(observation, 7, 8, 0).
+
+expect_num(fluent, 9, 0).
+expect_num(action, 8, 9, 0).
+expect_num(observation, 8, 9, 0).
+
