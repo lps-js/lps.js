@@ -19,7 +19,9 @@ let testFunction = function testFunction(file, updateTimeout) {
     });
 };
 
-describe('Programs Test', () => {
+describe('Programs Test', function () {
+  this.retries(3);
+
   let files = [
     'party',
     'bank-terse',
