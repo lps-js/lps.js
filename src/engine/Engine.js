@@ -784,6 +784,10 @@ function Engine(program, workingDirectory) {
           setTimeout(() => {
             continuousExecutionFunc();
           }, 0);
+        })
+        .catch((err) => {
+          clearTimeout(timer);
+          _engineEventManager.notify('error', err);
         });
     };
     continuousExecutionFunc();
@@ -800,7 +804,11 @@ function Engine(program, workingDirectory) {
         clearInterval(timer);
         return;
       }
-      this.step();
+      this.step()
+        .catch((err) => {
+          clearInterval(timer);
+          _engineEventManager.notify('error', err);
+        });
     }, _cycleInterval);
   };
 
