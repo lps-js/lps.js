@@ -42,7 +42,6 @@ describe('Programs Test', function () {
   let promise = Promise.resolve();
   files.forEach((file) => {
     it('should test ' + file + '.lps', function (done) {
-    // promise = promise.then(() => {
       let updateTimeout = (timeout) => {
         this.slow(0.8 * timeout);
         this.timeout(timeout);
@@ -51,6 +50,9 @@ describe('Programs Test', function () {
       testFunction(file, updateTimeout)
         .then(() => {
           done();
+        })
+        .catch((err) => {
+          done(err);
         });
     });
   });
