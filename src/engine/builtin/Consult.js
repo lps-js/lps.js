@@ -75,20 +75,21 @@ function Consult(engine, targetProgram) {
     let result = [];
     result = result.concat(currentProgram.query(consultLiteral1));
     result = result.concat(currentProgram.query(consultLiteral2));
-    result.forEach((r) => {
-      if (r.theta.File === undefined || !(r.theta.File instanceof Value)) {
+
+    let handleEntry = (theta) => {
+      if (!(theta.File instanceof Value)) {
         return;
       }
       let promise;
-      let filepath = r.theta.File.evaluate();
+      let filepath = theta.File.evaluate();
       if (!path.isAbsolute(filepath) && workingDirectory !== '') {
         // work path from the current working directory given
         filepath = path.resolve(workingDirectory, filepath);
       }
-      if (r.theta.Id === undefined || !(r.theta.Id instanceof Value)) {
+      if (theta.Id === undefined || !(theta.Id instanceof Value)) {
         promise = this.consultFile(filepath);
       } else {
-        promise = this.consultFile(filepath, r.theta.Id.evaluate());
+        promise = this.consultFile(filepath, theta.Id.evaluate());
       }
 
       promise
@@ -97,7 +98,23 @@ function Consult(engine, targetProgram) {
           // also pass in the working directory from this loaded file
           return processConsultDeclarations.call(this, loadedProgram, path.dirname(filepath));
         });
-      promises.push(promise);
+      return promise
+    }
+    result.forEach((r) => {
+      if (r.theta.File === undefined) {
+        return;
+      }
+      if (r.theta.File instanceof List) {
+        let files = r.theta.File.flatten();
+        files.forEach((file) => {
+          let theta = {};
+          theta.File = new Value(file);
+          theta.Id = r.theta.Id;
+          promises.push(handleEntry(theta));
+        });
+        return;
+      }
+      promises.push(handleEntry(r.theta));
     });
 
     let moduleResult = currentProgram.query(loadModuleLiteral);
