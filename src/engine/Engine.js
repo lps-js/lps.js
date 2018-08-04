@@ -17,6 +17,7 @@ const forEachPromise = lpsRequire('utility/forEachPromise');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const SyntacticSugarProcessor = lpsRequire('engine/builtin/SyntacticSugarProcessor');
 const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
+const goalTreeSorter = lpsRequire('utility/goalTreeSorter');
 
 const stringLiterals = lpsRequire('utility/strings');
 
@@ -414,7 +415,7 @@ function Engine(program, workingDirectory) {
       let goalTree = goalTrees[l];
       let finalResult = null;
       let promises = [];
-      goalTree.forEachCandidateActions(program, possibleActions, _currentTime, (candidateActions) => {
+      goalTree.forEachCandidateActions(possibleActions, _currentTime, (candidateActions) => {
         let cloneProgram = programSoFar.clone();
         let newState = cloneProgram.getState();
         newState = updateStateWithFluentActors(candidateActions, newState);
@@ -549,7 +550,7 @@ function Engine(program, workingDirectory) {
         let promise = forEachPromise(_goals)
           .do((goalTree) => {
             let treePromise = goalTree
-              .evaluate(program, _currentTime + 1, nextTimePossibleActions)
+              .evaluate(_currentTime + 1, nextTimePossibleActions)
               .then((evaluationResult) => {
                 if (evaluationResult === null) {
                   _numLastCycleFailedRules += 1;
@@ -577,6 +578,9 @@ function Engine(program, workingDirectory) {
           })
           .then(() => {
             _goals = newGoals;
+
+            // ensure goal trees are sorted by their deadlines
+            _goals.sort(goalTreeSorter(_currentTime + 1));
 
             _lastCycleActions = selectedAndExecutedActions;
             _lastCycleObservations = cycleObservations;

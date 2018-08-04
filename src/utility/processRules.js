@@ -31,7 +31,7 @@ module.exports = function processRules(program, goals, currentTime) {
       newRules.push(rule);
     }
     if (rule.getBodyLiteralsCount() === 0) {
-      goals.push(new GoalTree(rule.getHeadLiterals()));
+      goals.push(new GoalTree(program, rule.getHeadLiterals()));
       return;
     }
     let resolutions = Resolutor.reduceRuleAntecedent(program.getFunctorProvider(), rule, facts);
@@ -42,7 +42,7 @@ module.exports = function processRules(program, goals, currentTime) {
       }
       let substitutedConsequentLiterals = consequentLiterals.map(l => l.substitute(pair.theta));
       if (pair.unresolved.length === 0) {
-        goals.push(new GoalTree(substitutedConsequentLiterals));
+        goals.push(new GoalTree(program, substitutedConsequentLiterals));
         return;
       }
 
@@ -52,7 +52,8 @@ module.exports = function processRules(program, goals, currentTime) {
 
       // reject if any antecedent conjunct has expired
       if (acceptNewRule) {
-        newRules.push(new Clause(substitutedConsequentLiterals, body));
+        let newRule = new Clause(substitutedConsequentLiterals, body);
+        newRules.push(newRule);
       }
     });
   });

@@ -175,6 +175,7 @@ function Parser(source) {
         _expect(TokenTypes.Variable);
       }
     }
+    // the ending ']'
     _expect(TokenTypes.Symbol);
     return node;
   };

@@ -66,7 +66,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause, po
         return true;
       }
 
-      nodes.push(new GoalNode(clauseSoFar, thetaSoFar));
+      nodes.push(new GoalNode(program, clauseSoFar, thetaSoFar));
       return true;
     }
     let conjunct = unresolvedClause[0];
@@ -221,11 +221,62 @@ let resolveSimpleActions = function resolveSimpleActions(clause, possibleActions
   return numAdded;
 };
 
-function GoalNode(clause, theta) {
+function GoalNode(program, clause, theta) {
   this.clause = clause;
   this.theta = theta;
   this.children = [];
   this.hasBranchFailed = false;
+
+  this.getEarliestDeadline = function getEarliestDeadline(currentTime) {
+    let earliestDeadline = null;
+    if (this.hasBranchFailed) {
+      return null;
+    }
+    if (this.clause.length === 0) {
+      return -1;
+    }
+    if (this.children.length === 0) {
+      this.clause.forEach((conjunct) => {
+        if (!program.isTimable(conjunct) || program.isTimableUntimed(conjunct)) {
+          // we ignore this conjunct if it's not a timable or
+          // it has no ground timing
+          return;
+        }
+        let timing;
+        let conjunctArgs = conjunct.getArguments();
+
+        if (program.isFluent(conjunct)) {
+          // only one timing variable
+          timing = conjunctArgs[conjunctArgs.length - 1].evaluate();
+          if (earliestDeadline === null || (currentTime <= timing && timing < earliestDeadline)) {
+            earliestDeadline = timing;
+          }
+          return;
+        }
+
+        // two timing variable, take start time
+        timing = conjunctArgs[conjunctArgs.length - 2].evaluate();
+        if (earliestDeadline === null || (currentTime <= timing && timing < earliestDeadline)) {
+          earliestDeadline = timing;
+        }
+      });
+      return earliestDeadline;
+    }
+    let isFirstConjunctUntimed = program.isTimableUntimed(this.clause[0]);
+    if (isFirstConjunctUntimed) {
+      return null;
+    }
+    this.children.forEach((childNode) => {
+      let deadline = childNode.getEarliestDeadline(currentTime);
+      if (deadline === null) {
+        return;
+      }
+      if (earliestDeadline === null || (currentTime <= deadline && deadline < earliestDeadline)) {
+        earliestDeadline = deadline;
+      }
+    });
+    return earliestDeadline;
+  };
 
   this.checkIfBranchFailed = function checkIfBranchFailed() {
     if (this.hasBranchFailed) {
@@ -249,7 +300,7 @@ function GoalNode(clause, theta) {
     return false;
   };
 
-  this.evaluate = function evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses) {
+  this.evaluate = function evaluate(forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses) {
     let checkClauseExpiry = (clause) => {
       for (let i = 0; i < clause.length; i += 1) {
         let literal = clause[i];
@@ -329,7 +380,7 @@ function GoalNode(clause, theta) {
         let newClause = remappedClauseFront
           .concat(crrArg.clause)
           .concat(remappedClauseBack);
-        reductionResult.push(new GoalNode(newClause, crrArg.theta));
+        reductionResult.push(new GoalNode(program, newClause, crrArg.theta));
       });
       break;
     }
@@ -367,7 +418,7 @@ function GoalNode(clause, theta) {
       let nodes = [];
       let recursiveFunctorArgumentProcessing = (clause, l) => {
         if (l >= clause.length) {
-          nodes.push(new GoalNode(clause, r.theta));
+          nodes.push(new GoalNode(program, clause, r.theta));
           return;
         }
         let conjunct = clause[l];
@@ -401,7 +452,7 @@ function GoalNode(clause, theta) {
 
     let numFailed = 0;
     for (let i = 0; i < newChildren.length; i += 1) {
-      let result = newChildren[i].evaluate(program, forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses);
+      let result = newChildren[i].evaluate(forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses);
       if (result === null || result.length === 0) {
         if (result === null) {
           numFailed += 1;
@@ -437,22 +488,26 @@ function GoalNode(clause, theta) {
   };
 }
 
-function GoalTree(goalClause) {
+function GoalTree(program, goalClause) {
   let _root;
   if (goalClause instanceof GoalNode) {
     _root = goalClause;
   } else {
-    _root = new GoalNode(goalClause, {});
+    _root = new GoalNode(program, goalClause, {});
   }
 
   let _leafNodes = [_root];
   let _evaluateQueue = [_root];
 
+  this.getEarliestDeadline = function getEarliestDeadline(currentTime) {
+    return _root.getEarliestDeadline(currentTime);
+  };
+
   this.getRootClause = function () {
     return _root.clause.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(program, forTime, possibleActions) {
+  this.evaluate = function evaluate(forTime, possibleActions) {
     return new Promise((resolve) => {
       setTimeout(() => {
         _leafNodes = [];
@@ -462,7 +517,7 @@ function GoalTree(goalClause) {
 
         for (let i = 0; i < _evaluateQueue.length; i += 1) {
           let node = _evaluateQueue[i];
-          let nodeResult = node.evaluate(program, forTime - 1, possibleActions, _leafNodes, newEvaluateQueue, resolvedGoalClauses);
+          let nodeResult = node.evaluate(forTime - 1, possibleActions, _leafNodes, newEvaluateQueue, resolvedGoalClauses);
           if (nodeResult !== null && nodeResult.length !== 0) {
             result = nodeResult;
             break;
@@ -475,7 +530,7 @@ function GoalTree(goalClause) {
     });
   };
 
-  this.forEachCandidateActions = function forEachCandidateActions(program, possibleActions, currentTime, callback) {
+  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, currentTime, callback) {
     let functorProvider = program.getFunctorProvider();
 
     _leafNodes.forEach((node) => {
