@@ -34,6 +34,9 @@ do_sample(T1, T2) <-
   Mid = floor((R + L)/2),
   sample(Mid, T1, T2).
 
+% This is a special case where found(I, T) is an intensional predicate
+% that is expected to retry for each T value.
+% it is nested inside the negation, which LPS needs to recognise and handle.
 not found(I, T) -> do_sample(T1, T2).
 
 updates(sample(Pos), left(_), left(Mid), [searching(X, T), a(Pos, AX), AX < X, Mid = Pos + 1]).
