@@ -1,6 +1,8 @@
 const Clause = lpsRequire('engine/Clause');
 const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const GoalTree = lpsRequire('engine/GoalTree');
+const Functor = lpsRequire('engine/Functor');
+const List = lpsRequire('engine/List');
 const Resolutor = lpsRequire('engine/Resolutor');
 
 module.exports = function processRules(program, goals, currentTime) {
@@ -14,14 +16,26 @@ module.exports = function processRules(program, goals, currentTime) {
 
   let containsTimables = function containsTimables(rule) {
     let bodyLiterals = rule.getBodyLiterals();
-    let result = false;
-    for (let i = 0; i < bodyLiterals.length; i += 1) {
-      if (program.isTimable(bodyLiterals[i])) {
-        result = true;
-        break;
+    let recursiveTimableCheck = (set) => {
+      for (let i = 0; i < set.length; i += 1) {
+        if (program.isTimable(set[i])) {
+          return true;
+        }
+        if (set[i] instanceof Functor) {
+          let subResult = recursiveTimableCheck(set[i].getArguments());
+          if (subResult) {
+            return true;
+          }
+        } else if (set[i] instanceof List) {
+          let subResult = recursiveTimableCheck(set[i].flatten());
+          if (subResult) {
+            return true;
+          }
+        }
       }
+      return false;
     }
-    return result;
+    return recursiveTimableCheck(bodyLiterals);
   };
 
   let newRules = [];
