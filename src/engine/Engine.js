@@ -169,7 +169,7 @@ function Engine(program, workingDirectory) {
     });
   };
 
-  let processCycleObservations = function processCycleObservations() {
+  let processCycleObservations = function processCycleObservations(updatedState) {
     let observationTerminated = [];
     let observationInitiated = [];
     let activeObservations = new LiteralTreeMap();
@@ -178,13 +178,39 @@ function Engine(program, workingDirectory) {
       // no observations for current time
       return activeObservations;
     }
+    let cloneProgram = program.clone();
+    let oldState = program.getState();
+    updatedState.forEach((f) => {
+      oldState.add(f);
+    });
+    cloneProgram.setExecutedActions(new LiteralTreeMap());
 
     // process observations
     let theta = { $T1: new Value(_currentTime), $T2: new Value(_currentTime + 1) };
     let nextTime = _currentTime + 1;
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action.substitute(theta);
-      activeObservations.add(action);
+
+      let tempTreeMap = new LiteralTreeMap();
+      tempTreeMap.add(action);
+      cloneProgram.getExecutedActions().add(action);
+      let newState = updateStateWithFluentActors(tempTreeMap, oldState);
+      cloneProgram.updateState(newState);
+
+      if (constraintCheck(cloneProgram)) {
+        activeObservations.add(action);
+        oldState = newState;
+      } else {
+        // reject incoming observation
+        cloneProgram.updateState(oldState);
+        cloneProgram.getExecutedActions().remove(action);
+
+        // notify
+        _engineEventManager.notify('warning', {
+          type: 'observation.reject',
+          message: 'Rejecting observation ' + action + ' to satisfy constraints.'
+        });
+      }
 
       if (ob.endTime > nextTime) {
         if (_observations[nextTime] === undefined) {
@@ -421,7 +447,7 @@ function Engine(program, workingDirectory) {
     // action selection so that we "cleverly" do not select
     // actions for exection that has been observed in the same cycle.
     // the idea of "someone else has done something I needed to do, thanks anyway"
-    let cycleObservations = processCycleObservations();
+    let cycleObservations = processCycleObservations(updatedState);
     cycleObservations.forEach((observation) => {
       executedActions.add(observation);
     });
