@@ -46,9 +46,9 @@ module.exports = (engine, program) => {
       }
 
       let theta = {
-        NetworkId: new Value(data.networkId),
+        NetworkId: new Functor(data.networkId, []),
         Peer: new Functor('node', [new Value(socket.remoteAddress), new Value(data.port)]),
-        Message: new Value(data.message)
+        Message: Program.literal(data.message)
       };
 
       engine.observe(receiveEventLiteral.substitute(theta));
