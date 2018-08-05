@@ -678,7 +678,7 @@ function Engine(program, workingDirectory) {
     return _maxTime !== null && _currentTime >= _maxTime;
   };
 
-  this.terminate = function terminate() {
+  this.halt = function halt() {
     _maxTime = _currentTime;
     if (_isPaused) {
       _engineEventManager.notify('done', this);
@@ -689,7 +689,7 @@ function Engine(program, workingDirectory) {
   this.step = function step() {
     if (_isInCycle) {
       // previous cycle has not ended.
-      this.terminate();
+      this.halt();
       _engineEventManager
         .notify(
           'error',
@@ -721,7 +721,7 @@ function Engine(program, workingDirectory) {
         return;
       }
       let timer = setTimeout(() => {
-        this.terminate();
+        this.halt();
         _engineEventManager
           .notify(
             'error',
