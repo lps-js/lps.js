@@ -7,6 +7,8 @@ const coreModule = lpsRequire('engine/modules/core');
 function Tester(engine) {
   let expectations = {};
   let timelessExpectations = [];
+  let numCyclesExpectations = [];
+
   let checkAndCreateExpectation = function checkAndCreateExpectation(time) {
     if (expectations[time] === undefined) {
       expectations[time] = [];
@@ -108,6 +110,23 @@ function Tester(engine) {
     });
   };
 
+  // expect_num_cycles/1
+  // expect_num_cycles(L)
+  let processTypeSixExpectations = function processTypeSixExpectations(program) {
+    let queryResult = program.query(Program.literal('expect_num_cycles(N)'));
+    queryResult = queryResult.concat(program.query(Program.literal('expect_num_cycles(N, B)')));
+    queryResult.forEach((r) => {
+      let minCycles = r.theta.N.evaluate()
+      let maxCycles;
+      if (r.theta.B === undefined) {
+        maxCycles = minCycles;
+      } else {
+        maxCycles = r.theta.B.evaluate();
+      }
+      numCyclesExpectations.push([minCycles, maxCycles]);
+    });
+  };
+
   this.test = function test(specFile) {
     expectations = {};
     timelessExpectations = [];
@@ -126,6 +145,7 @@ function Tester(engine) {
         processTypeThreeExpectations(program);
         processTypeFourExpectations(program);
         processTypeFiveExpectations(program);
+        processTypeSixExpectations(program);
 
         let totalExpectations = 0;
         let passedExpectations = 0;
@@ -201,6 +221,20 @@ function Tester(engine) {
         return new Promise((resolve) => {
           // only resolve promise when execution is done
           engine.on('done', () => {
+            let lastCycleTime = engine.getCurrentTime();
+            numCyclesExpectations.forEach((pair) => {
+              totalExpectations += 1;
+              if (pair[0] <= lastCycleTime && lastCycleTime <= pair[1]) {
+                passedExpectations += 1;
+              } else {
+                errors.push('Expecting number of cycles executed to be '
+                  + (pair[0] === pair[1]
+                    ? pair[0]
+                    : 'between ' + pair[0] + ' and ' + pair[1])
+                  + ', program executed ' + lastCycleTime + ' cycles');
+              }
+            });
+
             resolve({
               success: passedExpectations === totalExpectations,
               passed: passedExpectations,
