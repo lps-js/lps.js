@@ -1,5 +1,9 @@
 {
   "modules": {
     "browserModeModuleLoadFailure": "Not possible to use '%s' module when in browser"
+  },
+  
+  "engine": {
+    "cycleIntervalExceeded": "Previous cycle has exceeded its time limit of %sms. LPS will now terminate."
   }
 }
