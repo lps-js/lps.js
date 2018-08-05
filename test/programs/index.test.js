@@ -40,6 +40,7 @@ describe('Programs Test', function () {
     'fire-simple',
     'fire-recurrent',
     'guard',
+    'halting',
     'quickSort',
     'initiates-constraint',
     'rain',
