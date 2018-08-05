@@ -2,7 +2,7 @@ const Functor = lpsRequire('engine/Functor');
 
 const fs = require('fs');
 
-const functorIdentifierRegex = /^[^\s_A-Z][^\s]*\/[1-9][0-9]*$/;
+const functorIdentifierRegex = /^[^\s_A-Z][^\s]*\/[0-9]*$/;
 
 function FunctorProvider(programArg, functors) {
   let program = programArg;
