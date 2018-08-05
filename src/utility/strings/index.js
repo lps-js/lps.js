@@ -7,7 +7,7 @@ const formattable = function (strArg, replacementsArg) {
   let str = strArg;
   const keys = Object.keys(replacements);
   for (let i = 0; i < keys.length; i += 1) {
-    str = str.replace(/[^%]{0,1}%s/, replacements[keys[i]]);
+    str = str.replace(/%s/, replacements[keys[i]]);
   }
   return str;
 };

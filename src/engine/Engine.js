@@ -698,7 +698,7 @@ function Engine(program, workingDirectory) {
       _engineEventManager
         .notify(
           'error',
-          stringLiterals(['engine', 'cycleIntervalExceeded'], [cycleInterval])
+          stringLiterals(['engine', 'cycleIntervalExceeded'], [_cycleInterval])
         );
       return;
     }
@@ -730,7 +730,7 @@ function Engine(program, workingDirectory) {
         _engineEventManager
           .notify(
             'error',
-            stringLiterals(['engine', 'cycleIntervalExceeded'], [cycleInterval])
+            stringLiterals(['engine', 'cycleIntervalExceeded'], [_cycleInterval])
           );
       }, _cycleInterval);
       this.step()
