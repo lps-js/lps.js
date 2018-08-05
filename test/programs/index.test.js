@@ -6,8 +6,12 @@ const expect = chai.expect;
 require('mocha-sinon');
 
 let testFunction = function testFunction(file, updateTimeout) {
+  let errors = [];
   return LPS.load(path.join(__dirname, file + '.lps'))
     .then((engine) => {
+      engine.on('error', (err) => {
+        errors.push(err);
+      });
       updateTimeout(engine.getMaxTime() * engine.getCycleInterval());
       return engine.test(path.join(__dirname, file + '.spec.lps'));
     })
@@ -15,6 +19,10 @@ let testFunction = function testFunction(file, updateTimeout) {
       if (!result.success) {
         console.log(result.errors);
       }
+      if (errors.length > 0) {
+        console.log(errors);
+      }
+      expect(errors.length).to.be.equal(0);
       expect(result.success).to.be.true;
     });
 };
@@ -36,6 +44,7 @@ describe('Programs Test', function () {
     'initiates-constraint',
     'rain',
     'goat',
+    'mark-hiccup',
     'findall',
     'towers-simple',
     'dining-philosophers',
