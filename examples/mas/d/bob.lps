@@ -6,10 +6,12 @@ p2pJoin(lending, 4100).
 
 fluent(money(A)).
 initially(money(10)).
-action(lend).
+action(lend(A)).
 
-p2pReceive(lending, P, borrow, T1, T2) ->
-  lend(T2, T3),
-  p2pSend(lending, P, lend).
+% observe(p2pReceive(lending, node(1, 2), borrow(10)), 2, 3).
 
-updates(lend, money(A), money(A - 10)).
+p2pReceive(lending, P, borrow(A), T1, T2) ->
+  lend(A, T2, T3),
+  p2pSend(lending, P, lend(A)).
+
+updates(lend(Amt), money(A), money(A - Amt)).

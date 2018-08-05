@@ -8,7 +8,7 @@ event(wantToBuy(I)).
 
 fluent(money(A)).
 action(buy(I)).
-action(receiveLoan).
+action(receiveLoan(A)).
 
 
 initially(money(1)).
@@ -31,11 +31,12 @@ loanIfNotEnough(Price, Amount) <-
 loanIfNotEnough(Price, Amount) <-
   Price > Amount,
   p2pPeer(lending, P),
-  p2pSend(lending, P, borrow).
+  Loan = Price - Amount,
+  p2pSend(lending, P, borrow(Loan)).
 
-p2pReceive(lending, P, lend, T1, T2) -> receiveLoan(T2, T3).
+p2pReceive(lending, P, lend(A), T1, T2) -> receiveLoan(A, T2, T3).
 
-updates(receiveLoan, money(A), money(A + 10)).
+updates(receiveLoan(Loan), money(A), money(A + Loan)).
 updates(buy(I), money(A), money(A - P)) <- itemPrice(I, P).
 
 <- money(Amt, T1), buy(I, T1, T2), itemPrice(I, Price), Amt < Price.
