@@ -38,6 +38,7 @@ describe('Programs Test', function () {
     'goat',
     'findall',
     'towers-simple',
+    'dining-philosophers',
     'rock-paper-scissors-minimal'
   ];
 
