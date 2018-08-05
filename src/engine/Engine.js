@@ -695,7 +695,12 @@ function Engine(program, workingDirectory) {
     if (_isInCycle) {
       // previous cycle has not ended.
       this.terminate();
-      throw new Error('Previous cycle has exceeded its time limit of ' + _cycleInterval + 'ms. LPS will now terminate.');
+      _engineEventManager
+        .notify(
+          'error',
+          stringLiterals(['engine', 'cycleIntervalExceeded'], [cycleInterval])
+        );
+      return;
     }
     if (_isPaused) {
       return Promise.resolve();
@@ -722,7 +727,11 @@ function Engine(program, workingDirectory) {
       }
       let timer = setTimeout(() => {
         this.terminate();
-        throw new Error('Previous cycle has exceeded its time limit of ' + _cycleInterval + 'ms. LPS will now terminate.');
+        _engineEventManager
+          .notify(
+            'error',
+            stringLiterals(['engine', 'cycleIntervalExceeded'], [cycleInterval])
+          );
       }, _cycleInterval);
       this.step()
         .then(() => {
