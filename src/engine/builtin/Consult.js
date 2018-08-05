@@ -123,12 +123,12 @@ function Consult(engine, targetProgram) {
 
     let moduleResult = currentProgram.query(loadModuleLiteral);
     moduleResult.forEach((r) => {
-      if (r.theta.Module === undefined
-          || !(r.theta.Module instanceof Value)) {
+      if (r.theta.Module === undefined) {
         return;
       }
       let moduleArg = r.theta.Module.evaluate();
       let builtinIndex = builtinModules.indexOf(moduleArg);
+
       if (builtinIndex !== -1) {
         let moduleName = builtinModules[builtinIndex];
         let module = require(path.join(builtinModulePath, moduleName));
