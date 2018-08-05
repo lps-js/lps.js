@@ -28,6 +28,7 @@ describe('Programs Test', function () {
     'badlight2',
     'ballot',
     'binary-search',
+    'binary-search2',
     'fire-simple',
     'fire-recurrent',
     'guard',

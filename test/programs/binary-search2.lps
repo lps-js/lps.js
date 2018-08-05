@@ -1,0 +1,40 @@
+% Original File:
+% https://bitbucket.org/lpsmasters/lps_corner/src/1b5d571b834a9040289fdcbb448da7cbd916b850/examples/binaryChop2.lps?at=master
+
+fluents([
+  left(_Position),
+  right(_Position),
+  searching(_Content)
+]).
+initially([
+  left(0),
+  right(9),
+  searching(60)
+]).
+action(sample(_Position)).
+event(do_sample/0).
+
+% a(Position, Content)
+a(0, 10).
+a(1, 12).
+a(2, 20).
+a(3, 25).
+a(4, 30).
+a(5, 31).
+a(6, 35).
+a(7, 60).
+a(8, 65).
+a(9, 500).
+
+found(I, T) <- left(I, T), right(I, T).
+
+do_sample(T1, T2) <-
+  left(L, T1),
+  right(R, T1),
+  Mid = floor((R + L)/2),
+  sample(Mid, T1, T2).
+
+not found(I, T) -> do_sample(T1, T2).
+
+updates(sample(Pos), left(_), left(Mid), [searching(X, T), a(Pos, AX), AX < X, Mid = Pos + 1]).
+updates(sample(Pos), right(_), right(Pos), [searching(X, T), a(Pos, AX), AX >= X]).
