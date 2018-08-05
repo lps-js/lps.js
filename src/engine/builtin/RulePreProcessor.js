@@ -1,4 +1,5 @@
 const Clause = lpsRequire('engine/Clause');
+const Variable = lpsRequire('engine/Variable');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const expandRuleAntecedent = lpsRequire('utility/expandRuleAntecedent');
 
