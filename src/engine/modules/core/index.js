@@ -1214,6 +1214,14 @@ module.exports = (engine, program) => {
       return result;
     },
 
+    'is_ground/1': function (term) {
+      let result = [];
+      if (term.isGround !== undefined && term.isGround()) {
+        result.push({ theta: {} });
+      }
+      return result;
+    },
+
     'findall/3': function (template, goal, output) {
       if (!(output instanceof Variable)) {
         throw new Error('The last argument of findall/3 must be a variable.');
