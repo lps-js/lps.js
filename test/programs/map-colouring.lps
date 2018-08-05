@@ -1,0 +1,22 @@
+maxTime(5).
+cycleInterval(200).
+action(paint(_, _)).
+
+country(iz).
+country(oz).
+country(az).
+country(uz).
+
+colour(red).
+colour(yellow).
+colour(blue).
+
+adjacent(az, iz).
+adjacent(az, oz).
+adjacent(iz, oz).
+adjacent(iz, uz).
+adjacent(oz, uz).
+
+country(X) -> colour(C), paint(X, C, T1, T2).
+
+<- paint(X, C, T1, T2), adjacent(X, Y), paint(Y, C, T1, T2).

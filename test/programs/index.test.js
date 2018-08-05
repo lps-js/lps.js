@@ -39,6 +39,7 @@ describe('Programs Test', function () {
     'findall',
     'towers-simple',
     'dining-philosophers',
+    'map-colouring',
     'rock-paper-scissors-minimal'
   ];
 
