@@ -1,4 +1,5 @@
 const Functor = lpsRequire('engine/Functor');
+const List = lpsRequire('engine/List');
 
 const fs = require('fs');
 
@@ -7,9 +8,13 @@ const functorIdentifierRegex = /^[^\s_A-Z][^\s]*\/[1-9][0-9]*$/;
 function FunctorProvider(program) {
   let _functors = {
     '!/1': [
-      (literal) => {
-        if (!(literal instanceof Functor)) {
+      (literalArg) => {
+        let literal = literalArg;
+        if (!(literal instanceof Functor) && !(literal instanceof List)) {
           throw new Error('Literal not functor in !/1 argument');
+        }
+        if (literal instanceof List) {
+          literal = literal.flatten();
         }
         let queryResult = program.query(literal);
         let result = [];
