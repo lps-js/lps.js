@@ -15,6 +15,9 @@ LPS.load(programFile)
     console.log('Testing\t' + programFile);
     console.log('using\t' + specFile);
     console.log('-----');
+    engine.on('error', (err) => {
+      console.log('ERROR ' + err);
+    })
     return engine.test(specFile);
   })
   .then((result) => {
