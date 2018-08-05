@@ -193,9 +193,11 @@ function Program(nodeTree, functorProviderArg) {
   let _actions = {};
   let _events = {};
 
-  let _functorProvider = functorProviderArg;
+  let _functorProvider;
   if (functorProviderArg === undefined) {
     _functorProvider = new FunctorProvider(this);
+  } else {
+    _functorProvider = functorProviderArg.clone(this);
   }
 
   if (nodeTree instanceof AstNode) {

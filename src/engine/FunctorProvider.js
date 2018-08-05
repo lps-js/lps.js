@@ -5,28 +5,12 @@ const fs = require('fs');
 
 const functorIdentifierRegex = /^[^\s_A-Z][^\s]*\/[1-9][0-9]*$/;
 
-function FunctorProvider(program) {
-  let _functors = {
-    '!/1': [
-      (literalArg) => {
-        let literal = literalArg;
-        if (!(literal instanceof Functor) && !(literal instanceof List)) {
-          throw new Error('Literal not functor in !/1 argument');
-        }
-        if (literal instanceof List) {
-          literal = literal.flatten();
-        }
-        let queryResult = program.query(literal);
-        let result = [];
-        if (queryResult.length === 0) {
-          result.push({
-            theta: {}
-          });
-        }
-        return result;
-      }
-    ]
-  };
+function FunctorProvider(programArg, functors) {
+  let program = programArg;
+  let _functors = functors;
+  if (functors === undefined) {
+    _functors = {};
+  }
 
   this.load = function load(filepath) {
     let definitions = filepath;
@@ -108,6 +92,19 @@ function FunctorProvider(program) {
       throw new Error('Call to undefined functor "' + functorId + '"');
     }
     return result;
+  };
+
+  this.getProgram = function getProgram() {
+    return program;
+  };
+
+  this.clone = function clone(forProgram) {
+    let cloneFunctors = {};
+    Object.keys(_functors).forEach((k) => {
+      cloneFunctors[k] = _functors[k];
+    });
+    let cloneProvider = new FunctorProvider(forProgram, cloneFunctors);
+    return cloneProvider;
   };
 }
 

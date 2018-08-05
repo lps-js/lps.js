@@ -62,6 +62,7 @@ Resolutor.explain =
       program.getState(),
       program.getExecutedActions()
     ];
+
     if (otherFacts !== undefined) {
       if (otherFacts instanceof LiteralTreeMap) {
         facts.push(otherFacts);

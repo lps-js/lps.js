@@ -77,6 +77,23 @@ let checkOrSetOutputArg = function checkOrSetOutputArg(value, outputArg) {
 // eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
   let functors = {
+    '!/1': function (literalArg) {
+      let literal = literalArg;
+      if (!(literal instanceof Functor) && !(literal instanceof List)) {
+        throw new Error('Literal not functor in !/1 argument');
+      }
+      if (literal instanceof List) {
+        literal = literal.flatten();
+      }
+      let queryResult = this.getProgram().query(literal);
+      let result = [];
+      if (queryResult.length === 0) {
+        result.push({
+          theta: {}
+        });
+      }
+      return result;
+    },
     '+/2': function (v1Arg, v2Arg) {
       let result = [];
 
@@ -1226,7 +1243,7 @@ module.exports = (engine, program) => {
       if (!(output instanceof Variable)) {
         throw new Error('The last argument of findall/3 must be a variable.');
       }
-      let goalResult = program.query(goal);
+      let goalResult = this.getProgram().query(goal);
       let outputResult = [];
       goalResult.forEach((tuple) => {
         outputResult.push(template.substitute(tuple.theta));
