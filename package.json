@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "nyc --all mocha --require ./test/init.js \"test/**/*.test.js\"",
-    "test:programs": "nyc --all mocha --require ./test/init.js \"test/programs/**/*.test.js\"",
+    "test:programs": "mocha --require ./test/init.js \"test/programs/**/*.test.js\"",
     "lint": "eslint test src",
     "build:browser": "browserify index.js -o dist/lps.browser.js && uglifyjs dist/lps.browser.js --comments all --compress -o dist/lps.browser.min.js"
   },
