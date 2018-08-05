@@ -1,0 +1,72 @@
+% these could be inferred:
+events([
+  player_input(_Sender,_Choice,_Value)
+]).
+
+actions([
+  send(_Winner,_Prize)
+]).
+
+fluents([
+  reward(_),
+  played(_Sender,_Choice)
+]).
+
+% These or others could be suggested:
+observe(player_input(miguel, paper, 1000), 2, 3).
+observe(player_input(fariba, rock, 1000), 2, 3). 
+observe(player_input(bob, rock, 1000), 3, 4). 
+
+beats(scissors, paper). % scissors beats paper, ....
+beats(paper, rock).
+beats(rock, scissors).
+
+initially(reward(0)). % initially the reward is 0
+
+% when a player ....
+initiates(player_input(Player, Choice, Value), played(Player, Choice)).
+
+% a play with a value increases the reward by that value
+updates(player_input(Player, Choice, Value), reward(Old), reward(Old + Value)).
+
+num_players(N, T) <- findall(P, played(P, _, T), L), length(L, N).
+
+% Players must bet a positive ammount
+<- player_input(_, _, Value, T1, T2), Value <= 0.
+% If a player has played, he can not play again:
+<- player_input(Sender, Choice, Value, T1, T2), played(Sender, _, T1).
+% a play is forbidden if the number of players becomes greater than 2:
+<- player_input(Sender, Choice, Value, T1, T2), num_players(N, T2), N > 2.
+
+% if a player's choice beats the other's, send him the whole reward
+played(Player1, Choice1, T1),
+  played(Player2, Choice2, T1),
+  Player1 != Player2,
+  beats(Choice1, Choice2),
+  reward(R, T1),
+  R > 0 ->
+    send(Player1, R, T2, T3).
+    
+% if both players choose the same choice, send half of the reward to each
+played(Player1, Choice, T1),
+  played(Player2, Choice, T1),
+  Player1 != Player2,
+  reward(R, T1),
+  R > 0 ->
+    % split prize
+    Prize = R / 2,
+    send(Player1, Prize, T2, T3),
+    send(Player2, Prize, T2, T3).
+
+% After sending prizes terminate the contract
+% if send(_,_Prize) to T2 
+% then lps_terminate from T2.
+
+% When sending a prize subtract it from the reward
+updates(send(Player, Prize), reward(Old), reward(Old - Prize)).
+
+% after sending a prize the reward must not become negative
+<- send(_, P, T1, T2), reward(V, T2), V < 0.
+
+% It is impossible to send zero
+<- send(_, 0).
