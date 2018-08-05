@@ -1,0 +1,14 @@
+expect(maxTime(5)).
+
+expect_num_of(fluent, 1, 0).
+
+expect_num_of(fluent, 2, 0).
+expect_num_of(action, 1, 2, 0).
+expect_num_of(observation, 1, 2, 0).
+
+expect_num_of(fluent, 3, 0).
+expect_num_of(action, 2, 3, 0).
+expect_num_of(observation, 2, 3, 1).
+  expect(observation, 2, 3, requestHalt).
+
+expect_num_cycles(3).

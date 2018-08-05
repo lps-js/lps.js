@@ -1,0 +1,5 @@
+maxTime(5).
+event(requestHalt).
+observe(requestHalt, 2, 3).
+
+requestHalt(T1, T2) -> lpsHalt.
