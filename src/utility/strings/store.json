@@ -1,4 +1,12 @@
 {
+  "declarationProcessors": {
+    "observe": {
+      "invalidStartTimeValue": "Start time given to observe/3 must be a value.",
+      "invalidEndTimeValue": "End time given to observe/3 must be a value.",
+      "invalidTimeOrdering": "Invalid ordering of time given to observe/3: Start time must come before end time."
+    }
+  },
+  
   "modules": {
     "browserModeModuleLoadFailure": "Not possible to use '%s' module when in browser"
   },

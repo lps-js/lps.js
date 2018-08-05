@@ -1,5 +1,6 @@
 const Program = lpsRequire('parser/Program');
 const Value = lpsRequire('engine/Value');
+const stringLiterals = lpsRequire('utility/strings');
 
 const observeLiteral = Program.literal('observe(O, ST, ET)');
 
@@ -18,15 +19,15 @@ Observe.processDeclarations = function processDeclarations(engine, program) {
     let endTime = r.theta.ET;
 
     if (!(startTime instanceof Value)) {
-      throw new Error('Start time given to observe/3 must be a value.');
+      throw new Error(stringLiterals(["declarationProcessors", "observe", "invalidStartTimeValue"]));
     }
     if (!(endTime instanceof Value)) {
-      throw new Error('End time given to observe/3 must be a value.');
+      throw new Error(stringLiterals(["declarationProcessors", "observe", "invalidEndTimeValue"]));
     }
     let sTime = startTime.evaluate();
     let eTime = endTime.evaluate();
     if (eTime < sTime) {
-      throw new Error('Invalid ordering of time given to observe/3: Start time must come before end time.');
+      throw new Error(stringLiterals(["declarationProcessors", "observe", "invalidTimeOrdering"]));
     }
     engine.scheduleObservation(observation, sTime, eTime);
   });
