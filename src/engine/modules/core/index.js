@@ -1251,6 +1251,11 @@ module.exports = (engine, program) => {
       let theta = {};
       theta[output.evaluate()] = new List(outputResult);
       return [{ theta: theta }];
+    },
+
+    'lpsHalt/0': function () {
+      engine.terminate();
+      return [{ theta: {} }];
     }
   };
 
