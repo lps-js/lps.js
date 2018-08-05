@@ -23,7 +23,7 @@ SyntacticSugarProcessor.shorthand = function shorthand(termArg) {
     }
   }
   return term;
-}
+};
 
 SyntacticSugarProcessor.fluent = function fluent(literalArg, timingVariableArg) {
   let literal = literalArg;

@@ -34,7 +34,7 @@ module.exports = function processRules(program, goals, currentTime) {
         }
       }
       return false;
-    }
+    };
     return recursiveTimableCheck(bodyLiterals);
   };
 

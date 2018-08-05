@@ -36,7 +36,8 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
     rightOperand = rightOperand.substitute(theta);
   }
 
-  if (leftOperand instanceof Value && rightOperand instanceof Value) {
+  if (leftOperand instanceof Value
+      && rightOperand instanceof Value) {
     // equal value check
     if (leftOperand.evaluate() === rightOperand.evaluate()) {
       return theta;
@@ -45,7 +46,8 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
     return null;
   }
 
-  if (leftOperand instanceof Functor && rightOperand instanceof Functor) {
+  if (leftOperand instanceof Functor
+      && rightOperand instanceof Functor) {
     // must have same name and number of arguments
     if (leftOperand.getId() === rightOperand.getId()) {
       let leftOperandArgs = leftOperand.getArguments();
@@ -59,15 +61,19 @@ let processEquality = function processEquality(queue, equality, thetaArg) {
   }
 
   // we swap the order for processing
-  if ((leftOperand instanceof List || leftOperand instanceof Functor || leftOperand instanceof Value)
-      && rightOperand instanceof Variable) {
+  if ((leftOperand instanceof List
+      || leftOperand instanceof Functor
+      || leftOperand instanceof Value)
+        && rightOperand instanceof Variable) {
     let temp = leftOperand;
     leftOperand = rightOperand;
     rightOperand = temp;
   }
 
   if (leftOperand instanceof Variable
-      && (rightOperand instanceof List || rightOperand instanceof Functor || rightOperand instanceof Value)) {
+      && (rightOperand instanceof List
+        || rightOperand instanceof Functor
+        || rightOperand instanceof Value)) {
     let varName = leftOperand.evaluate();
     if (rightOperand.getVariables().indexOf(varName) === -1) {
       return processNewSubstitution(varName, rightOperand, theta);

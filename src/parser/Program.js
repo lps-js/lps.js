@@ -70,7 +70,7 @@ let processArguments = function processArguments(nodes, singleUnderscoreVariable
       case NodeTypes.Functor:
         result.push(processFunctor(node, singleUnderscoreVariableSet));
         break;
-      case NodeTypes.Variable:
+      case NodeTypes.Variable: {
         let name = node.getToken().value;
         if (name === '_') {
           name = '$_' + String(singleUnderscoreVariableSet.next);
@@ -78,6 +78,7 @@ let processArguments = function processArguments(nodes, singleUnderscoreVariable
         }
         result.push(new Variable(name));
         break;
+      }
       default:
         throw new Error('Unexpected node type in arguments set: '
           + String(node.getType()) + ' ' + JSON.stringify(node.getToken()));

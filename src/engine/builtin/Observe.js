@@ -23,25 +23,25 @@ Observe.processDeclarations = function processDeclarations(engine, program) {
 
     if (!(startTime instanceof Value)) {
       throw new Error(stringLiterals([
-        "declarationProcessors",
-        "observe",
-        "invalidStartTimeValue"
+        'declarationProcessors',
+        'observe',
+        'invalidStartTimeValue'
       ]));
     }
     if (!(endTime instanceof Value)) {
       throw new Error(stringLiterals([
-        "declarationProcessors",
-        "observe",
-        "invalidEndTimeValue"
+        'declarationProcessors',
+        'observe',
+        'invalidEndTimeValue'
       ]));
     }
     let sTime = startTime.evaluate();
     let eTime = endTime.evaluate();
     if (eTime < sTime) {
       throw new Error(stringLiterals([
-        "declarationProcessors",
-        "observe",
-        "invalidTimeOrdering"
+        'declarationProcessors',
+        'observe',
+        'invalidTimeOrdering'
       ]));
     }
     engine.scheduleObservation(observation, sTime, eTime);

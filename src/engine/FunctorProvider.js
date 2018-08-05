@@ -1,5 +1,4 @@
 const Functor = lpsRequire('engine/Functor');
-const List = lpsRequire('engine/List');
 
 const fs = require('fs');
 

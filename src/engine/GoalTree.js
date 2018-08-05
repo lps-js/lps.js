@@ -355,7 +355,6 @@ function GoalNode(program, clause, theta) {
     evaluationQueue,
     resolvedGoalClauses
   ) {
-
     if (resolvedGoalClauses['' + this.clause] !== undefined) {
       return resolvedGoalClauses['' + this.clause];
     }

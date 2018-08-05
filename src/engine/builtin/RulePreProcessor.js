@@ -50,7 +50,8 @@ let rulePreProcessor = function rulePreProcessor(engine, program) {
 
       let renameSet = [];
       Object.keys(newAntecedentVariables).forEach((vName) => {
-        if (consequentVariables[vName] !== undefined && commonVariables[vName] === undefined) {
+        if (consequentVariables[vName] !== undefined
+            && commonVariables[vName] === undefined) {
           renameSet.push(vName);
         }
       });
@@ -73,7 +74,9 @@ let rulePreProcessor = function rulePreProcessor(engine, program) {
         });
       });
       let renameTheta = variableArrayRename(renameSet);
-      tupleConsequent = tupleConsequent.map(literal => literal.substitute(replacement).substitute(renameTheta));
+      tupleConsequent = tupleConsequent.map((literal) => {
+        return literal.substitute(replacement).substitute(renameTheta);
+      });
       newRules.push(new Clause(tupleConsequent, tuple.literalSet));
     });
   });

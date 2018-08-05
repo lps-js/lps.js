@@ -85,7 +85,7 @@ describe('Clause', () => {
         [new Functor('test', [new Value(5)])],
         []
       );
-      let theta = { 'X' : new Value(3) };
+      let theta = { X: new Value(3) };
       let substitutedClause = clause.substitute(theta);
       expect(substitutedClause.toString()).to.be.equal(clause.toString());
     });
@@ -105,7 +105,7 @@ describe('Clause', () => {
         [new Functor('test', [new Variable('X')])],
         []
       );
-      let theta = { 'X' : new Value(3) };
+      let theta = { X: new Value(3) };
       let substitutedClause = clause.substitute(theta);
       expect(substitutedClause.toString()).to.be.equal('test(3) <- true.');
     });
@@ -115,7 +115,7 @@ describe('Clause', () => {
         [new Functor('test', [new Variable('X')])],
         []
       );
-      let theta = { 'T' : new Value(3) };
+      let theta = { T: new Value(3) };
       let substitutedClause = clause.substitute(theta);
       expect(substitutedClause.toString()).to.be.equal(clause.toString());
     });
@@ -135,7 +135,7 @@ describe('Clause', () => {
         [],
         [new Functor('test', [new Value(5)])]
       );
-      let theta = { 'X' : new Value(3) };
+      let theta = { X: new Value(3) };
       let substitutedClause = clause.substitute(theta);
       expect(substitutedClause.toString()).to.be.equal(clause.toString());
     });
@@ -155,7 +155,7 @@ describe('Clause', () => {
         [],
         [new Functor('test', [new Variable('X')])]
       );
-      let theta = { 'X' : new Value(3) };
+      let theta = { X: new Value(3) };
       let substitutedClause = clause.substitute(theta);
       expect(substitutedClause.toString()).to.be.equal('<- test(3).');
     });
@@ -165,7 +165,7 @@ describe('Clause', () => {
         [],
         [new Functor('test', [new Variable('X')])]
       );
-      let theta = { 'T' : new Value(3) };
+      let theta = { T: new Value(3) };
       let substitutedClause = clause.substitute(theta);
       expect(substitutedClause.toString()).to.be.equal(clause.toString());
     });
@@ -186,7 +186,7 @@ describe('Clause', () => {
         [new Functor('test2', [new Value(5)])],
         [new Functor('test', [new Value(5)])]
       );
-      let theta = { 'X' : new Value(3) };
+      let theta = { X: new Value(3) };
       let substitutedClause = clause.substitute(theta);
       expect(substitutedClause.toString()).to.be.equal(clause.toString());
     });
@@ -203,20 +203,20 @@ describe('Clause', () => {
 
     it('should return correct substitution for some substitution in a unground clause', () => {
       let clause = new Clause(
-          [new Functor('test2', [new Variable('X')])],
-          [new Functor('test', [new Variable('X')])]
+        [new Functor('test2', [new Variable('X')])],
+        [new Functor('test', [new Variable('X')])]
       );
-      let theta = { 'X' : new Value(3) };
+      let theta = { X: new Value(3) };
       let substitutedClause = clause.substitute(theta);
       expect(substitutedClause.toString()).to.be.equal('test2(3) <- test(3).');
     });
 
     it('should return same clause for some irrelevant substitution in a unground clause', () => {
       let clause = new Clause(
-          [new Functor('test2', [new Variable('X')])],
-          [new Functor('test', [new Variable('X')])]
+        [new Functor('test2', [new Variable('X')])],
+        [new Functor('test', [new Variable('X')])]
       );
-      let theta = { 'T' : new Value(3) };
+      let theta = { T: new Value(3) };
       let substitutedClause = clause.substitute(theta);
       expect(substitutedClause.toString()).to.be.equal(clause.toString());
     });

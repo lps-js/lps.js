@@ -1,6 +1,5 @@
 const Functor = lpsRequire('engine/Functor');
 const List = lpsRequire('engine/List');
-const Clause = lpsRequire('engine/Clause');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
 const Program = lpsRequire('parser/Program');
@@ -170,8 +169,6 @@ function Engine(program, workingDirectory) {
   };
 
   let processCycleObservations = function processCycleObservations(updatedState) {
-    let observationTerminated = [];
-    let observationInitiated = [];
     let activeObservations = new LiteralTreeMap();
 
     if (_observations[_currentTime] === undefined) {
@@ -345,7 +342,7 @@ function Engine(program, workingDirectory) {
     return newState;
   };
 
-  let actionsSelector = function actionsSelector(goalTrees, updatedState, possibleActions, program, executedActions) {
+  let actionsSelector = function actionsSelector(goalTrees, updatedState, possibleActions, executedActions) {
     let selectionDone = false;
     let selection;
     let recursiveActionsSelector = function (actionsSoFar, programSoFar, l) {
@@ -364,7 +361,6 @@ function Engine(program, workingDirectory) {
         return Promise.resolve(selection);
       }
       let goalTree = goalTrees[l];
-      let finalResult = null;
       let promises = [];
       goalTree.forEachCandidateActions(possibleActions, _currentTime, (candidateActions) => {
         let cloneProgram = programSoFar.clone();
@@ -461,7 +457,6 @@ function Engine(program, workingDirectory) {
       _goals,
       updatedState,
       currentTimePossibleActions,
-      program,
       executedActions
     )
       .then((selectedActions) => {
@@ -610,7 +605,7 @@ function Engine(program, workingDirectory) {
   this.getLastCycleObservations = function getLastCycleObservations() {
     let observations = [];
     if (_lastCycleObservations === null) {
-      return actions;
+      return observations;
     }
     _lastCycleObservations.forEach((observation) => {
       observations.push(observation.toString());
@@ -700,7 +695,7 @@ function Engine(program, workingDirectory) {
           'error',
           stringLiterals(['engine', 'cycleIntervalExceeded'], [_cycleInterval])
         );
-      return;
+      return Promise.reject();
     }
     if (_isPaused) {
       return Promise.resolve();
@@ -708,7 +703,7 @@ function Engine(program, workingDirectory) {
     _engineEventManager.notify('preCycle', this);
     _isInCycle = true;
     if (this.hasTerminated()) {
-      return;
+      return Promise.reject();
     }
     let startTime = Date.now();
     return performCycle()
@@ -821,7 +816,9 @@ function Engine(program, workingDirectory) {
     _startNormalExecution();
   };
 
-  this.scheduleObservation = function scheduleObservation(observation, startTime, endTime) {
+  this.scheduleObservation = function scheduleObservation(observation, startTimeArg, endTimeArg) {
+    let startTime = startTimeArg;
+    let endTime = endTimeArg;
     if (startTime === undefined || startTime < _currentTime) {
       throw new Error('Invalid start time for observation scheduling for ' + observation);
     }

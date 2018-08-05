@@ -95,12 +95,12 @@ function Consult(engine, targetProgram) {
         promise = this.consultFile(filepath, theta.Id.evaluate());
       }
 
-      promise
-        .then((loadedProgram) => {
-          // recursively process consult declarations in loaded targetProgram
-          // also pass in the working directory from this loaded file
-          return processConsultDeclarations.call(this, loadedProgram, path.dirname(filepath));
-        });
+      promise.then((loadedProgram) => {
+        // recursively process consult declarations in loaded targetProgram
+        // also pass in the working directory from this loaded file
+        return processConsultDeclarations
+          .call(this, loadedProgram, path.dirname(filepath));
+      });
       return promise;
     };
 
@@ -123,7 +123,8 @@ function Consult(engine, targetProgram) {
 
     let moduleResult = currentProgram.query(loadModuleLiteral);
     moduleResult.forEach((r) => {
-      if (r.theta.Module === undefined || !(r.theta.Module instanceof Value)) {
+      if (r.theta.Module === undefined
+          || !(r.theta.Module instanceof Value)) {
         return;
       }
       let moduleArg = r.theta.Module.evaluate();
@@ -143,11 +144,16 @@ function Consult(engine, targetProgram) {
   };
 
   this.process = function process(workingDirectory) {
-    return processConsultDeclarations.call(this, targetProgram, workingDirectory);
+    return processConsultDeclarations
+      .call(this, targetProgram, workingDirectory);
   };
 }
 
-Consult.processDeclarations = function processDeclarations(engine, program, workingDirectory) {
+Consult.processDeclarations = function processDeclarations(
+  engine,
+  program,
+  workingDirectory
+) {
   let consult = new Consult(engine, program);
   return consult.process(workingDirectory);
 };
