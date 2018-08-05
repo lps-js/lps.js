@@ -37,7 +37,8 @@ describe('Programs Test', function () {
     'rain',
     'goat',
     'findall',
-    'towers-simple'
+    'towers-simple',
+    'rock-paper-scissors-minimal'
   ];
 
   files.forEach((file) => {
