@@ -179,7 +179,7 @@ function Engine(program, workingDirectory) {
       return activeObservations;
     }
     let cloneProgram = program.clone();
-    let oldState = program.getState();
+    let oldState = cloneProgram.getState();
     updatedState.forEach((f) => {
       oldState.add(f);
     });
