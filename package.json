@@ -31,7 +31,7 @@
     "mocha-sinon": "^2.1.0",
     "nyc": "^11.9.0",
     "sinon": "^4.5.0",
-    "uglify-es": "^3.3.9"
+    "uglify-es": "^3.3.10"
   },
   "nyc": {
     "exclude": [
