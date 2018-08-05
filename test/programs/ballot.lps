@@ -5,6 +5,7 @@
 % Translated by Sam Yong
 
 maxTime(15).
+cycleInterval(200).
 
 events([
   ballot(_Chairman, _Proposals),
