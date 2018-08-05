@@ -59,7 +59,7 @@ LPS.load(programFile)
         let args = lpsTerm.getArguments();
         args.splice(-2);
         let term = new LPS.Functor(lpsTerm.getName(), args);
-        writeOutput(INDENTATION + 'expect(' + ['action', startTime, endTime, term.toString()].join(', ') + ').\n');
+        writeOutput(INDENTATION + 'expect(' + ['observation', startTime, endTime, term.toString()].join(', ') + ').\n');
       });
       
       writeOutput('\n');
