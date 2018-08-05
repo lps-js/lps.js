@@ -1253,8 +1253,22 @@ module.exports = (engine, program) => {
       return [{ theta: theta }];
     },
 
+    'currentTime/1': function (timeArg) {
+      let currentTime = engine.getCurrentTime();
+      if (timeArg instanceof Variable) {
+        let theta = {};
+        theta[timeArg.evaluate()] = new Value(currentTime);
+        return [{ theta: theta }];
+      }
+      let incomingValue = timeArg.evaluate()
+      if (incomingValue === currentTime) {
+        return [{ theta: {} }];
+      }
+      return [];
+    },
+
     'lpsHalt/0': function () {
-      engine.terminate();
+      engine.halt();
       return [{ theta: {} }];
     }
   };
