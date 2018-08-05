@@ -674,7 +674,7 @@ function Engine(program, workingDirectory) {
     return program.query(literal);
   };
 
-  this.hasTerminated = function hasTerminated() {
+  this.hasHalted = function hasHalted() {
     return _maxTime !== null && _currentTime >= _maxTime;
   };
 
@@ -702,7 +702,7 @@ function Engine(program, workingDirectory) {
     }
     _engineEventManager.notify('preCycle', this);
     _isInCycle = true;
-    if (this.hasTerminated()) {
+    if (this.hasHalted()) {
       return Promise.reject();
     }
     let startTime = Date.now();
@@ -731,7 +731,7 @@ function Engine(program, workingDirectory) {
       this.step()
         .then(() => {
           clearTimeout(timer);
-          if (this.hasTerminated()) {
+          if (this.hasHalted()) {
             _engineEventManager.notify('done', this);
             return;
           }
@@ -749,7 +749,7 @@ function Engine(program, workingDirectory) {
 
   let _startNormalExecution = () => {
     let timer = setInterval(() => {
-      if (this.hasTerminated()) {
+      if (this.hasHalted()) {
         clearInterval(timer);
         _engineEventManager.notify('done', this);
         return;
@@ -767,7 +767,7 @@ function Engine(program, workingDirectory) {
   };
 
   this.run = function run() {
-    if (this.hasTerminated()) {
+    if (this.hasHalted()) {
       return;
     }
     _isRunning = true;
@@ -796,7 +796,7 @@ function Engine(program, workingDirectory) {
   };
 
   this.pause = function pause() {
-    if (this.hasTerminated()) {
+    if (this.hasHalted()) {
       return;
     }
     _isPaused = true;
@@ -804,7 +804,7 @@ function Engine(program, workingDirectory) {
   };
 
   this.unpause = function unpause() {
-    if (this.hasTerminated()) {
+    if (this.hasHalted()) {
       return;
     }
     _isPaused = false;
