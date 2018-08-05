@@ -1,47 +1,47 @@
-expect_num(fluent, 1, 1).
+expect_num_of(fluent, 1, 1).
   expect(fluent, 1, thirsty(mark)).
 
-expect_num(fluent, 2, 2).
+expect_num_of(fluent, 2, 2).
   expect(fluent, 2, thirsty(mark)).
   expect(fluent, 2, drinking(mark)).
-expect_num(action, 1, 2, 0).
-expect_num(observation, 1, 2, 1).
+expect_num_of(action, 1, 2, 0).
+expect_num_of(observation, 1, 2, 1).
   expect(observation, 1, 2, reach(mark, glass, right)).
 
-expect_num(fluent, 3, 2).
+expect_num_of(fluent, 3, 2).
   expect(fluent, 3, thirsty(mark)).
   expect(fluent, 3, drinking(mark)).
-expect_num(action, 2, 3, 0).
-expect_num(observation, 2, 3, 1).
+expect_num_of(action, 2, 3, 0).
+expect_num_of(observation, 2, 3, 1).
   expect(observation, 2, 3, grab(mark, glass, right)).
 
-expect_num(fluent, 4, 2).
+expect_num_of(fluent, 4, 2).
   expect(fluent, 4, thirsty(mark)).
   expect(fluent, 4, drinking(mark)).
-expect_num(action, 3, 4, 0).
-expect_num(observation, 3, 4, 1).
+expect_num_of(action, 3, 4, 0).
+expect_num_of(observation, 3, 4, 1).
   expect(observation, 3, 4, raise(mark, glass, right)).
 
-expect_num(fluent, 5, 1).
+expect_num_of(fluent, 5, 1).
   expect(fluent, 5, empty(glass)).
-expect_num(action, 4, 5, 0).
-expect_num(observation, 4, 5, 1).
+expect_num_of(action, 4, 5, 0).
+expect_num_of(observation, 4, 5, 1).
   expect(observation, 4, 5, sip(mark, glass)).
 
-expect_num(fluent, 6, 1).
+expect_num_of(fluent, 6, 1).
   expect(fluent, 6, empty(glass)).
-expect_num(action, 5, 6, 0).
-expect_num(observation, 5, 6, 1).
+expect_num_of(action, 5, 6, 0).
+expect_num_of(observation, 5, 6, 1).
   expect(observation, 5, 6, putdown(mark, glass)).
 
-expect_num(fluent, 7, 1).
+expect_num_of(fluent, 7, 1).
   expect(fluent, 7, empty(glass)).
-expect_num(action, 6, 7, 1).
+expect_num_of(action, 6, 7, 1).
   expect(action, 6, 7, hiccup(mark)).
-expect_num(observation, 6, 7, 0).
+expect_num_of(observation, 6, 7, 0).
 
-expect_num(fluent, 8, 0).
-expect_num(action, 7, 8, 0).
-expect_num(observation, 7, 8, 1).
+expect_num_of(fluent, 8, 0).
+expect_num_of(action, 7, 8, 0).
+expect_num_of(observation, 7, 8, 1).
   expect(observation, 7, 8, refill(glass)).
 

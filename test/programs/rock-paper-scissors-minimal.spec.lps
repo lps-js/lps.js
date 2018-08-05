@@ -1,136 +1,136 @@
-expect_num(fluent, 1, 1).
+expect_num_of(fluent, 1, 1).
   expect(fluent, 1, reward(0)).
 
-expect_num(fluent, 2, 1).
+expect_num_of(fluent, 2, 1).
   expect(fluent, 2, reward(0)).
-expect_num(action, 1, 2, 0).
-expect_num(observation, 1, 2, 0).
+expect_num_of(action, 1, 2, 0).
+expect_num_of(observation, 1, 2, 0).
 
-expect_num(fluent, 3, 3).
+expect_num_of(fluent, 3, 3).
   expect(fluent, 3, reward(2000)).
   expect(fluent, 3, played(miguel, paper)).
   expect(fluent, 3, played(fariba, rock)).
-expect_num(action, 2, 3, 0).
-expect_num(observation, 2, 3, 2).
+expect_num_of(action, 2, 3, 0).
+expect_num_of(observation, 2, 3, 2).
   expect(observation, 2, 3, player_input(miguel, paper, 1000)).
   expect(observation, 2, 3, player_input(fariba, rock, 1000)).
 
-expect_num(fluent, 4, 3).
+expect_num_of(fluent, 4, 3).
   expect(fluent, 4, played(miguel, paper)).
   expect(fluent, 4, played(fariba, rock)).
   expect(fluent, 4, reward(0)).
-expect_num(action, 3, 4, 1).
+expect_num_of(action, 3, 4, 1).
   expect(action, 3, 4, send(miguel, 2000)).
-expect_num(observation, 3, 4, 0).
+expect_num_of(observation, 3, 4, 0).
 
-expect_num(fluent, 5, 3).
+expect_num_of(fluent, 5, 3).
   expect(fluent, 5, played(miguel, paper)).
   expect(fluent, 5, played(fariba, rock)).
   expect(fluent, 5, reward(0)).
-expect_num(action, 4, 5, 0).
-expect_num(observation, 4, 5, 0).
+expect_num_of(action, 4, 5, 0).
+expect_num_of(observation, 4, 5, 0).
 
-expect_num(fluent, 6, 3).
+expect_num_of(fluent, 6, 3).
   expect(fluent, 6, played(miguel, paper)).
   expect(fluent, 6, played(fariba, rock)).
   expect(fluent, 6, reward(0)).
-expect_num(action, 5, 6, 0).
-expect_num(observation, 5, 6, 0).
+expect_num_of(action, 5, 6, 0).
+expect_num_of(observation, 5, 6, 0).
 
-expect_num(fluent, 7, 3).
+expect_num_of(fluent, 7, 3).
   expect(fluent, 7, played(miguel, paper)).
   expect(fluent, 7, played(fariba, rock)).
   expect(fluent, 7, reward(0)).
-expect_num(action, 6, 7, 0).
-expect_num(observation, 6, 7, 0).
+expect_num_of(action, 6, 7, 0).
+expect_num_of(observation, 6, 7, 0).
 
-expect_num(fluent, 8, 3).
+expect_num_of(fluent, 8, 3).
   expect(fluent, 8, played(miguel, paper)).
   expect(fluent, 8, played(fariba, rock)).
   expect(fluent, 8, reward(0)).
-expect_num(action, 7, 8, 0).
-expect_num(observation, 7, 8, 0).
+expect_num_of(action, 7, 8, 0).
+expect_num_of(observation, 7, 8, 0).
 
-expect_num(fluent, 9, 3).
+expect_num_of(fluent, 9, 3).
   expect(fluent, 9, played(miguel, paper)).
   expect(fluent, 9, played(fariba, rock)).
   expect(fluent, 9, reward(0)).
-expect_num(action, 8, 9, 0).
-expect_num(observation, 8, 9, 0).
+expect_num_of(action, 8, 9, 0).
+expect_num_of(observation, 8, 9, 0).
 
-expect_num(fluent, 10, 3).
+expect_num_of(fluent, 10, 3).
   expect(fluent, 10, played(miguel, paper)).
   expect(fluent, 10, played(fariba, rock)).
   expect(fluent, 10, reward(0)).
-expect_num(action, 9, 10, 0).
-expect_num(observation, 9, 10, 0).
+expect_num_of(action, 9, 10, 0).
+expect_num_of(observation, 9, 10, 0).
 
-expect_num(fluent, 11, 3).
+expect_num_of(fluent, 11, 3).
   expect(fluent, 11, played(miguel, paper)).
   expect(fluent, 11, played(fariba, rock)).
   expect(fluent, 11, reward(0)).
-expect_num(action, 10, 11, 0).
-expect_num(observation, 10, 11, 0).
+expect_num_of(action, 10, 11, 0).
+expect_num_of(observation, 10, 11, 0).
 
-expect_num(fluent, 12, 3).
+expect_num_of(fluent, 12, 3).
   expect(fluent, 12, played(miguel, paper)).
   expect(fluent, 12, played(fariba, rock)).
   expect(fluent, 12, reward(0)).
-expect_num(action, 11, 12, 0).
-expect_num(observation, 11, 12, 0).
+expect_num_of(action, 11, 12, 0).
+expect_num_of(observation, 11, 12, 0).
 
-expect_num(fluent, 13, 3).
+expect_num_of(fluent, 13, 3).
   expect(fluent, 13, played(miguel, paper)).
   expect(fluent, 13, played(fariba, rock)).
   expect(fluent, 13, reward(0)).
-expect_num(action, 12, 13, 0).
-expect_num(observation, 12, 13, 0).
+expect_num_of(action, 12, 13, 0).
+expect_num_of(observation, 12, 13, 0).
 
-expect_num(fluent, 14, 3).
+expect_num_of(fluent, 14, 3).
   expect(fluent, 14, played(miguel, paper)).
   expect(fluent, 14, played(fariba, rock)).
   expect(fluent, 14, reward(0)).
-expect_num(action, 13, 14, 0).
-expect_num(observation, 13, 14, 0).
+expect_num_of(action, 13, 14, 0).
+expect_num_of(observation, 13, 14, 0).
 
-expect_num(fluent, 15, 3).
+expect_num_of(fluent, 15, 3).
   expect(fluent, 15, played(miguel, paper)).
   expect(fluent, 15, played(fariba, rock)).
   expect(fluent, 15, reward(0)).
-expect_num(action, 14, 15, 0).
-expect_num(observation, 14, 15, 0).
+expect_num_of(action, 14, 15, 0).
+expect_num_of(observation, 14, 15, 0).
 
-expect_num(fluent, 16, 3).
+expect_num_of(fluent, 16, 3).
   expect(fluent, 16, played(miguel, paper)).
   expect(fluent, 16, played(fariba, rock)).
   expect(fluent, 16, reward(0)).
-expect_num(action, 15, 16, 0).
-expect_num(observation, 15, 16, 0).
+expect_num_of(action, 15, 16, 0).
+expect_num_of(observation, 15, 16, 0).
 
-expect_num(fluent, 17, 3).
+expect_num_of(fluent, 17, 3).
   expect(fluent, 17, played(miguel, paper)).
   expect(fluent, 17, played(fariba, rock)).
   expect(fluent, 17, reward(0)).
-expect_num(action, 16, 17, 0).
-expect_num(observation, 16, 17, 0).
+expect_num_of(action, 16, 17, 0).
+expect_num_of(observation, 16, 17, 0).
 
-expect_num(fluent, 18, 3).
+expect_num_of(fluent, 18, 3).
   expect(fluent, 18, played(miguel, paper)).
   expect(fluent, 18, played(fariba, rock)).
   expect(fluent, 18, reward(0)).
-expect_num(action, 17, 18, 0).
-expect_num(observation, 17, 18, 0).
+expect_num_of(action, 17, 18, 0).
+expect_num_of(observation, 17, 18, 0).
 
-expect_num(fluent, 19, 3).
+expect_num_of(fluent, 19, 3).
   expect(fluent, 19, played(miguel, paper)).
   expect(fluent, 19, played(fariba, rock)).
   expect(fluent, 19, reward(0)).
-expect_num(action, 18, 19, 0).
-expect_num(observation, 18, 19, 0).
+expect_num_of(action, 18, 19, 0).
+expect_num_of(observation, 18, 19, 0).
 
-expect_num(fluent, 20, 3).
+expect_num_of(fluent, 20, 3).
   expect(fluent, 20, played(miguel, paper)).
   expect(fluent, 20, played(fariba, rock)).
   expect(fluent, 20, reward(0)).
-expect_num(action, 19, 20, 0).
-expect_num(observation, 19, 20, 0).
+expect_num_of(action, 19, 20, 0).
+expect_num_of(observation, 19, 20, 0).

@@ -30,7 +30,7 @@ LPS.load(programFile)
       let startTime = currentTime - 1;
       let endTime = currentTime;
       
-      writeOutput('expect_num(' + ['fluent', currentTime, engine.getNumActiveFluents()].join(', ') + ').\n');
+      writeOutput('expect_num_of(' + ['fluent', currentTime, engine.getNumActiveFluents()].join(', ') + ').\n');
       engine.getActiveFluents().forEach((termArg) => {
         let lpsTerm = LPS.literal(termArg);
         let args = lpsTerm.getArguments();
@@ -44,7 +44,7 @@ LPS.load(programFile)
         return;
       }
       
-      writeOutput('expect_num(' + ['action', startTime, endTime, engine.getNumLastCycleActions()].join(', ') + ').\n');
+      writeOutput('expect_num_of(' + ['action', startTime, endTime, engine.getNumLastCycleActions()].join(', ') + ').\n');
       engine.getLastCycleActions().forEach((termArg) => {
         let lpsTerm = LPS.literal(termArg);
         let args = lpsTerm.getArguments();
@@ -53,7 +53,7 @@ LPS.load(programFile)
         writeOutput(INDENTATION + 'expect(' + ['action', startTime, endTime, term.toString()].join(', ') + ').\n');
       });
       
-      writeOutput('expect_num(' + ['observation', startTime, endTime, engine.getNumLastCycleObservations()].join(', ') + ').\n');
+      writeOutput('expect_num_of(' + ['observation', startTime, endTime, engine.getNumLastCycleObservations()].join(', ') + ').\n');
       engine.getLastCycleObservations().forEach((termArg) => {
         let lpsTerm = LPS.literal(termArg);
         let args = lpsTerm.getArguments();
