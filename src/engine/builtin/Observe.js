@@ -11,7 +11,10 @@ function Observe() {
 Observe.processDeclarations = function processDeclarations(engine, program) {
   let result = program.query(observeLiteral);
   result.forEach((r) => {
-    if (r.theta.O === undefined || r.theta.ST === undefined || r.theta.ET === undefined) {
+    if (r.theta.O === undefined
+        || r.theta.ST === undefined
+        || r.theta.ET === undefined) {
+      // ignoring those undefined ones
       return;
     }
     let observation = r.theta.O;
@@ -19,15 +22,27 @@ Observe.processDeclarations = function processDeclarations(engine, program) {
     let endTime = r.theta.ET;
 
     if (!(startTime instanceof Value)) {
-      throw new Error(stringLiterals(["declarationProcessors", "observe", "invalidStartTimeValue"]));
+      throw new Error(stringLiterals([
+        "declarationProcessors",
+        "observe",
+        "invalidStartTimeValue"
+      ]));
     }
     if (!(endTime instanceof Value)) {
-      throw new Error(stringLiterals(["declarationProcessors", "observe", "invalidEndTimeValue"]));
+      throw new Error(stringLiterals([
+        "declarationProcessors",
+        "observe",
+        "invalidEndTimeValue"
+      ]));
     }
     let sTime = startTime.evaluate();
     let eTime = endTime.evaluate();
     if (eTime < sTime) {
-      throw new Error(stringLiterals(["declarationProcessors", "observe", "invalidTimeOrdering"]));
+      throw new Error(stringLiterals([
+        "declarationProcessors",
+        "observe",
+        "invalidTimeOrdering"
+      ]));
     }
     engine.scheduleObservation(observation, sTime, eTime);
   });
