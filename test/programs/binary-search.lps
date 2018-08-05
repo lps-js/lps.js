@@ -3,6 +3,13 @@
 
 maxTime(9).
 
+% this program introduces the shorthand notation
+% when declaring fluents, actions and events. 
+% it'd be great if programmers can indicate shorthand notation
+% which is much easier.
+
+% in lps.js, this is recognised as a division functor, i.e. "//2",
+% which can be specially handled by the declaration processors.
 fluents([
   left/1,
   right/1,
