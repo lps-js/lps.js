@@ -55,6 +55,8 @@ describe('FunctorProvider', () => {
 
     it('should define the functor as expected', () => {
       let provider = new FunctorProvider(null);
+
+      /* eslint-disable-next-line no-unused-vars */
       provider.define('testingName', (arg) => {});
       expect(provider.has('testingName/1')).to.be.true;
 
@@ -110,6 +112,8 @@ describe('FunctorProvider', () => {
       expect(provider.has('test/2')).to.be.true;
 
       expect(provider.has('test/1')).to.be.false;
+
+      /* eslint-disable-next-line no-unused-vars */
       provider.define('test/1', (arg) => {});
       expect(provider.has('test/1')).to.be.true;
     });
@@ -146,7 +150,7 @@ describe('FunctorProvider', () => {
       let callValue = 0;
       provider.define('testFunc/1', (arg) => {
         callValue = arg.evaluate();
-        return [ { theta:{} } ];
+        return [{ theta: {} }];
       });
       let result = provider.execute(Program.literal('testFunc(2)'));
       expect(result).to.be.instanceof(Array);
@@ -160,7 +164,7 @@ describe('FunctorProvider', () => {
       let provider = program.getFunctorProvider();
       coreModule(null, program);
       expect(() => {
-        let result = provider.execute(Program.literal('what(5)'));
+        provider.execute(Program.literal('what(5)'));
       }).to.throw();
     });
 
@@ -182,7 +186,7 @@ describe('FunctorProvider', () => {
         let provider = program.getFunctorProvider();
         coreModule(null, program);
         expect(() => {
-          let result = provider.execute(Program.literal('5 = 5 * 2'));
+          provider.execute(Program.literal('5 = 5 * 2'));
         }).to.throw();
       });
     });
