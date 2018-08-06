@@ -1,4 +1,9 @@
 {
+  "generic": {
+    "parameterInvalidType": "Invalid variable type for parameter %s of %s(), must be of type %s and %s was given.",
+    "parameterNullNotAllowed": "Null value not allowed for parameter %s of %s()."
+  },
+  
   "declarationProcessors": {
     "observe": {
       "invalidStartTimeValue": "Start time given to observe/3 must be a value.",
@@ -8,10 +13,14 @@
   },
   
   "modules": {
-    "browserModeModuleLoadFailure": "Not possible to use '%s' module when in browser"
+    "browserModeModuleLoadFailure": "Not possible to use '%s' module when in browser."
   },
   
   "engine": {
-    "cycleIntervalExceeded": "Previous cycle has exceeded its time limit of %sms. LPS will now terminate."
+    "cycleIntervalExceeded": "Previous cycle has exceeded its time limit of %sms. LPS will now terminate.",
+    "startingTestWhileRunning": "Cannot start tests for LPS program after execution has started.",
+    "nonPositiveIntegerCycleInterval": "Cycle interval must be a positive integer, %s was given.",
+    "updatingParametersWhileRunning": "Cannot set %s while LPS program is in execution. Parameters can only be set before the LPS program starts.",
+    "fluentUpdaterActionArgumentVariable": "When declaring an initiate, terminate or update, the action must have the last argument as the time variable."
   }
 }

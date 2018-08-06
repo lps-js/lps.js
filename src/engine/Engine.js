@@ -168,59 +168,8 @@ function Engine(program, workingDirectory) {
     });
   };
 
-  let processCycleObservations = function processCycleObservations(updatedState) {
-    let activeObservations = new LiteralTreeMap();
-
-    if (_observations[_currentTime] === undefined) {
-      // no observations for current time
-      return activeObservations;
-    }
-    let cloneProgram = program.clone();
-    let oldState = cloneProgram.getState();
-    updatedState.forEach((f) => {
-      oldState.add(f);
-    });
-    cloneProgram.setExecutedActions(new LiteralTreeMap());
-
-    // process observations
-    let theta = { $T1: new Value(_currentTime), $T2: new Value(_currentTime + 1) };
-    let nextTime = _currentTime + 1;
-    _observations[_currentTime].forEach((ob) => {
-      let action = ob.action.substitute(theta);
-
-      let tempTreeMap = new LiteralTreeMap();
-      tempTreeMap.add(action);
-      cloneProgram.getExecutedActions().add(action);
-      let newState = updateStateWithFluentActors(tempTreeMap, oldState);
-      cloneProgram.updateState(newState);
-
-      if (constraintCheck(cloneProgram)) {
-        activeObservations.add(action);
-        oldState = newState;
-      } else {
-        // reject incoming observation
-        cloneProgram.updateState(oldState);
-        cloneProgram.getExecutedActions().remove(action);
-
-        // notify
-        _engineEventManager.notify('warning', {
-          type: 'observation.reject',
-          message: 'Rejecting observation ' + action + ' to satisfy constraints.'
-        });
-      }
-
-      if (ob.endTime > nextTime) {
-        if (_observations[nextTime] === undefined) {
-          _observations[nextTime] = [];
-        }
-        _observations[nextTime].push(ob);
-      }
-    });
-
-    return activeObservations;
-  };
-
-  const fluentActorDeclarationLiteral = Program.literal('fluentActorDeclare(T, A, Old, New, Conds)');
+  const fluentActorDeclarationLiteral = Program
+    .literal('fluentActorDeclare(T, A, Old, New, Conds)');
   let updateStateWithFluentActors = function updateStateWithFluentActors(actions, state) {
     let functorProvider = program.getFunctorProvider();
     let newState = new LiteralTreeMap();
@@ -253,9 +202,12 @@ function Engine(program, workingDirectory) {
 
       // take end-time argument because updates are observed in post-execution of actions
       let actionArguments = action.getArguments();
-      let lastArgument = actionArguments.length > 0 ? actionArguments[actionArguments.length - 1] : null;
-      if (actionArguments.length === 0 || !(lastArgument instanceof Variable)) {
-        throw new Error('When declaring a fluent updating actor, the action must have the last argument as the time variable.');
+      let lastArgument = actionArguments.length > 0
+        ? actionArguments[actionArguments.length - 1]
+        : null;
+      if (actionArguments.length === 0
+          || !(lastArgument instanceof Variable)) {
+        throw new Error(stringLiterals('engine.fluentUpdaterActionArgumentVariable'));
       }
 
       let terminatingFluent;
@@ -318,7 +270,11 @@ function Engine(program, workingDirectory) {
           stateThetaSet.forEach((terminatedNode) => {
             let currentTheta = compactTheta(node.theta, terminatedNode.theta);
             initiateThetaSet.push(currentTheta);
-            let terminatedFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, terminatedGroundFluent.substitute(currentTheta));
+            let terminatedFluentSet = Resolutor
+              .handleBuiltInFunctorArgumentInLiteral(
+                functorProvider,
+                terminatedGroundFluent.substitute(currentTheta)
+              );
             terminatedFluentSet.forEach((fluent) => {
               newState.remove(fluent);
             });
@@ -330,7 +286,11 @@ function Engine(program, workingDirectory) {
           // take note of theta sets given by termination
           initiateThetaSet.forEach((theta) => {
             let initiatedGroundFluent = actor.initiate.substitute(theta);
-            let initiatedFluentSet = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, initiatedGroundFluent);
+            let initiatedFluentSet = Resolutor
+              .handleBuiltInFunctorArgumentInLiteral(
+                functorProvider,
+                initiatedGroundFluent
+              );
             initiatedFluentSet.forEach((fluent) => {
               newState.add(fluent);
             });
@@ -342,7 +302,64 @@ function Engine(program, workingDirectory) {
     return newState;
   };
 
-  let actionsSelector = function actionsSelector(goalTrees, updatedState, possibleActions, executedActions) {
+  let processCycleObservations = function processCycleObservations(updatedState) {
+    let activeObservations = new LiteralTreeMap();
+
+    if (_observations[_currentTime] === undefined) {
+      // no observations for current time
+      return activeObservations;
+    }
+    let cloneProgram = program.clone();
+    let oldState = cloneProgram.getState();
+    updatedState.forEach((f) => {
+      oldState.add(f);
+    });
+    cloneProgram.setExecutedActions(new LiteralTreeMap());
+
+    // process observations
+    let theta = { $T1: new Value(_currentTime), $T2: new Value(_currentTime + 1) };
+    let nextTime = _currentTime + 1;
+    _observations[_currentTime].forEach((ob) => {
+      let action = ob.action.substitute(theta);
+
+      let tempTreeMap = new LiteralTreeMap();
+      tempTreeMap.add(action);
+      cloneProgram.getExecutedActions().add(action);
+      let newState = updateStateWithFluentActors(tempTreeMap, oldState);
+      cloneProgram.updateState(newState);
+
+      if (constraintCheck(cloneProgram)) {
+        activeObservations.add(action);
+        oldState = newState;
+      } else {
+        // reject incoming observation
+        cloneProgram.updateState(oldState);
+        cloneProgram.getExecutedActions().remove(action);
+
+        // notify
+        _engineEventManager.notify('warning', {
+          type: 'observation.reject',
+          message: 'Rejecting observation ' + action + ' to satisfy constraints.'
+        });
+      }
+
+      if (ob.endTime > nextTime) {
+        if (_observations[nextTime] === undefined) {
+          _observations[nextTime] = [];
+        }
+        _observations[nextTime].push(ob);
+      }
+    });
+
+    return activeObservations;
+  };
+
+  let actionsSelector = function actionsSelector(
+    goalTrees,
+    updatedState,
+    possibleActions,
+    executedActions
+  ) {
     let selectionDone = false;
     let selection;
     let recursiveActionsSelector = function (actionsSoFar, programSoFar, l) {
@@ -402,6 +419,7 @@ function Engine(program, workingDirectory) {
           (val) => Promise.resolve(val)
         );
     };
+
     let cloneProgram = program.clone();
     let cloneState = cloneProgram.getState();
     updatedState.forEach((l) => {
@@ -557,11 +575,20 @@ function Engine(program, workingDirectory) {
   };
 
   this.setCycleInterval = function setCycleInterval(newCycleInterval) {
-    if (typeof newCycleInterval !== 'number' || newCycleInterval <= 0) {
-      throw new Error('Argument for setCycleInterval() must be a number greater than zero.');
+    if (typeof newCycleInterval !== 'number' ) {
+      throw new Error(stringLiterals(
+        'engine.parameterInvalidType',
+        1,
+        'Engine.setCycleInterval',
+        'number',
+        typeof val
+      ));
+    }
+    if (newCycleInterval <= 0 || !Number.isInteger(newCycleInterval)) {
+      throw new Error(stringLiterals('engine.nonPositiveIntegerCycleInterval', newCycleInterval));
     }
     if (_isRunning) {
-      throw new Error('Cannot set cycle interval. Cycle Interval can only be set before the LPS program starts.');
+      throw new Error(stringLiterals('engine.updatingParametersWhileRunning', 'cycle interval'));
     }
     _cycleInterval = newCycleInterval;
   };
@@ -572,10 +599,19 @@ function Engine(program, workingDirectory) {
 
   this.setContinuousExecution = function setContinuousExecution(val) {
     if (typeof val !== 'boolean') {
-      throw new Error('Argument for setContinuousExecution() must be a boolean value.');
+      throw new Error(stringLiterals(
+        'engine.parameterInvalidType',
+        1,
+        'Engine.setContinuousExecution',
+        'boolean',
+        typeof val
+      ));
     }
     if (_isRunning) {
-      throw new Error('Cannot set execution mode. Continuous Execution can only be set before the LPS program starts.');
+      throw new Error(stringLiterals(
+        'engine.updatingParametersWhileRunning',
+        'continuous execution mode'
+      ));
     }
     _isContinuousExecution = val;
   };
@@ -864,7 +900,7 @@ function Engine(program, workingDirectory) {
 
   this.test = function test(specFile) {
     if (_isRunning) {
-      throw new Error('Cannot test LPS program with specification file after starting LPS execution');
+      throw new Error(stringLiterals('engine.startingTestWhileRunning'));
     }
     let tester = new Tester(this);
     return tester.test(specFile);
