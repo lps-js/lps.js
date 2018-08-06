@@ -1,9 +1,4 @@
-const formattable = function (strArg, replacementsArg) {
-  let replacements = replacementsArg;
-  if (replacementsArg === undefined) {
-    replacements = [];
-  }
-
+const formattable = function (strArg, replacements) {
   let str = strArg;
   const keys = Object.keys(replacements);
   for (let i = 0; i < keys.length; i += 1) {
@@ -17,9 +12,16 @@ const messages = lpsRequire('utility/strings/store.json');
 const invalidPathMessage = 'Invalid path for string literal retrival';
 const nonStringLiteralPositionMessage = 'String literal retrival: Path does not point to a string';
 
-module.exports = function (path, replacementsArg) {
+module.exports = function (pathArg, replacementsArg) {
+  let path = pathArg;
+  if (typeof path === 'string') {
+    path = path.split('.');
+  }
+
   let replacements = replacementsArg;
-  if (replacementsArg === undefined) {
+  if (typeof replacementsArg === 'string') {
+    replacements = arguments.slice(1);
+  } else if (replacementsArg === undefined) {
     replacements = [];
   }
 
