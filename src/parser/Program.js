@@ -9,6 +9,7 @@ const Variable = lpsRequire('engine/Variable');
 const Resolutor = lpsRequire('engine/Resolutor');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Parser = lpsRequire('parser/Parser');
+const buildIntensionalSet = lpsRequire('utility/buildIntensionalSet');
 
 const fs = require('fs');
 
@@ -193,20 +194,13 @@ function Program(nodeTree, functorProviderArg) {
   let _fluents = {};
   let _actions = {};
   let _events = {};
+  let _intensionals = {};
 
   let _functorProvider;
   if (functorProviderArg === undefined) {
     _functorProvider = new FunctorProvider(this);
   } else {
     _functorProvider = functorProviderArg.clone(this);
-  }
-
-  if (nodeTree instanceof AstNode) {
-    processProgram(nodeTree, {
-      rules: _rules,
-      program: _clauses,
-      facts: _facts
-    });
   }
 
   this.clone = function clone() {
@@ -270,6 +264,7 @@ function Program(nodeTree, functorProviderArg) {
     }
 
     _fluents[id] = true;
+    _intensionals = buildIntensionalSet(this);
   };
 
   this.defineAction = function defineAction(action) {
@@ -279,6 +274,7 @@ function Program(nodeTree, functorProviderArg) {
     }
 
     _actions[id] = true;
+    _intensionals = buildIntensionalSet(this);
   };
 
   this.defineEvent = function defineEvent(event) {
@@ -288,6 +284,7 @@ function Program(nodeTree, functorProviderArg) {
     }
 
     _events[id] = true;
+    _intensionals = buildIntensionalSet(this);
   };
 
   this.isFluent = function isFluent(literal) {
@@ -328,7 +325,8 @@ function Program(nodeTree, functorProviderArg) {
     let id = processLiteralId(timable);
     return _fluents[id] !== undefined
       || _actions[id] !== undefined
-      || _events[id] !== undefined;
+      || _events[id] !== undefined
+      || _intensionals[id] !== undefined;
   };
 
   this.getFacts = function getFacts() {
@@ -345,6 +343,7 @@ function Program(nodeTree, functorProviderArg) {
 
   this.setClauses = function setClauses(clauses) {
     _clauses = clauses;
+    _intensionals = buildIntensionalSet(this);
   };
 
   this.updateRules = function updateRules(rules) {
@@ -395,7 +394,17 @@ function Program(nodeTree, functorProviderArg) {
       .forEach((fact) => {
         _facts.add(fact);
       });
+    _intensionals = buildIntensionalSet(this);
   };
+
+  if (nodeTree instanceof AstNode) {
+    processProgram(nodeTree, {
+      rules: _rules,
+      program: _clauses,
+      facts: _facts
+    });
+    _intensionals = buildIntensionalSet(this);
+  }
 }
 
 Program.literal = function literal(str) {
