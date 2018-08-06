@@ -1,17 +1,9 @@
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Variable = lpsRequire('engine/Variable');
-const Functor = lpsRequire('engine/Functor');
-const List = lpsRequire('engine/List');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 
 module.exports = function expandLiteral(literalArg, program, usedVariables) {
   let literal = literalArg;
-  let isNegated = false;
-
-  while (literal instanceof Functor && literal.getId() === '!/1') {
-    isNegated = !isNegated;
-    literal = literal.getArguments()[0];
-  }
 
   let literalTreeMap = new LiteralTreeMap();
   literalTreeMap.add(literal);
@@ -46,13 +38,6 @@ module.exports = function expandLiteral(literalArg, program, usedVariables) {
         });
       let resultingClause = clause.getBodyLiterals()
         .map(l => l.substitute(theta).substitute(renameTheta));
-
-      if (isNegated) {
-        // retain negation
-        resultingClause = [
-          new Functor('!', [new List(resultingClause)])
-        ];
-      }
 
       result.push({
         clause: resultingClause,
