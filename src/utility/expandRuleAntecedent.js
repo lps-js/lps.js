@@ -33,10 +33,11 @@ module.exports = function expandRuleAntecedent(result, literals, thetaPath, prog
         return l
           .substitute(crrArg.theta);
       });
-      let newClause = remappedClauseFront
+      let newRule = remappedClauseFront
         .concat(crrArg.clause)
         .concat(remappedClauseBack);
-      expandRuleAntecedent(result, newClause, thetaPath.concat([crrArg.theta]), program);
+      // check and expand the new antecedent again
+      expandRuleAntecedent(result, newRule, thetaPath.concat([crrArg.theta]), program);
     });
     if (!isLeaf) {
       break;
