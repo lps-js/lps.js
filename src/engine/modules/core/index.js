@@ -1267,6 +1267,27 @@ module.exports = (engine, program) => {
       return [];
     },
 
+    'functor/3': function (term, name, arity) {
+      if (!(term instanceof Functor)) {
+        throw new Error('Argument 1 of functor/3 must be a functor.');
+      }
+
+      let theta = {};
+      if (name instanceof Variable) {
+        theta[name.evaluate()] = new Functor(term.getName(), []);
+      } else if (name.evaluate() !== term.getName()) {
+        return [];
+      }
+
+      if (arity instanceof Variable) {
+        theta[arity.evaluate()] = new Value(term.getArgumentCount());
+      } else if (arity.evaluate() !== term.getArgumentCount()) {
+        return [];
+      }
+
+      return [{ theta: theta }];
+    },
+
     'lpsHalt/0': function () {
       engine.halt();
       return [{ theta: {} }];
