@@ -116,7 +116,7 @@ function Tester(engine) {
     let queryResult = program.query(Program.literal('expect_num_cycles(N)'));
     queryResult = queryResult.concat(program.query(Program.literal('expect_num_cycles(N, B)')));
     queryResult.forEach((r) => {
-      let minCycles = r.theta.N.evaluate()
+      let minCycles = r.theta.N.evaluate();
       let maxCycles;
       if (r.theta.B === undefined) {
         maxCycles = minCycles;

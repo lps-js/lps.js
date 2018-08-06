@@ -1260,7 +1260,7 @@ module.exports = (engine, program) => {
         theta[timeArg.evaluate()] = new Value(currentTime);
         return [{ theta: theta }];
       }
-      let incomingValue = timeArg.evaluate()
+      let incomingValue = timeArg.evaluate();
       if (incomingValue === currentTime) {
         return [{ theta: {} }];
       }
