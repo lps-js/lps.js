@@ -31,6 +31,6 @@ describe('stringLiterals', () => {
 
   it('should replace for value', () => {
     expect(stringLiterals(['modules', 'browserModeModuleLoadFailure'], ['test']))
-      .to.be.equal('Not possible to use \'test\' module when in browser');
+      .to.be.equal('Not possible to use \'test\' module when in browser.');
   });
 });

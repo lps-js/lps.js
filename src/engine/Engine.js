@@ -575,7 +575,7 @@ function Engine(program, workingDirectory) {
   };
 
   this.setCycleInterval = function setCycleInterval(newCycleInterval) {
-    if (typeof newCycleInterval !== 'number' ) {
+    if (typeof newCycleInterval !== 'number') {
       throw new Error(stringLiterals(
         'engine.parameterInvalidType',
         1,
