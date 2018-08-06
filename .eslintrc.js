@@ -4,6 +4,10 @@ module.exports = {
     "node": true,
     "mocha": true
   },
+  "plugins": [
+    "deprecate",
+    "promise"
+  ],
   "extends": "airbnb-base/legacy",
   "rules": {
     "no-console": ["warn", { "allow": ["log"] }],
