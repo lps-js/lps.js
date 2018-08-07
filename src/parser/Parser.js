@@ -87,7 +87,14 @@ function Parser(source) {
     if (_foundOneOf(TokenTypes.Symbol, ['!', '-'])) {
       let node = new AstNode(NodeTypes.UnaryOperator, currentToken);
       _expect(TokenTypes.Symbol);
-      node.addChild(_unaryExpression());
+      let childNode = _unaryExpression();
+      if (node.getToken().value === '-'
+          && childNode.getType() === NodeTypes.Number) {
+        // dealing with a negative number
+        childNode.getToken().value = -childNode.getToken().value;
+        return childNode;
+      }
+      node.addChild(childNode);
       return node;
     }
     return _simpleExpression();
