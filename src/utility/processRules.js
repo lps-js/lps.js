@@ -35,18 +35,18 @@ module.exports = function processRules(program, goals, currentTime) {
       }
       return false;
     };
-    return recursiveTimableCheck([bodyLiterals[0]]);
+    return recursiveTimableCheck(bodyLiterals);
   };
 
   let newRules = [];
   rules.forEach((rule) => {
-    if (containsTimables(rule)) {
-      // preserve a rule if it has timeable in its antecedent
-      newRules.push(rule);
-    }
     if (rule.getBodyLiteralsCount() === 0) {
       goals.push(new GoalTree(program, rule.getHeadLiterals()));
       return;
+    }
+    if (containsTimables(rule)) {
+      // preserve a rule if it has timeable in its antecedent
+      newRules.push(rule);
     }
     let resolutions = Resolutor.reduceRuleAntecedent(program.getFunctorProvider(), rule, facts);
     let consequentLiterals = rule.getHeadLiterals();
