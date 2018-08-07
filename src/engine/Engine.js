@@ -380,6 +380,9 @@ function Engine(program, workingDirectory) {
       let goalTree = goalTrees[l];
       let promises = [];
       goalTree.forEachCandidateActions(possibleActions, _currentTime, (candidateActions) => {
+        if (selectionDone) {
+          return;
+        }
         let cloneProgram = programSoFar.clone();
         let newState = cloneProgram.getState();
         newState = updateStateWithFluentActors(candidateActions, newState);
