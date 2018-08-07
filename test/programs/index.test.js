@@ -44,6 +44,7 @@ describe('Programs Test', function () {
     'halting',
     'quickSort',
     'initiates-constraint',
+    'numeric-notation',
     'rain',
     'goat',
     'mark-hiccup',

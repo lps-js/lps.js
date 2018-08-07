@@ -1,0 +1,8 @@
+expect(maxTime(2)).
+expect(fact(0.8)).
+expect(fact(0.08)).
+expect(fact(1.2)).
+expect(fact(502.3)).
+expect(fact(6908)).
+expect(fact(181)).
+expect(fact(21)).

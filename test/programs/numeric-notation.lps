@@ -1,0 +1,8 @@
+maxTime(2).
+fact(0.8).
+fact(0.08).
+fact(502.3).
+fact(1.2).
+fact(0x1AFC).
+fact(0b10110101).
+fact(0b00010101).
