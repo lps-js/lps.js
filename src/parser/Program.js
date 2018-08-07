@@ -403,7 +403,6 @@ function Program(nodeTree, functorProviderArg) {
       program: _clauses,
       facts: _facts
     });
-    _intensionals = buildIntensionalSet(this);
   }
 }
 
