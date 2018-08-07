@@ -22,15 +22,15 @@ LPS.literalSet = function literalSet(str) {
 
 LPS.load = function load(file) {
   // TODO: consider browser context
-  return new Promise((resolve) => {
-    Program.fromFile(file)
-      .then((program) => {
+  return Program.fromFile(file)
+    .then((program) => {
+      return new Promise((resolve) => {
         let engine = new Engine(program, path.dirname(file));
         engine.on('ready', () => {
           resolve(engine);
         });
       });
-  });
+    });
 };
 
 LPS.Value = Value;
