@@ -116,6 +116,7 @@ function Lexer(source) {
     let buffer = chars[0];
     let advanceLast = true;
     let isFirstDigitZero = chars[0] === '0';
+    let hasDecimalEncountered = false;
     let testNumber = () => {
       if (chars[1] === null) {
         return false;
@@ -125,13 +126,18 @@ function Lexer(source) {
         if (isFirstDigitZero) {
           throw new Error('Unexpected number at line ' + line + ', col ' + col);
         }
+        // accept the number
         return true;
       }
 
       if (chars[1][1] === Lexicon.decimalSymbol) {
+        if (hasDecimalEncountered) {
+          throw new Error('Unexpected \'.\' at  line ' + line + ', col ' + col)
+        }
         chars = _nextChar();
         if (chars[1] !== null && /[0-9]/.test(chars[1][1])) {
           buffer += Lexicon.decimalSymbol;
+          hasDecimalEncountered = true;
           return true;
         }
         lastChars = chars;
