@@ -319,4 +319,46 @@ describe('coreModule', () => {
       expect(result).to.be.length(0);
     });
   });
+
+  describe('-/1', () => {
+    let program;
+    beforeEach(() => {
+      program = new Program();
+
+      // core module is loaded by Engine
+      coreModule(null, program);
+    });
+
+    it('should be defined', () => {
+      let functorProvider = program.getFunctorProvider();
+      expect(functorProvider.has('-/1')).to.be.true;
+    });
+
+    it('should return negative number correctly', () => {
+      let functorProvider = program.getFunctorProvider();
+      let params = [
+        new Value(6)
+      ]
+      let result = functorProvider.execute(new Functor('-', params));
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(1);
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.an('object');
+      expect(result[0].theta).to.be.empty;
+      expect(result[0]).to.have.property('replacement');
+      expect(result[0].replacement).to.be.an('object');
+      expect(result[0].replacement).to.be.instanceof(Value);
+      expect(result[0].replacement.evaluate()).to.be.equal(-6);
+    });
+
+    it('should return no result for variables in argument', () => {
+      let functorProvider = program.getFunctorProvider();
+      let params = [
+        new Variable('A')
+      ]
+      let result = functorProvider.execute(new Functor('-', params));
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(0);
+    });
+  });
 });
