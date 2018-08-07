@@ -6,3 +6,5 @@ expect(fact(502.3)).
 expect(fact(6908)).
 expect(fact(181)).
 expect(fact(21)).
+expect(fact(-5.2)).
+expect(fact(-0.075)).
