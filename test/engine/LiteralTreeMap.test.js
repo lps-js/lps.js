@@ -187,7 +187,7 @@ describe('LiteralTreeMap', () => {
       let treeMap = new LiteralTreeMap();
       let args = [
         new Variable('X'),
-        new Variable('X'),
+        new Variable('X')
       ];
       let functor = new Functor('self', args);
       treeMap.add(functor);
