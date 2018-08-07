@@ -47,6 +47,10 @@ function Tester(engine) {
       }
       let type = r.theta.Type.evaluate();
 
+      if (time2 !== null && time1 + 1 > time2) {
+        throw new Error('The start time must not be more than the end time specified in expect/4');
+      }
+
       checkAndCreateExpectation(time1 + 1);
 
       expectations[time1 + 1].push({
@@ -88,6 +92,10 @@ function Tester(engine) {
         time2 = r.theta.T2.evaluate();
       }
       let type = r.theta.Type.evaluate();
+
+      if (time2 !== null && time1 + 1 > time2) {
+        throw new Error('The start time must not be more than the end time specified in expect/4');
+      }
 
       checkAndCreateExpectation(time1 + 1);
 
