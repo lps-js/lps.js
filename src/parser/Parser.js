@@ -7,8 +7,8 @@ const END_OF_CLAUSE_SYMBOL = '.';
 const CLAUSE_LITERAL_SEPARATOR_SYMBOL = ',';
 const ARGUMENT_SEPARATOR_SYMBOL = ',';
 
-function Parser(source) {
-  let _lexer = new Lexer(source);
+function Parser(source, pathname) {
+  let _lexer = new Lexer(source, pathname);
   let _root = null;
   let currentToken = _lexer.get();
 

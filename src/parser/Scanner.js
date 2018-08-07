@@ -1,4 +1,4 @@
-function Scanner(source) {
+function Scanner(source, pathname) {
   let _line = 0;
   let _col = -1;
   let _lastIndex = source.length - 1;
@@ -10,7 +10,8 @@ function Scanner(source) {
       c: c,
       line: line || _line,
       col: col || _col,
-      index: idx || _currentIndex
+      index: idx || _currentIndex,
+      file: pathname
     };
   };
 

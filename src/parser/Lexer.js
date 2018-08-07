@@ -2,8 +2,8 @@ const Scanner = lpsRequire('parser/Scanner');
 const Lexicon = lpsRequire('parser/Lexicon');
 const TokenTypes = lpsRequire('parser/TokenTypes');
 
-function Lexer(source) {
-  let _scanner = new Scanner(source);
+function Lexer(source, pathname) {
+  let _scanner = new Scanner(source, pathname);
 
   let _nextChar = function _nextChar() {
     let c1 = _scanner.get();
