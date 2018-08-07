@@ -22,6 +22,7 @@ LPS.load(programFile)
   })
   .then((result) => {
     if (result.success) {
+      process.exitCode = 0;
       console.log('Successful');
       return;
     }
@@ -29,7 +30,9 @@ LPS.load(programFile)
     result.errors.forEach((err) => {
       console.error('\t' + err);
     });
+    process.exitCode = 1;
   })
   .catch((err) => {
     console.error(err);
+    process.exitCode = 1;
   });
