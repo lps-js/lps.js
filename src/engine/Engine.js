@@ -494,7 +494,6 @@ function Engine(program, workingDirectory) {
 
         program.setExecutedActions(executedActions);
 
-        // preparation for next cycle
         updatedState = updateStateWithFluentActors(executedActions, updatedState);
         program.updateState(updatedState);
 
@@ -506,7 +505,10 @@ function Engine(program, workingDirectory) {
         _goals = _goals.concat(newFiredGoals);
         program.updateRules(newRules);
 
-        let nextTimePossibleActions = possibleActionsGenerator(_currentTime + 1);
+        // preparation for next cycle
+        _currentTime += 1;
+
+        let nextTimePossibleActions = possibleActionsGenerator(_currentTime);
 
         let newGoals = [];
         let goalTreeProcessingPromises = [];
@@ -518,7 +520,7 @@ function Engine(program, workingDirectory) {
         let promise = forEachPromise(_goals)
           .do((goalTree) => {
             let treePromise = goalTree
-              .evaluate(_currentTime + 1, nextTimePossibleActions)
+              .evaluate(_currentTime, nextTimePossibleActions)
               .then((evaluationResult) => {
                 if (evaluationResult === null) {
                   _numLastCycleFailedRules += 1;
@@ -548,7 +550,7 @@ function Engine(program, workingDirectory) {
             _goals = newGoals;
 
             // ensure goal trees are sorted by their deadlines
-            _goals.sort(goalTreeSorter(_currentTime + 1));
+            _goals.sort(goalTreeSorter(_currentTime));
 
             _lastCycleActions = selectedAndExecutedActions;
             _lastCycleObservations = cycleObservations;
@@ -744,7 +746,6 @@ function Engine(program, workingDirectory) {
     let startTime = Date.now();
     return performCycle()
       .then(() => {
-        _currentTime += 1;
         _lastCycleExecutionTime = Date.now() - startTime;
         _isInCycle = false;
         _engineEventManager.notify('postCycle', this);
