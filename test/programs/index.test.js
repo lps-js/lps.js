@@ -32,6 +32,7 @@ describe('Programs Test', function () {
 
   let files = [
     'party',
+    'ballot-chain',
     'bank-terse',
     'badlight2',
     'ballot',

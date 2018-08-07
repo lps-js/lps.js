@@ -1,0 +1,46 @@
+maxTime(2).
+
+events([
+  delegate(X, Y)
+]).
+
+fluents([
+  voteCount(Candidate, Votes),
+  voter(Voter, Weight),
+  voted(Voter, Candidate)
+]).
+
+initially([
+  voted(miguel, clinton),
+  voteCount(clinton, 2),
+  voted(bob, delegated(miguel)),
+  voter(miguel, 2),
+  voter(bob, 0),
+  voter(jacinto, 1)
+]).
+
+observe(delegate(jacinto, bob), 1).
+
+updates(
+  delegate(Voter1, Voter2),
+  voteCount(Candidate, OldVotes),
+  voteCount(Candidate, OldVotes + N),
+  [
+    delegateOf(Voter2, Voter3, T),
+    voted(Voter3, Candidate, T),
+    voter(Voter1, N, T)
+  ]
+).
+
+updates(delegate(Voter1, Voter2), voter(Voter1, Old), voter(Voter1, 0)).
+updates(delegate(Voter1, Voter2), voter(Voter3, Old), voter(Voter3, N1 + Old), [
+  delegateOf(Voter2, Voter3, T1),
+  voter(Voter1, N1, T1)
+]).
+initiates(delegate(Voter1, Voter2), voted(Voter1, delegated(Voter2))).
+
+delegateOf(Voter, Voter, T) <-
+  not voted(Voter, delegated(_), T).
+delegateOf(Voter, D, T) <-
+  voted(Voter, delegated(DD), T),
+  delegateOf(DD, D, T).

@@ -1,0 +1,20 @@
+expect_num_of(fluent, 1, 6).
+  expect(fluent, 1, voted(miguel, clinton)).
+  expect(fluent, 1, voted(bob, delegated(miguel))).
+  expect(fluent, 1, voteCount(clinton, 2)).
+  expect(fluent, 1, voter(miguel, 2)).
+  expect(fluent, 1, voter(bob, 0)).
+  expect(fluent, 1, voter(jacinto, 1)).
+
+expect_num_of(fluent, 2, 7).
+  expect(fluent, 2, voted(miguel, clinton)).
+  expect(fluent, 2, voted(bob, delegated(miguel))).
+  expect(fluent, 2, voted(jacinto, delegated(bob))).
+  expect(fluent, 2, voter(bob, 0)).
+  expect(fluent, 2, voter(miguel, 3)).
+  expect(fluent, 2, voter(jacinto, 0)).
+  expect(fluent, 2, voteCount(clinton, 3)).
+expect_num_of(action, 1, 2, 0).
+expect_num_of(observation, 1, 2, 1).
+  expect(observation, 1, 2, delegate(jacinto, bob)).
+
