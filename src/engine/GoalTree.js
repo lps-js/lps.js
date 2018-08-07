@@ -378,6 +378,7 @@ function GoalNode(program, clause, theta) {
         usedVariables[v] = true;
       });
     }
+    let programClauses = program.getClauses();
     usedVariables = Object.keys(usedVariables);
     for (let i = 0; i < this.clause.length; i += 1) {
       let literal = this.clause[i];
@@ -390,7 +391,11 @@ function GoalNode(program, clause, theta) {
 
       let otherLiteralsFront = this.clause.slice(0, i);
       let otherLiteralsBack = this.clause.slice(i + 1, this.clause.length);
-      let compositeReductionResult = reduceCompositeEvent(literal, program.getClauses(), usedVariables);
+      let compositeReductionResult = reduceCompositeEvent(
+        literal,
+        programClauses,
+        usedVariables
+      );
       compositeReductionResult.forEach((crrArg) => {
         // crr needs to rename variables to avoid clashes
         // also at the same time handle any output variables
@@ -460,7 +465,8 @@ function GoalNode(program, clause, theta) {
           }
         });
         if (hasArgumentFunctor && isAllArgumentFunctorGround) {
-          let instances = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, conjunct);
+          let instances = Resolutor
+            .handleBuiltInFunctorArgumentInLiteral(functorProvider, conjunct);
           instances.forEach((instance) => {
             let clauseCopy = clause.concat([]);
             clauseCopy[l] = instance;
@@ -557,7 +563,11 @@ function GoalTree(program, goalClause) {
     });
   };
 
-  this.forEachCandidateActions = function forEachCandidateActions(possibleActions, currentTime, callback) {
+  this.forEachCandidateActions = function forEachCandidateActions(
+    possibleActions,
+    currentTime,
+    callback
+  ) {
     let functorProvider = program.getFunctorProvider();
 
     _leafNodes.forEach((node) => {
