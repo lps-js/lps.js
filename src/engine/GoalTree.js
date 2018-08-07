@@ -6,6 +6,7 @@ const Value = lpsRequire('engine/Value');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
 const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
+const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 
 let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, usedVariables) {
   let reductions = [];
@@ -269,8 +270,27 @@ let checkClauseExpiry = (program, conjunction, forTime) => {
   return true;
 };
 
-function GoalNode(program, clause, theta) {
-  this.clause = clause;
+const dedupeConjunction = function dedupeConjunction(conjunction) {
+  let map = new LiteralTreeMap();
+  let result = []
+  conjunction.forEach((conjunct) => {
+    if (map.contains(conjunct)) {
+      return;
+    }
+    map.add(conjunct);
+    result.push(conjunct);
+  });
+  return result;
+};
+
+function GoalNode(program, clauseArg, theta) {
+  this.clause = dedupeConjunction(clauseArg);
+  // console.log(''+clauseArg);
+  // console.log('vs')
+  // console.log('' + this.clause);
+  // console.log('')
+  // console.log('')
+
   this.theta = theta;
   this.children = [];
   this.hasBranchFailed = false;
@@ -353,14 +373,18 @@ function GoalNode(program, clause, theta) {
     possibleActions,
     leafNodes,
     evaluationQueue,
-    resolvedGoalClauses
+    processedNodes
   ) {
-    if (resolvedGoalClauses['' + this.clause] !== undefined) {
-      return resolvedGoalClauses['' + this.clause];
+    let cachedValue = processedNodes.get(this.clause);
+    if (cachedValue !== undefined) {
+      if (cachedValue === null) {
+        this.hasBranchFailed = true;
+      }
+      return cachedValue;
     }
 
     if (!checkClauseExpiry(program, this.clause, forTime)) {
-      resolvedGoalClauses['' + this.clause] = null;
+      processedNodes.add(this.clause, null);
       return null;
     }
 
@@ -425,10 +449,10 @@ function GoalNode(program, clause, theta) {
 
     let isFirstConjunctUntimed = program.isTimableUntimed(conjunct);
 
-    let stateConditionResolutionResult = resolveStateConditions(program, clause);
+    let stateConditionResolutionResult = resolveStateConditions(program, this.clause);
     if (stateConditionResolutionResult === null && !hasUntimedConjunctInClause) {
       this.hasBranchFailed = true;
-      resolvedGoalClauses['' + this.clause] = null;
+      processedNodes.add(this.clause, null);
       return null;
     }
     if (stateConditionResolutionResult !== null) {
@@ -485,7 +509,13 @@ function GoalNode(program, clause, theta) {
 
     let numFailed = 0;
     for (let i = 0; i < newChildren.length; i += 1) {
-      let result = newChildren[i].evaluate(forTime, possibleActions, leafNodes, evaluationQueue, resolvedGoalClauses);
+      let result = newChildren[i].evaluate(
+        forTime,
+        possibleActions,
+        leafNodes,
+        evaluationQueue,
+        processedNodes
+      );
       if (result === null || result.length === 0) {
         if (result === null) {
           numFailed += 1;
@@ -496,13 +526,13 @@ function GoalNode(program, clause, theta) {
       result.forEach((subpath) => {
         nodeResult.push([this.theta].concat(subpath));
       });
-      resolvedGoalClauses['' + this.clause] = nodeResult;
+      processedNodes.add(this.clause, nodeResult);
       return nodeResult;
     }
     // this.children = this.children.concat(newChildren);
 
     if (!isFirstConjunctUntimed && newChildren.length > 0 && numFailed === newChildren.length) {
-      resolvedGoalClauses['' + this.clause] = null;
+      processedNodes.add(this.clause, null);
       this.hasBranchFailed = true;
       return null;
     }
@@ -514,7 +544,7 @@ function GoalNode(program, clause, theta) {
     if (newChildren.length === 0 || isFirstConjunctUntimed) {
       evaluationQueue.push(this);
     } else {
-      resolvedGoalClauses['' + this.clause] = [];
+      processedNodes.add(this.clause, []);
     }
 
     return [];
@@ -546,11 +576,17 @@ function GoalTree(program, goalClause) {
         _leafNodes = [];
         let newEvaluateQueue = [];
         let result = [];
-        let resolvedGoalClauses = {};
+        let processedNodes = new ConjunctionMap();
 
         for (let i = 0; i < _evaluateQueue.length; i += 1) {
           let node = _evaluateQueue[i];
-          let nodeResult = node.evaluate(forTime - 1, possibleActions, _leafNodes, newEvaluateQueue, resolvedGoalClauses);
+          let nodeResult = node.evaluate(
+            forTime - 1,
+            possibleActions,
+            _leafNodes,
+            newEvaluateQueue,
+            processedNodes
+          );
           if (nodeResult !== null && nodeResult.length !== 0) {
             result = nodeResult;
             break;
