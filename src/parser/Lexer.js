@@ -135,6 +135,7 @@ function Lexer(source, pathname) {
         if (hasDecimalEncountered) {
           throw new Error('Unexpected \'.\' at  line ' + line + ', col ' + col)
         }
+        isFirstDigitZero = false;
         chars = _nextChar();
         if (chars[1] !== null && /[0-9]/.test(chars[1][1])) {
           buffer += Lexicon.decimalSymbol;
@@ -143,7 +144,6 @@ function Lexer(source, pathname) {
         }
         lastChars = chars;
         advanceLast = false;
-        isFirstDigitZero = false;
       }
       return false;
     };
