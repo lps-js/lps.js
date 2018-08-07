@@ -122,6 +122,7 @@ function Lexer(source, pathname) {
         return false;
       }
 
+      // lookahead check
       if (/[0-9]/.test(chars[1][1])) {
         if (isFirstDigitZero) {
           throw new Error('Unexpected number at line ' + line + ', col ' + col);
@@ -146,10 +147,62 @@ function Lexer(source, pathname) {
       }
       return false;
     };
-    while (testNumber()) {
-      chars = _nextChar();
-      buffer += chars[0];
+
+    let testHexadecimalNumber = () => {
+      if (chars[1] === null) {
+        return false;
+      }
+
+      // lookahead check
+      if (/[0-9a-fA-F]/.test(chars[1][1])) {
+        // accept the number
+        return true;
+      }
+      return false;
     }
+
+    let testBinaryNumber = () => {
+      if (chars[1] === null) {
+        return false;
+      }
+
+      // lookahead check
+      if (/[01]/.test(chars[1][1])) {
+        // accept the number
+        return true;
+      }
+      return false;
+    }
+
+    if (isFirstDigitZero && chars[1][1] === Lexicon.numberHexadecimalMarker) {
+      // hexadecimal number
+      buffer = '';
+      // skip over the hexadecimal marker
+      chars = _nextChar();
+
+      while (testHexadecimalNumber()) {
+        chars = _nextChar();
+        buffer += chars[0];
+      }
+      buffer = parseInt(buffer, 16);
+    } else if (isFirstDigitZero && chars[1][1] === Lexicon.numberBinaryMarker) {
+      // binary number
+      buffer = '';
+      // skip over the hexadecimal marker
+      chars = _nextChar();
+
+      while (testBinaryNumber()) {
+        chars = _nextChar();
+        buffer += chars[0];
+      }
+      buffer = parseInt(buffer, 2);
+    } else {
+      while (testNumber()) {
+        chars = _nextChar();
+        buffer += chars[0];
+      }
+    }
+
     let result = _makeToken(TokenTypes.Number, Number(buffer), line, col);
     if (advanceLast) {
       lastChars = _nextChar();

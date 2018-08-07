@@ -52,5 +52,9 @@ module.exports = {
   variableStartTest: /^[A-Z_]$/,
   variableBodyTest: /^[0-9a-zA-Z_]$/,
   numberStartTest: /^[0-9]$/,
-  decimalSymbol: '.'
+  decimalSymbol: '.',
+  numberBinaryMarker: 'b',
+  numberHexadecimalMarker: 'x',
+  numberPositiveExponentialMarker: 'e+',
+  numberNegativeExponentialMarker: 'e-',
 };
