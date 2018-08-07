@@ -1,0 +1,17 @@
+maxTime(3).
+
+action(move_to/2).
+fluent(location/2).
+
+initially(location(0, 0)).
+goal_location(1, 1).
+
+goal_location(A, B),
+  not location(A, B, T) ->
+    move_to(A, B, T1, T2).
+    
+updates(
+  move_to(A, B),
+  location(_, _),
+  location(A, B)
+).

@@ -43,6 +43,7 @@ describe('Programs Test', function () {
     'guard',
     'halting',
     'quickSort',
+    'movement',
     'initiates-constraint',
     'numeric-notation',
     'rain',

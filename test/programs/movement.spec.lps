@@ -1,0 +1,5 @@
+expect(fluent, 1, location(0, 0)).
+expect(fluent, 2, location(1, 1)).
+
+expect(query, 1, not move_to(_, _)).
+expect(action, 2, move_to(_, _)).
