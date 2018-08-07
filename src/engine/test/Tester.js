@@ -159,6 +159,8 @@ function Tester(engine) {
         let passedExpectations = 0;
         let errors = [];
 
+        let engineMaxTime = engine.getMaxTime();
+
         // prevent delay as we're testing
         engine.setContinuousExecution(true);
 
@@ -220,15 +222,28 @@ function Tester(engine) {
               passedExpectations += 1;
             }
             if (entry.endTime === null || entry.endTime > engineTime) {
+              if (entry.endTime === null && engineTime + 1 > engineMaxTime) {
+                return;
+              }
               checkAndCreateExpectation(engineTime + 1);
               expectations[engineTime + 1].push(entry);
             }
           });
+          delete expectations[engineTime];
         });
 
         return new Promise((resolve) => {
           // only resolve promise when execution is done
           engine.on('done', () => {
+            const nonExecutedExpectations = Object.keys(expectations);
+            if (nonExecutedExpectations.length > 0) {
+              totalExpectations += 1;
+              errors.push(nonExecutedExpectations.length + ' expectation cycles not executed');
+              nonExecutedExpectations.forEach((key) => {
+                errors.push('Expectations for cycle ' + key + ' were not executed');
+              });
+            }
+
             let lastCycleTime = engine.getCurrentTime();
             numCyclesExpectations.forEach((pair) => {
               totalExpectations += 1;
