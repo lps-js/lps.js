@@ -2,7 +2,7 @@
 % single-tower version
 
 maxTime(5).
-cycleInterval(200).
+cycleInterval(400).
 fluent(location(_, _)).
 action(move(_, _)).
 
