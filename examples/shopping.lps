@@ -1,0 +1,47 @@
+maxTime(20).
+
+fluents([
+  money(V),
+  cartQuantity(I, Q),
+  shopQuantity(I, Q)
+]).
+actions([
+  addToCart/1,
+  checkout
+]).
+
+initially([
+  shopQuantity(trekkingPants, 2),
+  shopQuantity(boots, 2),
+  shopQuantity(hat, 2),
+  shopQuantity(shirt, 2)
+]).
+
+initially(money(50)).
+
+item(trekkingPants, 15).
+item(boots, 20).
+item(hat, 3).
+item(shirt, 8).
+
+true -> shop(T1, T2).
+
+shop(T1, T2) <-
+  money(M, T1),
+  item(I, P),
+  M >= P,
+  addToCart(I, T1, T2),
+  shop(T2, T3).
+
+% till you drop!
+shop(T1, T2) <- money(A, T1), checkout(T1, T2).
+
+checkout(T1, T2) -> lpsHalt.
+
+updates(addToCart(I), money(V), money(V - A), [item(I, A)]).
+initiates(addToCart(I), cartQuantity(I, 1), [not cartQuantity(I, _, T)]).
+updates(addToCart(I), cartQuantity(I, O), cartQuantity(I, O + 1)).
+updates(addToCart(I), shopQuantity(I, O), shopQuantity(I, O - 1)).
+
+<- shopQuantity(_, Q, _), Q < 0.
+<- money(V, _), V < 0.
