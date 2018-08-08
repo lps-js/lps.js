@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>LPS Browser Mode Demonstration</title>
+    <script type="text/javascript" src="../dist/lps.bundle.js"></script>
+  </head>
+  <body>
+    <p>
+      JavaScript execution output will be shown on the browser's console / developer tools.
+    </p>
+    <script>
+      LPS.loadString('maxTime(3).')
+        .then((engine) => {
+          engine.on('postCycle', () => {
+            console.log('TIME ' + engine.getCurrentTime());
+          });
+          engine.on('done', () => {
+            console.log('DONE!');
+          });
+          engine.run();
+        });
+    </script>
+  </body>
+</html>
