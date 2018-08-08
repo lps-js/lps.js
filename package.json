@@ -13,7 +13,7 @@
     "test": "nyc --all mocha --require ./test/init.js \"test/**/*.test.js\"",
     "test:programs": "mocha --require ./test/init.js \"test/programs/**/*.test.js\"",
     "lint": "eslint test src",
-    "build:browser": "browserify index.js -o dist/lps.browser.js && uglifyjs dist/lps.browser.js --comments all --compress -o dist/lps.browser.min.js"
+    "build:browser": "webpack"
   },
   "author": {
     "name": "Sam Yong",
@@ -22,7 +22,6 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "browserify": "^16.2.2",
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
@@ -32,8 +31,10 @@
     "mocha": "^5.2.0",
     "mocha-sinon": "^2.1.0",
     "nyc": "^11.9.0",
+    "raw-loader": "^0.5.1",
     "sinon": "^4.5.0",
-    "uglify-es": "^3.3.10"
+    "webpack": "^4.16.5",
+    "webpack-command": "^0.4.1"
   },
   "nyc": {
     "exclude": [
