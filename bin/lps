@@ -21,7 +21,7 @@ if (args.length > 1) {
   serverPort = Number(args[1]);
 }
 
-LPS.load(file)
+LPS.loadFile(file)
   .then((engine) => {
     console.log('File loaded.');
     console.log('Cycle Interval set to ' + engine.getCycleInterval() + 'ms');

@@ -10,7 +10,7 @@ if (programFile === null || specFile === null) {
   process.exit(1);
 }
 
-LPS.load(programFile)
+LPS.loadFile(programFile)
   .then((engine) => {
     console.log('Testing\t' + programFile);
     console.log('using\t' + specFile);

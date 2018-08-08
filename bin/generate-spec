@@ -23,7 +23,7 @@ const writeOutput = (output) => {
   process.stdout.write(output);
 };
 
-LPS.load(programFile)
+LPS.loadFile(programFile)
   .then((engine) => {
     engine.on('postCycle', () => {
       let currentTime = engine.getCurrentTime();
