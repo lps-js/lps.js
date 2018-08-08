@@ -1,0 +1,105 @@
+expect_num_of(fluent, 1, 6).
+  expect(fluent, 1, location(f, floor)).
+  expect(fluent, 1, location(b, f)).
+  expect(fluent, 1, location(e, b)).
+  expect(fluent, 1, location(a, floor)).
+  expect(fluent, 1, location(d, a)).
+  expect(fluent, 1, location(c, d)).
+
+expect_num_of(fluent, 2, 6).
+  expect(fluent, 2, location(f, floor)).
+  expect(fluent, 2, location(b, f)).
+  expect(fluent, 2, location(e, b)).
+  expect(fluent, 2, location(a, floor)).
+  expect(fluent, 2, location(d, a)).
+  expect(fluent, 2, location(c, floor)).
+expect_num_of(action, 1, 2, 1).
+  expect(action, 1, 2, move(c, floor)).
+expect_num_of(observation, 1, 2, 0).
+
+expect_num_of(fluent, 3, 6).
+  expect(fluent, 3, location(f, floor)).
+  expect(fluent, 3, location(b, f)).
+  expect(fluent, 3, location(a, floor)).
+  expect(fluent, 3, location(c, floor)).
+  expect(fluent, 3, location(d, floor)).
+  expect(fluent, 3, location(e, floor)).
+expect_num_of(action, 2, 3, 2).
+  expect(action, 2, 3, move(d, floor)).
+  expect(action, 2, 3, move(e, floor)).
+expect_num_of(observation, 2, 3, 0).
+
+expect_num_of(fluent, 4, 6).
+  expect(fluent, 4, location(f, floor)).
+  expect(fluent, 4, location(a, floor)).
+  expect(fluent, 4, location(c, floor)).
+  expect(fluent, 4, location(d, floor)).
+  expect(fluent, 4, location(b, c)).
+  expect(fluent, 4, location(e, d)).
+expect_num_of(action, 3, 4, 2).
+  expect(action, 3, 4, move(b, c)).
+  expect(action, 3, 4, move(e, d)).
+expect_num_of(observation, 3, 4, 0).
+
+expect_num_of(fluent, 5, 6).
+  expect(fluent, 5, location(c, floor)).
+  expect(fluent, 5, location(d, floor)).
+  expect(fluent, 5, location(b, c)).
+  expect(fluent, 5, location(e, d)).
+  expect(fluent, 5, location(a, b)).
+  expect(fluent, 5, location(f, e)).
+expect_num_of(action, 4, 5, 2).
+  expect(action, 4, 5, move(a, b)).
+  expect(action, 4, 5, move(f, e)).
+expect_num_of(observation, 4, 5, 0).
+
+expect_num_of(fluent, 6, 6).
+  expect(fluent, 6, location(c, floor)).
+  expect(fluent, 6, location(d, floor)).
+  expect(fluent, 6, location(b, c)).
+  expect(fluent, 6, location(e, d)).
+  expect(fluent, 6, location(a, b)).
+  expect(fluent, 6, location(f, e)).
+expect_num_of(action, 5, 6, 0).
+expect_num_of(observation, 5, 6, 0).
+
+expect_num_of(fluent, 7, 6).
+  expect(fluent, 7, location(c, floor)).
+  expect(fluent, 7, location(d, floor)).
+  expect(fluent, 7, location(b, c)).
+  expect(fluent, 7, location(e, d)).
+  expect(fluent, 7, location(a, b)).
+  expect(fluent, 7, location(f, e)).
+expect_num_of(action, 6, 7, 0).
+expect_num_of(observation, 6, 7, 0).
+
+expect_num_of(fluent, 8, 6).
+  expect(fluent, 8, location(c, floor)).
+  expect(fluent, 8, location(d, floor)).
+  expect(fluent, 8, location(b, c)).
+  expect(fluent, 8, location(e, d)).
+  expect(fluent, 8, location(a, b)).
+  expect(fluent, 8, location(f, e)).
+expect_num_of(action, 7, 8, 0).
+expect_num_of(observation, 7, 8, 0).
+
+expect_num_of(fluent, 9, 6).
+  expect(fluent, 9, location(c, floor)).
+  expect(fluent, 9, location(d, floor)).
+  expect(fluent, 9, location(b, c)).
+  expect(fluent, 9, location(e, d)).
+  expect(fluent, 9, location(a, b)).
+  expect(fluent, 9, location(f, e)).
+expect_num_of(action, 8, 9, 0).
+expect_num_of(observation, 8, 9, 0).
+
+expect_num_of(fluent, 10, 6).
+  expect(fluent, 10, location(c, floor)).
+  expect(fluent, 10, location(d, floor)).
+  expect(fluent, 10, location(b, c)).
+  expect(fluent, 10, location(e, d)).
+  expect(fluent, 10, location(a, b)).
+  expect(fluent, 10, location(f, e)).
+expect_num_of(action, 9, 10, 0).
+expect_num_of(observation, 9, 10, 0).
+

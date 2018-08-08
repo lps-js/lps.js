@@ -51,6 +51,7 @@ describe('Programs Test', function () {
     'mark-hiccup',
     'findall',
     'towers-simple',
+    'towers',
     'dining-philosophers',
     'map-colouring',
     'rock-paper-scissors-minimal'
