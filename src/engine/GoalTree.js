@@ -7,6 +7,7 @@ const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
 const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
+const TimableHelper = lpsRequire('utility/TimableHelper');
 
 let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, usedVariables) {
   let reductions = [];
@@ -411,12 +412,25 @@ function GoalNode(program, clauseArg, theta) {
     }
     let programClauses = program.getClauses();
     usedVariables = Object.keys(usedVariables);
+    let laterTimingVariables = {};
     for (let i = 0; i < this.clause.length; i += 1) {
       let literal = this.clause[i];
       if (program.isFluent(literal)) {
+        // there's a fluent occurring before the composite
+        // we don't process the composite until fluent has been resolved
         break;
       }
       if (program.isAction(literal)) {
+        let startTimeArg = TimableHelper.getActionStartTime(literal);
+        if (startTimeArg instanceof Variable) {
+          if (laterTimingVariables[startTimeArg.evaluate()] !== undefined) {
+            break;
+          }
+        }
+        let endTimeArg = TimableHelper.getActionEndTime(literal);
+        if (endTimeArg instanceof Variable) {
+          laterTimingVariables[endTimeArg.evaluate()] = true;
+        }
         continue;
       }
 
