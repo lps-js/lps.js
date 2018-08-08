@@ -41,7 +41,8 @@
     "exclude": [
       "dist",
       "examples",
-      "test"
+      "test",
+      "webpack.config.js"
     ]
   }
 }
