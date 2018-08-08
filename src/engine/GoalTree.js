@@ -586,7 +586,7 @@ function GoalTree(program, goalClause) {
         for (let i = 0; i < _evaluateQueue.length; i += 1) {
           let node = _evaluateQueue[i];
           let nodeResult = node.evaluate(
-            forTime,
+            forTime - 1,
             possibleActions,
             _leafNodes,
             newEvaluateQueue,
