@@ -121,7 +121,12 @@ let resolveStateConditions = function resolveStateConditions(program, clause) {
         newVariablesSeenSoFar[v] = variablesSeenSoFar[v];
       });
 
-      return processClause(remainingUnresolvedClause, clauseSoFar.concat([conjunct]), thetaSoFar, newVariablesSeenSoFar);
+      return processClause(
+        remainingUnresolvedClause,
+        clauseSoFar.concat([conjunct]),
+        thetaSoFar,
+        newVariablesSeenSoFar
+      );
     }
 
     let numFailures = 0;
@@ -161,7 +166,8 @@ let resolveStateConditions = function resolveStateConditions(program, clause) {
         return c.substitute(newThetaSoFar);
       });
 
-      let subResult = processClause([], substitutedClauseSoFar.concat(substitutedRemainingUnresolvedClause), newThetaSoFar, newVariablesSeenSoFar);
+      let remainingClause = substitutedClauseSoFar.concat(substitutedRemainingUnresolvedClause);
+      let subResult = processClause([], remainingClause, newThetaSoFar, newVariablesSeenSoFar);
       if (!subResult) {
         numFailures += 1;
       }
@@ -199,7 +205,8 @@ let resolveSimpleActions = function resolveSimpleActions(
     let newThetaSet = [];
     thetaSet.forEach((tuple) => {
       let substitutedLiteral = literal.substitute(tuple.theta);
-      let substitutedInstances = Resolutor.handleBuiltInFunctorArgumentInLiteral(functorProvider, substitutedLiteral);
+      let substitutedInstances = Resolutor
+        .handleBuiltInFunctorArgumentInLiteral(functorProvider, substitutedLiteral);
       substitutedInstances.forEach((instance) => {
         let literalThetas = possibleActions.unifies(instance);
         if (literalThetas.length === 0) {

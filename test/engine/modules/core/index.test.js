@@ -2,7 +2,6 @@ const coreModule = lpsRequire('engine/modules/core');
 const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
-const Engine = lpsRequire('engine/Engine');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Program = lpsRequire('parser/Program');
 
@@ -20,7 +19,6 @@ describe('coreModule', () => {
 
     it('should return correct negation result', () => {
       let program = new Program();
-      let engine = new Engine(program);
 
       let result = program.query(Program.literal('!fact(a)'));
       expect(result).to.be.an('array');
@@ -33,7 +31,6 @@ describe('coreModule', () => {
     it('should return correct negation result', () => {
       let facts = new LiteralTreeMap();
       let program = new Program();
-      let engine = new Engine(program);
 
       facts.add(Program.literal('fact(a)'));
 
@@ -82,7 +79,7 @@ describe('coreModule', () => {
       let params = [
         new Variable('A'),
         new Value(2)
-      ]
+      ];
       let result = functorProvider.execute(new Functor('+', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
@@ -93,7 +90,7 @@ describe('coreModule', () => {
       let params = [
         new Value(2),
         new Variable('A')
-      ]
+      ];
       let result = functorProvider.execute(new Functor('+', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
@@ -137,7 +134,7 @@ describe('coreModule', () => {
       let params = [
         new Variable('A'),
         new Value(2)
-      ]
+      ];
       let result = functorProvider.execute(new Functor('-', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
@@ -148,7 +145,7 @@ describe('coreModule', () => {
       let params = [
         new Value(2),
         new Variable('A')
-      ]
+      ];
       let result = functorProvider.execute(new Functor('-', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
@@ -192,7 +189,7 @@ describe('coreModule', () => {
       let params = [
         new Variable('A'),
         new Value(2)
-      ]
+      ];
       let result = functorProvider.execute(new Functor('*', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
@@ -203,7 +200,7 @@ describe('coreModule', () => {
       let params = [
         new Value(2),
         new Variable('A')
-      ]
+      ];
       let result = functorProvider.execute(new Functor('*', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
@@ -247,7 +244,7 @@ describe('coreModule', () => {
       let params = [
         new Variable('A'),
         new Value(2)
-      ]
+      ];
       let result = functorProvider.execute(new Functor('/', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
@@ -258,7 +255,7 @@ describe('coreModule', () => {
       let params = [
         new Value(2),
         new Variable('A')
-      ]
+      ];
       let result = functorProvider.execute(new Functor('/', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
@@ -302,7 +299,7 @@ describe('coreModule', () => {
       let params = [
         new Variable('A'),
         new Value(2)
-      ]
+      ];
       let result = functorProvider.execute(new Functor('**', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
@@ -313,7 +310,7 @@ describe('coreModule', () => {
       let params = [
         new Value(2),
         new Variable('A')
-      ]
+      ];
       let result = functorProvider.execute(new Functor('**', params));
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);

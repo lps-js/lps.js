@@ -133,7 +133,7 @@ function Lexer(source, pathname) {
 
       if (chars[1][1] === Lexicon.decimalSymbol) {
         if (hasDecimalEncountered) {
-          throw new Error('Unexpected \'.\' at  line ' + line + ', col ' + col)
+          throw new Error('Unexpected \'.\' at  line ' + line + ', col ' + col);
         }
         isFirstDigitZero = false;
         chars = _nextChar();
@@ -159,7 +159,7 @@ function Lexer(source, pathname) {
         return true;
       }
       return false;
-    }
+    };
 
     let testBinaryNumber = () => {
       if (chars[1] === null) {
@@ -172,7 +172,7 @@ function Lexer(source, pathname) {
         return true;
       }
       return false;
-    }
+    };
 
     if (isFirstDigitZero && chars[1][1] === Lexicon.numberHexadecimalMarker) {
       // hexadecimal number

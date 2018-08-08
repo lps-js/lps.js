@@ -56,5 +56,5 @@ module.exports = {
   numberBinaryMarker: 'b',
   numberHexadecimalMarker: 'x',
   numberPositiveExponentialMarker: 'e+',
-  numberNegativeExponentialMarker: 'e-',
+  numberNegativeExponentialMarker: 'e-'
 };

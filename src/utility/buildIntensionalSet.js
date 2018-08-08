@@ -35,26 +35,27 @@ module.exports = function buildIntensionalSet(program) {
       && !program.isFluent(headLiteral);
   });
 
+  let processClauses = (clause) => {
+    let headLiteral = clause.getHeadLiterals()[0];
+    let headLiteralId = headLiteral.getId();
+    if (intensionalSet[headLiteralId] !== undefined) {
+      return false;
+    }
+    let bodyLiterals = clause.getBodyLiterals();
+    if (hasTimableConjunct(bodyLiterals, program, intensionalSet)) {
+      newIntensionalSet.push(headLiteral);
+      return false;
+    }
+    return true;
+  };
   do {
     newIntensionalSet = [];
     // filter out
-    clauses = clauses.filter((clause) => {
-      let headLiteral = clause.getHeadLiterals()[0];
-      let headLiteralId = headLiteral.getId();
-      if (intensionalSet[headLiteralId] !== undefined) {
-        return false;
-      }
-      let bodyLiterals = clause.getBodyLiterals();
-      if (hasTimableConjunct(bodyLiterals, program, intensionalSet)) {
-        newIntensionalSet.push(headLiteral);
-        return false;
-      }
-      return true;
-    });
+    clauses = clauses.filter(processClauses);
 
     newIntensionalSet.forEach((predicate) => {
       intensionalSet[predicate.getId()] = true;
     });
-  } while(newIntensionalSet.length > 0);
+  } while (newIntensionalSet.length > 0);
   return intensionalSet;
 };

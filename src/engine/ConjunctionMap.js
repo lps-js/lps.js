@@ -4,11 +4,11 @@ function ConjunctionMap() {
   let _conjunctions = [];
 
   this.add = function add(conjunction, value) {
-    let _map = new LiteralTreeMap();
+    let map = new LiteralTreeMap();
     conjunction.forEach((conjunct) => {
-      _map.add(conjunct);
+      map.add(conjunct);
     });
-    _conjunctions.push([_map.size(),_map, value]);
+    _conjunctions.push([map.size(), map, value]);
   };
 
   this.get = function get(conjunction) {

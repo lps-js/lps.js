@@ -10,7 +10,6 @@ const compactTheta = lpsRequire('utility/compactTheta');
 const EventManager = lpsRequire('observer/Manager');
 const constraintCheck = lpsRequire('utility/constraintCheck');
 const Tester = lpsRequire('engine/test/Tester');
-const forEachPromise = lpsRequire('utility/forEachPromise');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const SyntacticSugarProcessor = lpsRequire('engine/builtin/SyntacticSugarProcessor');
 const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
