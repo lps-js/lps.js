@@ -1,4 +1,5 @@
 maxTime(10).
+cycleInterval(800).
 
 fluent(said(_, _)).
 action(say(_, _)).
