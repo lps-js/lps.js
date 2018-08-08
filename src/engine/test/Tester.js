@@ -1,8 +1,43 @@
 const Program = lpsRequire('parser/Program');
+const Value = lpsRequire('engine/Value');
+const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
 const coreModule = lpsRequire('engine/modules/core');
+
+const numComparatorProcessor = function numComparatorProcessor(actual, expectedArg) {
+  let expected = expectedArg;
+  if (expected instanceof Value) {
+    // by default, we wrap value as equality
+    expected = new Functor('eq', [expected]);
+  }
+
+  if (!(expected instanceof Functor) || expected.getArgumentCount() < 1) {
+    throw new Error('Invalid value given for comparator ' + expected);
+  }
+
+  switch (expected.getId()) {
+    case 'eq/1':
+    case 'equal/1':
+      return actual === expected.getArguments()[0].evaluate();
+    case 'not_eq/1':
+    case 'notequal/1':
+    case 'not_equal/1':
+      return actual !== expected.getArguments()[0].evaluate();
+    case 'atleast/1':
+    case 'at_least/1':
+    case 'min/1':
+      return actual >= expected.getArguments()[0].evaluate();
+    case 'atmost/1':
+    case 'at_most/1':
+    case 'max/1':
+      return actual <= expected.getArguments()[0].evaluate();
+    case 'between/2':
+      return expected.getArguments()[0].evaluate() <= actual
+        && actual <= expected.getArguments()[1].evaluate();
+  }
+};
 
 function Tester(engine) {
   let expectations = {};
@@ -64,7 +99,7 @@ function Tester(engine) {
   // expect_num_of/3
   // expect_num_of(Type, Time, Num)
   let processTypeThreeExpectations = function processTypeThreeExpectations(program) {
-    let queryResult = program.query(Program.literal('expect_num_of(Type, T, F)'));
+    let queryResult = program.query(Program.literal('expect_num_of(Type, T, Num)'));
 
     queryResult.forEach((r) => {
       let time = r.theta.T.evaluate();
@@ -72,7 +107,7 @@ function Tester(engine) {
       checkAndCreateExpectation(time);
 
       expectations[time].push({
-        num_of: r.theta.F.evaluate(),
+        num_of: r.theta.Num,
         type: type,
         endTime: time
       });
@@ -100,7 +135,7 @@ function Tester(engine) {
       checkAndCreateExpectation(time1 + 1);
 
       expectations[time1 + 1].push({
-        num_of: r.theta.Num.evaluate(),
+        num_of: r.theta.Num,
         type: type,
         endTime: time2
       });
@@ -122,16 +157,9 @@ function Tester(engine) {
   // expect_num_cycles(L)
   let processTypeSixExpectations = function processTypeSixExpectations(program) {
     let queryResult = program.query(Program.literal('expect_num_cycles(N)'));
-    queryResult = queryResult.concat(program.query(Program.literal('expect_num_cycles(N, B)')));
     queryResult.forEach((r) => {
-      let minCycles = r.theta.N.evaluate();
-      let maxCycles;
-      if (r.theta.B === undefined) {
-        maxCycles = minCycles;
-      } else {
-        maxCycles = r.theta.B.evaluate();
-      }
-      numCyclesExpectations.push([minCycles, maxCycles]);
+      let expectation = r.theta.N;
+      numCyclesExpectations.push(expectation);
     });
   };
 
@@ -213,7 +241,7 @@ function Tester(engine) {
                 default:
                   errors.push('Invalid number of type "' + entry.type + '" encountered.');
               }
-              testResult = entry.num_of === testNumber;
+              testResult = numComparatorProcessor(testNumber, entry.num_of);
               if (!testResult) {
                 errors.push('Expecting number of ' + entry.type + ' at time ' + engineTime + ' to be ' + entry.num_of + ', program has ' + testNumber);
               }
@@ -245,16 +273,16 @@ function Tester(engine) {
             }
 
             let lastCycleTime = engine.getCurrentTime();
-            numCyclesExpectations.forEach((pair) => {
+            numCyclesExpectations.forEach((expectation) => {
               totalExpectations += 1;
-              if (pair[0] <= lastCycleTime && lastCycleTime <= pair[1]) {
+              if (numComparatorProcessor(lastCycleTime, expectation)) {
                 passedExpectations += 1;
               } else {
                 errors.push('Expecting number of cycles executed to be '
-                  + (pair[0] === pair[1]
-                    ? pair[0]
-                    : 'between ' + pair[0] + ' and ' + pair[1])
-                  + ', program executed ' + lastCycleTime + ' cycles');
+                  + expectation
+                  + ', program executed '
+                  + lastCycleTime
+                  + ' cycles');
               }
             });
 

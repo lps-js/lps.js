@@ -28,3 +28,5 @@ expect(action, 6, 7, row(north, south)).
 
 expect(action, 7, 8, row(south, north)).
 expect(action, 7, 8, transport(goat, south, north)).
+
+expect_num_of(action, 1, _, between(1, 2)).
