@@ -5,16 +5,26 @@
   </head>
   <body>
     <p>
-      JavaScript execution output will be shown on the browser's console / developer tools.
+      Output of the execution will be shown below. Errors would be reported in the developer tools / console of the browser.
     </p>
+    <div id="outputArea">
+      
+    </div>
     <script>
-      LPS.loadString('maxTime(3).')
+      var outputArea = document.getElementById('outputArea');
+      
+      LPS.loadString('maxTime(10).')
         .then((engine) => {
+          engine.on('error', (err) => {
+            outputArea.innerHTML += '<p>Error: ' + err + '</p>';
+          });
           engine.on('postCycle', () => {
             console.log('TIME ' + engine.getCurrentTime());
+            outputArea.innerHTML += '<p>TIME ' + engine.getCurrentTime() + '</p>';
           });
           engine.on('done', () => {
-            console.log('DONE!');
+            console.log('Execution Done!');
+            outputArea.innerHTML += '<p>Execution Done!</p>';
           });
           engine.run();
         });
