@@ -1,0 +1,65 @@
+expect_num_of(fluent, 1, 2).
+  expect(fluent, 1, said(turing, [])).
+  expect(fluent, 1, said(robot, [])).
+
+expect_num_of(fluent, 2, 2).
+  expect(fluent, 2, said(robot, [])).
+  expect(fluent, 2, said(turing, [what])).
+expect_num_of(action, 1, 2, 0).
+expect_num_of(observation, 1, 2, 1).
+  expect(observation, 1, 2, say(turing, what)).
+
+expect_num_of(fluent, 3, 2).
+  expect(fluent, 3, said(robot, [])).
+  expect(fluent, 3, said(turing, [what, is])).
+expect_num_of(action, 2, 3, 0).
+expect_num_of(observation, 2, 3, 1).
+  expect(observation, 2, 3, say(turing, is)).
+
+expect_num_of(fluent, 4, 2).
+  expect(fluent, 4, said(turing, [what, is, your])).
+  expect(fluent, 4, said(robot, [my])).
+expect_num_of(action, 3, 4, 1).
+  expect(action, 3, 4, say(robot, my)).
+expect_num_of(observation, 3, 4, 1).
+  expect(observation, 3, 4, say(turing, your)).
+
+expect_num_of(fluent, 5, 2).
+  expect(fluent, 5, said(turing, [what, is, your, name])).
+  expect(fluent, 5, said(robot, [my, name])).
+expect_num_of(action, 4, 5, 1).
+  expect(action, 4, 5, say(robot, name)).
+expect_num_of(observation, 4, 5, 1).
+  expect(observation, 4, 5, say(turing, name)).
+
+expect_num_of(fluent, 6, 2).
+  expect(fluent, 6, said(turing, [what, is, your, name])).
+  expect(fluent, 6, said(robot, [my, name, is])).
+expect_num_of(action, 5, 6, 1).
+  expect(action, 5, 6, say(robot, is)).
+expect_num_of(observation, 5, 6, 0).
+
+expect_num_of(fluent, 7, 2).
+  expect(fluent, 7, said(turing, [what, is, your, name])).
+  expect(fluent, 7, said(robot, [my, name, is])).
+expect_num_of(action, 6, 7, 0).
+expect_num_of(observation, 6, 7, 0).
+
+expect_num_of(fluent, 8, 2).
+  expect(fluent, 8, said(turing, [what, is, your, name])).
+  expect(fluent, 8, said(robot, [my, name, is])).
+expect_num_of(action, 7, 8, 0).
+expect_num_of(observation, 7, 8, 0).
+
+expect_num_of(fluent, 9, 2).
+  expect(fluent, 9, said(turing, [what, is, your, name])).
+  expect(fluent, 9, said(robot, [my, name, is])).
+expect_num_of(action, 8, 9, 0).
+expect_num_of(observation, 8, 9, 0).
+
+expect_num_of(fluent, 10, 2).
+  expect(fluent, 10, said(turing, [what, is, your, name])).
+  expect(fluent, 10, said(robot, [my, name, is])).
+expect_num_of(action, 9, 10, 0).
+expect_num_of(observation, 9, 10, 0).
+

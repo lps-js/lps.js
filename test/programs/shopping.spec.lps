@@ -1,0 +1,53 @@
+expect_num_of(fluent, 1, 5).
+  expect(fluent, 1, shopQuantity(trekkingPants, 2)).
+  expect(fluent, 1, shopQuantity(boots, 2)).
+  expect(fluent, 1, shopQuantity(hat, 2)).
+  expect(fluent, 1, shopQuantity(shirt, 2)).
+  expect(fluent, 1, money(50)).
+
+expect_num_of(fluent, 2, 6).
+  expect(fluent, 2, shopQuantity(boots, 2)).
+  expect(fluent, 2, shopQuantity(hat, 2)).
+  expect(fluent, 2, shopQuantity(shirt, 2)).
+  expect(fluent, 2, shopQuantity(trekkingPants, 1)).
+  expect(fluent, 2, money(35)).
+  expect(fluent, 2, cartQuantity(trekkingPants, 1)).
+expect_num_of(action, 1, 2, 1).
+  expect(action, 1, 2, addToCart(trekkingPants)).
+expect_num_of(observation, 1, 2, 0).
+
+expect_num_of(fluent, 3, 6).
+  expect(fluent, 3, shopQuantity(boots, 2)).
+  expect(fluent, 3, shopQuantity(hat, 2)).
+  expect(fluent, 3, shopQuantity(shirt, 2)).
+  expect(fluent, 3, shopQuantity(trekkingPants, 0)).
+  expect(fluent, 3, money(20)).
+  expect(fluent, 3, cartQuantity(trekkingPants, 2)).
+expect_num_of(action, 2, 3, 1).
+  expect(action, 2, 3, addToCart(trekkingPants)).
+expect_num_of(observation, 2, 3, 0).
+
+expect_num_of(fluent, 4, 7).
+  expect(fluent, 4, shopQuantity(hat, 2)).
+  expect(fluent, 4, shopQuantity(shirt, 2)).
+  expect(fluent, 4, shopQuantity(trekkingPants, 0)).
+  expect(fluent, 4, shopQuantity(boots, 1)).
+  expect(fluent, 4, cartQuantity(trekkingPants, 2)).
+  expect(fluent, 4, cartQuantity(boots, 1)).
+  expect(fluent, 4, money(0)).
+expect_num_of(action, 3, 4, 1).
+  expect(action, 3, 4, addToCart(boots)).
+expect_num_of(observation, 3, 4, 0).
+
+expect_num_of(fluent, 5, 7).
+  expect(fluent, 5, shopQuantity(hat, 2)).
+  expect(fluent, 5, shopQuantity(shirt, 2)).
+  expect(fluent, 5, shopQuantity(trekkingPants, 0)).
+  expect(fluent, 5, shopQuantity(boots, 1)).
+  expect(fluent, 5, cartQuantity(trekkingPants, 2)).
+  expect(fluent, 5, cartQuantity(boots, 1)).
+  expect(fluent, 5, money(0)).
+expect_num_of(action, 4, 5, 1).
+  expect(action, 4, 5, checkout).
+expect_num_of(observation, 4, 5, 0).
+

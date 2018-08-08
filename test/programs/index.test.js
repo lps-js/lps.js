@@ -47,6 +47,8 @@ describe('Programs Test', function () {
     'initiates-constraint',
     'numeric-notation',
     'rain',
+    'shopping',
+    'turing',
     'goat',
     'mark-hiccup',
     'findall',
