@@ -520,35 +520,32 @@ function Engine(program, workingDirectory) {
         _numLastCycleFailedRules = 0;
         _numLastCycleResolvedRules = 0;
 
-        let promise = forEachPromise(_goals)
-          .do((goalTree) => {
-            let treePromise = goalTree
-              .evaluate(_currentTime, nextTimePossibleActions)
-              .then((evaluationResult) => {
-                if (evaluationResult === null) {
-                  _numLastCycleFailedRules += 1;
-                  return Promise.reject();
-                }
+        // perform goal tree processing
+        _goals.forEach((goalTree) => {
+          let treePromise = goalTree
+            .evaluate(_currentTime, nextTimePossibleActions)
+            .then((evaluationResult) => {
+              if (evaluationResult === null) {
+                _numLastCycleFailedRules += 1;
+                return Promise.reject();
+              }
 
-                // goal tree has been resolved
-                if (evaluationResult.length > 0) {
-                  _numLastCycleResolvedRules += 1;
-                  return Promise.resolve();
-                }
-
-                // goal tree has not been resolved, so let's persist the tree
-                // to the next cycle
-                newGoals.push(goalTree);
+              // goal tree has been resolved
+              if (evaluationResult.length > 0) {
+                _numLastCycleResolvedRules += 1;
                 return Promise.resolve();
-              });
-            goalTreeProcessingPromises.push(treePromise);
-          });
+              }
 
-        return promise
-          .then(() => {
-            return Promise
-              .all(goalTreeProcessingPromises);
-          })
+              // goal tree has not been resolved, so let's persist the tree
+              // to the next cycle
+              newGoals.push(goalTree);
+              return Promise.resolve();
+            });
+          goalTreeProcessingPromises.push(treePromise);
+        });
+
+        return Promise
+          .all(goalTreeProcessingPromises)
           .then(() => {
             _goals = newGoals;
 
