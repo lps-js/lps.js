@@ -7,7 +7,7 @@ require('mocha-sinon');
 
 let testFunction = function testFunction(file, updateTimeout) {
   let errors = [];
-  return LPS.load(path.join(__dirname, file + '.lps'))
+  return LPS.loadFile(path.join(__dirname, file + '.lps'))
     .then((engine) => {
       engine.on('error', (err) => {
         errors.push(err);
