@@ -19,6 +19,7 @@ describe('coreModule', () => {
 
     it('should return correct negation result', () => {
       let program = new Program();
+      coreModule(null, program);
 
       let result = program.query(Program.literal('!fact(a)'));
       expect(result).to.be.an('array');
@@ -31,6 +32,7 @@ describe('coreModule', () => {
     it('should return correct negation result', () => {
       let facts = new LiteralTreeMap();
       let program = new Program();
+      coreModule(null, program);
 
       facts.add(Program.literal('fact(a)'));
 
