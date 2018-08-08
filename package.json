@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Logic Production Systems (LPS) interpreter written in JavaScript",
   "main": "index.js",
+  "repository": "https://github.com/mauris/lps.js.git",
   "bin": {
     "lps": "./bin/lps",
     "lps-test": "./bin/test",
@@ -34,7 +35,7 @@
     "raw-loader": "^0.5.1",
     "sinon": "^4.5.0",
     "webpack": "^4.16.5",
-    "webpack-command": "^0.4.1"
+    "webpack-cli": "^3.1.0"
   },
   "nyc": {
     "exclude": [
