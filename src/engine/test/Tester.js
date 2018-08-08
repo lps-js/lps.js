@@ -36,6 +36,8 @@ const numComparatorProcessor = function numComparatorProcessor(actual, expectedA
     case 'between/2':
       return expected.getArguments()[0].evaluate() <= actual
         && actual <= expected.getArguments()[1].evaluate();
+    default:
+      throw new Error('Unknown comparator given ' + expected);
   }
 };
 
