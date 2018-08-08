@@ -8,8 +8,9 @@ const compactTheta = lpsRequire('utility/compactTheta');
 const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 const TimableHelper = lpsRequire('utility/TimableHelper');
+const dedupeConjunction = lpsRequire('utility/dedupeConjunction');
 
-let reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, usedVariables) {
+const reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, usedVariables) {
   let reductions = [];
   let assumption = new LiteralTreeMap();
   assumption.add(eventAtom);
@@ -184,7 +185,7 @@ let resolveStateConditions = function resolveStateConditions(program, clause) {
   return nodes;
 };
 
-let resolveSimpleActions = function resolveSimpleActions(
+const resolveSimpleActions = function resolveSimpleActions(
   clause,
   possibleActions,
   functorProvider,
@@ -249,7 +250,7 @@ let resolveSimpleActions = function resolveSimpleActions(
   return numAdded;
 };
 
-let checkClauseExpiry = (program, conjunction, forTime) => {
+const checkClauseExpiry = (program, conjunction, forTime) => {
   for (let i = 0; i < conjunction.length; i += 1) {
     let conjunct = conjunction[i];
     let conjunctArgs = conjunct.getArguments();
@@ -278,30 +279,14 @@ let checkClauseExpiry = (program, conjunction, forTime) => {
   return true;
 };
 
-const dedupeConjunction = function dedupeConjunction(conjunction) {
-  let map = new LiteralTreeMap();
-  let result = []
-  conjunction.forEach((conjunct) => {
-    if (map.contains(conjunct)) {
-      return;
-    }
-    map.add(conjunct);
-    result.push(conjunct);
-  });
-  return result;
-};
-
 function GoalNode(program, clauseArg, theta) {
+  // deduplicate terms in the conjunction
   this.clause = dedupeConjunction(clauseArg);
-  // console.log(''+clauseArg);
-  // console.log('vs')
-  // console.log('' + this.clause);
-  // console.log('')
-  // console.log('')
 
   this.theta = theta;
   this.children = [];
   this.hasBranchFailed = false;
+  let programClauses = program.getClauses();
 
   this.getEarliestDeadline = function getEarliestDeadline(currentTime) {
     let earliestDeadline = null;
@@ -410,7 +395,6 @@ function GoalNode(program, clauseArg, theta) {
         usedVariables[v] = true;
       });
     }
-    let programClauses = program.getClauses();
     usedVariables = Object.keys(usedVariables);
     let laterTimingVariables = {};
     for (let i = 0; i < this.clause.length; i += 1) {
