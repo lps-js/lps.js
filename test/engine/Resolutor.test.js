@@ -3,6 +3,7 @@ const Clause = lpsRequire('engine/Clause');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
+const Program = lpsRequire('parser/Program');
 const Variable = lpsRequire('engine/Variable');
 const FunctorProvider = require('../../src/engine/FunctorProvider');
 
