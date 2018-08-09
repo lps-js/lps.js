@@ -347,5 +347,48 @@ describe('LiteralTreeMap', () => {
       expect(result).to.be.an('array');
       expect(result).to.be.length(0);
     });
+
+    it('should return correct unification for mapping to variables', () => {
+      let treeMap = new LiteralTreeMap();
+      let functor = new Functor('move_on', [
+        new Value('d'),
+        new Value('floor'),
+        new Variable('T1'),
+        new Variable('T2')
+      ]);
+      treeMap.add(functor);
+
+      let query = new Functor('move_on', [
+        new Variable('Block'),
+        new Variable('Place'),
+        new Variable('T'), new Variable('T')]);
+
+      let result = treeMap.unifies(query);
+
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(1);
+
+      expect(result[0]).to.have.property('theta');
+      expect(Object.keys(result[0].theta)).to.be.length(4);
+
+      expect(result[0].theta).to.have.property('Block');
+      expect(result[0].theta.Block).to.be.instanceof(Value);
+      expect(result[0].theta.Block.evaluate()).to.be.equal('d');
+
+      expect(result[0].theta).to.have.property('Place');
+      expect(result[0].theta.Place).to.be.instanceof(Value);
+      expect(result[0].theta.Place.evaluate()).to.be.equal('floor');
+
+      expect(result[0].theta).to.have.property('T1');
+      expect(result[0].theta.T1).to.be.instanceof(Variable);
+      expect(result[0].theta.T1.evaluate()).to.be.equal('T');
+
+      expect(result[0].theta).to.have.property('T2');
+      expect(result[0].theta.T2).to.be.instanceof(Variable);
+      expect(result[0].theta.T2.evaluate()).to.be.equal('T');
+
+      expect(result[0]).to.have.property('leaf');
+      expect(result[0].leaf).to.be.equal(functor);
+    });
   })
 });
