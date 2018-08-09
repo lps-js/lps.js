@@ -15,7 +15,7 @@ let loadBuiltinFiles = function loadBuiltinFiles(consult, program) {
     let promise;
     if (process.browser) {
       let source = require(`${__dirname}/${filename}.lps`);
-      let promise = Program.fromString(source)
+      promise = Program.fromString(source)
         .then((p) => {
           program.augment(p);
           return Promise.resolve();
