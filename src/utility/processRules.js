@@ -8,12 +8,6 @@ const Resolutor = lpsRequire('engine/Resolutor');
 module.exports = function processRules(program, goals, currentTime) {
   let rules = program.getRules();
 
-  let facts = [
-    program.getFacts(),
-    program.getState(),
-    program.getExecutedActions()
-  ];
-
   let containsTimables = function containsTimables(rule) {
     let bodyLiterals = rule.getBodyLiterals();
     let recursiveTimableCheck = (set) => {
@@ -48,13 +42,14 @@ module.exports = function processRules(program, goals, currentTime) {
       // preserve a rule if it has timeable in its antecedent
       newRules.push(rule);
     }
-    let resolutions = Resolutor.reduceRuleAntecedent(program.getFunctorProvider(), rule, facts);
+    let resolutions = Resolutor.reduceRuleAntecedent(program, rule);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
         return;
       }
-      let substitutedConsequentLiterals = consequentLiterals.map(l => l.substitute(pair.theta));
+      let substitutedConsequentLiterals = consequentLiterals
+        .map(l => l.substitute(pair.theta));
       if (pair.unresolved.length === 0) {
         goals.push(new GoalTree(program, substitutedConsequentLiterals));
         return;

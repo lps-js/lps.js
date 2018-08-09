@@ -17,13 +17,12 @@ describe('Resolutor', () => {
         [new Functor('fire', [new Variable('T1')])]
       );
 
-      let facts = new LiteralTreeMap();
-      facts.add(new Functor('fire', [new Value(1)]));
-      let functorProvider = new FunctorProvider((literal) => {
-        return Resolutor.findUnifications(literal, facts);
-      });
+      let state = new LiteralTreeMap();
+      state.add(new Functor('fire', [new Value(1)]));
+      let program = new Program();
+      program.updateState(state);
 
-      let result = Resolutor.reduceRuleAntecedent(functorProvider, rule, facts);
+      let result = Resolutor.reduceRuleAntecedent(program, rule, []);
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(result[0].theta).to.be.not.undefined;

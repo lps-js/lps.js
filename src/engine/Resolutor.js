@@ -172,12 +172,37 @@ Resolutor.explain =
     return result;
   };
 
-Resolutor.reduceRuleAntecedent =
-  function reduceRuleAntecedent(functorProvider, rule, factsArg) {
-    let facts = factsArg;
-    if (facts instanceof LiteralTreeMap) {
-      facts = [facts];
+let containsTimable = function containsTimable(program, literal) {
+  let recursiveTimableCheck = (set) => {
+    for (let i = 0; i < set.length; i += 1) {
+      if (program.isTimable(set[i])) {
+        return true;
+      }
+      if (set[i] instanceof Functor) {
+        let subResult = recursiveTimableCheck(set[i].getArguments());
+        if (subResult) {
+          return true;
+        }
+      } else if (set[i] instanceof List) {
+        let subResult = recursiveTimableCheck(set[i].flatten());
+        if (subResult) {
+          return true;
+        }
+      }
     }
+    return false;
+  };
+  return recursiveTimableCheck([literal]);
+}
+
+Resolutor.reduceRuleAntecedent =
+  function reduceRuleAntecedent(program, rule) {
+    let facts = [
+      program.getFacts(),
+      program.getState(),
+      program.getExecutedActions()
+    ];
+    let functorProvider = program.getFunctorProvider();
 
     let recursiveResolution = function (result, remainingLiterals, theta) {
       if (remainingLiterals.length === 0) {
