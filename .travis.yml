@@ -11,5 +11,9 @@ os:
   - osx
 install:
   - npm install --only=production
+  - npm i mocha nyc
+cache:
+  directories:
+    - node_modules # NPM packages
 matrix:
   fast_finish: true
