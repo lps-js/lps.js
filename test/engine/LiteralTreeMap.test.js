@@ -331,5 +331,17 @@ describe('LiteralTreeMap', () => {
       expect(result[0]).to.have.property('leaf');
       expect(result[0].leaf).to.be.equal(functor);
     });
+
+    it('should return correct non unification', () => {
+      let treeMap = new LiteralTreeMap();
+      let functor = new Functor('test', [new Variable('A'), new Variable('A')]);
+      treeMap.add(functor);
+
+      let query = new Functor('test', [new Value(5), new Value(6)]);
+      let result = treeMap.unifies(query);
+
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(0);
+    });
   })
 });
