@@ -1,4 +1,4 @@
-const LPS = lpsRequire('LPS');
+const LPS = require('../../index');
 
 const path = require('path');
 const chai = require('chai');
