@@ -269,5 +269,31 @@ describe('LiteralTreeMap', () => {
       expect(result[0]).to.have.property('leaf');
       expect(result[0].leaf).to.be.equal(functor);
     });
+
+    it('should return the correct unification for a list in fact.', () => {
+      let treeMap = new LiteralTreeMap();
+      let list = new List([]);
+      let args = [
+        list
+      ];
+      let functor = new Functor('func', args);
+      treeMap.add(functor);
+
+      let query = new Functor('func', [new Variable('A')]);
+      let result = treeMap.unifies(query);
+
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(1);
+
+      expect(result[0]).to.have.property('theta');
+      expect(Object.keys(result[0].theta)).to.be.length(1);
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(List);
+      expect(result[0].theta.A).to.be.equal(list);
+
+      expect(result[0]).to.have.property('leaf');
+      expect(result[0].leaf).to.be.equal(functor);
+    });
   })
 });
