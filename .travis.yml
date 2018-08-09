@@ -8,10 +8,6 @@ node_js:
   - "10"
 os:
   - linux
-  - osx
-install:
-  - npm install --only=production
-  - npm i mocha nyc
 cache:
   directories:
     - node_modules # NPM packages
