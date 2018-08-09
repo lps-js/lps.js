@@ -231,6 +231,50 @@ const resolveSimpleActions = function resolveSimpleActions(
   return numAdded;
 };
 
+const processArgumentFunctorsInClause = function processArgumentFunctorsInClause(
+  program,
+  reductionResult
+) {
+  let functorProvider = program.getFunctorProvider();
+  let newChildren = [];
+  reductionResult.forEach((r) => {
+    let nodes = [];
+    let recursiveFunctorArgumentProcessing = (clause, l) => {
+      if (l >= clause.length) {
+        // base case, processed
+        nodes.push([program, clause, r.theta]);
+        return;
+      }
+      let conjunct = clause[l];
+      let isAllArgumentFunctorGround = true;
+      let hasArgumentFunctor = false;
+      clause[l].getArguments()
+        .forEach((literalArg) => {
+          if (literalArg instanceof Functor && !literalArg.isGround()) {
+            isAllArgumentFunctorGround = false;
+          }
+          if (literalArg instanceof Functor) {
+            hasArgumentFunctor = true;
+          }
+        });
+      if (hasArgumentFunctor && isAllArgumentFunctorGround) {
+        let instances = Resolutor
+          .handleBuiltInFunctorArgumentInLiteral(functorProvider, conjunct);
+        instances.forEach((instance) => {
+          let clauseCopy = clause.concat([]);
+          clauseCopy[l] = instance;
+          recursiveFunctorArgumentProcessing(clauseCopy, l + 1);
+        });
+        return;
+      }
+      recursiveFunctorArgumentProcessing(clause, l + 1);
+    };
+    recursiveFunctorArgumentProcessing(r.clause, 0);
+    newChildren = newChildren.concat(nodes);
+  });
+  return newChildren;
+};
+
 const checkClauseExpiry = (program, conjunction, forTime) => {
   for (let i = 0; i < conjunction.length; i += 1) {
     let conjunct = conjunction[i];
@@ -453,43 +497,8 @@ function GoalNode(program, clauseArg, theta) {
 
     let functorProvider = program.getFunctorProvider();
 
-    let newChildren = [];
-    reductionResult.forEach((r) => {
-      let clause = r.clause;
-      let nodes = [];
-      let recursiveFunctorArgumentProcessing = (clause, l) => {
-        if (l >= clause.length) {
-          nodes.push(new GoalNode(program, clause, r.theta));
-          return;
-        }
-        let conjunct = clause[l];
-        let isAllArgumentFunctorGround = true;
-        let hasArgumentFunctor = false;
-        clause[l].getArguments().forEach((literalArg) => {
-          if (literalArg instanceof Functor && !literalArg.isGround()) {
-            isAllArgumentFunctorGround = false;
-          }
-          if (literalArg instanceof Functor) {
-            hasArgumentFunctor = true;
-          }
-        });
-        if (hasArgumentFunctor && isAllArgumentFunctorGround) {
-          let instances = Resolutor
-            .handleBuiltInFunctorArgumentInLiteral(functorProvider, conjunct);
-          instances.forEach((instance) => {
-            let clauseCopy = clause.concat([]);
-            clauseCopy[l] = instance;
-            recursiveFunctorArgumentProcessing(clauseCopy, l + 1);
-          });
-        } else {
-          recursiveFunctorArgumentProcessing(clause, l + 1);
-        }
-      };
-      recursiveFunctorArgumentProcessing(r.clause, 0);
-      nodes.forEach((n) => {
-        newChildren.push(n);
-      });
-    });
+    let newChildren = processArgumentFunctorsInClause(program, reductionResult)
+      .map(node => new GoalNode(node[0], node[1], node[2]));
     this.children = this.children.concat(newChildren);
 
     let numFailed = 0;
