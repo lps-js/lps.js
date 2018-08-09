@@ -62,8 +62,8 @@ describe('Programs Test', function () {
   files.forEach((file) => {
     it('should test ' + file + '.lps', function (done) {
       let updateTimeout = (timeout) => {
-        this.slow((0.8 * timeout) + 1000);
-        this.timeout(timeout + 1000);
+        this.slow((0.75 * timeout) + 2000);
+        this.timeout(timeout + 2000);
       };
 
       testFunction(file, updateTimeout)
