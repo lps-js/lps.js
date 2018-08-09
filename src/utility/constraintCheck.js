@@ -1,17 +1,15 @@
 module.exports = function constraintCheck(program) {
   let result = true;
-  program.getClauses()
-    .forEach((clause) => {
-      if (!result || !clause.isConstraint()) {
-        return;
-      }
+  let constraints = program.getConstraints();
+  for (let i = 0; i < constraints.length; i += 1) {
+    let constraint = constraints[i];
+    let literals = constraint.getBodyLiterals();
+    let queryResult = program.query(literals);
 
-      let literals = clause.getBodyLiterals();
-      let queryResult = program.query(literals);
-
-      if (queryResult.length > 0) {
-        result = false;
-      }
-    });
+    if (queryResult.length > 0) {
+      result = false;
+      break;
+    }
+  }
   return result;
 };

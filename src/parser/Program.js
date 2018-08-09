@@ -154,7 +154,7 @@ let processLine = function processLine(clauseNode, properties) {
 
   if (children.length === 2 && children[0].getToken().value === '<-') {
     // a constraint format
-    properties.program
+    properties.constraints
       .push(processConstraint(children[1].getChildren()));
     return;
   }
@@ -167,7 +167,7 @@ let processLine = function processLine(clauseNode, properties) {
   let operator = children[1].getToken().value;
   if (operator === '<-') {
     // a program clause in the form: consequent <- antecedent
-    properties.program
+    properties.clauses
       .push(processRuleOrClause(children[0].getChildren(), children[2].getChildren()));
     return;
   }
@@ -187,6 +187,7 @@ let processProgram = function processProgram(rootNode, properties) {
 function Program(nodeTree, functorProviderArg) {
   let _rules = [];
   let _clauses = [];
+  let _constraints = [];
   let _facts = new LiteralTreeMap();
   let _currentState = new LiteralTreeMap();
   let _executedActions = new LiteralTreeMap();
@@ -211,6 +212,7 @@ function Program(nodeTree, functorProviderArg) {
     });
     program.setFacts(newFacts);
     program.setClauses(_clauses.concat([]));
+    program.setConstraints(_constraints.concat([]));
     program.updateRules(_rules.concat([]));
 
     Object.keys(_actions).forEach((actionId) => {
@@ -338,12 +340,20 @@ function Program(nodeTree, functorProviderArg) {
   };
 
   this.getClauses = function getClauses() {
-    return _clauses.map(x => x);
+    return _clauses;
   };
 
   this.setClauses = function setClauses(clauses) {
     _clauses = clauses;
     _intensionals = buildIntensionalSet(this);
+  };
+
+  this.getConstraints = function getConstraints() {
+    return _constraints;
+  };
+
+  this.setConstraints = function setConstraints(constraints) {
+    _constraints = constraints;
   };
 
   this.updateRules = function updateRules(rules) {
@@ -390,10 +400,6 @@ function Program(nodeTree, functorProviderArg) {
     headMap.add(literal);
 
     _clauses.forEach((clause) => {
-      if (clause.isConstraint()) {
-        // skip constraints
-        return;
-      }
       // horn clause guarantees only one literal
       let headLiteral = clause
         .getHeadLiterals()[0]
@@ -434,6 +440,7 @@ function Program(nodeTree, functorProviderArg) {
 
     _rules = _rules.concat(program.getRules());
     _clauses = _clauses.concat(program.getClauses());
+    _constraints = _constraints.concat(program.getConstraints());
     program
       .getFacts()
       .forEach((fact) => {
@@ -445,7 +452,8 @@ function Program(nodeTree, functorProviderArg) {
   if (nodeTree instanceof AstNode) {
     processProgram(nodeTree, {
       rules: _rules,
-      program: _clauses,
+      clauses: _clauses,
+      constraints: _constraints,
       facts: _facts
     });
   }

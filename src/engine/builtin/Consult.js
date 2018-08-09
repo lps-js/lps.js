@@ -49,9 +49,10 @@ function Consult(engine, targetProgram) {
     rules.forEach(createReplacementFunc(newRules, treeMap));
     program.updateRules(newRules);
 
-    let clauses = program.getClauses();
     let newClauses = [];
-    clauses.forEach(createReplacementFunc(newClauses, treeMap));
+    program
+      .getClauses()
+      .forEach(createReplacementFunc(newClauses, treeMap));
     program.setClauses(newClauses);
   };
 
