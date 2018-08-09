@@ -34,7 +34,7 @@ LPS.loadString = function loadString(source) {
         });
       });
     });
-}
+};
 
 LPS.loadFile = function loadFile(file) {
   // TODO: consider browser context
