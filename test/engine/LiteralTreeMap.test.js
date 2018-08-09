@@ -158,7 +158,9 @@ describe('LiteralTreeMap', () => {
       let functor = new Functor('neighbours', args);
       treeMap.add(functor);
 
-      let query = new Functor('neighbours', [new Functor('min', [new Variable('Z'), new Variable('X')]), new Variable('Y')]);
+      let query = new Functor('neighbours', [
+        new Functor('min', [new Variable('Z'), new Variable('X')]), new Variable('Y')
+      ]);
       let result = treeMap.unifies(query);
 
       expect(result).to.be.an('array');
@@ -307,7 +309,9 @@ describe('LiteralTreeMap', () => {
       let functor = new Functor('request', args);
       treeMap.add(functor);
 
-      let query = new Functor('request', [new Functor('sort', [new Variable('X')]), new Variable('T1'), new Variable('T2')]);
+      let query = new Functor('request', [
+        new Functor('sort', [new Variable('X')]), new Variable('T1'), new Variable('T2')
+      ]);
       let result = treeMap.unifies(query);
 
       expect(result).to.be.an('array');
