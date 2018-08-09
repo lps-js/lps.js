@@ -10,10 +10,9 @@ const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 const TimableHelper = lpsRequire('utility/TimableHelper');
 const dedupeConjunction = lpsRequire('utility/dedupeConjunction');
 
-const reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, usedVariables) {
+const reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, usedVariables) {
   let reductions = [];
-  let assumption = new LiteralTreeMap();
-  assumption.add(eventAtom);
+
   let renameTheta = variableArrayRename(usedVariables);
   let hasNewRenames = false;
   let processRenameTheta = (varName) => {
@@ -27,36 +26,18 @@ const reduceCompositeEvent = function reduceCompositeEvent(eventAtom, clauses, u
     hasNewRenames = false;
     Object.keys(renameTheta).forEach(processRenameTheta);
   } while (hasNewRenames);
-  let outputVariables = eventAtom.getVariables();
 
-  clauses.forEach((clause) => {
-    if (clause.isConstraint()) {
-      return;
-    }
-    // assuming horn clauses only
-    let headLiterals = clause.getHeadLiterals();
-    let headLiteral = headLiterals[0].substitute(renameTheta);
-    let unifications = assumption.unifies(headLiteral);
-    if (unifications.length === 0) {
-      return;
-    }
-
-    unifications.forEach((pair) => {
-      let theta = pair.theta;
-      let outputTheta = {};
-      outputVariables.forEach((varName) => {
-        if (theta[varName] !== undefined) {
-          outputTheta[varName] = theta[varName];
-        }
-      });
+  program
+    .getDefinitions(eventAtom, renameTheta)
+    .forEach((tuple) => {
+      let theta = tuple.theta;
+      let definition = tuple.definition;
 
       reductions.push({
-        clause: clause.getBodyLiterals()
-          .map(l => l.substitute(renameTheta).substitute(theta)),
-        theta: outputTheta
+        clause: definition,
+        theta: theta
       });
     });
-  });
 
   return reductions;
 };
@@ -286,7 +267,6 @@ function GoalNode(program, clauseArg, theta) {
   this.theta = theta;
   this.children = [];
   this.hasBranchFailed = false;
-  let programClauses = program.getClauses();
 
   this.getEarliestDeadline = function getEarliestDeadline(currentTime) {
     let earliestDeadline = null;
@@ -422,7 +402,7 @@ function GoalNode(program, clauseArg, theta) {
       let otherLiteralsBack = this.clause.slice(i + 1, this.clause.length);
       let compositeReductionResult = reduceCompositeEvent(
         literal,
-        programClauses,
+        program,
         usedVariables
       );
       compositeReductionResult.forEach((crrArg) => {
