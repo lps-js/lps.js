@@ -106,37 +106,32 @@ Resolutor.explain =
         otherLiteral.getVariables()
           .forEach(variableSetFunc);
       }
+
       variablesInUse = Object.keys(variablesInUse);
-      let renameTheta = variableArrayRename(variablesInUse);
+      renameTheta = variableArrayRename(variablesInUse);
 
-      clauses.forEach((clause) => {
-        if (clause.isConstraint()) {
-          // skip constraints
-          return;
-        }
-        // horn clause guarantees only one literal
-        let headLiteral = clause.getHeadLiterals()[0].substitute(renameTheta);
-        let unificationTheta = Unifier.unifies([[literal, headLiteral]]);
-        if (unificationTheta === null) {
-          return;
-        }
-        headLiteral = headLiteral.substitute(unificationTheta);
-        let bodyLiterals = clause.getBodyLiterals();
-        bodyLiterals = bodyLiterals.map((blArg) => {
-          let bl = blArg.substitute(unificationTheta);
-          return bl.substitute(renameTheta);
-        });
-        let subResult = recursiveResolution(bodyLiterals, {});
-        subResult.forEach((r) => {
-          let updatedHeadLiteral = headLiteral.substitute(r.theta).substitute(renameTheta);
-          unificationTheta = Unifier.unifies([[literal, updatedHeadLiteral]]);
-          if (unificationTheta === null) {
-            return;
-          }
+      program
+        .getDefinitions(literal, variablesInUse)
+        .forEach((tuple) => {
+          let bodyLiterals = tuple.definition;
+          let headLiteral = tuple.headLiteral;
+          let unificationTheta = tuple.theta;
 
-          literalThetas.push({ theta: unificationTheta });
+          // perform resolution on the subgoal
+          let subResult = recursiveResolution(bodyLiterals, {});
+          subResult.forEach((r) => {
+            let updatedHeadLiteral = headLiteral
+              .substitute(r.theta)
+              .substitute(renameTheta);
+            unificationTheta = Unifier
+              .unifies([[literal, updatedHeadLiteral]]);
+            if (unificationTheta === null) {
+              return;
+            }
+
+            literalThetas.push({ theta: unificationTheta });
+          });
         });
-      });
 
       if (literalThetas.length === 0) {
         return [];

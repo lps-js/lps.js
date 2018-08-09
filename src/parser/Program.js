@@ -379,6 +379,51 @@ function Program(nodeTree, functorProviderArg) {
     return evaluationResult;
   };
 
+  this.getDefinitions = function getDefinitions(literal, renameThetaArg) {
+    let renameTheta = renameThetaArg;
+    if (renameTheta === undefined) {
+      renameTheta = {};
+    }
+
+    let result = [];
+    let headMap = new LiteralTreeMap();
+    headMap.add(literal);
+
+    _clauses.forEach((clause) => {
+      if (clause.isConstraint()) {
+        // skip constraints
+        return;
+      }
+      // horn clause guarantees only one literal
+      let headLiteral = clause
+        .getHeadLiterals()[0]
+        .substitute(renameTheta);
+
+      let thetaSet = headMap.unifies(headLiteral);
+      // console.log(unificationTheta);
+      if (thetaSet.length === 0) {
+        return;
+      }
+      thetaSet.forEach((tuple) => {
+        let unificationTheta = tuple.theta;
+        let updatedHeadLiteral = headLiteral.substitute(unificationTheta);
+        let bodyLiterals = clause.getBodyLiterals()
+          .map((blArg) => {
+            let bl = blArg
+              .substitute(unificationTheta)
+              .substitute(renameTheta);
+            return bl;
+          });
+        result.push({
+          headLiteral: updatedHeadLiteral,
+          theta: unificationTheta,
+          definition: bodyLiterals
+        });
+      });
+    });
+    return result;
+  };
+
   this.augment = function augment(program) {
     if (!(program instanceof Program)) {
       throw new Error('Expecting program in the argument for augment function');
