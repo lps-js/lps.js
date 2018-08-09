@@ -495,8 +495,6 @@ function GoalNode(program, clauseArg, theta) {
       return checkClauseExpiry(program, n.clause, forTime);
     });
 
-    let functorProvider = program.getFunctorProvider();
-
     let newChildren = processArgumentFunctorsInClause(program, reductionResult)
       .map(node => new GoalNode(node[0], node[1], node[2]));
     this.children = this.children.concat(newChildren);
