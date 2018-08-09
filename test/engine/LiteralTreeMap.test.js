@@ -295,5 +295,41 @@ describe('LiteralTreeMap', () => {
       expect(result[0]).to.have.property('leaf');
       expect(result[0].leaf).to.be.equal(functor);
     });
+
+    it('should return correct unification for recursive trees', () => {
+      let treeMap = new LiteralTreeMap();
+      let list = new List([new Value('a'), new Value('b'), new Value('d'), new Value('c')]);
+      let args = [
+        new Functor('sort', [list]),
+        new Value(1),
+        new Value(2)
+      ];
+      let functor = new Functor('request', args);
+      treeMap.add(functor);
+
+      let query = new Functor('request', [new Functor('sort', [new Variable('X')]), new Variable('T1'), new Variable('T2')]);
+      let result = treeMap.unifies(query);
+
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(1);
+
+      expect(result[0]).to.have.property('theta');
+      expect(Object.keys(result[0].theta)).to.be.length(3);
+
+      expect(result[0].theta).to.have.property('X');
+      expect(result[0].theta.X).to.be.instanceof(List);
+      expect(result[0].theta.X).to.be.equal(list);
+
+      expect(result[0].theta).to.have.property('T1');
+      expect(result[0].theta.T1).to.be.instanceof(Value);
+      expect(result[0].theta.T1.evaluate()).to.be.equal(1);
+
+      expect(result[0].theta).to.have.property('T2');
+      expect(result[0].theta.T2).to.be.instanceof(Value);
+      expect(result[0].theta.T2.evaluate()).to.be.equal(2);
+
+      expect(result[0]).to.have.property('leaf');
+      expect(result[0].leaf).to.be.equal(functor);
+    });
   })
 });
