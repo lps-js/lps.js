@@ -399,19 +399,19 @@ function Program(nodeTree, functorProviderArg) {
         .getHeadLiterals()[0]
         .substitute(renameTheta);
 
-      let thetaSet = headMap.unifies(headLiteral);
+      let unifications = headMap.unifies(headLiteral);
       // console.log(unificationTheta);
-      if (thetaSet.length === 0) {
+      if (unifications.length === 0) {
         return;
       }
-      thetaSet.forEach((tuple) => {
+      unifications.forEach((tuple) => {
         let unificationTheta = tuple.theta;
         let updatedHeadLiteral = headLiteral.substitute(unificationTheta);
         let bodyLiterals = clause.getBodyLiterals()
           .map((blArg) => {
             let bl = blArg
-              .substitute(unificationTheta)
-              .substitute(renameTheta);
+              .substitute(renameTheta)
+              .substitute(unificationTheta);
             return bl;
           });
         result.push({

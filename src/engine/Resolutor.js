@@ -85,7 +85,8 @@ Resolutor.explain =
         return result;
       }
 
-      let literal = remainingLiterals[0].substitute(thetaSoFar);
+      let literal = remainingLiterals[0]
+        .substitute(thetaSoFar);
 
       let literalThetas = [];
       let substitutedInstances = Resolutor
