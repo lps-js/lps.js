@@ -56,7 +56,6 @@ Resolutor.findUnifications = function findUnifications(literal, factsArg) {
 
 Resolutor.explain =
   function explain(queryArg, program, otherFacts) {
-    let clauses = program.getClauses();
     let functorProvider = program.getFunctorProvider();
     let facts = [
       program.getFacts(),
@@ -110,7 +109,7 @@ Resolutor.explain =
       }
 
       variablesInUse = Object.keys(variablesInUse);
-      renameTheta = variableArrayRename(variablesInUse);
+      let renameTheta = variableArrayRename(variablesInUse);
 
       program
         .getDefinitions(literal, variablesInUse)
@@ -168,29 +167,6 @@ Resolutor.explain =
     });
     return result;
   };
-
-let containsTimable = function containsTimable(program, literal) {
-  let recursiveTimableCheck = (set) => {
-    for (let i = 0; i < set.length; i += 1) {
-      if (program.isTimable(set[i])) {
-        return true;
-      }
-      if (set[i] instanceof Functor) {
-        let subResult = recursiveTimableCheck(set[i].getArguments());
-        if (subResult) {
-          return true;
-        }
-      } else if (set[i] instanceof List) {
-        let subResult = recursiveTimableCheck(set[i].flatten());
-        if (subResult) {
-          return true;
-        }
-      }
-    }
-    return false;
-  };
-  return recursiveTimableCheck([literal]);
-}
 
 Resolutor.reduceRuleAntecedent =
   function reduceRuleAntecedent(program, rule) {
