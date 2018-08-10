@@ -45,15 +45,6 @@ function sortTimables(conjunction, forTime) {
         laterConjuncts.push(conjunct);
         continue;
       }
-
-      // let conjunctEndTime = conjunct.getEndTime();
-      // if (conjunctEndTime instanceof Variable) {
-      //   let endTimeName = conjunctEndTime.evaluate();
-      //   if (conjunctStartTime.evaluate() !== endTimeName) {
-      //     // different start/end times
-      //     dependentTimeVariables[endTimeName] = true;
-      //   }
-      // }
     }
     earlyConjuncts.push(conjunct);
   }
