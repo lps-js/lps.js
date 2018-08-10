@@ -16,6 +16,10 @@ function sortTimables(conjunction, forTime) {
       }
     }
 
+    if (conjunct.isLaterThan(earlyConjuncts[0])) {
+      laterConjuncts.push(conjunct);
+      return;
+    }
     earlyConjuncts.push(conjunct);
   });
 
