@@ -2,8 +2,6 @@ const Functor = lpsRequire('engine/Functor');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
-const List = lpsRequire('engine/List');
-const Unifier = require('./Unifier');
 
 function Resolutor() {}
 
@@ -110,9 +108,10 @@ Resolutor.explain =
 
       variablesInUse = Object.keys(variablesInUse);
       let renameTheta = variableArrayRename(variablesInUse);
-
+      let literalMap = new LiteralTreeMap();
+      literalMap.add(literal);
       program
-        .getDefinitions(literal, variablesInUse)
+        .getDefinitions(literalMap, variablesInUse)
         .forEach((tuple) => {
           let bodyLiterals = tuple.definition;
           let headLiteral = tuple.headLiteral;
@@ -124,13 +123,14 @@ Resolutor.explain =
             let updatedHeadLiteral = headLiteral
               .substitute(r.theta)
               .substitute(renameTheta);
-            unificationTheta = Unifier
-              .unifies([[literal, updatedHeadLiteral]]);
-            if (unificationTheta === null) {
+            let unifications = literalMap.unifies(updatedHeadLiteral);
+            if (unifications.length === 0) {
               return;
             }
-
-            literalThetas.push({ theta: unificationTheta });
+            unifications.forEach((tuple) => {
+              let theta = tuple.theta;
+              literalThetas.push({ theta: theta });
+            });
           });
         });
 
