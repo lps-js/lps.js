@@ -3,6 +3,11 @@ function sortTimables(conjunction, forTime) {
   let laterConjuncts = [];
 
   conjunction.forEach((conjunct) => {
+    if (!conjunct.isInRange(forTime)) {
+      laterConjuncts.push(conjunct);
+      return;
+    }
+
     if (earlyConjuncts.length === 0) {
       earlyConjuncts.push(conjunct);
       return;
