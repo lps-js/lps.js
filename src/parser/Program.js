@@ -389,15 +389,18 @@ function Program(nodeTree, functorProviderArg) {
     return evaluationResult;
   };
 
-  this.getDefinitions = function getDefinitions(literal, renameThetaArg) {
+  this.getDefinitions = function getDefinitions(literalMapArg, renameThetaArg) {
     let renameTheta = renameThetaArg;
     if (renameTheta === undefined) {
       renameTheta = {};
     }
 
     let result = [];
-    let headMap = new LiteralTreeMap();
-    headMap.add(literal);
+    let literalMap = literalMapArg;
+    if (!(literalMap instanceof LiteralTreeMap)) {
+      literalMap = new LiteralTreeMap();
+      literalMap.add(literalMapArg);
+    }
 
     _clauses.forEach((clause) => {
       // horn clause guarantees only one literal
@@ -405,7 +408,7 @@ function Program(nodeTree, functorProviderArg) {
         .getHeadLiterals()[0]
         .substitute(renameTheta);
 
-      let unifications = headMap.unifies(headLiteral);
+      let unifications = literalMap.unifies(headLiteral);
       // console.log(unificationTheta);
       if (unifications.length === 0) {
         return;
