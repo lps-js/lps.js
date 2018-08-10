@@ -10,37 +10,27 @@ module.exports = function expandLiteral(literalArg, program, usedVariables) {
   let renameTheta = variableArrayRename(usedVariables);
 
   let result = [];
-  program.getClauses()
-    .forEach((clause) => {
-      // assuming horn clauses only
-      let headLiterals = clause.getHeadLiterals();
-      let headLiteral = headLiterals[0].substitute(renameTheta);
-      let unifications = literalTreeMap.unifies(headLiteral);
-      if (unifications.length === 0) {
-        return;
-      }
+  program
+    .getDefinitions(literalTreeMap, renameTheta)
+    .forEach((tuple) => {
+      let bodyLiterals = tuple.definition;
+      let headLiteral = tuple.headLiteral;
+      let theta = tuple.theta;
+      let outputTheta = {};
 
-      unifications.forEach((pair) => {
-        let theta = pair.theta;
-        let outputTheta = {};
-
-        // restore output variables
-        Object.keys(theta)
-          .forEach((varName) => {
-            if (theta[varName] instanceof Variable) {
-              // output variable
-              outputTheta[theta[varName].evaluate()] = new Variable(varName);
-              delete theta[varName];
-            }
-          });
-        let resultingClause = clause.getBodyLiterals()
-          .map(l => l.substitute(theta).substitute(renameTheta));
-
-        result.push({
-          clause: resultingClause,
-          theta: outputTheta,
-          internalTheta: theta
+      // restore output variables
+      Object.keys(theta)
+        .forEach((varName) => {
+          if (theta[varName] instanceof Variable) {
+            // output variable
+            outputTheta[theta[varName].evaluate()] = new Variable(varName);
+            delete theta[varName];
+          }
         });
+
+      result.push({
+        clause: bodyLiterals,
+        theta: theta
       });
     });
   return result;
