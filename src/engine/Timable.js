@@ -60,6 +60,10 @@ function Timable(goal, startTimeArg, endTimeArg) {
 
     return startTime.evaluate() > otherStartTime.evaluate();
   };
+
+  this.toString = function toString() {
+    return 'occurs(' + goal + ', ' + startTime + ', ' + endTime + ')';
+  };
 }
 
 module.exports = Timable;
