@@ -21,10 +21,12 @@ if (args.length > 1) {
   serverPort = Number(args[1]);
 }
 
+let startTime = Date.now();
 LPS.loadFile(file)
   .then((engine) => {
-    console.log('File loaded.');
+    console.log('File loaded in ' + (Date.now() - startTime) + 'ms');
     console.log('Cycle Interval set to ' + engine.getCycleInterval() + 'ms');
+    
     engine.on('postCycle', () => {
       console.log('[ Time ' + engine.getCurrentTime() + ' ] -------------- ' + engine.getLastCycleExecutionTime() + 'ms');
       console.log('Actions:\t' + engine.getLastCycleActions());
@@ -37,7 +39,7 @@ LPS.loadFile(file)
       console.log('');
     });
     engine.on('done', () => {
-      console.log('Execution complete');
+      console.log('Execution complete in ' + (Date.now() - startTime) + 'ms');
       process.exit(0);
     });
     
@@ -46,6 +48,7 @@ LPS.loadFile(file)
       process.exit(1);
     });
     
+    startTime = Date.now();    
     engine.run();
 
     const server = net.createServer((socket) => {
