@@ -1,5 +1,6 @@
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
+const Timable = lpsRequire('engine/Timable');
 
 function sortTimables(conjunction, forTime) {
   let earlyConjuncts = [];
@@ -9,6 +10,12 @@ function sortTimables(conjunction, forTime) {
 
   for (let k = 0; k < conjunction.length; k += 1) {
     let conjunct = conjunction[k];
+
+    if (!(conjunct instanceof Timable)) {
+      // skip over non-Timables
+      continue;
+    }
+
     let conjunctStartTime = conjunct.getStartTime();
     let conjunctEndTime = conjunct.getEndTime();
 
@@ -25,6 +32,16 @@ function sortTimables(conjunction, forTime) {
 
   for (let k = 0; k < conjunction.length; k += 1) {
     let conjunct = conjunction[k];
+
+    if (!(conjunct instanceof Timable)) {
+      if (laterConjuncts.length > 0) {
+        laterConjuncts.push(conjunct);
+      } else {
+        earlyConjuncts.push(conjunct);
+      }
+      continue;
+    }
+
     if (!conjunct.isInRange(forTime)) {
       laterConjuncts.push(conjunct);
       continue;
@@ -32,7 +49,8 @@ function sortTimables(conjunction, forTime) {
 
     let movedToLater = [];
     for (let i = 0; i < earlyConjuncts; i += 1) {
-      if (conjunct.isEarlierThan(earlyConjuncts[i])) {
+      if (earlyConjuncts[i] instanceof Timable
+          && conjunct.isEarlierThan(earlyConjuncts[i])) {
         laterConjuncts = laterConjuncts.concat(earlyConjuncts);
         earlyConjuncts = [conjunct];
       }
