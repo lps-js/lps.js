@@ -40,9 +40,9 @@ shop(T1, T2) <- money(A, T1), checkout(T1, T2).
 checkout(T1, T2) -> lpsHalt.
 
 updates(addToCart(I), money(V), money(V - A), [item(I, A)]).
-initiates(addToCart(I), cartQuantity(I, 1), [not cartQuantity(I, _, T)]).
+initiates(addToCart(I), cartQuantity(I, 1), [not cartQuantity(I, _)]).
 updates(addToCart(I), cartQuantity(I, O), cartQuantity(I, O + 1)).
 updates(addToCart(I), shopQuantity(I, O), shopQuantity(I, O - 1)).
 
-<- shopQuantity(_, Q, _), Q < 0.
-<- money(V, _), V < 0.
+<- shopQuantity(_, Q), Q < 0.
+<- money(V), V < 0.

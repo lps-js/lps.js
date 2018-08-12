@@ -1,0 +1,1 @@
+{"hasFailed":false,"conjuncts":"check(dad, livingroom, T2, T3)","children":[{"hasFailed":false,"conjuncts":"occurs(light(livingroom, on), T2, T2),occurs(goto(dad, livingroom), T2, T3)","children":[{"hasFailed":false,"conjuncts":"occurs(goto(dad, livingroom), 7, T3)"}]},{"hasFailed":false,"conjuncts":"occurs(light(livingroom, off), T, T)"}]}

@@ -19,4 +19,4 @@ adjacent(oz, uz).
 
 country(X) -> colour(C), paint(X, C, T1, T2).
 
-<- paint(X, C, T1, T2), adjacent(X, Y), paint(Y, C, T1, T2).
+<- paint(X, C), adjacent(X, Y), paint(Y, C).

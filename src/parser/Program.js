@@ -237,7 +237,7 @@ function Program(nodeTree, functorProviderArg) {
     _executedActions.forEach((l) => {
       newExecutedActions.add(l);
     });
-    program.setExecutedActions(_executedActions);
+    program.setExecutedActions(newExecutedActions);
     return program;
   };
 
