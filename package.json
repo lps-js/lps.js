@@ -28,7 +28,7 @@
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-deprecate": "^0.5.2",
+    "eslint-plugin-deprecate": "^0.5.4",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-promise": "^3.8.0",
     "mocha": "^5.2.0",
