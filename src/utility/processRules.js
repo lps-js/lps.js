@@ -9,27 +9,11 @@ module.exports = function processRules(program, goals, currentTime) {
   let rules = program.getRules();
 
   let containsTimables = function containsTimables(rule) {
-    let bodyLiterals = rule.getBodyLiterals();
-    let recursiveTimableCheck = (set) => {
-      for (let i = 0; i < set.length; i += 1) {
-        if (program.isTimable(set[i])) {
-          return true;
-        }
-        if (set[i] instanceof Functor) {
-          let subResult = recursiveTimableCheck(set[i].getArguments());
-          if (subResult) {
-            return true;
-          }
-        } else if (set[i] instanceof List) {
-          let subResult = recursiveTimableCheck(set[i].flatten());
-          if (subResult) {
-            return true;
-          }
-        }
-      }
+    let firstConjunct = rule.getBodyLiterals()[0]
+    if (!program.isTimable(firstConjunct.getGoal())) {
       return false;
-    };
-    return recursiveTimableCheck(bodyLiterals);
+    }
+    return !firstConjunct.hasExpired(currentTime);
   };
 
   let newRules = [];
@@ -42,7 +26,7 @@ module.exports = function processRules(program, goals, currentTime) {
       // preserve a rule if it has timeable in its antecedent
       newRules.push(rule);
     }
-    let resolutions = Resolutor.reduceRuleAntecedent(program, rule);
+    let resolutions = Resolutor.reduceRuleAntecedent(program, rule, currentTime);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
@@ -57,7 +41,7 @@ module.exports = function processRules(program, goals, currentTime) {
 
       // remember partially resolved antecedent
       let body = pair.unresolved.map(l => l.substitute(pair.theta));
-      let acceptNewRule = !hasExpiredTimable(body, program, currentTime);
+      let acceptNewRule = !hasExpiredTimable(body, currentTime);
 
       // reject if any antecedent conjunct has expired
       if (acceptNewRule) {
