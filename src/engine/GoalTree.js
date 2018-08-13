@@ -42,115 +42,71 @@ const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, us
   return reductions;
 };
 
-let resolveStateConditions = function resolveStateConditions(program, clause) {
+let resolveStateConditions = function resolveStateConditions(program, earlyConjuncts, forTime) {
   let nodes = [];
-  let processClause = function processClause(
-    unresolvedClause,
-    clauseSoFar,
-    thetaSoFar,
-    variablesSeenSoFar
+
+  let processConjuncts = function processConjuncts(
+    remainingConjuncts,
+    residueConjuncts,
+    thetaSoFar
   ) {
-    if (unresolvedClause.length === 0) {
-      if (clauseSoFar.length >= clause.length) {
+    if (remainingConjuncts.length === 0) {
+      if (residueConjuncts.length === earlyConjuncts.length) {
+        // everything in the earlyConjuncts are actions
         return true;
       }
 
+      let substitutedResidentConjuncts = residueConjuncts.map((c) => {
+        return c.substitute(thetaSoFar);
+      });
+
       nodes.push({
-        clause: clauseSoFar,
+        conjuncts: substitutedResidentConjuncts,
         theta: thetaSoFar
       });
       return true;
     }
-    let conjunct = unresolvedClause[0];
-    let remainingUnresolvedClause = unresolvedClause.slice(1);
+    let conjunct = remainingConjuncts[0]
+      .substitute(thetaSoFar);
+    let goal = conjunct.getGoal();
+
+    let otherConjuncts = remainingConjuncts.slice(1);
 
     let conjunctVariables = conjunct.getVariables();
-    let isConjunctAction = program.isAction(conjunct);
+    let isConjunctAction = program.isAction(goal);
 
-    // variables check
-    let canProceed = true;
-    if (!isConjunctAction) {
-      conjunctVariables.forEach((v) => {
-        if (variablesSeenSoFar[v] !== undefined) {
-          canProceed = false;
-        }
-      });
-
-      // don't attempt to resolve conjuncts that has output variables from earlier conjuncts
-      if (!canProceed) {
-        return processClause(
-          [],
-          clauseSoFar.concat(unresolvedClause),
-          thetaSoFar,
-          variablesSeenSoFar
-        );
-      }
-    }
-    let literalThetas = program.query(conjunct);
+    let literalThetas = program.query(goal);
 
     if (literalThetas.length === 0) {
-      // check for indefinite failure
-      if (conjunct.isGround()) {
-        return false;
+      if (isConjunctAction) {
+        return processConjuncts(
+          otherConjuncts,
+          residueConjuncts.concat([conjunct]),
+          thetaSoFar
+        );
       }
-
-      let newVariablesSeenSoFar = {};
-
-      conjunctVariables.forEach((varName) => {
-        newVariablesSeenSoFar[varName] = true;
-      });
-
-      Object.keys(variablesSeenSoFar).forEach((v) => {
-        newVariablesSeenSoFar[v] = variablesSeenSoFar[v];
-      });
-
-      return processClause(
-        remainingUnresolvedClause,
-        clauseSoFar.concat([conjunct]),
-        thetaSoFar,
-        newVariablesSeenSoFar
-      );
+      return false;
     }
 
+    resolveTimableThetaTiming(conjunct, thetaSoFar, forTime);
     let numFailures = 0;
     literalThetas.forEach((tupleArg) => {
       let tuple = tupleArg;
       let newTheta = {};
-      conjunctVariables.forEach((varName) => {
-        if (tuple.theta[varName] !== undefined) {
-          newTheta[varName] = tuple.theta[varName];
-        }
-      });
+      conjunctVariables
+        .forEach((varName) => {
+          if (tuple.theta[varName] !== undefined) {
+            newTheta[varName] = tuple.theta[varName];
+          }
+        });
       tuple.theta = newTheta;
       let newThetaSoFar = compactTheta(thetaSoFar, tuple.theta);
-      let newVariablesSeenSoFar = {};
 
-      conjunctVariables.forEach((varName) => {
-        newVariablesSeenSoFar[varName] = true;
-      });
-
-      Object.keys(variablesSeenSoFar).forEach((v) => {
-        newVariablesSeenSoFar[v] = variablesSeenSoFar[v];
-      });
-
-      Object.keys(newThetaSoFar).forEach((v) => {
-        if (newThetaSoFar[v] instanceof Variable) {
-          let newVarName = newThetaSoFar[v].evaluate();
-          newVariablesSeenSoFar[newVarName] = true;
-          delete newVariablesSeenSoFar[v];
-        }
-      });
-
-      let substitutedClauseSoFar = clauseSoFar.map((c) => {
-        return c.substitute(newThetaSoFar);
-      });
-
-      let substitutedRemainingUnresolvedClause = remainingUnresolvedClause.map((c) => {
-        return c.substitute(newThetaSoFar);
-      });
-
-      let remainingClause = substitutedClauseSoFar.concat(substitutedRemainingUnresolvedClause);
-      let subResult = processClause([], remainingClause, newThetaSoFar, newVariablesSeenSoFar);
+      let subResult = processConjuncts(
+        [],
+        residueConjuncts.concat(otherConjuncts),
+        newThetaSoFar
+      );
       if (!subResult) {
         numFailures += 1;
       }
