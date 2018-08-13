@@ -4,12 +4,6 @@
   "description": "Logic Production Systems (LPS) interpreter written in JavaScript",
   "main": "index.js",
   "repository": "https://github.com/mauris/lps.js.git",
-  "bin": {
-    "lps": "./bin/lps",
-    "lps-test": "./bin/test",
-    "lps-p2p-tracker": "./bin/tracker",
-    "lps-generate-spec": "./bin/generate-spec"
-  },
   "scripts": {
     "test": "npm run test:source && npm run test:programs",
     "test:browser": "echo TODO",
@@ -23,7 +17,7 @@
     "email": "samyonggit@gmail.com",
     "url": "http://mauris.sg/"
   },
-  "license": "MIT",
+  "private": true,
   "devDependencies": {
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
