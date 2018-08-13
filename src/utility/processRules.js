@@ -11,7 +11,10 @@ module.exports = function processRules(program, goals, currentTime) {
 
   let containsTimables = function containsTimables(rule) {
     let firstConjunct = rule.getBodyLiterals()[0];
-    // console.log(''+firstConjunct);
+    while (firstConjunct instanceof Functor
+        && firstConjunct.getId() === '!/1') {
+      firstConjunct = firstConjunct.getArguments()[0];
+    }
     if (program.isTimable(firstConjunct)) {
       return true;
     }
