@@ -1,9 +1,23 @@
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 
+const timableName = 'occurs';
+
 function Timable(goal, startTimeArg, endTimeArg) {
   let startTime = startTimeArg;
   let endTime = endTimeArg;
+
+  this.getName = function getName() {
+    return timableName;
+  };
+
+  this.getArguments = function getArguments() {
+    return [goal, startTime, endTime];
+  };
+
+  this.getArgumentCount = function getArguments() {
+    return 3;
+  };
 
   this.getGoal = function getGoal() {
     return goal;
@@ -28,15 +42,32 @@ function Timable(goal, startTimeArg, endTimeArg) {
       && endTime.evaluate() < currentTime;
   };
 
-  this.update = function update(theta) {
-    if (startTime instanceof Variable
-        && theta[startTime.evaluate()] !== undefined) {
-      startTime = theta[startTime.evaluate()];
+  this.isAnytime = function isAnytime() {
+    return startTime instanceof Variable;
+  };
+
+  this.substitute = function substitute(theta) {
+    let updatedGoal = goal.substitute(theta);
+    let newStartTime = startTime.substitute(theta);
+    let newEndTime = endTime.substitute(theta);
+    return new Timable(updatedGoal, newStartTime, newEndTime);
+  };
+
+  this.getVariables = function getVariables() {
+    let hash = {};
+    if (startTime instanceof Variable) {
+      hash[startTime.evaluate()] = true;
     }
-    if (endTime instanceof Variable
-        && theta[endTime.evaluate()] !== undefined) {
-      endTime = theta[endTime.evaluate()];
+    if (endTime instanceof Variable) {
+      hash[endTime.evaluate()] = true;
     }
+
+    goal.getVariables()
+      .forEach((argVar) => {
+        hash[argVar] = true;
+      });
+
+    return Object.keys(hash);
   };
 
   this.isEarlierThan = function isEarlierThan(other) {
