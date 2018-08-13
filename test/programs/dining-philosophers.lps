@@ -35,5 +35,5 @@ dine(P, T1, T3) <-
 terminates(pickup(P, F), available(F)).
 initiates(putdown(P, F), available(F)).
 
-<-	pickup(P, F, T, T1), not available(F, T).
-<-	pickup(P1, F, T, T1), pickup(P2, F, T, T1), P1 != P2.
+<-	pickup(P, F), not available(F).
+<-	pickup(P1, F), pickup(P2, F), P1 != P2.

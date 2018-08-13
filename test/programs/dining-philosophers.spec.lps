@@ -6,34 +6,34 @@ expect_num_of(fluent, 1, 5).
   expect(fluent, 1, available(fork5)).
 
 expect_num_of(fluent, 2, 1).
-  expect(fluent, 2, available(fork5)).
+  expect(fluent, 2, available(fork2)).
 expect_num_of(action, 1, 2, 4).
-  expect(action, 1, 2, pickup(socrates, fork1)).
-  expect(action, 1, 2, pickup(socrates, fork2)).
+  expect(action, 1, 2, pickup(kant, fork5)).
+  expect(action, 1, 2, pickup(kant, fork1)).
   expect(action, 1, 2, pickup(aristotle, fork3)).
   expect(action, 1, 2, pickup(aristotle, fork4)).
 expect_num_of(observation, 1, 2, 0).
 
 expect_num_of(fluent, 3, 5).
-  expect(fluent, 3, available(fork5)).
-  expect(fluent, 3, available(fork1)).
   expect(fluent, 3, available(fork2)).
   expect(fluent, 3, available(fork3)).
   expect(fluent, 3, available(fork4)).
+  expect(fluent, 3, available(fork5)).
+  expect(fluent, 3, available(fork1)).
 expect_num_of(action, 2, 3, 4).
-  expect(action, 2, 3, putdown(socrates, fork1)).
-  expect(action, 2, 3, putdown(socrates, fork2)).
   expect(action, 2, 3, putdown(aristotle, fork3)).
   expect(action, 2, 3, putdown(aristotle, fork4)).
+  expect(action, 2, 3, putdown(kant, fork5)).
+  expect(action, 2, 3, putdown(kant, fork1)).
 expect_num_of(observation, 2, 3, 0).
 
 expect_num_of(fluent, 4, 1).
   expect(fluent, 4, available(fork1)).
 expect_num_of(action, 3, 4, 4).
-  expect(action, 3, 4, pickup(plato, fork2)).
-  expect(action, 3, 4, pickup(plato, fork3)).
   expect(action, 3, 4, pickup(hume, fork4)).
   expect(action, 3, 4, pickup(hume, fork5)).
+  expect(action, 3, 4, pickup(plato, fork2)).
+  expect(action, 3, 4, pickup(plato, fork3)).
 expect_num_of(observation, 3, 4, 0).
 
 expect_num_of(fluent, 5, 5).
@@ -50,22 +50,22 @@ expect_num_of(action, 4, 5, 4).
 expect_num_of(observation, 4, 5, 0).
 
 expect_num_of(fluent, 6, 3).
-  expect(fluent, 6, available(fork2)).
   expect(fluent, 6, available(fork3)).
   expect(fluent, 6, available(fork4)).
+  expect(fluent, 6, available(fork5)).
 expect_num_of(action, 5, 6, 2).
-  expect(action, 5, 6, pickup(kant, fork5)).
-  expect(action, 5, 6, pickup(kant, fork1)).
+  expect(action, 5, 6, pickup(socrates, fork1)).
+  expect(action, 5, 6, pickup(socrates, fork2)).
 expect_num_of(observation, 5, 6, 0).
 
 expect_num_of(fluent, 7, 5).
-  expect(fluent, 7, available(fork2)).
   expect(fluent, 7, available(fork3)).
   expect(fluent, 7, available(fork4)).
   expect(fluent, 7, available(fork5)).
   expect(fluent, 7, available(fork1)).
+  expect(fluent, 7, available(fork2)).
 expect_num_of(action, 6, 7, 2).
-  expect(action, 6, 7, putdown(kant, fork5)).
-  expect(action, 6, 7, putdown(kant, fork1)).
+  expect(action, 6, 7, putdown(socrates, fork1)).
+  expect(action, 6, 7, putdown(socrates, fork2)).
 expect_num_of(observation, 6, 7, 0).
 
