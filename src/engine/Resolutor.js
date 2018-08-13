@@ -1,6 +1,7 @@
 const Functor = lpsRequire('engine/Functor');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Variable = lpsRequire('engine/Variable');
+const Timable = lpsRequire('engine/Timable');
 const Value = lpsRequire('engine/Value');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
@@ -74,7 +75,7 @@ Resolutor.explain =
     }
 
     let query = queryArg;
-    if (query instanceof Functor) {
+    if (query instanceof Functor || query instanceof Timable) {
       query = [query];
     }
 
@@ -86,9 +87,10 @@ Resolutor.explain =
         });
         return result;
       }
-
-      let literal = remainingLiterals[0]
+      let conjunct = remainingLiterals[0]
         .substitute(thetaSoFar);
+      let literal = conjunct
+        .getGoal();
 
       let literalThetas = [];
       let substitutedInstances = Resolutor
@@ -113,7 +115,7 @@ Resolutor.explain =
       variablesInUse = Object.keys(variablesInUse);
       let renameTheta = variableArrayRename(variablesInUse);
       let literalMap = new LiteralTreeMap();
-      literalMap.add(literal);
+      literalMap.add(conjunct);
       program
         .getDefinitions(literalMap, variablesInUse)
         .forEach((tuple) => {
