@@ -1,6 +1,7 @@
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const List = lpsRequire('engine/List');
+const Timable = lpsRequire('engine/Timable');
 const Functor = lpsRequire('engine/Functor');
 
 let assertIsValue = function assertIsValue(val) {
@@ -79,17 +80,12 @@ module.exports = (engine, program) => {
   let functors = {
     '!/1': function (literalArg) {
       let literal = literalArg;
-      if (!(literal instanceof Functor)) {
-        throw new Error('Literal not functor in !/1 argument');
+      if (!(literal instanceof Functor) && !(literal instanceof Timable)) {
+        throw new Error('Literal not functor or timable in !/1 argument');
       }
       let theta = {};
 
       let thisProgram = this.getProgram();
-      if (thisProgram.isFluent(literal) && thisProgram.isTimableUntimed(literal)) {
-        let literalArguments = literal.getArguments();
-        let timeArg = literalArguments[literalArguments.length - 1];
-        theta[timeArg.evaluate()] = new Value(engine.getCurrentTime());
-      }
       let queryResult = thisProgram.query(literal);
       let result = [];
       if (queryResult.length === 0) {
