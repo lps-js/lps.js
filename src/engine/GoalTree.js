@@ -490,7 +490,15 @@ function GoalTree(program, goalClause) {
   let _evaluateQueue = [_root];
 
   this.getEarliestDeadline = function getEarliestDeadline(currentTime) {
-    return _root.getEarliestDeadline(currentTime);
+    let earliestDeadline = null;
+    for (let i = 0; i < _evaluateQueue.length; i += 1) {
+      let earliestForNode = _evaluateQueue[i].getEarliestDeadline(currentTime);
+      if (earliestDeadline === null
+          || (earliestForNode < earliestDeadline)) {
+        earliestDeadline = earliestForNode;
+      }
+    }
+    return earliestDeadline;
   };
 
   this.getRootClause = function () {
