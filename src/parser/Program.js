@@ -6,6 +6,7 @@ const AstNode = lpsRequire('parser/AstNode');
 const List = lpsRequire('engine/List');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
+const Timable = lpsRequire('engine/Timable');
 const Resolutor = lpsRequire('engine/Resolutor');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Parser = lpsRequire('parser/Parser');
@@ -195,7 +196,6 @@ function Program(nodeTree, functorProviderArg) {
   let _fluents = {};
   let _actions = {};
   let _events = {};
-  let _intensionals = {};
 
   let _functorProvider;
   if (functorProviderArg === undefined) {
@@ -249,8 +249,11 @@ function Program(nodeTree, functorProviderArg) {
 
   let processLiteralId = function processLiteralId(literalArg) {
     let result = literalArg;
-    if (literalArg instanceof Functor) {
-      let literal = literalArg;
+    if (result instanceof Timable) {
+      result = result.getGoal();
+    }
+    if (result instanceof Functor) {
+      let literal = result;
       while (literal instanceof Functor && literal.getId() === '!/1') {
         literal = literal.getArguments()[0];
       }
@@ -266,7 +269,6 @@ function Program(nodeTree, functorProviderArg) {
     }
 
     _fluents[id] = true;
-    _intensionals = buildIntensionalSet(this);
   };
 
   this.defineAction = function defineAction(action) {
@@ -276,7 +278,6 @@ function Program(nodeTree, functorProviderArg) {
     }
 
     _actions[id] = true;
-    _intensionals = buildIntensionalSet(this);
   };
 
   this.defineEvent = function defineEvent(event) {
@@ -286,7 +287,6 @@ function Program(nodeTree, functorProviderArg) {
     }
 
     _events[id] = true;
-    _intensionals = buildIntensionalSet(this);
   };
 
   this.isFluent = function isFluent(literal) {
@@ -327,8 +327,7 @@ function Program(nodeTree, functorProviderArg) {
     let id = processLiteralId(timable);
     return _fluents[id] !== undefined
       || _actions[id] !== undefined
-      || _events[id] !== undefined
-      || _intensionals[id] !== undefined;
+      || _events[id] !== undefined;
   };
 
   this.getFacts = function getFacts() {
@@ -345,7 +344,6 @@ function Program(nodeTree, functorProviderArg) {
 
   this.setClauses = function setClauses(clauses) {
     _clauses = clauses;
-    _intensionals = buildIntensionalSet(this);
   };
 
   this.getConstraints = function getConstraints() {
@@ -404,12 +402,12 @@ function Program(nodeTree, functorProviderArg) {
 
     _clauses.forEach((clause) => {
       // horn clause guarantees only one literal
-      let headLiteral = clause
-        .getHeadLiterals()[0]
+      let headLiterals = clause
+        .getHeadLiterals();
+      let headLiteral = headLiterals[0]
         .substitute(renameTheta);
 
       let unifications = literalMap.unifies(headLiteral);
-      // console.log(unificationTheta);
       if (unifications.length === 0) {
         return;
       }
@@ -449,7 +447,6 @@ function Program(nodeTree, functorProviderArg) {
       .forEach((fact) => {
         _facts.add(fact);
       });
-    _intensionals = buildIntensionalSet(this);
   };
 
   if (nodeTree instanceof AstNode) {
