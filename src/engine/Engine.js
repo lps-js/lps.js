@@ -302,9 +302,8 @@ function Engine(program, workingDirectory) {
     cloneProgram.setExecutedActions(new LiteralTreeMap());
 
     // process observations
-    let nextTime = _currentTime + 1;
     _observations[_currentTime].forEach((ob) => {
-      let action = ob.action
+      let action = ob.action;
 
       let tempTreeMap = new LiteralTreeMap();
       tempTreeMap.add(action);
@@ -334,6 +333,7 @@ function Engine(program, workingDirectory) {
         });
       }
 
+      let nextTime = _currentTime + 1;
       if (ob.endTime > nextTime) {
         if (_observations[nextTime] === undefined) {
           _observations[nextTime] = [];
@@ -551,7 +551,8 @@ function Engine(program, workingDirectory) {
         typeof val
       ));
     }
-    if (newCycleInterval <= 0 || !Number.isInteger(newCycleInterval)) {
+    if (newCycleInterval <= 0
+        || !Number.isInteger(newCycleInterval)) {
       throw new Error(stringLiterals('engine.nonPositiveIntegerCycleInterval', newCycleInterval));
     }
     if (_isRunning) {
@@ -675,7 +676,8 @@ function Engine(program, workingDirectory) {
   };
 
   this.hasHalted = function hasHalted() {
-    return _maxTime !== null && _currentTime >= _maxTime;
+    return _maxTime !== null
+      && _currentTime >= _maxTime;
   };
 
   this.halt = function halt() {
@@ -818,7 +820,8 @@ function Engine(program, workingDirectory) {
   this.scheduleObservation = function scheduleObservation(observation, startTimeArg, endTimeArg) {
     let startTime = startTimeArg;
     let endTime = endTimeArg;
-    if (startTime === undefined || startTime < _currentTime) {
+    if (startTime === undefined
+        || startTime < _currentTime) {
       throw new Error('Invalid start time for observation scheduling for ' + observation);
     }
 
