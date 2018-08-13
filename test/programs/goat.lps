@@ -70,5 +70,5 @@ makeLoc(Object, Location, T, T) <-
 updates(transport(O, L1, L2), loc(O, L1), loc(O, L2)).
 updates(row(L1, L2), loc(farmer, L1), loc(farmer, L2)).
 
-<- transport(O1, L1, L2, T1, T2), transport(O2, L1, L2, T1, T2), O1 != O2.
-<- row(south, north, T1, T2), row(north, south, T1, T2).
+<- transport(O1, L1, L2), transport(O2, L1, L2), O1 != O2.
+<- row(south, north), row(north, south).
