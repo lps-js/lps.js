@@ -1,14 +1,16 @@
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
 const Functor = lpsRequire('engine/Functor');
+const Timable = lpsRequire('engine/Timable');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
-const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 const TimableHelper = lpsRequire('utility/TimableHelper');
 const dedupeConjunction = lpsRequire('utility/dedupeConjunction');
+const sortTimables = lpsRequire('utility/sortTimables');
+const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming');
 
 const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, usedVariables) {
   let reductions = [];
