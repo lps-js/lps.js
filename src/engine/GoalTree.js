@@ -454,7 +454,6 @@ function GoalNode(program, conjunctsArg, theta) {
       processedNodes.add(this.conjuncts, nodeResult);
       return nodeResult;
     }
-    // this.children = this.children.concat(newChildren);
 
     if (!isFirstConjunctUntimed
         && newChildren.length > 0
