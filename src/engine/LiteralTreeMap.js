@@ -1,4 +1,5 @@
 const Functor = lpsRequire('engine/Functor');
+const Timable = lpsRequire('engine/Timable');
 const List = lpsRequire('engine/List');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
@@ -83,13 +84,20 @@ function LiteralTreeMap() {
 
     if (literal instanceof List) {
       args = literal.flatten();
-    } else if (literal instanceof Functor) {
+    } else if (literal instanceof Functor || literal instanceof Timable) {
       createSubtreeIfNotExist(node, literal.getName());
       node = node._tree[literal.getName()];
       args = literal.getArguments();
     }
+
     let lastNodeRep = args.length;
     createSubtreeIfNotExist(node, args.length);
+    if (args.length === 0) {
+      _count += 1;
+      node._size += 1;
+      node._tree[lastNodeRep] = value;
+      return;
+    }
 
     args.forEach((arg, idx) => {
       node = node._tree[lastNodeRep];
@@ -137,6 +145,7 @@ function LiteralTreeMap() {
     });
 
     if (node._tree[lastNodeRep] !== undefined) {
+      // replacement
       node._tree[lastNodeRep] = value;
       return;
     }
@@ -150,7 +159,7 @@ function LiteralTreeMap() {
   let flattenLiteral = function flattenLiteral(literal) {
     let args = literal;
     let result = [];
-    if (literal instanceof Functor) {
+    if (literal instanceof Functor || literal instanceof Timable) {
       result.push(literal.getName());
       args = literal.getArguments();
     }
@@ -164,7 +173,7 @@ function LiteralTreeMap() {
     let path = [];
     if (literal instanceof List) {
       args = literal.flatten();
-    } else if (literal instanceof Functor) {
+    } else if (literal instanceof Functor || literal instanceof Timable) {
       path.push(literal.getName());
       args = literal.getArguments();
     }
@@ -315,7 +324,9 @@ function LiteralTreeMap() {
     let result = [];
 
     let recursiveBuild = (node) => {
-      if (node instanceof Functor || node instanceof Array) {
+      if (node instanceof Functor
+          || node instanceof Timable
+          || node instanceof Array) {
         result.push(node);
         return;
       }
@@ -330,7 +341,9 @@ function LiteralTreeMap() {
 
   this.forEach = function forEach(callback) {
     let recursiveTraverse = (node) => {
-      if (node instanceof Functor || node instanceof Array) {
+      if (node instanceof Functor
+          || node instanceof Timable
+          || node instanceof Array) {
         callback(node);
         return;
       }
@@ -348,8 +361,10 @@ function LiteralTreeMap() {
       existingTheta = {};
     }
 
-    if (!(literal instanceof Functor) && !(literal instanceof List)) {
-      throw new Error('Literal is not a functor or list');
+    if (!(literal instanceof Functor)
+        && !(literal instanceof Timable)
+        && !(literal instanceof List)) {
+      throw new Error('Literal is not a functor, timable or list');
     }
 
     let recursiveUnification = (path, node, i, thetaArg) => {
@@ -497,7 +512,9 @@ function LiteralTreeMap() {
       }
 
       // the case of complex terms
-      if (current instanceof Functor || current instanceof List) {
+      if (current instanceof Functor
+          || current instanceof Timable
+          || current instanceof List) {
         // some matching functors!
         if (_argumentTreeSymbol !== null) {
           // pass existing theta
