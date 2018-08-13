@@ -13,4 +13,4 @@ trash(Object, T1) -> bin(Container, T1), dispose(Object, Container, T2, T3).
 terminates(unlock(Container), locked(Container)).
 terminates(dispose(Object, X), trash(Object)).
 
-<- dispose(_, Container, T1, T2), locked(Container, T1).
+<- dispose(_, Container), locked(Container).

@@ -1,7 +1,7 @@
 % concurrentTowers.lps
 
 maxTime(10).
-cycleInterval(500).
+cycleInterval(300).
 
 fluent(location(_, _)).
 action(move(_, _)).
