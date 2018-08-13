@@ -1,6 +1,6 @@
 # Watch this: https://i.imgur.com/DYNIfoG.mp4
 
-maxTime(8).
+maxTime(10).
 fluents([thirsty(_), empty(_), drinking(_)]).
 actions([
   reach(P, C, H),
