@@ -21,6 +21,10 @@ function Functor(name, args) {
     return this.toString();
   };
 
+  this.getGoal = function getGoal() {
+    return this;
+  }
+
   this.getArgumentCount = function getArgumentCount() {
     return _argsCount;
   };
