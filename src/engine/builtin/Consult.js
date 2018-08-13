@@ -82,8 +82,7 @@ function Consult(engine, targetProgram) {
     result = result.concat(currentProgram.query(consultLiteral2));
 
     let handleEntry = (theta) => {
-      if (!(theta.File instanceof Value)
-          && !(theta.File instanceof Functor)) {
+      if (!(theta.File instanceof Functor)) {
         return Promise.reject('Consult file not value');
       }
       let promise;
@@ -92,19 +91,19 @@ function Consult(engine, targetProgram) {
         // work path from the current working directory given
         filepath = path.resolve(workingDirectory, filepath);
       }
-      if (theta.Id === undefined || !(theta.Id instanceof Value)) {
+      if (theta.Id === undefined || !(theta.Id instanceof Functor)) {
         promise = this.consultFile(filepath);
       } else {
         promise = this.consultFile(filepath, theta.Id.evaluate());
       }
 
-      promise.then((loadedProgram) => {
-        // recursively process consult declarations in loaded targetProgram
-        // also pass in the working directory from this loaded file
-        return processConsultDeclarations
-          .call(this, loadedProgram, path.dirname(filepath));
-      });
-      return promise;
+      return promise
+        .then((loadedProgram) => {
+          // recursively process consult declarations in loaded targetProgram
+          // also pass in the working directory from this loaded file
+          return processConsultDeclarations
+            .call(this, loadedProgram, path.dirname(filepath));
+        });
     };
 
     result.forEach((r) => {
@@ -115,7 +114,7 @@ function Consult(engine, targetProgram) {
         let files = r.theta.File.flatten();
         files.forEach((file) => {
           let theta = {};
-          theta.File = new Value(file);
+          theta.File = new Functor(file, []);
           theta.Id = r.theta.Id;
           promises.push(handleEntry(theta));
         });
