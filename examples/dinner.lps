@@ -22,4 +22,4 @@ dinner(T1, T2) <- buy_steak(5, T1, T2).
 updates(buy_chicken(A), money(V), money(V - A)).
 updates(buy_steak(A), money(V), money(V - A)).
 
-<- money(V, _), V < 0.
+<- money(V), V < 0.

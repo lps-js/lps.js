@@ -14,6 +14,6 @@ transfer(bob, fariba, X, T1, T2), balance(fariba, A, T2), A >= 20 ->
 updates(transfer(F, T, A), balance(T, Old), balance(T, Old + A)).
 updates(transfer(F, T, A), balance(F, Old), balance(F, Old - A)).
 
-<-	transfer(From, To, Amount), balance(From, Old), Old < Amount.
-<-	transfer(From, To1, Amount1), transfer(From, To2, Amount2),  To1 != To2.
-<-	transfer(From1, To, Amount1), transfer(From2, To, Amount2),  From1 != From2.
+% <- transfer(From, To, Amount), balance(From, Old), Old < Amount.
+% <- transfer(From, To1, Amount1), transfer(From, To2, Amount2), To1 != To2.
+% <- transfer(From1, To, Amount1), transfer(From2, To, Amount2), From1 != From2.
