@@ -1,9 +1,13 @@
 const Functor = lpsRequire('engine/Functor');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
+const Variable = lpsRequire('engine/Variable');
+const Value = lpsRequire('engine/Value');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
+const sortTimables = lpsRequire('utility/sortTimables');
+const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming');
 
-function Resolutor() {}
+let Resolutor = {};
 
 Resolutor.handleBuiltInFunctorArgumentInLiteral =
   function handleBuiltInFunctorArgumentInLiteral(functorProvider, literal) {
@@ -169,7 +173,7 @@ Resolutor.explain =
   };
 
 Resolutor.reduceRuleAntecedent =
-  function reduceRuleAntecedent(program, rule) {
+  function reduceRuleAntecedent(program, rule, forTime) {
     let facts = [
       program.getFacts(),
       program.getState(),
@@ -177,16 +181,18 @@ Resolutor.reduceRuleAntecedent =
     ];
     let functorProvider = program.getFunctorProvider();
 
-    let recursiveResolution = function (result, remainingLiterals, theta) {
+    let recursiveResolution = function (result, remainingLiterals, theta, laterAntecedent) {
       if (remainingLiterals.length === 0) {
         result.push({
           theta: theta,
-          unresolved: []
+          unresolved: laterAntecedent
         });
         return;
       }
-
-      let literal = remainingLiterals[0].substitute(theta);
+      let conjunct = remainingLiterals[0]
+        .substitute(theta);
+      let literal = conjunct
+        .getGoal();
       let literalThetas = [];
       let substitutedInstances = Resolutor
         .handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
@@ -198,29 +204,32 @@ Resolutor.reduceRuleAntecedent =
       });
 
       if (literalThetas.length === 0) {
-        if (literal.isGround()) {
-          // indefinite failures
+        if (!program.isTimable(literal)) {
           return;
         }
         result.push({
           theta: theta,
-          unresolved: remainingLiterals.concat([])
+          unresolved: remainingLiterals.concat(laterAntecedent)
         });
         return;
       }
 
+      resolveTimableThetaTiming(conjunct, theta, forTime);
       literalThetas.forEach((t) => {
+        let updatedTheta = compactTheta(theta, t.theta);
         recursiveResolution(
           result,
           remainingLiterals.slice(1, remainingLiterals.length),
-          compactTheta(theta, t.theta)
+          updatedTheta,
+          laterAntecedent
         );
       });
     };
 
     let literals = rule.getBodyLiterals();
+    let pair = sortTimables(literals, forTime);
     let thetaSet = [];
-    recursiveResolution(thetaSet, literals, {});
+    recursiveResolution(thetaSet, pair[0], {}, pair[1]);
     return thetaSet;
   };
 
