@@ -2,6 +2,7 @@ const Clause = lpsRequire('engine/Clause');
 const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const GoalTree = lpsRequire('engine/GoalTree');
 const Functor = lpsRequire('engine/Functor');
+const Timable = lpsRequire('engine/Timable');
 const List = lpsRequire('engine/List');
 const Resolutor = lpsRequire('engine/Resolutor');
 
@@ -9,11 +10,15 @@ module.exports = function processRules(program, goals, currentTime) {
   let rules = program.getRules();
 
   let containsTimables = function containsTimables(rule) {
-    let firstConjunct = rule.getBodyLiterals()[0]
-    if (!program.isTimable(firstConjunct.getGoal())) {
+    let firstConjunct = rule.getBodyLiterals()[0];
+    // console.log(''+firstConjunct);
+    if (program.isTimable(firstConjunct)) {
+      return true;
+    }
+    if (!(firstConjunct instanceof Timable)) {
       return false;
     }
-    return !firstConjunct.hasExpired(currentTime);
+    return firstConjunct.isAnytime();
   };
 
   let newRules = [];
