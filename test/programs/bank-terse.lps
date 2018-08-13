@@ -19,6 +19,6 @@ observe(transfer(fariba, bob, 10), 2).
 transfer(fariba, bob, _, T1, T2) -> transfer(bob, fariba, 10, T2, T3).
 transfer(bob, fariba, _, T1, T2) -> transfer(fariba, bob, 20, T2, T3).
 
-<-	transfer(From, To, Amount, T1, T2), balance(From, Old, T1), Old < Amount.
-<-	transfer(From, To1, Amount1, T1, T2), transfer(From, To2, Amount2, T1, T2),  To1 != To2.
-<-	transfer(From1, To, Amount1, T1, T2), transfer(From2, To, Amount2, T1, T2),  From1 != From2.
+<-	transfer(From, To, Amount), balance(From, Old), Old < Amount.
+<-	transfer(From, To1, Amount1), transfer(From, To2, Amount2),  To1 != To2.
+<-	transfer(From1, To, Amount1), transfer(From2, To, Amount2),  From1 != From2.
