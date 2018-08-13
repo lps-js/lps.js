@@ -10,9 +10,10 @@ const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 const TimableHelper = lpsRequire('utility/TimableHelper');
 const dedupeConjunction = lpsRequire('utility/dedupeConjunction');
 
-const reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, usedVariables) {
+const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, usedVariables) {
   let reductions = [];
 
+  let goal = conjunct.getGoal();
   let renameTheta = variableArrayRename(usedVariables);
   let hasNewRenames = false;
   let processRenameTheta = (varName) => {
@@ -28,13 +29,12 @@ const reduceCompositeEvent = function reduceCompositeEvent(eventAtom, program, u
   } while (hasNewRenames);
 
   program
-    .getDefinitions(eventAtom, renameTheta)
+    .getDefinitions(conjunct, renameTheta)
     .forEach((tuple) => {
       let theta = tuple.theta;
       let definition = tuple.definition;
-
       reductions.push({
-        clause: definition,
+        conjuncts: definition,
         theta: theta
       });
     });
