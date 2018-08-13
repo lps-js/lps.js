@@ -518,9 +518,6 @@ function Engine(program, workingDirectory) {
           })
           .then(() => {
             _goals = newGoals;
-            _goals.forEach((goalTree, idx) => {
-              fs.writeFileSync('tree-' + _currentTime + '-' + idx + '.json', goalTree.toJSON());
-            });
 
             // ensure goal trees are sorted by their deadlines
             _goals.sort(goalTreeSorter(_currentTime));
