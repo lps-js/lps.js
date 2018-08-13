@@ -1,13 +1,11 @@
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Variable = lpsRequire('engine/Variable');
-const variableArrayRename = lpsRequire('utility/variableArrayRename');
 
-module.exports = function expandLiteral(literalArg, program, usedVariables) {
+module.exports = function expandLiteral(literalArg, program, renameTheta) {
   let literal = literalArg;
 
   let literalTreeMap = new LiteralTreeMap();
   literalTreeMap.add(literal);
-  let renameTheta = variableArrayRename(usedVariables);
 
   let result = [];
   program

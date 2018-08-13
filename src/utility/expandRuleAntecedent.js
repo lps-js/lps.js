@@ -1,4 +1,5 @@
 const expandLiteral = lpsRequire('utility/expandLiteral');
+const variableArrayRename = lpsRequire('utility/variableArrayRename');
 
 module.exports = function expandRuleAntecedent(result, literals, thetaPath, program) {
   let isLeaf = true;
@@ -11,13 +12,14 @@ module.exports = function expandRuleAntecedent(result, literals, thetaPath, prog
     });
   });
   usedVariables = Object.keys(usedVariables);
+  let renameTheta = variableArrayRename(usedVariables);
 
   for (let i = 0; i < literalsLength; i += 1) {
     let literal = literals[i];
     let otherLiteralsFront = literals.slice(0, i);
     let otherLiteralsBack = literals.slice(i + 1, literalsLength);
 
-    let expansionResult = expandLiteral(literal, program, usedVariables);
+    let expansionResult = expandLiteral(literal, program, renameTheta);
     if (expansionResult.length > 0) {
       isLeaf = false;
     }
