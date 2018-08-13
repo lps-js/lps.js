@@ -44,7 +44,10 @@ module.exports = {
     'not',
     'true',
     'false',
-    'fail'
+    'fail',
+    'from',
+    'to',
+    'at'
   ],
   constantDelimiterEscapeChar: '\\',
   unquotedConstantStartTest: /^[a-z]$/,
