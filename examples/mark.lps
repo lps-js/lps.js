@@ -41,5 +41,5 @@ initiates(sip(Person, C), empty(C)).
 
 terminates(refill(C), empty(C)).
 
-<- reach(Person, C, H, T1, T2), drinking(P, T1).
-<- sip(Person, C, T1, T2), empty(C, T1).
+<- reach(Person, C, H), drinking(P).
+<- sip(Person, C), empty(C).
