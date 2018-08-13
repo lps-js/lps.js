@@ -42,5 +42,5 @@ check(dad, Place, T, T) <-
 updates(switch(Person, Place, New), light(Place, _), light(Place, New)).
 updates(goto(Person, Place), location(Person, _), location(Person, Place)).
 
-<- goto(dad, Place1, T1, T2), goto(dad, Place2, T1, T2), Place1 != Place2.
-<- goto(Person, _, T1, T2), switch(Person, _, _, T1, T2).
+<- goto(dad, Place1), goto(dad, Place2), Place1 != Place2.
+<- goto(Person, _), switch(Person, _, _).
