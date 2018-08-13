@@ -3,6 +3,7 @@ const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Value = lpsRequire('engine/Value');
 const Clause = lpsRequire('engine/Clause');
 const List = lpsRequire('engine/List');
+const Functor = lpsRequire('engine/Functor');
 const path = require('path');
 
 const consultLiteral1 = Program.literal('consult(File)');
@@ -81,8 +82,9 @@ function Consult(engine, targetProgram) {
     result = result.concat(currentProgram.query(consultLiteral2));
 
     let handleEntry = (theta) => {
-      if (!(theta.File instanceof Value)) {
-        return Promise.reject();
+      if (!(theta.File instanceof Value)
+          && !(theta.File instanceof Functor)) {
+        return Promise.reject('Consult file not value');
       }
       let promise;
       let filepath = theta.File.evaluate();
