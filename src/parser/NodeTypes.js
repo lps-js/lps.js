@@ -8,6 +8,8 @@ module.exports = {
   Functor: Symbol('Functor'),
   ListHead: Symbol('ListHead'),
   List: Symbol('List'),
+  Negation: Symbol('Negation'),
+  Timable: Symbol('Timable'),
   BinaryOperator: Symbol('BinaryOperator'),
   UnaryOperator: Symbol('UnaryOperator'),
   Symbol: Symbol('Symbol')
