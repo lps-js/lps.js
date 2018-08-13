@@ -11,6 +11,7 @@ const TimableHelper = lpsRequire('utility/TimableHelper');
 const dedupeConjunction = lpsRequire('utility/dedupeConjunction');
 const sortTimables = lpsRequire('utility/sortTimables');
 const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming');
+const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 
 const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, usedVariables) {
   let reductions = [];
@@ -232,17 +233,6 @@ const processArgumentFunctorsInClause = function processArgumentFunctorsInClause
   return newChildren;
 };
 
-const isGoalTimeValid = (program, conjunction, forTime) => {
-  for (let i = 0; i < conjunction.length; i += 1) {
-    let conjunct = conjunction[i];
-    if (conjunct instanceof Timable
-        && conjunct.hasExpired(forTime)) {
-      return false;
-    }
-  }
-  return true;
-};
-
 function GoalNode(program, conjunctsArg, theta) {
   // deduplicate terms in the conjunction
   this.conjuncts = dedupeConjunction(conjunctsArg);
@@ -280,6 +270,7 @@ function GoalNode(program, conjunctsArg, theta) {
       });
       return earliestDeadline;
     }
+
     this.children.forEach((childNode) => {
       let deadline = childNode.getEarliestDeadline(currentTime);
       if (deadline === null) {
@@ -326,7 +317,7 @@ function GoalNode(program, conjunctsArg, theta) {
       return cachedValue;
     }
 
-    if (!isGoalTimeValid(program, this.conjuncts, forTime)) {
+    if (hasExpiredTimable(this.conjuncts, forTime)) {
       processedNodes.add(this.conjuncts, null);
       return null;
     }
@@ -428,7 +419,7 @@ function GoalNode(program, conjunctsArg, theta) {
 
     // check for expired conjuncts
     reductionResult = reductionResult.filter((n) => {
-      return isGoalTimeValid(program, n[0], forTime);
+      return !hasExpiredTimable(n[0], forTime);
     });
 
     let newChildren = processArgumentFunctorsInClause(program, reductionResult)
@@ -574,7 +565,7 @@ function GoalTree(program, goalClause) {
 
       for (let i = 0; i < candidateActionSets.length; i += 1) {
         let unresolved = unresolvedSets[i];
-        if (!isGoalTimeValid(program, unresolved, currentTime)) {
+        if (hasExpiredTimable(unresolved, currentTime)) {
           continue;
         }
         let candidateActions = candidateActionSets[i];
