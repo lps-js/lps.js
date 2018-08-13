@@ -2,10 +2,10 @@ expect_num_of(fluent, 1, 0).
 
 expect_num_of(fluent, 2, 0).
 expect_num_of(action, 1, 2, 4).
-  expect(action, 1, 2, paint(iz, blue)).
+  expect(action, 1, 2, paint(iz, red)).
   expect(action, 1, 2, paint(oz, yellow)).
-  expect(action, 1, 2, paint(az, red)).
-  expect(action, 1, 2, paint(uz, red)).
+  expect(action, 1, 2, paint(az, blue)).
+  expect(action, 1, 2, paint(uz, blue)).
 expect_num_of(observation, 1, 2, 0).
 
 expect_num_of(fluent, 3, 0).
@@ -19,3 +19,4 @@ expect_num_of(observation, 3, 4, 0).
 expect_num_of(fluent, 5, 0).
 expect_num_of(action, 4, 5, 0).
 expect_num_of(observation, 4, 5, 0).
+
