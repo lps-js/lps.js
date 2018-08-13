@@ -273,7 +273,7 @@ function GoalNode(program, conjunctsArg, theta) {
         if (!(conjunct instanceof Timable)) {
           return;
         }
-        checkAndUpdateDeadline(conjunct.getEndTime());
+        checkAndUpdateDeadline(conjunct.getStartTime());
       });
       return earliestDeadline;
     }
