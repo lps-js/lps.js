@@ -22,7 +22,7 @@ describe('Resolutor', () => {
       let program = new Program();
       program.updateState(state);
 
-      let result = Resolutor.reduceRuleAntecedent(program, rule, []);
+      let result = Resolutor.reduceRuleAntecedent(program, rule, 1);
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(result[0].theta).to.be.not.undefined;
