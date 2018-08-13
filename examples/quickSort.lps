@@ -15,13 +15,6 @@ quicksort([X|Xs], Ys) <-
   append(Ls, [X|Rs], Ys).
   
 quicksort([], []).
-% for XSB use instead basics:append(Ls,[X|Rs],Ys)
-% 
-% partition([X|Xs], Y, [X|Ls], Rs) <-
-%   	X <= Y, partition(Xs, Y, Ls, Rs).
-% 
-% partition([X|Xs], Y, Ls, [X|Rs]) <-
-%   	X > Y, partition(Xs, Y, Ls, Rs).
 
 partition([X|Xs], Y, L, Rs) <-
   	X <= Y, partition(Xs, Y, Ls, Rs), append([X], Ls, L).
