@@ -1,0 +1,65 @@
+expect_num_of(fluent, 1, 4).
+  expect(fluent, 1, locked(container1)).
+  expect(fluent, 1, trash(bottle1)).
+  expect(fluent, 1, bin(container1)).
+  expect(fluent, 1, bin(container2)).
+
+expect_num_of(fluent, 2, 3).
+  expect(fluent, 2, locked(container1)).
+  expect(fluent, 2, bin(container1)).
+  expect(fluent, 2, bin(container2)).
+expect_num_of(action, 1, 2, 1).
+  expect(action, 1, 2, dispose(bottle1, container2)).
+expect_num_of(observation, 1, 2, 0).
+
+expect_num_of(fluent, 3, 3).
+  expect(fluent, 3, locked(container1)).
+  expect(fluent, 3, bin(container1)).
+  expect(fluent, 3, bin(container2)).
+expect_num_of(action, 2, 3, 0).
+expect_num_of(observation, 2, 3, 0).
+
+expect_num_of(fluent, 4, 3).
+  expect(fluent, 4, locked(container1)).
+  expect(fluent, 4, bin(container1)).
+  expect(fluent, 4, bin(container2)).
+expect_num_of(action, 3, 4, 0).
+expect_num_of(observation, 3, 4, 0).
+
+expect_num_of(fluent, 5, 2).
+  expect(fluent, 5, bin(container1)).
+  expect(fluent, 5, bin(container2)).
+expect_num_of(action, 4, 5, 0).
+expect_num_of(observation, 4, 5, 1).
+  expect(observation, 4, 5, unlock(container1)).
+
+expect_num_of(fluent, 6, 2).
+  expect(fluent, 6, bin(container1)).
+  expect(fluent, 6, bin(container2)).
+expect_num_of(action, 5, 6, 0).
+expect_num_of(observation, 5, 6, 0).
+
+expect_num_of(fluent, 7, 2).
+  expect(fluent, 7, bin(container1)).
+  expect(fluent, 7, bin(container2)).
+expect_num_of(action, 6, 7, 0).
+expect_num_of(observation, 6, 7, 0).
+
+expect_num_of(fluent, 8, 2).
+  expect(fluent, 8, bin(container1)).
+  expect(fluent, 8, bin(container2)).
+expect_num_of(action, 7, 8, 0).
+expect_num_of(observation, 7, 8, 0).
+
+expect_num_of(fluent, 9, 2).
+  expect(fluent, 9, bin(container1)).
+  expect(fluent, 9, bin(container2)).
+expect_num_of(action, 8, 9, 0).
+expect_num_of(observation, 8, 9, 0).
+
+expect_num_of(fluent, 10, 2).
+  expect(fluent, 10, bin(container1)).
+  expect(fluent, 10, bin(container2)).
+expect_num_of(action, 9, 10, 0).
+expect_num_of(observation, 9, 10, 0).
+

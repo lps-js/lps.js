@@ -52,6 +52,7 @@ describe('Programs Test', function () {
     'goat',
     'mark-hiccup',
     'findall',
+    'trash',
     'towers-simple',
     'towers',
     'dining-philosophers',
