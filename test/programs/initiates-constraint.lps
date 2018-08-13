@@ -7,7 +7,7 @@ actions([
 ]).
 initiates(a, f).
 
-<- f(_).
+<- f.
 
 true -> executeSomething(T1, T2).
 
