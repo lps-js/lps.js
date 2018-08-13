@@ -486,10 +486,8 @@ function Engine(program, workingDirectory) {
         let promise = Promise.resolve();
         if (_currentTime > 0) {
           // skip pre-processing in cycle 0 to 1.
-          let newFiredGoals = [];
-          let newRules = processRules(program, newFiredGoals, _currentTime);
+          let newFiredGoals = processRules(program, _goals, _currentTime);
           _goals = _goals.concat(newFiredGoals);
-          program.updateRules(newRules);
 
           promise = evaluateGoalTrees(_currentTime, _goals, program, newGoals)
         }
@@ -500,7 +498,6 @@ function Engine(program, workingDirectory) {
 
             // preparation for next cycle
             _currentTime += 1;
-            console.log('STEP');
 
             program.setExecutedActions(new LiteralTreeMap());
             program.updateState(updatedState);
@@ -508,10 +505,8 @@ function Engine(program, workingDirectory) {
 
             // build goal clauses for each rule
             // we need to derive the partially executed rule here too
-            newFiredGoals = [];
-            newRules = processRules(program, newFiredGoals, _currentTime);
+            newFiredGoals = processRules(program, _goals, _currentTime);
             _goals = _goals.concat(newFiredGoals);
-            program.updateRules(newRules);
 
             newGoals = [];
             return evaluateGoalTrees(_currentTime, _goals, program, newGoals);

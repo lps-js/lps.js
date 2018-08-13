@@ -8,8 +8,9 @@ const Resolutor = lpsRequire('engine/Resolutor');
 
 module.exports = function processRules(program, goals, currentTime) {
   let rules = program.getRules();
+  let newGoals = [];
 
-  let containsTimables = function containsTimables(rule) {
+  const containsTimables = function containsTimables(rule) {
     let firstConjunct = rule.getBodyLiterals()[0];
     while (firstConjunct instanceof Functor
         && firstConjunct.getId() === '!/1') {
@@ -24,10 +25,26 @@ module.exports = function processRules(program, goals, currentTime) {
     return firstConjunct.isAnytime();
   };
 
+  const fireRule = function fireRule(consequent) {
+    for (let i = 0; i < goals.length; i += 1) {
+      if (goals[i].isSameRootConjunction(consequent)) {
+        // a same root conjunction exists, don't refire
+        return;
+      }
+    }
+    for (let i = 0; i < newGoals.length; i += 1) {
+      if (newGoals[i].isSameRootConjunction(consequent)) {
+        // a same root conjunction exists, don't refire
+        return;
+      }
+    }
+    newGoals.push(new GoalTree(program, consequent));
+  };
+
   let newRules = [];
   rules.forEach((rule) => {
     if (rule.getBodyLiteralsCount() === 0) {
-      goals.push(new GoalTree(program, rule.getHeadLiterals()));
+      fireRule(rule.getHeadLiterals());
       return;
     }
     if (containsTimables(rule)) {
@@ -43,7 +60,7 @@ module.exports = function processRules(program, goals, currentTime) {
       let substitutedConsequentLiterals = consequentLiterals
         .map(l => l.substitute(pair.theta));
       if (pair.unresolved.length === 0) {
-        goals.push(new GoalTree(program, substitutedConsequentLiterals));
+        fireRule(substitutedConsequentLiterals);
         return;
       }
 
@@ -58,5 +75,6 @@ module.exports = function processRules(program, goals, currentTime) {
       }
     });
   });
-  return newRules;
+  program.updateRules(newRules);
+  return newGoals;
 };
