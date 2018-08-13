@@ -35,9 +35,9 @@ shop(T1, T2) <-
   shop(T2, T3).
 
 % till you drop!
-shop(T1, T2) <- money(A, T1), checkout(T1, T2).
+shop(T1, T2) <- checkout(T1, T2), money(A, T1), lpsHalt from T2.
 
-checkout(T1, T2) -> lpsHalt.
+% checkout(T1, T2) -> lpsHalt.
 
 updates(addToCart(I), money(V), money(V - A), [item(I, A)]).
 initiates(addToCart(I), cartQuantity(I, 1), [not cartQuantity(I, _)]).
