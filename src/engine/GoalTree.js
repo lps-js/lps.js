@@ -262,6 +262,9 @@ function GoalNode(program, conjunctsArg, theta) {
     }
 
     let checkAndUpdateDeadline = (timing) => {
+      if (timing instanceof Variable) {
+        return;
+      }
       if (earliestDeadline === null
           || (currentTime <= timing && timing < earliestDeadline)) {
         earliestDeadline = timing;
