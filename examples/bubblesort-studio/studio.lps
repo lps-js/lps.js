@@ -22,7 +22,7 @@ load_image(f, 'https://png.icons8.com/metro/64/f-lowercase.png').
 
 location(Item, Loc, 1) ->
   locationScreen(Loc, X, Y),
-  draw_image(Item, X, Y, 64, 64, Item).
+  draw_image(Item, X, Y, 64, 64, Item) from 2.
 
 swap(A, J, B, K, T1, T2) ->
   locationScreen(J, X1, Y1),

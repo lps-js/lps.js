@@ -1,4 +1,5 @@
 maxTime(500).
+cycleInterval(500).
 
 fluent(locked(Item)).
 fluent(location(Item, Position)).
@@ -27,10 +28,10 @@ initiates(lock(Item1, Item2), locked(Item2)).
 terminates(unlock(Item1, Item2), locked(Item1)).
 terminates(unlock(Item1, Item2), locked(Item2)).
 
-<- swap(X, N1, Y, N2, T1, T2), swap(Y, N2, Z, N3, T1, T2).
-<- lock(X, Y, T1, T2), lock(Y, Z, T1, T2).
-<- lock(X, Y, T1, T2), locked(X, T1).
-<- lock(X, Y, T1, T2), locked(Y, T1).
-% <- swap(X, N1, Y, N2, T1, T2), swap(A, N3, B, N4, T1, T2), X != A, Y != B.
+<- swap(X, N1, Y, N2), swap(Y, N2, Z, N3).
+<- lock(X, Y), lock(Y, Z).
+<- lock(X, Y), locked(X).
+<- lock(X, Y), locked(Y).
+% <- swap(X, N1, Y, N2), swap(A, N3, B, N4), X != A, Y != B.
 
 consult('./sorter.lps').

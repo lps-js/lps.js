@@ -12,8 +12,7 @@ decideSwap(X, N1, Y, N2) from T1 to T2 <-
   swap(X, N1, Y, N2, T2, T3),
   unlock(X, Y, T2, T3).
 
-
-decideSwap(X, N1, Y, N2) at T <- 
+decideSwap(X, N1, Y, N2) from T to T <- 
   location(X, N1, T),
   location(Y, N2, T),
   X @< Y.
