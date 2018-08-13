@@ -44,5 +44,5 @@ initiates(addToCart(I), cartQuantity(I, 1), [not cartQuantity(I, _, T)]).
 updates(addToCart(I), cartQuantity(I, O), cartQuantity(I, O + 1)).
 updates(addToCart(I), shopQuantity(I, O), shopQuantity(I, O - 1)).
 
-<- shopQuantity(_, Q, _), Q < 0.
-<- money(V, _), V < 0.
+<- shopQuantity(_, Q), Q < 0.
+<- money(V), V < 0.
