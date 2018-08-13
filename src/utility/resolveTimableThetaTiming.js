@@ -2,10 +2,11 @@ const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 const Timable = lpsRequire('engine/Timable');
 
-const resolveTimableThetaTiming = function resolveTimableThetaTiming(conjunct, theta, forTime) {
+const resolveTimableThetaTiming = function resolveTimableThetaTiming(conjunct, thetaArg, forTime) {
   if (!(conjunct instanceof Timable)) {
     return;
   }
+  let theta = thetaArg;
   let conjunctStartTime = conjunct.getStartTime();
   let conjunctEndTime = conjunct.getEndTime();
   if (conjunctStartTime instanceof Variable) {

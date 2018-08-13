@@ -12,7 +12,6 @@ module.exports = function expandLiteral(literalArg, program, renameTheta) {
     .getDefinitions(literalTreeMap, renameTheta)
     .forEach((tuple) => {
       let bodyLiterals = tuple.definition;
-      let headLiteral = tuple.headLiteral;
       let theta = tuple.theta;
       let outputTheta = {};
 

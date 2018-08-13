@@ -390,5 +390,5 @@ describe('LiteralTreeMap', () => {
       expect(result[0]).to.have.property('leaf');
       expect(result[0].leaf).to.be.equal(functor);
     });
-  })
+  });
 });

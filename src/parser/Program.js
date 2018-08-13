@@ -10,7 +10,6 @@ const Timable = lpsRequire('engine/Timable');
 const Resolutor = lpsRequire('engine/Resolutor');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Parser = lpsRequire('parser/Parser');
-const buildIntensionalSet = lpsRequire('utility/buildIntensionalSet');
 
 const fs = require('fs');
 
@@ -60,7 +59,12 @@ let processVariable = function processVariable(node, singleUnderscoreVariableSet
   return new Variable(name);
 };
 
-processArguments = function processArguments(nodes, singleUnderscoreVariableSetArg) {
+let processFunctor = function processFunctor(node, singleUnderscoreVariableSet) {
+  let name = node.getToken().value;
+  return new Functor(name, processArguments(node.getChildren(), singleUnderscoreVariableSet));
+};
+
+processArguments = function (nodes, singleUnderscoreVariableSetArg) {
   let singleUnderscoreVariableSet = singleUnderscoreVariableSetArg;
   let result = [];
 
@@ -97,11 +101,6 @@ processArguments = function processArguments(nodes, singleUnderscoreVariableSetA
   return result;
 };
 
-let processFunctor = function processFunctor(node, singleUnderscoreVariableSet) {
-  let name = node.getToken().value;
-  return new Functor(name, processArguments(node.getChildren(), singleUnderscoreVariableSet));
-};
-
 let processTimable = function processTimable(node, singleUnderscoreVariableSet) {
   let parameters = processArguments(node.getChildren(), singleUnderscoreVariableSet);
   let goal = parameters[0];
@@ -127,7 +126,7 @@ let processLiteral = function processLiteral(node, singleUnderscoreVariableSet) 
       throw new Error('Unexpected node type in literal set: '
         + String(node.getType()) + ' ' + JSON.stringify(node.getToken()));
   }
-}
+};
 
 let processLiteralSet = function processLiteralSet(literals, singleUnderscoreVariableSet) {
   let result = [];

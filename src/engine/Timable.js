@@ -72,7 +72,7 @@ function Timable(goal, startTimeArg, endTimeArg) {
 
   this.isEarlierThan = function isEarlierThan(other) {
     // if either start time is a variable, then both are equal
-    let otherStartTime = other.getStartTime()
+    let otherStartTime = other.getStartTime();
     if (startTime instanceof Variable
         || otherStartTime instanceof Variable) {
       return false;
@@ -83,7 +83,7 @@ function Timable(goal, startTimeArg, endTimeArg) {
 
   this.isLaterThan = function isLaterThan(other) {
     // if either start time is a variable, then both are equal
-    let otherStartTime = other.getStartTime()
+    let otherStartTime = other.getStartTime();
     if (startTime instanceof Variable
         || otherStartTime instanceof Variable) {
       return false;

@@ -58,7 +58,7 @@ function Parser(source, pathname) {
       _expect(TokenTypes.Number);
     }
     return node;
-  }
+  };
 
   let _processTimableExpression = function _processTimableExpression(goalNode) {
     let node = new AstNode(NodeTypes.Timable, currentToken);
@@ -80,10 +80,10 @@ function Parser(source, pathname) {
       node.addChild(timeNode);
     } else {
       // unexpected
-      throw new Error('Unexpected node ' + currentNode);
+      throw new Error('Unexpected node ' + currentToken);
     }
     return node;
-  }
+  };
 
   let _functorExpression = function _functorExpression() {
     let nameToken = currentToken;

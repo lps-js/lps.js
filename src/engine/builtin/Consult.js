@@ -83,7 +83,7 @@ function Consult(engine, targetProgram) {
 
     let handleEntry = (theta) => {
       if (!(theta.File instanceof Functor)) {
-        return Promise.reject('Consult file not value');
+        return Promise.reject(new Error('Consult file not value'));
       }
       let promise;
       let filepath = theta.File.evaluate();

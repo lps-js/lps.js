@@ -47,7 +47,6 @@ function sortTimables(conjunction, forTime) {
       continue;
     }
 
-    let movedToLater = [];
     for (let i = 0; i < earlyConjuncts; i += 1) {
       if (earlyConjuncts[i] instanceof Timable
           && conjunct.isEarlierThan(earlyConjuncts[i])) {

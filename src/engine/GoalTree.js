@@ -3,11 +3,9 @@ const Resolutor = lpsRequire('engine/Resolutor');
 const Functor = lpsRequire('engine/Functor');
 const Timable = lpsRequire('engine/Timable');
 const Variable = lpsRequire('engine/Variable');
-const Value = lpsRequire('engine/Value');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
-const TimableHelper = lpsRequire('utility/TimableHelper');
 const dedupeConjunction = lpsRequire('utility/dedupeConjunction');
 const sortTimables = lpsRequire('utility/sortTimables');
 const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming');
@@ -16,7 +14,6 @@ const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, usedVariables) {
   let reductions = [];
 
-  let goal = conjunct.getGoal();
   let renameTheta = variableArrayRename(usedVariables);
   let hasNewRenames = false;
   let processRenameTheta = (varName) => {
@@ -327,12 +324,13 @@ function GoalNode(program, conjunctsArg, theta) {
     }
 
     let usedVariables = {};
+    let setUsedVariables = (v) => {
+      usedVariables[v] = true;
+    };
     for (let i = 0; i < this.conjuncts.length; i += 1) {
       this.conjuncts[i]
         .getVariables()
-        .forEach((v) => {
-          usedVariables[v] = true;
-        });
+        .forEach(setUsedVariables);
     }
     usedVariables = Object.keys(usedVariables);
 
@@ -369,12 +367,13 @@ function GoalNode(program, conjunctsArg, theta) {
         // if there's no reduction for this conjunct, break
         break;
       }
-      compositeReductionResult.forEach((crrArg) => {
+      for (let k = 0; k < compositeReductionResult.length; k += 1) {
+        let crrArg = compositeReductionResult[k];
         // crr needs to rename variables to avoid clashes
         // also at the same time handle any output variables
         let mapper = (term) => {
           return term.substitute(crrArg.theta);
-        }
+        };
         let remappedClauseFront = otherLiteralsFront.map(mapper);
         let remappedClauseBack = otherLiteralsBack.map(mapper);
         let remappedLaterConjuncts = laterConjuncts.map(mapper);
@@ -383,7 +382,7 @@ function GoalNode(program, conjunctsArg, theta) {
           .concat(remappedClauseBack)
           .concat(remappedLaterConjuncts);
         reductionResult.push([newConjuncts, crrArg.theta]);
-      });
+      }
 
       hasMacroExpansion = true;
       break;
@@ -486,7 +485,7 @@ function GoalTree(program, goalClause) {
 
   this.isSameRootConjunction = function isSameRootConjunction(otherGoal) {
     return _rootNodeMap.get(otherGoal) === null;
-  }
+  };
 
   this.getEarliestDeadline = function getEarliestDeadline(currentTime) {
     let earliestDeadline = null;
@@ -549,7 +548,7 @@ function GoalTree(program, goalClause) {
 
       let pair = sortTimables(node.conjuncts, currentTime);
       let earlyConjuncts = pair[0];
-      let laterConjuncts = pair[1];
+      // later conjuncts are ignored
 
       let numCandidateActionsAdded = resolveSimpleActions(
         earlyConjuncts,

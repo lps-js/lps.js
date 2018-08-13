@@ -1,9 +1,7 @@
 const Timable = lpsRequire('engine/Timable');
 const Functor = lpsRequire('engine/Functor');
-const Variable = lpsRequire('engine/Variable');
 
 const createLiteralTimingMapper = function createLiteralTimingMapper(program) {
-  let lastTiming = null;
   return (_literal) => {
     let literal = _literal;
     if (literal instanceof Timable) {
@@ -18,7 +16,7 @@ const createLiteralTimingMapper = function createLiteralTimingMapper(program) {
 
     let literalArgs = literal.getArguments();
     let goal;
-    if (program.isFluent(literal.getName() + '/' + (literal.getArgumentCount()-1))) {
+    if (program.isFluent(literal.getName() + '/' + (literal.getArgumentCount() - 1))) {
       let timing = literalArgs[literalArgs.length - 1];
       // take out the timing argument
       literalArgs = literalArgs.slice(0, literalArgs.length - 1);
@@ -29,7 +27,7 @@ const createLiteralTimingMapper = function createLiteralTimingMapper(program) {
       return new Timable(goal, timing, timing);
     }
 
-    let actionName = literal.getName() + '/' + (literal.getArgumentCount()-2);
+    let actionName = literal.getName() + '/' + (literal.getArgumentCount() - 2);
     if (program.isAction(actionName) || program.isEvent(actionName)) {
       let startTime = literalArgs[literalArgs.length - 2];
       let endTime = literalArgs[literalArgs.length - 1];

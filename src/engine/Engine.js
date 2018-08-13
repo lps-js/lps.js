@@ -4,8 +4,6 @@ const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
 const Program = lpsRequire('parser/Program');
 const Value = lpsRequire('engine/Value');
-const Variable = lpsRequire('engine/Variable');
-const Clause = lpsRequire('engine/Clause');
 const processRules = lpsRequire('utility/processRules');
 const compactTheta = lpsRequire('utility/compactTheta');
 const EventManager = lpsRequire('observer/Manager');
@@ -21,12 +19,13 @@ const stringLiterals = lpsRequire('utility/strings');
 
 const evaluateGoalTrees = function evaluateGoalTrees(currentTime, goalTrees, program, newGoals) {
   let goalTreeProcessingPromises = [];
-  goalTrees.forEach((goalTree, idx) => {
+  goalTrees.forEach((goalTree) => {
     let treePromise = goalTree
       .evaluate(currentTime)
       .then((evaluationResult) => {
         if (evaluationResult === null) {
-          return Promise.reject('Goal tree failed');
+          // goal tree failed
+          return Promise.resolve();
         }
 
         // goal tree has been resolved
@@ -36,7 +35,6 @@ const evaluateGoalTrees = function evaluateGoalTrees(currentTime, goalTrees, pro
 
         // goal tree has not been resolved, so let's persist the tree
         // to the next cycle
-
         newGoals.push(goalTree);
         return Promise.resolve();
       });
@@ -201,29 +199,27 @@ function Engine(program, workingDirectory) {
       }
       type = type.evaluate();
 
-      let terminatingFluent;
-      let initiatingFluent;
       switch (type) {
         case 'update':
           fluentActors.push({
-            action: action,
-            initiate: newFluent,
-            terminate: oldFluent,
-            conditions: conditions
+            a: action,
+            i: newFluent,
+            t: oldFluent,
+            c: conditions
           });
           break;
         case 'initiate':
           fluentActors.push({
-            action: action,
-            initiate: newFluent,
-            conditions: conditions
+            a: action,
+            i: newFluent,
+            c: conditions
           });
           break;
         case 'terminate':
           fluentActors.push({
-            action: action,
-            terminate: oldFluent,
-            conditions: conditions
+            a: action,
+            t: oldFluent,
+            c: conditions
           });
           break;
         default:
@@ -233,9 +229,9 @@ function Engine(program, workingDirectory) {
 
     fluentActors.forEach((actor) => {
       let thetaSets = [];
-      actions.unifies(actor.action)
+      actions.unifies(actor.a)
         .forEach((node) => {
-          let substitutedCondition = actor.conditions.substitute(node.theta);
+          let substitutedCondition = actor.c.substitute(node.theta);
           let subQueryResult = program.query(substitutedCondition.flatten());
           subQueryResult.forEach((tuple) => {
             thetaSets.push({
@@ -250,8 +246,8 @@ function Engine(program, workingDirectory) {
         // start processing terminate.
         // when terminating, we also take note of the appropriate theta sets
         // in case we are performing an update
-        if (actor.terminate) {
-          let terminatedGroundFluent = actor.terminate.substitute(node.theta);
+        if (actor.t) {
+          let terminatedGroundFluent = actor.t.substitute(node.theta);
           let stateThetaSet = newState.unifies(terminatedGroundFluent);
           initiateThetaSet = [];
           stateThetaSet.forEach((terminatedNode) => {
@@ -268,11 +264,11 @@ function Engine(program, workingDirectory) {
           });
         }
 
-        if (actor.initiate) {
+        if (actor.i) {
           // perform initiate
           // take note of theta sets given by termination
           initiateThetaSet.forEach((theta) => {
-            let initiatedGroundFluent = actor.initiate.substitute(theta);
+            let initiatedGroundFluent = actor.i.substitute(theta);
             let initiatedFluentSet = Resolutor
               .handleBuiltInFunctorArgumentInLiteral(
                 functorProvider,
@@ -345,11 +341,7 @@ function Engine(program, workingDirectory) {
     return activeObservations;
   };
 
-  let actionsSelector = function actionsSelector(
-    goalTrees,
-    updatedState,
-    executedActions
-  ) {
+  let actionsSelector = function actionsSelector(goalTrees) {
     let selectionDone = false;
     let selection;
     let recursiveActionsSelector = function (actionsSoFar, programSoFar, l) {
@@ -454,11 +446,7 @@ function Engine(program, workingDirectory) {
     program.setExecutedActions(executedActions);
 
     // decide which actions from set of candidate actions to execute
-    return actionsSelector(
-      _goals,
-      updatedState,
-      executedActions
-    )
+    return actionsSelector(_goals)
       .then((selectedActions) => {
         let selectedAndExecutedActions = new LiteralTreeMap();
         // process selected actions
@@ -484,12 +472,13 @@ function Engine(program, workingDirectory) {
         _numLastCycleResolvedRules = 0;
 
         let promise = Promise.resolve();
+        let newFiredGoals = [];
         if (_currentTime > 0) {
           // skip pre-processing in cycle 0 to 1.
-          let newFiredGoals = processRules(program, _goals, _currentTime);
+          newFiredGoals = processRules(program, _goals, _currentTime);
           _goals = _goals.concat(newFiredGoals);
 
-          promise = evaluateGoalTrees(_currentTime, _goals, program, newGoals)
+          promise = evaluateGoalTrees(_currentTime, _goals, program, newGoals);
         }
 
         return promise
@@ -501,7 +490,6 @@ function Engine(program, workingDirectory) {
 
             program.setExecutedActions(new LiteralTreeMap());
             program.updateState(updatedState);
-
 
             // build goal clauses for each rule
             // we need to derive the partially executed rule here too

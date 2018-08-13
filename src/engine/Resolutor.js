@@ -1,8 +1,6 @@
 const Functor = lpsRequire('engine/Functor');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
-const Variable = lpsRequire('engine/Variable');
 const Timable = lpsRequire('engine/Timable');
-const Value = lpsRequire('engine/Value');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
 const sortTimables = lpsRequire('utility/sortTimables');
@@ -121,7 +119,6 @@ Resolutor.explain =
         .forEach((tuple) => {
           let bodyLiterals = tuple.definition;
           let headLiteral = tuple.headLiteral;
-          let unificationTheta = tuple.theta;
 
           // perform resolution on the subgoal
           let subResult = recursiveResolution(bodyLiterals, {});
@@ -133,9 +130,8 @@ Resolutor.explain =
             if (unifications.length === 0) {
               return;
             }
-            unifications.forEach((tuple) => {
-              let theta = tuple.theta;
-              literalThetas.push({ theta: theta });
+            unifications.forEach((t) => {
+              literalThetas.push({ theta: t.theta });
             });
           });
         });

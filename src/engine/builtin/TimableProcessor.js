@@ -1,9 +1,5 @@
 const Clause = lpsRequire('engine/Clause');
-const Timable = lpsRequire('engine/Timable');
-const Variable = lpsRequire('engine/Variable');
-const Functor = lpsRequire('engine/Functor');
 const createLiteralTimingMapper = lpsRequire('utility/createLiteralTimingMapper');
-const buildIntensionalSet = lpsRequire('utility/buildIntensionalSet');
 
 const TimableProcessor = function TimableProcessor(engine, program) {
   let timableMapper = createLiteralTimingMapper(program);

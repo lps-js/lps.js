@@ -23,7 +23,7 @@ function Functor(name, args) {
 
   this.getGoal = function getGoal() {
     return this;
-  }
+  };
 
   this.getArgumentCount = function getArgumentCount() {
     return _argsCount;
