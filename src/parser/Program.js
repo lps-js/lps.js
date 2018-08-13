@@ -14,6 +14,8 @@ const buildIntensionalSet = lpsRequire('utility/buildIntensionalSet');
 
 const fs = require('fs');
 
+let processArguments;
+
 let processBinaryOperator = function processBinaryOperator(node, singleUnderscoreVariableSet) {
   let operator = node.getToken().value;
   return new Functor(operator, processArguments(node.getChildren(), singleUnderscoreVariableSet));
@@ -48,7 +50,17 @@ let processList = function processList(nodes, singleUnderscoreVariableSet) {
   return new List(head);
 };
 
-let processArguments = function processArguments(nodes, singleUnderscoreVariableSetArg) {
+let processVariable = function processVariable(node, singleUnderscoreVariableSetArg) {
+  let singleUnderscoreVariableSet = singleUnderscoreVariableSetArg;
+  let name = node.getToken().value;
+  if (name === '_') {
+    name = '$_' + String(singleUnderscoreVariableSet.next);
+    singleUnderscoreVariableSet.next += 1;
+  }
+  return new Variable(name);
+};
+
+processArguments = function processArguments(nodes, singleUnderscoreVariableSetArg) {
   let singleUnderscoreVariableSet = singleUnderscoreVariableSetArg;
   let result = [];
 
@@ -73,12 +85,7 @@ let processArguments = function processArguments(nodes, singleUnderscoreVariable
         result.push(processFunctor(node, singleUnderscoreVariableSet));
         break;
       case NodeTypes.Variable: {
-        let name = node.getToken().value;
-        if (name === '_') {
-          name = '$_' + String(singleUnderscoreVariableSet.next);
-          singleUnderscoreVariableSet.next += 1;
-        }
-        result.push(new Variable(name));
+        result.push(processVariable(node, singleUnderscoreVariableSet));
         break;
       }
       default:
@@ -95,23 +102,47 @@ let processFunctor = function processFunctor(node, singleUnderscoreVariableSet) 
   return new Functor(name, processArguments(node.getChildren(), singleUnderscoreVariableSet));
 };
 
+let processTimable = function processTimable(node, singleUnderscoreVariableSet) {
+  let parameters = processArguments(node.getChildren(), singleUnderscoreVariableSet);
+  let goal = parameters[0];
+  let startTime = parameters[1];
+  let endTime = parameters[1];
+  if (parameters.length > 2) {
+    endTime = parameters[2];
+  }
+  return new Timable(goal, startTime, endTime);
+};
+
+let processLiteral = function processLiteral(node, singleUnderscoreVariableSet) {
+  switch (node.getType()) {
+    case NodeTypes.Timable:
+      return processTimable(node, singleUnderscoreVariableSet);
+    case NodeTypes.Functor:
+      return processFunctor(node, singleUnderscoreVariableSet);
+    case NodeTypes.BinaryOperator:
+      return processBinaryOperator(node, singleUnderscoreVariableSet);
+    case NodeTypes.UnaryOperator:
+      return processUnaryOperator(node, singleUnderscoreVariableSet);
+    default:
+      throw new Error('Unexpected node type in literal set: '
+        + String(node.getType()) + ' ' + JSON.stringify(node.getToken()));
+  }
+}
+
 let processLiteralSet = function processLiteralSet(literals, singleUnderscoreVariableSet) {
   let result = [];
-  literals.forEach((node) => {
-    switch (node.getType()) {
-      case NodeTypes.Functor:
-        result.push(processFunctor(node, singleUnderscoreVariableSet));
-        break;
-      case NodeTypes.BinaryOperator:
-        result.push(processBinaryOperator(node, singleUnderscoreVariableSet));
-        break;
-      case NodeTypes.UnaryOperator:
-        result.push(processUnaryOperator(node, singleUnderscoreVariableSet));
-        break;
-      default:
-        throw new Error('Unexpected node type in literal set: '
-          + String(node.getType()) + ' ' + JSON.stringify(node.getToken()));
+  literals.forEach((nodeArg) => {
+    let node = nodeArg;
+    let isNegated = false;
+    while (node.getType() === NodeTypes.Negation) {
+      node = node.getChildren()[0];
+      isNegated = !isNegated;
     }
+    let term = processLiteral(node, singleUnderscoreVariableSet);
+    if (isNegated) {
+      term = new Functor('!', [term]);
+    }
+    result.push(term);
   });
   return result;
 };

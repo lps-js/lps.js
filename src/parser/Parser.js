@@ -48,6 +48,43 @@ function Parser(source, pathname) {
   let _arguments;
   let _expression;
 
+  let _variableOrNumberValueExpression = function _variableOrNumberValueExpression() {
+    let node;
+    if (_found(TokenTypes.Variable)) {
+      node = new AstNode(NodeTypes.Variable, currentToken);
+      _expect(TokenTypes.Variable);
+    } else {
+      node = new AstNode(NodeTypes.Number, currentToken);
+      _expect(TokenTypes.Number);
+    }
+    return node;
+  }
+
+  let _processTimableExpression = function _processTimableExpression(goalNode) {
+    let node = new AstNode(NodeTypes.Timable, currentToken);
+    node.addChild(goalNode);
+    if (_foundToBe(TokenTypes.Keyword, 'from')) {
+      _expect(TokenTypes.Keyword);
+      let startTimeNode = _variableOrNumberValueExpression();
+      if (_foundToBe(TokenTypes.Keyword, 'to')) {
+        _expect(TokenTypes.Keyword);
+        let endTimeNode = _variableOrNumberValueExpression();
+        node.addChild(startTimeNode);
+        node.addChild(endTimeNode);
+      } else {
+        node.addChild(startTimeNode);
+      }
+    } else if (_foundToBe(TokenTypes.Keyword, 'at')) {
+      _expect(TokenTypes.Keyword);
+      let timeNode = _variableOrNumberValueExpression();
+      node.addChild(timeNode);
+    } else {
+      // unexpected
+      throw new Error('Unexpected node ' + currentNode);
+    }
+    return node;
+  }
+
   let _functorExpression = function _functorExpression() {
     let nameToken = currentToken;
     _expect(TokenTypes.Constant);
@@ -67,12 +104,8 @@ function Parser(source, pathname) {
       _expectToBe(TokenTypes.Symbol, ')');
     } else if (_found(TokenTypes.Constant)) {
       node = _functorExpression();
-    } else if (_found(TokenTypes.Variable)) {
-      node = new AstNode(NodeTypes.Variable, currentToken);
-      _expect(TokenTypes.Variable);
     } else {
-      node = new AstNode(NodeTypes.Number, currentToken);
-      _expect(TokenTypes.Number);
+      node = _variableOrNumberValueExpression();
     }
     return node;
   };
@@ -206,7 +239,18 @@ function Parser(source, pathname) {
   };
 
   let _literal = function _literal() {
-    return _expression();
+    if (_foundToBe(TokenTypes.Keyword, 'not')) {
+      let node = new AstNode(NodeTypes.Negation, currentToken);
+      _expect(TokenTypes.Keyword);
+      node.addChild(_literal());
+      return node;
+    }
+    let expr = _expression();
+    if (_foundOneOf(TokenTypes.Keyword, ['from', 'at'])) {
+      // a timable expression
+      expr = _processTimableExpression(expr);
+    }
+    return expr;
   };
 
   let _conjunction = function _conjunction() {
