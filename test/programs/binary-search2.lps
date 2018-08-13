@@ -31,7 +31,7 @@ found(I, T) <- left(I, T), right(I, T).
 do_sample(T1, T2) <-
   left(L, T1),
   right(R, T1),
-  Mid = floor((R + L)/2),
+  Mid = floor((R + L) / 2),
   sample(Mid, T1, T2).
 
 % This is a special case where found(I, T) is an intensional predicate
@@ -39,5 +39,5 @@ do_sample(T1, T2) <-
 % it is nested inside the negation, which LPS needs to recognise and handle.
 not found(I, T) -> do_sample(T1, T2).
 
-updates(sample(Pos), left(_), left(Mid), [searching(X, T), a(Pos, AX), AX < X, Mid = Pos + 1]).
-updates(sample(Pos), right(_), right(Pos), [searching(X, T), a(Pos, AX), AX >= X]).
+updates(sample(Pos), left(_), left(Mid), [searching(X), a(Pos, AX), AX < X, Mid = Pos + 1]).
+updates(sample(Pos), right(_), right(Pos), [searching(X), a(Pos, AX), AX >= X]).
