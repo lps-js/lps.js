@@ -1,35 +1,11 @@
-const Value = lpsRequire('engine/Value');
-const Functor = lpsRequire('engine/Functor');
+const Timable = lpsRequire('engine/Timable');
 
-module.exports = function hasExpiredTimable(conjunction, program, currentTime) {
-  let hasExpired = false;
-  conjunction.forEach((conjunct) => {
-    if (hasExpired || !program.isTimable(conjunct)) {
-      return;
+module.exports = function hasExpiredTimable(conjunction, currentTime) {
+  for (let i = 0; i < conjunction.length; i += 1) {
+    if (conjunction[i] instanceof Timable
+        && conjunction[i].hasExpired(currentTime)) {
+      return true;
     }
-    let literal = conjunct;
-    // unfold negation
-    while (literal instanceof Functor && literal.getId() === '!/1') {
-      literal = literal.getArguments()[0];
-    }
-
-    let conjunctArgs = literal.getArguments();
-    if (program.isFluent(literal)) {
-      let timeArg = conjunctArgs[conjunctArgs.length - 1];
-      if (timeArg instanceof Value && timeArg.evaluate() <= currentTime) {
-        hasExpired = true;
-        return;
-      }
-    }
-    let startTimeArg = conjunctArgs[conjunctArgs.length - 2];
-    if (startTimeArg instanceof Value && startTimeArg.evaluate() <= currentTime) {
-      hasExpired = true;
-      return;
-    }
-    let endTimeArg = conjunctArgs[conjunctArgs.length - 1];
-    if (endTimeArg instanceof Value && endTimeArg.evaluate() <= currentTime) {
-      hasExpired = true;
-    }
-  });
-  return hasExpired;
+  }
+  return false;
 };
