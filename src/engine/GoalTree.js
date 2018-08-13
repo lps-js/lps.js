@@ -114,7 +114,7 @@ let resolveStateConditions = function resolveStateConditions(program, earlyConju
     return numFailures < literalThetas.length;
   };
 
-  let hasSucceeded = processClause(clause, [], {}, {});
+  let hasSucceeded = processConjuncts(earlyConjuncts, [], {}, {});
 
   if (!hasSucceeded) {
     return null;
@@ -123,8 +123,8 @@ let resolveStateConditions = function resolveStateConditions(program, earlyConju
 };
 
 const resolveSimpleActions = function resolveSimpleActions(
-  clause,
-  possibleActions,
+  earlyConjuncts,
+  program,
   functorProvider,
   candidateActionSets,
   unresolvedSets
@@ -132,46 +132,37 @@ const resolveSimpleActions = function resolveSimpleActions(
   let thetaSet = [{ theta: {}, unresolved: [], candidates: [] }];
   let hasUnresolvedClause = false;
 
-  clause.forEach((literal) => {
+  for (let i = 0; i < earlyConjuncts.length; i += 1) {
+    let conjunct = earlyConjuncts[i];
+    let literal = conjunct.getGoal();
+    if (!program.isAction(literal)) {
+      return 0;
+    }
+
     if (hasUnresolvedClause) {
       thetaSet = thetaSet.map((tupleArg) => {
         let tuple = tupleArg;
-        tuple.unresolved.push(literal);
+        tuple.unresolved.push(conjunct);
         return tuple;
       });
-      return;
+      continue;
     }
+
     let newThetaSet = [];
     thetaSet.forEach((tuple) => {
       let substitutedLiteral = literal.substitute(tuple.theta);
       let substitutedInstances = Resolutor
         .handleBuiltInFunctorArgumentInLiteral(functorProvider, substitutedLiteral);
       substitutedInstances.forEach((instance) => {
-        let literalThetas = possibleActions.unifies(instance);
-        if (literalThetas.length === 0) {
-          if (!instance.isGround()) {
-            hasUnresolvedClause = true;
-          }
-          newThetaSet.push({
-            theta: tuple.theta,
-            unresolved: tuple.unresolved.concat([instance]),
-            candidates: tuple.candidates
-          });
-          return;
-        }
-        literalThetas.forEach((t) => {
-          let compactedTheta = compactTheta(tuple.theta, t.theta);
-          let instanceResult = instance.substitute(compactedTheta);
-          newThetaSet.push({
-            theta: compactedTheta,
-            unresolved: tuple.unresolved,
-            candidates: tuple.candidates.concat([instanceResult])
-          });
+        newThetaSet.push({
+          theta: tuple.theta,
+          unresolved: tuple.unresolved,
+          candidates: tuple.candidates.concat([instance])
         });
       });
     });
     thetaSet = newThetaSet;
-  });
+  }
 
   let numAdded = 0;
   thetaSet.forEach((tuple) => {
@@ -195,16 +186,16 @@ const processArgumentFunctorsInClause = function processArgumentFunctorsInClause
   let newChildren = [];
   reductionResult.forEach((r) => {
     let nodes = [];
-    let recursiveFunctorArgumentProcessing = (clause, l) => {
-      if (l >= clause.length) {
+    let recursiveFunctorArgumentProcessing = (conjuncts, l) => {
+      if (l >= conjuncts.length) {
         // base case, processed
-        nodes.push([program, clause, r.theta]);
+        nodes.push([conjuncts, r[1]]);
         return;
       }
-      let conjunct = clause[l];
+      let goal = conjuncts[l].getGoal();
       let isAllArgumentFunctorGround = true;
       let hasArgumentFunctor = false;
-      clause[l].getArguments()
+      goal.getArguments()
         .forEach((literalArg) => {
           if (literalArg instanceof Functor && !literalArg.isGround()) {
             isAllArgumentFunctorGround = false;
@@ -215,46 +206,36 @@ const processArgumentFunctorsInClause = function processArgumentFunctorsInClause
         });
       if (hasArgumentFunctor && isAllArgumentFunctorGround) {
         let instances = Resolutor
-          .handleBuiltInFunctorArgumentInLiteral(functorProvider, conjunct);
+          .handleBuiltInFunctorArgumentInLiteral(functorProvider, goal);
         instances.forEach((instance) => {
-          let clauseCopy = clause.concat([]);
-          clauseCopy[l] = instance;
-          recursiveFunctorArgumentProcessing(clauseCopy, l + 1);
+          let conjunctsCopy = conjuncts.concat([]);
+          if (conjuncts[l] instanceof Timable) {
+            conjunctsCopy[l] = new Timable(
+              instance,
+              conjuncts[l].getStartTime(),
+              conjuncts[l].getEndTime()
+            );
+          } else {
+            conjunctsCopy[l] = instance;
+          }
+          recursiveFunctorArgumentProcessing(conjunctsCopy, l + 1);
         });
         return;
       }
-      recursiveFunctorArgumentProcessing(clause, l + 1);
+      recursiveFunctorArgumentProcessing(conjuncts, l + 1);
     };
-    recursiveFunctorArgumentProcessing(r.clause, 0);
+    recursiveFunctorArgumentProcessing(r[0], 0);
     newChildren = newChildren.concat(nodes);
   });
   return newChildren;
 };
 
-const checkClauseExpiry = (program, conjunction, forTime) => {
+const isGoalTimeValid = (program, conjunction, forTime) => {
   for (let i = 0; i < conjunction.length; i += 1) {
     let conjunct = conjunction[i];
-    let conjunctArgs = conjunct.getArguments();
-    if (program.isFluent(conjunct)) {
-      let lastArg = conjunctArgs[conjunctArgs.length - 1];
-      if (lastArg instanceof Value && lastArg.evaluate() < forTime) {
-        return false;
-      }
-    } else if (program.isAction(conjunct) || program.isEvent(conjunct)) {
-      let startTimeArg = conjunctArgs[conjunctArgs.length - 2];
-      let endTimeArg = conjunctArgs[conjunctArgs.length - 1];
-
-      if (startTimeArg instanceof Value && startTimeArg.evaluate() < forTime) {
-        return false;
-      }
-      if (endTimeArg instanceof Value && endTimeArg.evaluate() < forTime + 1) {
-        return false;
-      }
-
-      if (startTimeArg instanceof Value && endTimeArg instanceof Value
-          && startTimeArg.evaluate() > endTimeArg.evaluate()) {
-        return false;
-      }
+    if (conjunct instanceof Timable
+        && conjunct.hasExpired(forTime)) {
+      return false;
     }
   }
   return true;
