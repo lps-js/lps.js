@@ -30,7 +30,10 @@ swap(A, J, B, K, T1, T2) ->
   move(A, X2, Y2),
   move(B, X1, Y1).
 
-mousedown(A, X, Y, T1, T2), not locked(A, T2) -> not locked(A, T3), enable_drag(A).
+mousedown(A, X, Y, T1, T2),
+  not locked(A, T2) ->
+    not locked(A, T3),
+    enable_drag(A).
 
 draggedTo(Item, X, Y, T1, T2) ->
   decideSwapLocation(Item, X, Y, T2, T4).

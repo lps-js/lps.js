@@ -1,8 +1,10 @@
 
-location(X, N1, T1), location(Y, N1 + 1, T1), Y @< X ->
-  decideSwap(X, N1, Y, N1 + 1, T2, T3).
+location(X, N1, T1),
+  location(Y, N1 + 1, T1),
+  Y @< X ->
+    decideSwap(X, N1, Y, N1 + 1) from T2 to T3.
 
-decideSwap(X, N1, Y, N2, T1, T2) <-
+decideSwap(X, N1, Y, N2) from T1 to T2 <-
   location(X, N1, T1),
   location(Y, N2, T1),
   Y @< X,
@@ -11,7 +13,7 @@ decideSwap(X, N1, Y, N2, T1, T2) <-
   unlock(X, Y, T2, T3).
 
 
-decideSwap(X, N1, Y, N2, T, T) <- 
+decideSwap(X, N1, Y, N2) at T <- 
   location(X, N1, T),
   location(Y, N2, T),
   X @< Y.
