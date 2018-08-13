@@ -36,9 +36,9 @@ function sortTimables(conjunction, forTime) {
     if (!(conjunct instanceof Timable)) {
       if (laterConjuncts.length > 0) {
         laterConjuncts.push(conjunct);
-      } else {
-        earlyConjuncts.push(conjunct);
+        continue;
       }
+      earlyConjuncts.push(conjunct);
       continue;
     }
 
@@ -59,7 +59,7 @@ function sortTimables(conjunction, forTime) {
     let conjunctStartTime = conjunct.getStartTime();
 
     if (conjunctStartTime instanceof Variable) {
-      if(dependentTimeVariables[conjunctStartTime.evaluate()] !== undefined) {
+      if (dependentTimeVariables[conjunctStartTime.evaluate()] !== undefined) {
         laterConjuncts.push(conjunct);
         continue;
       }
