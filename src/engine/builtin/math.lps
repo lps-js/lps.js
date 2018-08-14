@@ -1,5 +1,109 @@
-max(X, Y, X) <- X > Y.
-max(X, Y, Y) <- X <= Y.
+max(X, Y, Z) <-
+  Z = max(X, Y).
+min(X, Y, Z) <-
+  Z = min(X, Y).
 
-min(X, Y, X) <- X < Y.
-min(X, Y, Y) <- X >= Y.
+abs(X, V) <-
+  is_variable(V),
+  V = abs(X).
+abs(X, V) <-
+  not is_variable(V),
+  V == abs(X).
+
+sin(X, V) <-
+  is_variable(V),
+  V = sin(X).
+sin(X, V) <-
+  not is_variable(V),
+  V == sin(X).
+
+cos(X, V) <-
+  is_variable(V),
+  V = cos(X).
+cos(X, V) <-
+  not is_variable(V),
+  V == cos(X).
+
+tan(X, V) <-
+  is_variable(V),
+  V = tan(X).
+tan(X, V) <-
+  not is_variable(V),
+  V == tan(X).
+
+asin(X, V) <-
+  is_variable(V),
+  V = asin(X).
+asin(X, V) <-
+  not is_variable(V),
+  V == asin(X).
+
+acos(X, V) <-
+  is_variable(V),
+  V = acos(X).
+acos(X, V) <-
+  not is_variable(V),
+  V == acos(X).
+
+atan(X, V) <-
+  is_variable(V),
+  V = atan(X).
+atan(X, V) <-
+  not is_variable(V),
+  V == atan(X).
+
+sqrt(X, V) <-
+  is_variable(V),
+  V = sqrt(X).
+sqrt(X, V) <-
+  not is_variable(V),
+  V == sqrt(X).
+
+pow(X, Y, V) <-
+  is_variable(V),
+  V = pow(X, Y).
+pow(X, Y, V) <-
+  not is_variable(V),
+  V == pow(X, Y).
+
+exp(X, V) <-
+  is_variable(V),
+  V = exp(X).
+exp(X, V) <-
+  not is_variable(V),
+  V == exp(X).
+
+log(X, V) <-
+  is_variable(V),
+  V = log(X).
+log(X, V) <-
+  not is_variable(V),
+  V == log(X).
+
+floor(X, V) <-
+  is_variable(V),
+  V = floor(X).
+floor(X, V) <-
+  not is_variable(V),
+  V == floor(X).
+
+ceil(X, V) <-
+  is_variable(V),
+  V = ceil(X).
+ceil(X, V) <-
+  not is_variable(V),
+  V == ceil(X).
+  
+round(X, V) <-
+  is_variable(V),
+  V = round(X).
+round(X, V) <-
+  not is_variable(V),
+  V == round(X).
+  
+pi(V) <-
+  is_variable(V),
+  V = pi.
+pi(V) <-
+  not is_variable(V),
+  V == pi.
