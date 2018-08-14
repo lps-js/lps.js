@@ -34,6 +34,15 @@ describe('Functor', () => {
     });
   });
 
+  describe('getId()', () => {
+    it('should return the functor ID correctly', () => {
+      let functor = new Functor('add', [new Variable('X'), new Value(5)]);
+      expect(functor.getId).to.be.a('function');
+
+      expect(functor.getId()).to.be.equal('add/2');
+    });
+  });
+
   describe('getVariables()', () => {
     it('should return variables in itself', () => {
       let functor = new Functor('add', [new Variable('X'), new Value(5)]);
