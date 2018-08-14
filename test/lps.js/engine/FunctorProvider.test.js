@@ -79,9 +79,9 @@ describe('FunctorProvider', () => {
       expect(provider.has('floor/1')).to.be.true;
       expect(provider.has('*/2')).to.be.true;
       expect(provider.has('-/2')).to.be.true;
-      expect(provider.has('sin/2')).to.be.true;
-      expect(provider.has('cos/2')).to.be.true;
-      expect(provider.has('tan/2')).to.be.true;
+      expect(provider.has('sin/1')).to.be.true;
+      expect(provider.has('cos/1')).to.be.true;
+      expect(provider.has('tan/1')).to.be.true;
       expect(provider.has('append/2')).to.be.true;
 
       let literal = new Functor('!', [new Variable('X')]);
