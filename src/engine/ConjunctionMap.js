@@ -1,8 +1,17 @@
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 
+/**
+ * Maps conjunctions to a value.
+ * @constructor
+ */
 function ConjunctionMap() {
   let _conjunctions = [];
 
+  /**
+   * Add a mapping of a conjunction to a value to this map.
+   * @param {Array} conjunction The conjunction to map the value
+   * @param {any} value       The value to be mapped
+   */
   this.add = function add(conjunction, value) {
     let map = new LiteralTreeMap();
     conjunction.forEach((conjunct) => {
@@ -11,6 +20,11 @@ function ConjunctionMap() {
     _conjunctions.push([map.size(), map, value]);
   };
 
+  /**
+   * Get the value of a conjunction.
+   * @return {any} Return the value of the conjunction mapped if it exists. Otherwise if the
+   *    conjunction is not mapped then undefined would be returned instead.
+   */
   this.get = function get(conjunction) {
     let result;
     for (let i = 0; i < _conjunctions.length; i += 1) {
