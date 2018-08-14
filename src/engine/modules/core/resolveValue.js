@@ -1,11 +1,18 @@
 const Functor = lpsRequire('engine/Functor');
 
-module.exports = function resolveValue(v) {
-  let result = v;
+/**
+ * Resolve a value against the functor provider if it's a functor.
+ * An instanceo of FunctorProvider must be passed in as "this" to
+ * this function.
+ * @param  {any} value The value to resolve
+ * @return {any}       The resolved value
+ */
+module.exports = function resolveValue(value) {
+  let result = value;
   if (result instanceof Functor && this.has(result.getId())) {
-    let functorExecutionResult = this.execute(result);
+    let executionResult = this.execute(result);
     result = [];
-    functorExecutionResult.forEach((r) => {
+    executionResult.forEach((r) => {
       if (r.replacement === undefined) {
         return;
       }
