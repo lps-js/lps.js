@@ -24,22 +24,11 @@ LPS.literalSet = function literalSet(str) {
   return Program.literalSet(str);
 };
 
-const _loadEngine = function _loadEngine(engine) {
-  return engine.load()
-    .then(() => {
-      return new Promise((resolve) => {
-        engine.on('ready', () => {
-          resolve(engine);
-        });
-      });
-    });
-};
-
 LPS.loadString = function loadString(source) {
   return Program.fromString(source)
     .then((program) => {
       let engine = new Engine(program);
-      return _loadEngine(engine);
+      return engine.load();
     });
 };
 
@@ -50,7 +39,7 @@ LPS.loadFile = function loadFile(file) {
   return Program.fromFile(file)
     .then((program) => {
       let engine = new Engine(program, path.dirname(file));
-      return _loadEngine(engine);
+      return engine.load();
     });
 };
 
