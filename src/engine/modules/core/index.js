@@ -3,35 +3,17 @@ const Variable = lpsRequire('engine/Variable');
 const List = lpsRequire('engine/List');
 const Timable = lpsRequire('engine/Timable');
 const Functor = lpsRequire('engine/Functor');
+const resolveValue = lpsRequire('engine/modules/core/resolveValue');
+const mathFunctors = lpsRequire('engine/modules/core/math');
+const assertIsValue = lpsRequire('engine/modules/core/assertIsValue');
 
-let assertIsValue = function assertIsValue(val) {
-  if (!(val instanceof Value) && !(val instanceof Functor)) {
-    throw new Error('Must be value, ' + val + ' given');
-  }
-};
-
-let assertIsList = function assertIsList(val) {
+const assertIsList = function assertIsList(val) {
   if (!(val instanceof List)) {
     throw new Error('Must be list');
   }
 };
 
-let resolveValue = function resolveValue(v) {
-  let result = v;
-  if (result instanceof Functor && this.has(result.getId())) {
-    let functorExecutionResult = this.execute(result);
-    result = [];
-    functorExecutionResult.forEach((r) => {
-      if (r.replacement === undefined) {
-        return;
-      }
-      result.push(r.replacement);
-    });
-  }
-  return result;
-};
-
-let checkOrSetOutputArg = function checkOrSetOutputArg(value, outputArg) {
+const checkOrSetOutputArg = function checkOrSetOutputArg(value, outputArg) {
   if (outputArg instanceof Variable) {
     let varName = outputArg.evaluate();
     let theta = {};
@@ -77,7 +59,7 @@ let checkOrSetOutputArg = function checkOrSetOutputArg(value, outputArg) {
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
-  let functors = {
+  const coreFunctors = {
     '!/1': function (literalArg) {
       let literal = literalArg;
       if (!(literal instanceof Functor) && !(literal instanceof Timable)) {
@@ -95,199 +77,13 @@ module.exports = (engine, program) => {
       }
       return result;
     },
-    '+/2': function (v1Arg, v2Arg) {
-      let result = [];
-
-      let v1 = resolveValue.call(this, v1Arg);
-      if (v1 instanceof Array) {
-        v1.forEach((instance) => {
-          result = result.concat(functors['+/2'](instance, v2Arg));
-        });
-        return result;
-      }
-
-      let v2 = resolveValue.call(this, v2Arg);
-      if (v2 instanceof Array) {
-        v2.forEach((instance) => {
-          result = result.concat(functors['+/2'](v1, instance));
-        });
-        return result;
-      }
-
-      if (v1 instanceof Variable || v2 instanceof Variable) {
-        return [];
-      }
-      assertIsValue(v1);
-      assertIsValue(v2);
-
-      return [
-        {
-          theta: {},
-          replacement: new Value(Number(v1.evaluate()) + Number(v2.evaluate()))
-        }
-      ];
-    },
-
-    '-/2': function (v1Arg, v2Arg) {
-      let result = [];
-      let v1 = resolveValue.call(this, v1Arg);
-      if (v1 instanceof Array) {
-        v1.forEach((instance) => {
-          result = result.concat(functors['-/2'](instance, v2Arg));
-        });
-        return result;
-      }
-
-      let v2 = resolveValue.call(this, v2Arg);
-      if (v2 instanceof Array) {
-        v2.forEach((instance) => {
-          result = result.concat(functors['-/2'](v1, instance));
-        });
-        return result;
-      }
-
-      if (v1 instanceof Variable || v2 instanceof Variable) {
-        return [];
-      }
-      assertIsValue(v1);
-      assertIsValue(v2);
-
-      return [
-        {
-          theta: {},
-          replacement: new Value(Number(v1.evaluate()) - Number(v2.evaluate()))
-        }
-      ];
-    },
-
-    '*/2': function (v1Arg, v2Arg) {
-      let result = [];
-      let v1 = resolveValue.call(this, v1Arg);
-      if (v1 instanceof Array) {
-        v1.forEach((instance) => {
-          result = result.concat(functors['*/2'](instance, v2Arg));
-        });
-        return result;
-      }
-
-      let v2 = resolveValue.call(this, v2Arg);
-      if (v2 instanceof Array) {
-        v2.forEach((instance) => {
-          result = result.concat(functors['*/2'](v1, instance));
-        });
-        return result;
-      }
-
-      if (v1 instanceof Variable || v2 instanceof Variable) {
-        return [];
-      }
-      assertIsValue(v1);
-      assertIsValue(v2);
-
-      return [
-        {
-          theta: {},
-          replacement: new Value(Number(v1.evaluate()) * Number(v2.evaluate()))
-        }
-      ];
-    },
-
-    '//2': function (v1Arg, v2Arg) {
-      let result = [];
-      let v1 = resolveValue.call(this, v1Arg);
-      if (v1 instanceof Array) {
-        v1.forEach((instance) => {
-          result = result.concat(functors['//2'](instance, v2Arg));
-        });
-        return result;
-      }
-
-      let v2 = resolveValue.call(this, v2Arg);
-      if (v2 instanceof Array) {
-        v2.forEach((instance) => {
-          result = result.concat(functors['//2'](v1, instance));
-        });
-        return result;
-      }
-
-      if (v1 instanceof Variable || v2 instanceof Variable) {
-        return [];
-      }
-
-      assertIsValue(v1);
-      assertIsValue(v2);
-
-      return [
-        {
-          theta: {},
-          replacement: new Value(Number(v1.evaluate()) / Number(v2.evaluate()))
-        }
-      ];
-    },
-
-    '**/2': function (v1Arg, v2Arg) {
-      let result = [];
-      let v1 = resolveValue.call(this, v1Arg);
-      if (v1 instanceof Array) {
-        v1.forEach((instance) => {
-          result = result.concat(functors['**/2'](instance, v2Arg));
-        });
-        return result;
-      }
-
-      let v2 = resolveValue.call(this, v2Arg);
-      if (v2 instanceof Array) {
-        v2.forEach((instance) => {
-          result = result.concat(functors['**/2'](v1, instance));
-        });
-        return result;
-      }
-
-      if (v1 instanceof Variable || v2 instanceof Variable) {
-        return [];
-      }
-
-      assertIsValue(v1);
-      assertIsValue(v2);
-
-      return [
-        {
-          theta: {},
-          replacement: new Value(Math.pow(Number(v1.evaluate()), Number(v2.evaluate())))
-        }
-      ];
-    },
-
-    '-/1': function (v1Arg) {
-      let result = [];
-      let v1 = resolveValue.call(this, v1Arg);
-      if (v1 instanceof Array) {
-        v1.forEach((instance) => {
-          result = result.concat(functors['-/1'](instance));
-        });
-        return result;
-      }
-
-      if (v1 instanceof Variable) {
-        return [];
-      }
-
-      assertIsValue(v1);
-
-      return [
-        {
-          theta: {},
-          replacement: new Value(-Number(v1.evaluate()))
-        }
-      ];
-    },
 
     '>/2': function (v1Arg, v2Arg) {
       let result = [];
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['>/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['>/2'](instance, v2Arg));
         });
         return result;
       }
@@ -295,7 +91,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['>/2'](v1, instance));
+          result = result.concat(coreFunctors['>/2'](v1, instance));
         });
         return result;
       }
@@ -322,7 +118,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['>=/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['>=/2'](instance, v2Arg));
         });
         return result;
       }
@@ -330,7 +126,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['>=/2'](v1, instance));
+          result = result.concat(coreFunctors['>=/2'](v1, instance));
         });
         return result;
       }
@@ -357,7 +153,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['</2'](instance, v2Arg));
+          result = result.concat(coreFunctors['</2'](instance, v2Arg));
         });
         return result;
       }
@@ -365,7 +161,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['</2'](v1, instance));
+          result = result.concat(coreFunctors['</2'](v1, instance));
         });
         return result;
       }
@@ -392,7 +188,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['<=/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['<=/2'](instance, v2Arg));
         });
         return result;
       }
@@ -400,7 +196,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['<=/2'](v1, instance));
+          result = result.concat(coreFunctors['<=/2'](v1, instance));
         });
         return result;
       }
@@ -444,7 +240,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['==/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['==/2'](instance, v2Arg));
         });
         return result;
       }
@@ -452,7 +248,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['==/2'](v1, instance));
+          result = result.concat(coreFunctors['==/2'](v1, instance));
         });
         return result;
       }
@@ -479,7 +275,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['!=/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['!=/2'](instance, v2Arg));
         });
         return result;
       }
@@ -487,7 +283,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['!=/2'](v1, instance));
+          result = result.concat(coreFunctors['!=/2'](v1, instance));
         });
         return result;
       }
@@ -515,7 +311,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['abs/1'](instance));
+          result = result.concat(coreFunctors['abs/1'](instance));
         });
         return result;
       }
@@ -540,7 +336,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['abs/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['abs/2'](instance, v2Arg));
         });
         return result;
       }
@@ -556,7 +352,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['sin/1'](instance));
+          result = result.concat(coreFunctors['sin/1'](instance));
         });
         return result;
       }
@@ -577,7 +373,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['sin/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['sin/2'](instance, v2Arg));
         });
         return result;
       }
@@ -593,7 +389,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['cos/1'](instance));
+          result = result.concat(coreFunctors['cos/1'](instance));
         });
         return result;
       }
@@ -614,7 +410,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['cos/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['cos/2'](instance, v2Arg));
         });
         return result;
       }
@@ -630,7 +426,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['tan/1'](instance));
+          result = result.concat(coreFunctors['tan/1'](instance));
         });
         return result;
       }
@@ -651,7 +447,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['tan/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['tan/2'](instance, v2Arg));
         });
         return result;
       }
@@ -667,7 +463,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['sqrt/1'](instance));
+          result = result.concat(coreFunctors['sqrt/1'](instance));
         });
         return result;
       }
@@ -688,7 +484,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['sqrt/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['sqrt/2'](instance, v2Arg));
         });
         return result;
       }
@@ -704,7 +500,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['pow/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['pow/2'](instance, v2Arg));
         });
         return result;
       }
@@ -712,7 +508,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['pow/2'](v1, instance));
+          result = result.concat(coreFunctors['pow/2'](v1, instance));
         });
         return result;
       }
@@ -734,7 +530,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['pow/3'](instance, v2Arg, v3Arg));
+          result = result.concat(coreFunctors['pow/3'](instance, v2Arg, v3Arg));
         });
         return result;
       }
@@ -742,7 +538,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['pow/3'](v1, instance, v3Arg));
+          result = result.concat(coreFunctors['pow/3'](v1, instance, v3Arg));
         });
         return result;
       }
@@ -759,7 +555,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['max/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['max/2'](instance, v2Arg));
         });
         return result;
       }
@@ -767,7 +563,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['max/2'](v1, instance));
+          result = result.concat(coreFunctors['max/2'](v1, instance));
         });
         return result;
       }
@@ -789,7 +585,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['min/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['min/2'](instance, v2Arg));
         });
         return result;
       }
@@ -797,7 +593,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['min/2'](v1, instance));
+          result = result.concat(coreFunctors['min/2'](v1, instance));
         });
         return result;
       }
@@ -819,7 +615,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['exp/1'](instance));
+          result = result.concat(coreFunctors['exp/1'](instance));
         });
         return result;
       }
@@ -840,7 +636,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['exp/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['exp/2'](instance, v2Arg));
         });
         return result;
       }
@@ -856,7 +652,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['log/1'](instance));
+          result = result.concat(coreFunctors['log/1'](instance));
         });
         return result;
       }
@@ -877,7 +673,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['log/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['log/2'](instance, v2Arg));
         });
         return result;
       }
@@ -893,7 +689,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['floor/1'](instance));
+          result = result.concat(coreFunctors['floor/1'](instance));
         });
         return result;
       }
@@ -914,7 +710,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['floor/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['floor/2'](instance, v2Arg));
         });
         return result;
       }
@@ -930,7 +726,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['ceil/1'](instance));
+          result = result.concat(coreFunctors['ceil/1'](instance));
         });
         return result;
       }
@@ -951,7 +747,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['ceil/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['ceil/2'](instance, v2Arg));
         });
         return result;
       }
@@ -967,7 +763,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['round/1'](instance));
+          result = result.concat(coreFunctors['round/1'](instance));
         });
         return result;
       }
@@ -988,7 +784,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['round/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['round/2'](instance, v2Arg));
         });
         return result;
       }
@@ -1004,7 +800,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['@</2'](instance, v2Arg));
+          result = result.concat(coreFunctors['@</2'](instance, v2Arg));
         });
         return result;
       }
@@ -1012,7 +808,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['@</2'](v1, instance));
+          result = result.concat(coreFunctors['@</2'](v1, instance));
         });
         return result;
       }
@@ -1034,7 +830,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['@=/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['@=/2'](instance, v2Arg));
         });
         return result;
       }
@@ -1042,7 +838,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['@=/2'](v1, instance));
+          result = result.concat(coreFunctors['@=/2'](v1, instance));
         });
         return result;
       }
@@ -1064,7 +860,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['@>/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['@>/2'](instance, v2Arg));
         });
         return result;
       }
@@ -1072,7 +868,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['@>/2'](v1, instance));
+          result = result.concat(coreFunctors['@>/2'](v1, instance));
         });
         return result;
       }
@@ -1113,7 +909,7 @@ module.exports = (engine, program) => {
       let v2 = resolveValue.call(this, v2Arg);
       if (v2 instanceof Array) {
         v2.forEach((instance) => {
-          result = result.concat(functors['append/3'](v1, instance, v3Arg));
+          result = result.concat(coreFunctors['append/3'](v1, instance, v3Arg));
         });
         return result;
       }
@@ -1170,7 +966,7 @@ module.exports = (engine, program) => {
       let v1 = resolveValue.call(this, v1Arg);
       if (v1 instanceof Array) {
         v1.forEach((instance) => {
-          result = result.concat(functors['member/2'](instance, v2Arg));
+          result = result.concat(coreFunctors['member/2'](instance, v2Arg));
         });
         return result;
       }
@@ -1212,7 +1008,7 @@ module.exports = (engine, program) => {
       let resolvedRHS = resolveValue.call(this, rhs);
       if (resolvedRHS instanceof Array) {
         resolvedRHS.forEach((instance) => {
-          result = result.concat(functors['=/2'](lhs, instance));
+          result = result.concat(coreFunctors['=/2'](lhs, instance));
         });
         return result;
       }
@@ -1295,5 +1091,7 @@ module.exports = (engine, program) => {
     }
   };
 
-  program.getFunctorProvider().load(functors);
+  let functorProvider = program.getFunctorProvider();
+  functorProvider.load(coreFunctors);
+  functorProvider.load(mathFunctors);
 };
