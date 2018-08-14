@@ -16,11 +16,14 @@ describe('Functor', () => {
       expect(functor.getId()).to.be.equals('add/2');
 
       expect(functor.getArguments).to.be.a('function');
+      expect(functor.getArgumentCount).to.be.a('function');
 
       expect(functor.getArguments()).to.be.an('array');
       expect(functor.getArguments()).contains(functorArgs[0]);
       expect(functor.getArguments()).contains(functorArgs[1]);
-      expect(functor.getArguments().length).to.be.equals(2);
+      expect(functor.getArguments().length).to.be.equal(2);
+
+      expect(functor.getArgumentCount()).to.be.equal(2);
     });
 
     it('should initialise the Functor without args correctly', () => {
@@ -40,6 +43,24 @@ describe('Functor', () => {
       expect(functor.getId).to.be.a('function');
 
       expect(functor.getId()).to.be.equal('add/2');
+    });
+  });
+
+  describe('evaluate()', () => {
+    it('should return the functor string representation', () => {
+      let functor = new Functor('add', [new Variable('X'), new Value(5)]);
+      expect(functor.evaluate).to.be.a('function');
+
+      expect(functor.evaluate()).to.be.equal(functor.toString());
+    });
+  });
+
+  describe('getGoal()', () => {
+    it('should return the functor goal as itself', () => {
+      let functor = new Functor('add', [new Variable('X'), new Value(5)]);
+      expect(functor.getGoal).to.be.a('function');
+
+      expect(functor.getGoal()).to.be.equal(functor);
     });
   });
 
