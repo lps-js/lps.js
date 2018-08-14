@@ -17,11 +17,9 @@ describe('Clause', () => {
       expect(clause.getVariables).to.be.a('function');
       expect(clause.getHeadLiterals).to.be.a('function');
       expect(clause.getBodyLiterals).to.be.a('function');
-      expect(clause.isFact).to.be.a('function');
       expect(clause.isGround).to.be.a('function');
       expect(clause.substitute).to.be.a('function');
 
-      expect(clause.isFact()).to.be.true;
       expect(clause.isGround()).to.be.true;
       expect(clause.getHeadLiterals()).to.be.instanceof(Array);
       expect(clause.getBodyLiterals()).to.be.instanceof(Array);

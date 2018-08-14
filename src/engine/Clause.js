@@ -18,10 +18,6 @@ function Clause(head, body) {
     return Object.keys(hash);
   };
 
-  this.isFact = function isFact() {
-    return _body.length === 0;
-  };
-
   this.isConstraint = function isQuery() {
     return _head.length === 0;
   };
