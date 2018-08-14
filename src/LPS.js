@@ -24,11 +24,10 @@ LPS.literalSet = function literalSet(str) {
   return Program.literalSet(str);
 };
 
-LPS.loadString = function loadString(source) {
-  return Program.fromString(source)
-    .then((program) => {
+const _loadEngine = function _loadEngine(engine) {
+  return engine.load()
+    .then(() => {
       return new Promise((resolve) => {
-        let engine = new Engine(program);
         engine.on('ready', () => {
           resolve(engine);
         });
@@ -36,19 +35,22 @@ LPS.loadString = function loadString(source) {
     });
 };
 
+LPS.loadString = function loadString(source) {
+  return Program.fromString(source)
+    .then((program) => {
+      let engine = new Engine(program);
+      return _loadEngine(engine);
+    });
+};
+
 LPS.loadFile = function loadFile(file) {
-  // TODO: consider browser context
   if (process.browser) {
-    throw new Error('Cannot load file in browser mode');
+    return Promise.reject(new Error('Cannot load file in browser mode'));
   }
   return Program.fromFile(file)
     .then((program) => {
-      return new Promise((resolve) => {
-        let engine = new Engine(program, path.dirname(file));
-        engine.on('ready', () => {
-          resolve(engine);
-        });
-      });
+      let engine = new Engine(program, path.dirname(file));
+      return _loadEngine(engine);
     });
 };
 
