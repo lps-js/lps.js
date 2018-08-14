@@ -15,7 +15,7 @@ function Value(value) {
   };
 
   /**
-   * Determine if the value is ground
+   * Determine if the term is ground
    * @return {Boolean} Return true all the time.
    */
   this.isGround = function isGround() {
@@ -32,9 +32,10 @@ function Value(value) {
 
   /**
    * Perform a substitution on this term.
+   * @param  {Object} theta The substitution theta
    * @return {Value} Return a copy of the value.
    */
-  this.substitute = function substitute() {
+  this.substitute = function substitute(theta) {
     return new Value(_value);
   };
 
