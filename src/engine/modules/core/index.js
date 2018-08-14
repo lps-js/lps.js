@@ -5,6 +5,7 @@ const Timable = lpsRequire('engine/Timable');
 const Functor = lpsRequire('engine/Functor');
 const resolveValue = lpsRequire('engine/modules/core/resolveValue');
 const mathFunctors = lpsRequire('engine/modules/core/math');
+const typesFunctors = lpsRequire('engine/modules/core/types');
 const assertIsValue = lpsRequire('engine/modules/core/assertIsValue');
 
 const assertIsList = function assertIsList(val) {
@@ -1020,22 +1021,6 @@ module.exports = (engine, program) => {
       return result;
     },
 
-    'is_list/1': function (operand) {
-      let result = [];
-      if (operand instanceof List) {
-        result.push({ theta: {} });
-      }
-      return result;
-    },
-
-    'is_ground/1': function (term) {
-      let result = [];
-      if (term.isGround !== undefined && term.isGround()) {
-        result.push({ theta: {} });
-      }
-      return result;
-    },
-
     'findall/3': function (template, goal, output) {
       if (!(output instanceof Variable)) {
         throw new Error('The last argument of findall/3 must be a variable.');
@@ -1093,5 +1078,6 @@ module.exports = (engine, program) => {
 
   let functorProvider = program.getFunctorProvider();
   functorProvider.load(coreFunctors);
+  functorProvider.load(typesFunctors);
   functorProvider.load(mathFunctors);
 };
