@@ -37,7 +37,7 @@ function List(head, tail) {
   this.getVariables = function getVariables() {
     let hash = {};
 
-    let processArg = function processArg(arg) {
+    const processArg = function processArg(arg) {
       arg.getVariables().forEach((argVar) => {
         hash[argVar] = true;
       });
@@ -46,9 +46,7 @@ function List(head, tail) {
     _head.forEach(processArg);
 
     if (_tail instanceof List) {
-      _tail.getVariables().forEach((varName) => {
-        hash[varName] = true;
-      });
+      processArg(_tail);
     } else if (_tail instanceof Variable) {
       hash[_tail.evaluate()] = true;
     }
