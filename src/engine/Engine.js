@@ -17,8 +17,9 @@ const rulePreProcessor = lpsRequire('engine/builtin/RulePreProcessor');
 const TimableProcessor = lpsRequire('engine/builtin/TimableProcessor');
 const stringLiterals = lpsRequire('utility/strings');
 
-const evaluateGoalTrees = function evaluateGoalTrees(currentTime, goalTrees, program, newGoals) {
+const evaluateGoalTrees = function evaluateGoalTrees(currentTime, goalTrees) {
   let goalTreeProcessingPromises = [];
+  let newGoals = [];
   goalTrees.forEach((goalTree) => {
     let treePromise = goalTree
       .evaluate(currentTime)
@@ -41,7 +42,10 @@ const evaluateGoalTrees = function evaluateGoalTrees(currentTime, goalTrees, pro
     goalTreeProcessingPromises.push(treePromise);
   });
 
-  return Promise.all(goalTreeProcessingPromises);
+  return Promise.all(goalTreeProcessingPromises)
+    .then(() => {
+      return Promise.resolve(newGoals);
+    });
 };
 
 function Engine(program, workingDirectory) {
@@ -465,25 +469,23 @@ function Engine(program, workingDirectory) {
         updatedState = updateStateWithFluentActors(executedActions, updatedState);
         program.setExecutedActions(executedActions);
 
-        let newGoals = [];
-
         // reset statistics
         _numLastCycleFailedRules = 0;
         _numLastCycleResolvedRules = 0;
 
-        let promise = Promise.resolve();
+        let promise = Promise.resolve([]);
         let newFiredGoals = [];
         if (_currentTime > 0) {
           // skip pre-processing in cycle 0 to 1.
           newFiredGoals = processRules(program, _goals, _currentTime);
           _goals = _goals.concat(newFiredGoals);
-
-          promise = evaluateGoalTrees(_currentTime, _goals, program, newGoals);
+          promise = evaluateGoalTrees(_currentTime, _goals);
         }
 
         return promise
-          .then(() => {
+          .then((newGoals) => {
             _goals = newGoals;
+            _goals.sort(goalTreeSorter(_currentTime));
 
             // preparation for next cycle
             _currentTime += 1;
@@ -495,11 +497,9 @@ function Engine(program, workingDirectory) {
             // we need to derive the partially executed rule here too
             newFiredGoals = processRules(program, _goals, _currentTime);
             _goals = _goals.concat(newFiredGoals);
-
-            newGoals = [];
-            return evaluateGoalTrees(_currentTime, _goals, program, newGoals);
+            return evaluateGoalTrees(_currentTime, _goals);
           })
-          .then(() => {
+          .then((newGoals) => {
             _goals = newGoals;
 
             // ensure goal trees are sorted by their deadlines
