@@ -62,7 +62,7 @@ describe('coreModule', () => {
         expect(result).to.be.an('array');
         expect(result).to.be.length(0);
       });
-    });
+    }); // describe +/2
 
     describe('-/2', () => {
       let program;
@@ -117,7 +117,7 @@ describe('coreModule', () => {
         expect(result).to.be.an('array');
         expect(result).to.be.length(0);
       });
-    });
+    }); // describe -/2
 
     describe('*/2', () => {
       let program;
@@ -172,7 +172,7 @@ describe('coreModule', () => {
         expect(result).to.be.an('array');
         expect(result).to.be.length(0);
       });
-    });
+    }); // describe */2
 
     describe('//2', () => {
       let program;
@@ -227,7 +227,7 @@ describe('coreModule', () => {
         expect(result).to.be.an('array');
         expect(result).to.be.length(0);
       });
-    });
+    }); // describe //2
 
     describe('**/2', () => {
       let program;
@@ -282,7 +282,7 @@ describe('coreModule', () => {
         expect(result).to.be.an('array');
         expect(result).to.be.length(0);
       });
-    });
+    }); // describe **/2
 
     describe('-/1', () => {
       let program;
@@ -342,6 +342,140 @@ describe('coreModule', () => {
         expect(result).to.be.an('array');
         expect(result).to.be.length(0);
       });
-    });
+    }); // describe -/1
+
+    describe('abs/1', () => {
+      let program;
+      beforeEach(() => {
+        program = new Program();
+
+        // core module is loaded by Engine
+        coreModule(null, program);
+      });
+
+      it('should be defined', () => {
+        let functorProvider = program.getFunctorProvider();
+        expect(functorProvider.has('abs/1')).to.be.true;
+      });
+
+      it('should return negative number as positive number', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Value(-6)
+        ];
+        let result = functorProvider.execute(new Functor('abs', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(1);
+        expect(result[0]).to.have.property('theta');
+        expect(result[0].theta).to.be.an('object');
+        expect(result[0].theta).to.be.empty;
+        expect(result[0]).to.have.property('replacement');
+        expect(result[0].replacement).to.be.an('object');
+        expect(result[0].replacement).to.be.instanceof(Value);
+        expect(result[0].replacement.evaluate()).to.be.equal(6);
+      });
+
+      it('should return positive number as positive number', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Value(6)
+        ];
+        let result = functorProvider.execute(new Functor('abs', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(1);
+        expect(result[0]).to.have.property('theta');
+        expect(result[0].theta).to.be.an('object');
+        expect(result[0].theta).to.be.empty;
+        expect(result[0]).to.have.property('replacement');
+        expect(result[0].replacement).to.be.an('object');
+        expect(result[0].replacement).to.be.instanceof(Value);
+        expect(result[0].replacement.evaluate()).to.be.equal(6);
+      });
+
+
+      it('should throw error for variables in argument', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Variable('A')
+        ];
+
+        let result = functorProvider.execute(new Functor('abs', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(0);
+      });
+    }); // describe abs/1
+
+    describe('sin/1', () => {
+      let program;
+      beforeEach(() => {
+        program = new Program();
+
+        // core module is loaded by Engine
+        coreModule(null, program);
+      });
+
+      it('should be defined', () => {
+        let functorProvider = program.getFunctorProvider();
+        expect(functorProvider.has('sin/1')).to.be.true;
+      });
+
+      it('should return correct result', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Value(30)
+        ];
+        let result = functorProvider.execute(new Functor('sin', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(1);
+        expect(result[0]).to.have.property('theta');
+        expect(result[0].theta).to.be.an('object');
+        expect(result[0].theta).to.be.empty;
+
+        expect(result[0]).to.have.property('replacement');
+        expect(result[0].replacement).to.be.an('object');
+        expect(result[0].replacement).to.be.instanceof(Value);
+        expect(result[0].replacement.evaluate()).to.be.equal(Math.sin(30));
+      });
+
+      it('should return no result for variables in argument', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Variable('A')
+        ];
+        let result = functorProvider.execute(new Functor('sin', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(0);
+      });
+    }); // describe sin/1
+
+    describe('pi/0', () => {
+      let program;
+      beforeEach(() => {
+        program = new Program();
+
+        // core module is loaded by Engine
+        coreModule(null, program);
+      });
+
+      it('should be defined', () => {
+        let functorProvider = program.getFunctorProvider();
+        expect(functorProvider.has('pi/0')).to.be.true;
+      });
+
+      it('should return correct result', () => {
+        let functorProvider = program.getFunctorProvider();
+        let result = functorProvider.execute(new Functor('pi', []));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(1);
+        expect(result[0]).to.have.property('theta');
+        expect(result[0].theta).to.be.an('object');
+        expect(result[0].theta).to.be.empty;
+
+        expect(result[0]).to.have.property('replacement');
+        expect(result[0].replacement).to.be.an('object');
+        expect(result[0].replacement).to.be.instanceof(Value);
+        expect(result[0].replacement.evaluate()).to.be.equal(Math.PI);
+      });
+    }); // describe pi/0
   });
 });
