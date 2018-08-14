@@ -1,33 +1,51 @@
 <html>
   <head>
     <title>LPS Browser Mode Demonstration</title>
-    <script type="text/javascript" src="../dist/lps.bundle.js"></script>
   </head>
   <body>
     <p>
-      Output of the execution will be shown below. Errors would be reported in the developer tools / console of the browser.
+      This webpage demonstrates lps.js's capability of running LPS programs in the browser context. Output and errors of the execution will be shown below.
     </p>
+    <textarea id="codeInput" style="width: 100%; height: 200px;">
+      maxTime(10).
+    </textarea>
+    <button onclick="runProgram()">Run Program</button>
     <div id="outputArea">
       
     </div>
+    <script type="text/javascript" src="../dist/lps.bundle.js"></script>
     <script>
       var outputArea = document.getElementById('outputArea');
+      var codeInput = document.getElementById('codeInput');
       
-      LPS.loadString('maxTime(10).')
-        .then((engine) => {
-          engine.on('error', (err) => {
+      if (window.LPS === undefined) {
+        outputArea.innerHTML = 'You need to compile lps.bundle.js first by running the command "npm run build:browser".';
+      }
+      
+      function runProgram() {
+        var source = codeInput.value;
+        LPS.loadString(source)
+          .then((engine) => {
+            outputArea.innerHTML = '';
+            engine.on('error', (err) => {
+              outputArea.innerHTML += '<p>Error: ' + err + '</p>';
+            });
+            engine.on('postCycle', () => {
+              console.log('TIME ' + engine.getCurrentTime());
+              outputArea.innerHTML += '<p>TIME ' + engine.getCurrentTime() + '</p>';
+            });
+            engine.on('done', () => {
+              console.log('Execution Done!');
+              outputArea.innerHTML += '<p>Execution Done!</p>';
+            });
+            engine.run();
+          })
+          .catch((err) => {
             outputArea.innerHTML += '<p>Error: ' + err + '</p>';
           });
-          engine.on('postCycle', () => {
-            console.log('TIME ' + engine.getCurrentTime());
-            outputArea.innerHTML += '<p>TIME ' + engine.getCurrentTime() + '</p>';
-          });
-          engine.on('done', () => {
-            console.log('Execution Done!');
-            outputArea.innerHTML += '<p>Execution Done!</p>';
-          });
-          engine.run();
-        });
+      }
+      
+      // runProgram();
     </script>
   </body>
 </html>
