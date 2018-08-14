@@ -35,6 +35,7 @@ function Value(value) {
    * @param  {Object} theta The substitution theta
    * @return {Value} Return a copy of the value.
    */
+  // eslint-disable-next-line no-unused-vars
   this.substitute = function substitute(theta) {
     return new Value(_value);
   };

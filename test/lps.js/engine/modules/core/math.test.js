@@ -2,7 +2,6 @@ const coreModule = lpsRequire('engine/modules/core');
 const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
-const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Program = lpsRequire('parser/Program');
 
 const chai = require('chai');

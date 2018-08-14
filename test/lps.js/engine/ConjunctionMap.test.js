@@ -1,6 +1,5 @@
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 const Functor = lpsRequire('engine/Functor');
-const List = lpsRequire('engine/List');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 

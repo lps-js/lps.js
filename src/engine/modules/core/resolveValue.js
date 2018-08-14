@@ -20,4 +20,4 @@ module.exports = function resolveValue(value) {
     });
   }
   return result;
-};;
+};
