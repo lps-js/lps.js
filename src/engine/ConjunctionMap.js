@@ -13,6 +13,9 @@ function ConjunctionMap() {
    * @param {any} value       The value to be mapped
    */
   this.add = function add(conjunction, value) {
+    if (value === undefined) {
+      return;
+    }
     let map = new LiteralTreeMap();
     conjunction.forEach((conjunct) => {
       map.add(conjunct);
