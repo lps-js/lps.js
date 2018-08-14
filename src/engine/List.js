@@ -1,39 +1,59 @@
 const Variable = lpsRequire('engine/Variable');
 
+/**
+ * A list data representation
+ * @param       {Array} head The head of the list
+ * @param       {List|Variable} [tail] The tail of the list. If not defined,
+ *    an empty list is considered to be the tail.
+ * @constructor
+ */
 function List(head, tail) {
   let _head = head;
   let _tail = tail;
 
   if (tail === undefined) {
     // empty list for tail
-    _tail = new List([], []);
+    _tail = null;
   }
 
+  /**
+   * Get the head of the list
+   * @return {Array} Return the array representing the head of the list
+   */
   this.getHead = function getHead() {
-    return [].concat(_head);
+    return _head.concat([]);
   };
 
+  /**
+   * Get the tail of the list
+   * @return {Array|List|Variable} Return the tail representation of the list
+   */
   this.getTail = function getTail() {
     return _tail;
   };
 
+  /**
+   * Determine if the term is ground
+   * @return {Boolean} Return true if the term is ground, false otherwise.
+   */
   this.isGround = function isGround() {
-    let result = true;
+    if (_tail !== null) {
+      return _tail.isGround();
+    }
 
     for (let i = 0; i < _head.length; i += 1) {
       if (!_head[i].isGround()) {
-        result = false;
-        break;
+        return false;
       }
     }
 
-    if (!(_tail instanceof Array)) {
-      result = result && _tail.isGround();
-    }
-
-    return result;
+    return true;
   };
 
+  /**
+   * Get all unique variables that occur in this term
+   * @return {Array} Return the array of unique variables occuring in this term
+   */
   this.getVariables = function getVariables() {
     let hash = {};
 
@@ -54,6 +74,11 @@ function List(head, tail) {
     return Object.keys(hash);
   };
 
+  /**
+   * Perform a substitution on this term.
+   * @param  {Object} theta The substitution theta
+   * @return {List}       Return the substituted list
+   */
   this.substitute = function substitute(theta) {
     let newHead = head.map((element) => {
       return element.substitute(theta);
@@ -66,6 +91,11 @@ function List(head, tail) {
     return new List(newHead, newTail);
   };
 
+  /**
+   * Create a flat representation of the list. If the tail of the list is a variable,
+   * the empty list is assumed.
+   * @return {Array} Return the flat array representation of the list
+   */
   this.flatten = function flatten() {
     let result = [];
     if (_head.length > 0) {
@@ -77,10 +107,19 @@ function List(head, tail) {
     return result;
   };
 
+  /**
+   * Determine if the list is empty
+   * @return {Boolean} Return true if the list is empty, false otherwise.
+   */
   this.isEmpty = function isEmpty() {
-    return _head.length === 0;
+    return _head.length === 0
+      && (_tail instanceof List && _tail.isEmpty());
   };
 
+  /**
+   * Create a string representation of the term
+   * @return {string} Return the string representation of the term
+   */
   this.toString = function toString() {
     let result = '';
     result += '[';
@@ -90,7 +129,7 @@ function List(head, tail) {
         result += ', ';
       }
     }
-    if (!(_tail instanceof List) || !_tail.isEmpty()) {
+    if (_tail !== null && (!(_tail instanceof List) || !_tail.isEmpty())) {
       result += '|' + _tail.toString();
     }
     result += ']';
