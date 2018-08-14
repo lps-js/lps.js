@@ -6,13 +6,33 @@ const List = lpsRequire('engine/List');
 const Functor = lpsRequire('engine/Functor');
 const path = require('path');
 
+/**
+ * The consult/1 definition
+ * @type {Functor}
+ */
 const consultLiteral1 = Program.literal('consult(File)');
+
+/**
+ * The consult/2 definition
+ * @type {Functor}
+ */
 const consultLiteral2 = Program.literal('consult(File, Id)');
+
+/**
+ * The processId/1 definition
+ * @type {Functor}
+ */
 const processIdLiteral = Program.literal('processId(Id)');
 
+/**
+ * The loadModule/1 definition
+ * @type {Functor}
+ */
 const loadModuleLiteral = Program.literal('loadModule(Module)');
 
-const builtinModulePath = path.join(__dirname, '../modules');
+// path to the built-in modules
+const builtinModulePath = 'engine/modules';
+// set of built-in modules
 const builtinModules = [
   'fs',
   'p2p'
@@ -133,7 +153,7 @@ function Consult(engine, targetProgram) {
 
       if (builtinIndex !== -1) {
         let moduleName = builtinModules[builtinIndex];
-        let module = require(path.join(builtinModulePath, moduleName));
+        let module = lpsRequire(`${builtinModulePath}/${moduleName}`);
         module(engine, targetProgram);
         return;
       }
