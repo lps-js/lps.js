@@ -872,18 +872,26 @@ function Engine(program, workingDirectory) {
     _engineEventManager.notify('ready', this);
   });
 
-  let coreModule = require('./modules/core');
-  coreModule(this, program);
+  let _loaded = false;
+  this.load = function load() {
+    if (_loaded) {
+      return Promise.reject(new Error('LPS Engine already loaded'));
+    }
+    _loaded = true;
+    let coreModule = require('./modules/core');
+    coreModule(this, program);
 
-  BuiltinLoader
-    .load(this, program)
-    .then((consult) => {
-      // start processing consult/1, consult/2 and loadModule/1 declarations in main program
-      return consult.process(workingDirectory);
-    })
-    .then(() => {
-      _engineEventManager.notify('loaded', this);
-    });
+    return BuiltinLoader
+      .load(this, program)
+      .then((consult) => {
+        // start processing consult/1, consult/2 and loadModule/1 declarations in main program
+        return consult.process(workingDirectory);
+      })
+      .then(() => {
+        _engineEventManager.notify('loaded', this);
+        return Promise.resolve(this);
+      });
+  };
 }
 
 module.exports = Engine;
