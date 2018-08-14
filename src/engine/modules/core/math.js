@@ -217,22 +217,6 @@ const functors = {
     ];
   },
 
-  'abs/2': function (v1Arg, v2Arg) {
-    let result = [];
-    let v1 = resolveValue.call(this, v1Arg);
-    if (v1 instanceof Array) {
-      v1.forEach((instance) => {
-        result = result.concat(functors['abs/2'](instance, v2Arg));
-      });
-      return result;
-    }
-
-    assertIsValue(v1);
-    let value = new Value(Math.abs(Number(v1.evaluate())));
-
-    return checkOrSetOutputArg.call(this, value, v2Arg);
-  },
-
   'sin/1': function (v1Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
@@ -241,6 +225,10 @@ const functors = {
         result = result.concat(functors['sin/1'](instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -254,20 +242,29 @@ const functors = {
     ];
   },
 
-  'sin/2': function (v1Arg, v2Arg) {
+  'asin/1': function (v1Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['sin/2'](instance, v2Arg));
+        result = result.concat(functors['asin/1'](instance));
       });
       return result;
     }
 
-    assertIsValue(v1);
-    let value = new Value(Math.sin(v1.evaluate()));
+    if (v1 instanceof Variable) {
+      return [];
+    }
 
-    return checkOrSetOutputArg.call(this, value, v2Arg);
+    assertIsValue(v1);
+    let value = new Value(Math.asin(v1.evaluate()));
+
+    return [
+      {
+        theta: {},
+        replacement: value
+      }
+    ];
   },
 
   'cos/1': function (v1Arg) {
@@ -278,6 +275,10 @@ const functors = {
         result = result.concat(functors['cos/1'](instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -291,20 +292,29 @@ const functors = {
     ];
   },
 
-  'cos/2': function (v1Arg, v2Arg) {
+  'acos/1': function (v1Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['cos/2'](instance, v2Arg));
+        result = result.concat(functors['acos/1'](instance));
       });
       return result;
     }
 
-    assertIsValue(v1);
-    let value = new Value(Math.cos(v1.evaluate()));
+    if (v1 instanceof Variable) {
+      return [];
+    }
 
-    return checkOrSetOutputArg.call(this, value, v2Arg);
+    assertIsValue(v1);
+    let value = new Value(Math.acos(Number(v1.evaluate())));
+
+    return [
+      {
+        theta: {},
+        replacement: value
+      }
+    ];
   },
 
   'tan/1': function (v1Arg) {
@@ -315,6 +325,10 @@ const functors = {
         result = result.concat(functors['tan/1'](instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -328,20 +342,29 @@ const functors = {
     ];
   },
 
-  'tan/2': function (v1Arg, v2Arg) {
+  'atan/1': function (v1Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['tan/2'](instance, v2Arg));
+        result = result.concat(functors['atan/1'](instance));
       });
       return result;
     }
 
-    assertIsValue(v1);
-    let value = new Value(Math.tan(v1.evaluate()));
+    if (v1 instanceof Variable) {
+      return [];
+    }
 
-    return checkOrSetOutputArg.call(this, value, v2Arg);
+    assertIsValue(v1);
+    let value = new Value(Math.atan(Number(v1.evaluate())));
+
+    return [
+      {
+        theta: {},
+        replacement: value
+      }
+    ];
   },
 
   'sqrt/1': function (v1Arg) {
@@ -354,6 +377,10 @@ const functors = {
       return result;
     }
 
+    if (v1 instanceof Variable) {
+      return [];
+    }
+
     assertIsValue(v1);
     let value = new Value(Math.sqrt(Number(v1.evaluate())));
 
@@ -363,22 +390,6 @@ const functors = {
         replacement: value
       }
     ];
-  },
-
-  'sqrt/2': function (v1Arg, v2Arg) {
-    let result = [];
-    let v1 = resolveValue.call(this, v1Arg);
-    if (v1 instanceof Array) {
-      v1.forEach((instance) => {
-        result = result.concat(functors['sqrt/2'](instance, v2Arg));
-      });
-      return result;
-    }
-
-    assertIsValue(v1);
-    let value = new Value(Math.sqrt(v1.evaluate()));
-
-    return checkOrSetOutputArg.call(this, value, v2Arg);
   },
 
   'pow/2': function (v1Arg, v2Arg) {
@@ -399,6 +410,10 @@ const functors = {
       return result;
     }
 
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
+    }
+
     assertIsValue(v1);
     assertIsValue(v2);
     let value = new Value(Math.pow(Number(v1.evaluate()), Number(v2.evaluate())));
@@ -409,31 +424,6 @@ const functors = {
         replacement: value
       }
     ];
-  },
-
-  'pow/3': function (v1Arg, v2Arg, v3Arg) {
-    let result = [];
-    let v1 = resolveValue.call(this, v1Arg);
-    if (v1 instanceof Array) {
-      v1.forEach((instance) => {
-        result = result.concat(functors['pow/3'](instance, v2Arg, v3Arg));
-      });
-      return result;
-    }
-
-    let v2 = resolveValue.call(this, v2Arg);
-    if (v2 instanceof Array) {
-      v2.forEach((instance) => {
-        result = result.concat(functors['pow/3'](v1, instance, v3Arg));
-      });
-      return result;
-    }
-
-    assertIsValue(v1);
-    assertIsValue(v2);
-    let value = new Value(Math.pow(Number(v1.evaluate()), Number(v2.evaluate())));
-
-    return checkOrSetOutputArg.call(this, value, v3Arg);
   },
 
   'max/2': function (v1Arg, v2Arg) {
@@ -452,6 +442,10 @@ const functors = {
         result = result.concat(functors['max/2'](v1, instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -482,6 +476,10 @@ const functors = {
         result = result.concat(functors['min/2'](v1, instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -517,22 +515,6 @@ const functors = {
     ];
   },
 
-  'exp/2': function (v1Arg, v2Arg) {
-    let result = [];
-    let v1 = resolveValue.call(this, v1Arg);
-    if (v1 instanceof Array) {
-      v1.forEach((instance) => {
-        result = result.concat(functors['exp/2'](instance, v2Arg));
-      });
-      return result;
-    }
-
-    assertIsValue(v1);
-    let value = new Value(Math.exp(v1.evaluate()));
-
-    return checkOrSetOutputArg.call(this, value, v2Arg);
-  },
-
   'log/1': function (v1Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
@@ -541,6 +523,10 @@ const functors = {
         result = result.concat(functors['log/1'](instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -554,22 +540,6 @@ const functors = {
     ];
   },
 
-  'log/2': function (v1Arg, v2Arg) {
-    let result = [];
-    let v1 = resolveValue.call(this, v1Arg);
-    if (v1 instanceof Array) {
-      v1.forEach((instance) => {
-        result = result.concat(functors['log/2'](instance, v2Arg));
-      });
-      return result;
-    }
-
-    assertIsValue(v1);
-    let value = new Value(Math.log(v1.evaluate()));
-
-    return checkOrSetOutputArg.call(this, value, v2Arg);
-  },
-
   'floor/1': function (v1Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
@@ -578,6 +548,10 @@ const functors = {
         result = result.concat(functors['floor/1'](instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -591,22 +565,6 @@ const functors = {
     ];
   },
 
-  'floor/2': function (v1Arg, v2Arg) {
-    let result = [];
-    let v1 = resolveValue.call(this, v1Arg);
-    if (v1 instanceof Array) {
-      v1.forEach((instance) => {
-        result = result.concat(functors['floor/2'](instance, v2Arg));
-      });
-      return result;
-    }
-
-    assertIsValue(v1);
-    let value = new Value(Math.floor(v1.evaluate()));
-
-    return checkOrSetOutputArg.call(this, value, v2Arg);
-  },
-
   'ceil/1': function (v1Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
@@ -615,6 +573,10 @@ const functors = {
         result = result.concat(functors['ceil/1'](instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -628,22 +590,6 @@ const functors = {
     ];
   },
 
-  'ceil/2': function (v1Arg, v2Arg) {
-    let result = [];
-    let v1 = resolveValue.call(this, v1Arg);
-    if (v1 instanceof Array) {
-      v1.forEach((instance) => {
-        result = result.concat(functors['ceil/2'](instance, v2Arg));
-      });
-      return result;
-    }
-
-    assertIsValue(v1);
-    let value = new Value(Math.ceil(v1.evaluate()));
-
-    return checkOrSetOutputArg.call(this, value, v2Arg);
-  },
-
   'round/1': function (v1Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
@@ -652,6 +598,10 @@ const functors = {
         result = result.concat(functors['round/1'](instance));
       });
       return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
     }
 
     assertIsValue(v1);
@@ -665,21 +615,15 @@ const functors = {
     ];
   },
 
-  'round/2': function (v1Arg, v2Arg) {
-    let result = [];
-    let v1 = resolveValue.call(this, v1Arg);
-    if (v1 instanceof Array) {
-      v1.forEach((instance) => {
-        result = result.concat(functors['round/2'](instance, v2Arg));
-      });
-      return result;
-    }
-
-    assertIsValue(v1);
-    let value = new Value(Math.round(v1.evaluate()));
-
-    return checkOrSetOutputArg.call(this, value, v2Arg);
-  }
+  'pi/0':  function () {
+    let value = new Value(Math.PI);
+    return [
+      {
+        theta: {},
+        replacement: value
+      }
+    ];
+  },
 
 };
 
