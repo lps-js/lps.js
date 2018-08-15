@@ -12,8 +12,20 @@
     }
   },
   
+  "parser": {
+    "loadFileErrorHeader": "[ Error loading %s ]\n%s"
+  },
+  
+  "program": {
+    "selfAugmentation": "At Program.augment(): a program cannot augment itself"
+  },
+  
   "modules": {
     "browserModeModuleLoadFailure": "Not possible to use '%s' module when in browser."
+  },
+  
+  "browserContext": {
+    "loadProgramFromFile": "Unable to load program from a file in browser context; File system API unavailable."
   },
   
   "engine": {
