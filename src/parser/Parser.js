@@ -2,10 +2,13 @@ const Lexer = lpsRequire('parser/Lexer');
 const AstNode = lpsRequire('parser/AstNode');
 const NodeTypes = lpsRequire('parser/NodeTypes');
 const TokenTypes = lpsRequire('parser/TokenTypes');
+const unexpectedTokenErrorMessage = lpsRequire('parser/unexpectedTokenErrorMessage');
 
 const END_OF_CLAUSE_SYMBOL = '.';
-const CLAUSE_LITERAL_SEPARATOR_SYMBOL = ',';
+const CONJUNCT_SEPARATOR_SYMBOL = ',';
 const ARGUMENT_SEPARATOR_SYMBOL = ',';
+const IF_SYMBOL = '<-';
+const RULE_SYMBOL = '->';
 
 function Parser(source, pathname) {
   let _lexer = new Lexer(source, pathname);
@@ -30,17 +33,15 @@ function Parser(source, pathname) {
 
   let _expect = function _expect(type) {
     if (currentToken.type !== type) {
-      throw new Error('Expecting type ' + String(type) + ', but found ' + String(currentToken.type) + ' instead at line ' + currentToken.line + ' col ' + currentToken.col + '.');
+      throw new Error(unexpectedTokenErrorMessage(source, currentToken));
     }
     _nextToken();
   };
 
   let _expectToBe = function _expectToBe(type, content) {
-    if (currentToken.type !== type) {
-      throw new Error('Expecting type ' + String(type) + ', but found ' + String(currentToken.type) + ' instead at line ' + currentToken.line + ' col ' + currentToken.col + '.');
-    }
-    if (currentToken.value !== content) {
-      throw new Error('Expecting type ' + String(type) + ' of "' + content + '", but found "' + String(currentToken.value) + '" instead at line ' + currentToken.line + ' col ' + currentToken.col + '.');
+    if (currentToken.type !== type
+        || currentToken.value !== content) {
+      throw new Error(unexpectedTokenErrorMessage(source, currentToken));
     }
     _nextToken();
   };
@@ -260,7 +261,7 @@ function Parser(source, pathname) {
       return node;
     }
     node.addChild(_literal());
-    while (_foundToBe(TokenTypes.Symbol, CLAUSE_LITERAL_SEPARATOR_SYMBOL)) {
+    while (_foundToBe(TokenTypes.Symbol, CONJUNCT_SEPARATOR_SYMBOL)) {
       _expect(TokenTypes.Symbol);
       node.addChild(_literal());
     }
@@ -271,15 +272,16 @@ function Parser(source, pathname) {
     let sentenceNode = new AstNode(NodeTypes.Sentence);
     let hasImplicationSymbol = true;
 
-    if (_foundToBe(TokenTypes.Symbol, '<-')) {
+    if (_foundToBe(TokenTypes.Symbol, IF_SYMBOL)) {
       sentenceNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
       _expect(TokenTypes.Symbol);
-    } else if (_foundToBe(TokenTypes.Symbol, '->')) {
+    } else if (_foundToBe(TokenTypes.Symbol, RULE_SYMBOL)) {
       sentenceNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
       _expect(TokenTypes.Symbol);
     } else {
       sentenceNode.addChild(_conjunction());
-      if (_foundToBe(TokenTypes.Symbol, '<-') || _foundToBe(TokenTypes.Symbol, '->')) {
+      if (_foundToBe(TokenTypes.Symbol, IF_SYMBOL)
+          || _foundToBe(TokenTypes.Symbol, RULE_SYMBOL)) {
         sentenceNode.addChild(new AstNode(NodeTypes.Symbol, currentToken));
         _expect(TokenTypes.Symbol);
       } else {
