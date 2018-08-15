@@ -11,6 +11,7 @@ const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const Functor = lpsRequire('engine/Functor');
 const List = lpsRequire('engine/List');
+const stringLiterals = lpsRequire('utility/strings');
 
 function LPS() {
 
@@ -34,7 +35,7 @@ LPS.loadString = function loadString(source) {
 
 LPS.loadFile = function loadFile(fileArg) {
   if (process.browser) {
-    return Promise.reject(new Error('Cannot load file in browser mode'));
+    reject(new Error(stringLiterals('browserContext.loadProgramFromFile')));
   }
   let file = fileArg;
   file = path.resolve(file);
