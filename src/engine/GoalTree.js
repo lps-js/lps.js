@@ -66,9 +66,18 @@ let resolveStateConditions = function resolveStateConditions(program, earlyConju
       });
       return true;
     }
+
+    let newTheta = {};
+    Object.keys(thetaSoFar).forEach((v) => {
+      newTheta[v] = thetaSoFar[v];
+    });
+
     let conjunct = remainingConjuncts[0]
-      .substitute(thetaSoFar);
-    let goal = conjunct.getGoal();
+      .substitute(newTheta);
+    let thetaDelta = resolveTimableThetaTiming(conjunct, newTheta, forTime);
+    let goal = conjunct
+      .getGoal()
+      .substitute(thetaDelta);
 
     let otherConjuncts = remainingConjuncts.slice(1);
 
@@ -88,19 +97,18 @@ let resolveStateConditions = function resolveStateConditions(program, earlyConju
       return false;
     }
 
-    resolveTimableThetaTiming(conjunct, thetaSoFar, forTime);
     let numFailures = 0;
     literalThetas.forEach((tupleArg) => {
       let tuple = tupleArg;
-      let newTheta = {};
+      let updatedTheta = {};
       conjunctVariables
         .forEach((varName) => {
           if (tuple.theta[varName] !== undefined) {
-            newTheta[varName] = tuple.theta[varName];
+            updatedTheta[varName] = tuple.theta[varName];
           }
         });
-      tuple.theta = newTheta;
-      let newThetaSoFar = compactTheta(thetaSoFar, tuple.theta);
+      tuple.theta = updatedTheta;
+      let newThetaSoFar = compactTheta(newTheta, tuple.theta);
 
       let subResult = processConjuncts(
         [],

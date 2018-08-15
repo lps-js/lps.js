@@ -187,10 +187,16 @@ Resolutor.reduceRuleAntecedent =
         });
         return;
       }
+      let newTheta = {};
+      Object.keys(theta).forEach((v) => {
+        newTheta[v] = theta[v];
+      });
       let conjunct = remainingLiterals[0]
-        .substitute(theta);
+        .substitute(newTheta);
+      let thetaDelta = resolveTimableThetaTiming(conjunct, newTheta, forTime);
       let literal = conjunct
-        .getGoal();
+        .getGoal()
+        .substitute(thetaDelta);
       let literalThetas = [];
       let substitutedInstances = Resolutor
         .handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
@@ -212,9 +218,8 @@ Resolutor.reduceRuleAntecedent =
         return;
       }
 
-      resolveTimableThetaTiming(conjunct, theta, forTime);
       literalThetas.forEach((t) => {
-        let updatedTheta = compactTheta(theta, t.theta);
+        let updatedTheta = compactTheta(newTheta, t.theta);
         recursiveResolution(
           result,
           remainingLiterals.slice(1, remainingLiterals.length),
