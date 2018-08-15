@@ -2,7 +2,7 @@ const stringLiterals = lpsRequire('utility/strings');
 
 const NEWLINE_CHAR = '\n';
 
-module.exports = function unexpectedTokenErrorMessage(source, currentToken) {
+module.exports = function unexpectedTokenErrorMessage(source, currentToken, likelyMissing) {
   let lineIndex = currentToken.line;
   let sourceLength = source.length;
 
@@ -40,5 +40,8 @@ module.exports = function unexpectedTokenErrorMessage(source, currentToken) {
     line,
     ' '.repeat(currentToken.col) + '^'
   );
+  if (likelyMissing !== undefined) {
+    message += stringLiterals('parser.likelyMissingInfo', likelyMissing);
+  }
   return message;
 };

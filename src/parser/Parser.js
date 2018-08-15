@@ -2,7 +2,6 @@ const Lexer = lpsRequire('parser/Lexer');
 const AstNode = lpsRequire('parser/AstNode');
 const NodeTypes = lpsRequire('parser/NodeTypes');
 const TokenTypes = lpsRequire('parser/TokenTypes');
-const unexpectedTokenErrorMessage = lpsRequire('parser/unexpectedTokenErrorMessage');
 
 const END_OF_CLAUSE_SYMBOL = '.';
 const CONJUNCT_SEPARATOR_SYMBOL = ',';
@@ -31,9 +30,12 @@ function Parser(source, pathname) {
     return currentToken.type === type && contents.indexOf(currentToken.value) > -1;
   };
 
-  let _expect = function _expect(type) {
+  let _expect = function _expect(type, expected) {
     if (currentToken.type !== type) {
-      throw new Error(unexpectedTokenErrorMessage(source, currentToken));
+      let error = new Error();
+      error.token = currentToken;
+      error.likelyMissing = expected;
+      throw error;
     }
     _nextToken();
   };
@@ -41,7 +43,9 @@ function Parser(source, pathname) {
   let _expectToBe = function _expectToBe(type, content) {
     if (currentToken.type !== type
         || currentToken.value !== content) {
-      throw new Error(unexpectedTokenErrorMessage(source, currentToken));
+      let error = new Error();
+      error.token = currentToken;
+      throw error;
     }
     _nextToken();
   };
@@ -187,8 +191,8 @@ function Parser(source, pathname) {
   };
 
   let _arrayExpression = function _arrayExpression() {
+    let node = new AstNode(NodeTypes.List, currentToken);
     _expect(TokenTypes.Symbol); // opening [
-    let node = new AstNode(NodeTypes.List);
     if (_foundToBe(TokenTypes.Symbol, ']')) {
       // case of empty array
       _expect(TokenTypes.Symbol);

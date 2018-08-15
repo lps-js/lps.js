@@ -11,6 +11,7 @@ const Resolutor = lpsRequire('engine/Resolutor');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Parser = lpsRequire('parser/Parser');
 const stringLiterals = lpsRequire('utility/strings');
+const unexpectedTokenErrorMessage = lpsRequire('parser/unexpectedTokenErrorMessage');
 
 const fs = require('fs');
 
@@ -94,8 +95,9 @@ processArguments = function (nodes, singleUnderscoreVariableSetArg) {
         break;
       }
       default:
-        throw new Error('Unexpected node type in arguments set: '
-          + String(node.getType()) + ' ' + JSON.stringify(node.getToken()));
+        let error = new Error();
+        error.token = node.getToken();
+        throw error;
     }
   });
 
@@ -124,8 +126,9 @@ let processLiteral = function processLiteral(node, singleUnderscoreVariableSet) 
     case NodeTypes.UnaryOperator:
       return processUnaryOperator(node, singleUnderscoreVariableSet);
     default:
-      throw new Error('Unexpected node type in literal set: '
-        + String(node.getType()) + ' ' + JSON.stringify(node.getToken()));
+      let error = new Error();
+      error.token = node.getToken();
+      throw error;
   }
 };
 
@@ -521,11 +524,13 @@ Program.fromString = function fromString(code) {
     try {
       let parser = new Parser(code);
       token = parser.build();
+        resolve(new Program(token));
     } catch (err) {
-      reject(err);
-      return;
+      let errorToken = err.token;
+      console.log(errorToken);
+      let errorMessage = unexpectedTokenErrorMessage(source, errorToken, err.likelyMissing);
+      reject(new Error(errorMessage));
     }
-    resolve(new Program(token));
   });
 };
 
@@ -534,21 +539,22 @@ Program.fromFile = function fromFile(pathname) {
     if (process.browser) {
       reject(stringLiterals.error('browserContext.loadProgramFromFile'));
     }
-    fs.readFile(pathname, 'utf8', (err, data) => {
+    fs.readFile(pathname, 'utf8', (err, source) => {
       if (err) {
         reject(err);
         return;
       }
       let token;
       try {
-        let parser = new Parser(data, pathname);
+        let parser = new Parser(source, pathname);
         token = parser.build();
-      } catch (e) {
-        e.message = stringLiterals('parser.loadFileErrorHeader', [pathname, e.message]);
-        reject(e);
-        return;
+        resolve(new Program(token));
+      } catch (err) {
+        let errorToken = err.token;
+        let errorMessage = unexpectedTokenErrorMessage(source, errorToken, err.likelyMissing);
+        errorMessage = stringLiterals('parser.loadFileErrorHeader', [pathname, errorMessage]);
+        reject(new Error(errorMessage));
       }
-      resolve(new Program(token));
     });
   });
 };

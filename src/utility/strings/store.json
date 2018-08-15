@@ -30,7 +30,8 @@
   
   "parser": {
     "loadFileErrorHeader": "[ \u001B[31m Error loading %s\u001B[0m ]\n%s",
-    "syntaxError": "Syntax Error: Unexpected token '%s' of type %s found at line \u001B[33m%s\u001B[0m, col \u001B[33m%s\u001B[0m\n\n\u001B[4m%s: %s\u001B[0m\n%s\n%s\n"
+    "syntaxError": "Syntax Error: Unexpected token '%s' of type %s found at line \u001B[33m%s\u001B[0m, col \u001B[33m%s\u001B[0m\n\n\u001B[4m%s: %s\u001B[0m\n%s\n%s\n",
+    "likelyMissingInfo": "It is likely you forgot a '%s' somewhere.\n"
   },
   
   "program": {
