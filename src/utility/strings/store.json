@@ -13,7 +13,8 @@
   },
   
   "parser": {
-    "loadFileErrorHeader": "[ Error loading %s ]\n%s"
+    "loadFileErrorHeader": "[ Error loading %s ]\n%s",
+    "syntaxError": "Syntax Error: Unexpected token '%s' of type %s found at line %s, col %s\n\n%s: %s\n%s\n%s\n"
   },
   
   "program": {

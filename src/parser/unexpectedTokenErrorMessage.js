@@ -1,3 +1,5 @@
+const stringLiterals = lpsRequire('utility/strings');
+
 const NEWLINE_CHAR = '\n';
 
 module.exports = function unexpectedTokenErrorMessage(source, currentToken) {
@@ -24,15 +26,19 @@ module.exports = function unexpectedTokenErrorMessage(source, currentToken) {
     lineEndIndex = sourceLength - 1;
   }
 
-  let message = '';
   let line = source.substring(lineStartIndex, lineEndIndex);
   let tokenType = String(currentToken.type).slice(7, -1) || 'undefined';
 
-  message += 'Syntax Error: Unexpected token \'' + currentToken.value
-    + '\' of type ' + tokenType + ' found at line ' +
-    (currentToken.line + 1) + ', col ' + (currentToken.col + 1) + '\n';
-  message += '\n';
-  message += currentToken.file + ': ' + (currentToken.line + 1) + '\n';
-  message += line + '\n' + ' '.repeat(currentToken.col) + '^' + '\n';
+  let message = stringLiterals(
+    'parser.syntaxError',
+    currentToken.value,
+    tokenType,
+    currentToken.line + 1,
+    currentToken.col + 1,
+    currentToken.file,
+    currentToken.line + 1,
+    line,
+    ' '.repeat(currentToken.col) + '^'
+  );
   return message;
 };
