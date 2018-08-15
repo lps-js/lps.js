@@ -1,3 +1,9 @@
+/**
+ * Perform sequential scanning and lookahead for a piece of source code
+ * @param       {string} source   The source code to be scanned
+ * @param       {string} [pathname] The path name of the original file being scanned
+ * @constructor
+ */
 function Scanner(source, pathname) {
   let _line = 0;
   let _col = -1;
@@ -15,6 +21,10 @@ function Scanner(source, pathname) {
     };
   };
 
+  /**
+   * Get the next character and advance the scanner pointer
+   * @return {Object} Return the object representation of the character read
+   */
   this.get = function get() {
     _currentIndex += 1;
 
@@ -31,6 +41,10 @@ function Scanner(source, pathname) {
     return _makeChar(_source[_currentIndex]);
   };
 
+  /**
+   * Look ahead and retrieve the next character without advancing the scanner pointer
+   * @return {Object} Return the object representation of the character read
+   */
   this.lookahead = function lookahead() {
     let lookaheadIdx = _currentIndex + 1;
     let lookaheadLine = _line;
