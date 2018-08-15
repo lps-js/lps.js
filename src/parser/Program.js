@@ -10,6 +10,7 @@ const Timable = lpsRequire('engine/Timable');
 const Resolutor = lpsRequire('engine/Resolutor');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Parser = lpsRequire('parser/Parser');
+const stringLiterals = lpsRequire('utility/strings');
 
 const fs = require('fs');
 
@@ -463,10 +464,16 @@ function Program(nodeTree, functorProviderArg) {
 
   this.augment = function augment(program) {
     if (!(program instanceof Program)) {
-      throw new Error('Expecting program in the argument for augment function');
+      throw stringLiterals.error(
+        'generic.parameterInvalidType',
+        'program',
+        'augment',
+        'Program',
+        typeof program
+      );
     }
     if (program === this) {
-      throw new Error('A program cannot augment itself.');
+      throw stringLiterals.error('program.selfAugmentation');
     }
 
     _rules = _rules.concat(program.getRules());
@@ -522,22 +529,22 @@ Program.fromString = function fromString(code) {
   });
 };
 
-Program.fromFile = function fromFile(file) {
+Program.fromFile = function fromFile(pathname) {
   return new Promise((resolve, reject) => {
     if (process.browser) {
-      reject(new Error('Unable to load program from a file in browser context.'));
+      reject(stringLiterals.error('browserContext.loadProgramFromFile'));
     }
-    fs.readFile(file, 'utf8', (err, data) => {
+    fs.readFile(pathname, 'utf8', (err, data) => {
       if (err) {
         reject(err);
         return;
       }
       let token;
       try {
-        let parser = new Parser(data, file);
+        let parser = new Parser(data, pathname);
         token = parser.build();
       } catch (e) {
-        e.message = 'Error loading "' + file + '":\n' + e.message;
+        e.message = stringLiterals('parser.loadFileErrorHeader', [pathname, e.message]);
         reject(e);
         return;
       }
