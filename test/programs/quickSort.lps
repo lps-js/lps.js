@@ -1,6 +1,7 @@
 maxTime(3).
 action(request(_)).
 action(announce(_)).
+cycleInterval(200).
 
 observe(request(sort([2, 1, 4, 3])), 1, 2).
 

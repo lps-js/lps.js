@@ -1,7 +1,7 @@
 % concurrentTowers.lps
 
 maxTime(10).
-cycleInterval(300).
+cycleInterval(400).
 
 continuousExecution(1).
 
