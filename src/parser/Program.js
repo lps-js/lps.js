@@ -524,6 +524,9 @@ Program.fromString = function fromString(code) {
 
 Program.fromFile = function fromFile(file) {
   return new Promise((resolve, reject) => {
+    if (process.browser) {
+      reject(new Error('Unable to load program from a file in browser context.'));
+    }
     fs.readFile(file, 'utf8', (err, data) => {
       if (err) {
         reject(err);
