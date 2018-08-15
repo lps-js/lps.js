@@ -329,7 +329,12 @@ function Engine(program, workingDirectory) {
         // notify
         _engineEventManager.notify('warning', {
           type: 'observation.reject',
-          message: 'Rejecting observation ' + action + ' to satisfy constraints.'
+          message: stringLiterals(
+            'engine.rejectObservationWarning',
+            action,
+            _currentTime,
+            _currentTime + 1
+          )
         });
       }
 
