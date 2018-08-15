@@ -615,6 +615,50 @@ const functors = {
     ];
   },
 
+  'random/0': function() {
+    let value = new Value(Math.random());
+    return [
+      {
+        theta: {},
+        replacement: value
+      }
+    ];
+  },
+
+  'randomInt/2': function(v1Arg, v2Arg) {
+    let result = [];
+    let v1 = resolveValue.call(this, v1Arg);
+    if (v1 instanceof Array) {
+      v1.forEach((v) => {
+        result = result.concat(functors['randomInt/2'].call(this, v, v2Arg));
+      });
+      return result;
+    }
+
+    let v2 = resolveValue.call(this, v2Arg);
+    if (v2 instanceof Array) {
+      v2.forEach((v) => {
+        result = result.concat(functors['randomInt/2'].call(this, v1, v));
+      });
+      return result;
+    }
+
+    if (v1.evaluate() > v2.evaluate()) {
+      return functors['randomInt/2'].call(this, v2, v1);
+    }
+    assertIsValue(v1);
+    assertIsValue(v2);
+
+    let randInt = Math.random() * (v2.evaluate() - v1.evaluate()) + v1.evaluate();
+    let value = new Value(Math.round(randInt));
+    return [
+      {
+        theta: {},
+        replacement: value
+      }
+    ];
+  },
+
   'pi/0':  function () {
     let value = new Value(Math.PI);
     return [

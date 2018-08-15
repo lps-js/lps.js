@@ -93,14 +93,17 @@ ceil(X, V) <-
 ceil(X, V) <-
   not is_variable(V),
   V == ceil(X).
-  
+
 round(X, V) <-
   is_variable(V),
   V = round(X).
 round(X, V) <-
   not is_variable(V),
   V == round(X).
-  
+
+randomInt(X, Y, A) <-
+  A = randomInt(X, Y).
+
 pi(V) <-
   is_variable(V),
   V = pi.
