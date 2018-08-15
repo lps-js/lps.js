@@ -49,6 +49,7 @@ describe('Programs Test', function () {
     'rain',
     'shopping',
     'turing',
+    'randomHalt',
     'goat',
     'mark-hiccup',
     'findall',

@@ -1,0 +1,12 @@
+maxTime(10).
+
+fluent(f/1).
+action(add/1).
+
+randomInt(2, 5, A) ->
+  add(A) from T1 to T2.
+
+f(T) at T ->
+  lpsHalt.
+
+initiates(add(V), f(V)).
