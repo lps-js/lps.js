@@ -32,10 +32,12 @@ LPS.loadString = function loadString(source) {
     });
 };
 
-LPS.loadFile = function loadFile(file) {
+LPS.loadFile = function loadFile(fileArg) {
   if (process.browser) {
     return Promise.reject(new Error('Cannot load file in browser mode'));
   }
+  let file = fileArg;
+  file = path.resolve(file);
   return Program.fromFile(file)
     .then((program) => {
       let engine = new Engine(program, path.dirname(file));
