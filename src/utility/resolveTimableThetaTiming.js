@@ -3,8 +3,9 @@ const Value = lpsRequire('engine/Value');
 const Timable = lpsRequire('engine/Timable');
 
 const resolveTimableThetaTiming = function resolveTimableThetaTiming(conjunct, thetaArg, forTime) {
+  let thetaDelta = {};
   if (!(conjunct instanceof Timable)) {
-    return;
+    return thetaDelta;
   }
   let theta = thetaArg;
   let conjunctStartTime = conjunct.getStartTime();
@@ -12,6 +13,7 @@ const resolveTimableThetaTiming = function resolveTimableThetaTiming(conjunct, t
   if (conjunctStartTime instanceof Variable) {
     let startTimeVarName = conjunctStartTime.evaluate();
     theta[startTimeVarName] = new Value(forTime);
+    thetaDelta[startTimeVarName] = new Value(forTime);
   }
   if (conjunctEndTime instanceof Variable) {
     let endTimeVarName = conjunctEndTime.evaluate();
@@ -19,11 +21,14 @@ const resolveTimableThetaTiming = function resolveTimableThetaTiming(conjunct, t
         || endTimeVarName !== conjunctStartTime.evaluate()) {
       if (conjunctStartTime instanceof Value) {
         theta[endTimeVarName] = new Value(conjunctStartTime.evaluate() + 1);
+        thetaDelta[endTimeVarName] = new Value(conjunctStartTime.evaluate() + 1);
       } else {
         theta[endTimeVarName] = new Value(forTime + 1);
+        thetaDelta[endTimeVarName] = new Value(forTime + 1);
       }
     }
   }
+  return thetaDelta;
 };
 
 module.exports = resolveTimableThetaTiming;
