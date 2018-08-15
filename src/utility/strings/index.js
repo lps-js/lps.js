@@ -19,8 +19,8 @@ const stringLiterals = function (pathArg, replacementsArg) {
   }
 
   let replacements = replacementsArg;
-  if (typeof replacementsArg === 'string') {
-    replacements = arguments.slice(1);
+  if (!(replacementsArg instanceof Array)) {
+    replacements = Array.from(arguments).slice(1);
   } else if (replacementsArg === undefined) {
     replacements = [];
   }
