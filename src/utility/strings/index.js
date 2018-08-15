@@ -12,7 +12,7 @@ const messages = lpsRequire('utility/strings/store.json');
 const invalidPathMessage = 'Invalid path for string literal retrival';
 const nonStringLiteralPositionMessage = 'String literal retrival: Path does not point to a string';
 
-module.exports = function (pathArg, replacementsArg) {
+const stringLiterals = function (pathArg, replacementsArg) {
   let path = pathArg;
   if (typeof path === 'string') {
     path = path.split('.');
@@ -40,3 +40,9 @@ module.exports = function (pathArg, replacementsArg) {
 
   return formattable(currentPosition, replacements);
 };
+
+stringLiterals.error = function() {
+  return new Error(stringLiterals.apply(null, arguments));
+};
+
+module.exports = stringLiterals;
