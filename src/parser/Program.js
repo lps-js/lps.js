@@ -514,7 +514,6 @@ Program.fromString = function fromString(code) {
       let parser = new Parser(code);
       token = parser.build();
     } catch (err) {
-      err.message = 'From string, ' + err.message;
       reject(err);
       return;
     }
@@ -534,7 +533,7 @@ Program.fromFile = function fromFile(file) {
         let parser = new Parser(data, file);
         token = parser.build();
       } catch (e) {
-        e.message = 'In file ' + file + ', ' + e.message;
+        e.message = 'Error loading "' + file + '":\n' + e.message;
         reject(e);
         return;
       }
