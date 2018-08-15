@@ -209,9 +209,9 @@ let processLine = function processLine(clauseNode, properties) {
 };
 
 let processProgramTree = function processProgramTree(rootNode, properties) {
-  let clauseNodes = rootNode.getChildren();
-  clauseNodes.forEach((clauseNode) => {
-    processLine(clauseNode, properties);
+  let nodes = rootNode.getChildren();
+  nodes.forEach((node) => {
+    processLine(node, properties);
   });
 };
 
@@ -479,7 +479,7 @@ function Program(nodeTree, functorProviderArg) {
       });
   };
 
-  if (nodeTree !== null) {
+  if (nodeTree !== null && nodeTree !== undefined) {
     // process AST to build the program
     processProgramTree(nodeTree, {
       rules: _rules,
