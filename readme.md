@@ -5,7 +5,6 @@
 
 # Usage
 
-
 ## As CLI tools
 lps.js provides several CLI tools to run and interact with LPS programs. For instructions on installation and how to use these CLI tools, see the [lps-cli](https://github.com/mauris/lps-cli) repository.
 

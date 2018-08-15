@@ -4,10 +4,12 @@ const List = lpsRequire('engine/List');
 const Timable = lpsRequire('engine/Timable');
 const Functor = lpsRequire('engine/Functor');
 const resolveValue = lpsRequire('engine/modules/core/resolveValue');
-const mathFunctors = lpsRequire('engine/modules/core/math');
-const typesFunctors = lpsRequire('engine/modules/core/types');
 const assertIsValue = lpsRequire('engine/modules/core/assertIsValue');
 const checkOrSetOutputArg = lpsRequire('engine/modules/core/checkOrSetOutputArg');
+
+const mathFunctors = lpsRequire('engine/modules/core/math');
+const ioFunctors = lpsRequire('engine/modules/core/io');
+const typesFunctors = lpsRequire('engine/modules/core/types');
 
 const assertIsList = function assertIsList(val) {
   if (!(val instanceof List)) {
@@ -548,5 +550,6 @@ module.exports = (engine, program) => {
   let functorProvider = program.getFunctorProvider();
   functorProvider.load(coreFunctors);
   functorProvider.load(typesFunctors);
+  functorProvider.load(ioFunctors);
   functorProvider.load(mathFunctors);
 };
