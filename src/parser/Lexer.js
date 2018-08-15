@@ -3,7 +3,7 @@ const Lexicon = lpsRequire('parser/Lexicon');
 const TokenTypes = lpsRequire('parser/TokenTypes');
 
 function Lexer(source, pathname) {
-  let _scanner = new Scanner(source, pathname);
+  let _scanner = new Scanner(source);
 
   let _nextChar = function _nextChar() {
     let c1 = _scanner.get();
@@ -85,7 +85,8 @@ function Lexer(source, pathname) {
       type: type,
       value: content,
       line: line,
-      col: col
+      col: col,
+      file: pathname
     };
   };
 
@@ -94,7 +95,8 @@ function Lexer(source, pathname) {
       type: TokenTypes.Error,
       value: message,
       line: line,
-      col: col
+      col: col,
+      file: pathname
     };
   };
 

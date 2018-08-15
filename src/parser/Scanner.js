@@ -4,7 +4,7 @@
  * @param       {string} [pathname] The path name of the original file being scanned
  * @constructor
  */
-function Scanner(source, pathname) {
+function Scanner(source) {
   let _line = 0;
   let _col = -1;
   let _lastIndex = source.length - 1;
@@ -16,8 +16,7 @@ function Scanner(source, pathname) {
       c: c,
       line: line || _line,
       col: col || _col,
-      index: idx || _currentIndex,
-      file: pathname
+      index: idx || _currentIndex
     };
   };
 
