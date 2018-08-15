@@ -11,7 +11,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['+/2'](instance, v2Arg));
+        result = result.concat(functors['+/2'].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -19,7 +19,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['+/2'](v1, instance));
+        result = result.concat(functors['+/2'].call(this, v1, instance));
       });
       return result;
     }
@@ -43,7 +43,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['-/2'](instance, v2Arg));
+        result = result.concat(functors['-/2'].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -51,7 +51,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['-/2'](v1, instance));
+        result = result.concat(functors['-/2'].call(this, v1, instance));
       });
       return result;
     }
@@ -75,7 +75,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['*/2'](instance, v2Arg));
+        result = result.concat(functors['*/2'].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -83,7 +83,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['*/2'](v1, instance));
+        result = result.concat(functors['*/2'].call(this, v1, instance));
       });
       return result;
     }
@@ -107,7 +107,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['//2'](instance, v2Arg));
+        result = result.concat(functors['//2'].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -115,7 +115,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['//2'](v1, instance));
+        result = result.concat(functors['//2'].call(this, v1, instance));
       });
       return result;
     }
@@ -140,7 +140,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['**/2'](instance, v2Arg));
+        result = result.concat(functors['**/2'].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -148,7 +148,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['**/2'](v1, instance));
+        result = result.concat(functors['**/2'].call(this, v1, instance));
       });
       return result;
     }
@@ -173,7 +173,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['-/1'](instance));
+        result = result.concat(functors['-/1'].call(this, instance));
       });
       return result;
     }
@@ -197,7 +197,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['abs/1'](instance));
+        result = result.concat(functors['abs/1'].call(this, instance));
       });
       return result;
     }
@@ -222,7 +222,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['sin/1'](instance));
+        result = result.concat(functors['sin/1'].call(this, instance));
       });
       return result;
     }
@@ -247,7 +247,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['asin/1'](instance));
+        result = result.concat(functors['asin/1'].call(this, instance));
       });
       return result;
     }
@@ -272,7 +272,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['cos/1'](instance));
+        result = result.concat(functors['cos/1'].call(this, instance));
       });
       return result;
     }
@@ -297,7 +297,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['acos/1'](instance));
+        result = result.concat(functors['acos/1'].call(this, instance));
       });
       return result;
     }
@@ -322,7 +322,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['tan/1'](instance));
+        result = result.concat(functors['tan/1'].call(this, instance));
       });
       return result;
     }
@@ -347,7 +347,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['atan/1'](instance));
+        result = result.concat(functors['atan/1'].call(this, instance));
       });
       return result;
     }
@@ -372,7 +372,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['sqrt/1'](instance));
+        result = result.concat(functors['sqrt/1'].call(this, instance));
       });
       return result;
     }
@@ -397,7 +397,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['pow/2'](instance, v2Arg));
+        result = result.concat(functors['pow/2'].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -405,7 +405,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['pow/2'](v1, instance));
+        result = result.concat(functors['pow/2'].call(this, v1, instance));
       });
       return result;
     }
@@ -431,7 +431,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['max/2'](instance, v2Arg));
+        result = result.concat(functors['max/2'].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -439,7 +439,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['max/2'](v1, instance));
+        result = result.concat(functors['max/2'].call(this, v1, instance));
       });
       return result;
     }
@@ -465,7 +465,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['min/2'](instance, v2Arg));
+        result = result.concat(functors['min/2'].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -473,7 +473,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['min/2'](v1, instance));
+        result = result.concat(functors['min/2'].call(this, v1, instance));
       });
       return result;
     }
@@ -499,7 +499,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['exp/1'](instance));
+        result = result.concat(functors['exp/1'].call(this, instance));
       });
       return result;
     }
@@ -520,7 +520,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['log/1'](instance));
+        result = result.concat(functors['log/1'].call(this, instance));
       });
       return result;
     }
@@ -545,7 +545,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['floor/1'](instance));
+        result = result.concat(functors['floor/1'].call(this, instance));
       });
       return result;
     }
@@ -570,7 +570,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['ceil/1'](instance));
+        result = result.concat(functors['ceil/1'].call(this, instance));
       });
       return result;
     }
@@ -595,7 +595,7 @@ const functors = {
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['round/1'](instance));
+        result = result.concat(functors['round/1'].call(this, instance));
       });
       return result;
     }
