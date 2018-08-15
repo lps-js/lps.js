@@ -208,7 +208,7 @@ let processLine = function processLine(clauseNode, properties) {
     .push(processRuleOrClause(children[2].getChildren(), children[0].getChildren()));
 };
 
-let processProgram = function processProgram(rootNode, properties) {
+let processProgramTree = function processProgramTree(rootNode, properties) {
   let clauseNodes = rootNode.getChildren();
   clauseNodes.forEach((clauseNode) => {
     processLine(clauseNode, properties);
@@ -479,8 +479,9 @@ function Program(nodeTree, functorProviderArg) {
       });
   };
 
-  if (nodeTree instanceof AstNode) {
-    processProgram(nodeTree, {
+  if (nodeTree !== null) {
+    // process AST to build the program
+    processProgramTree(nodeTree, {
       rules: _rules,
       clauses: _clauses,
       constraints: _constraints,
