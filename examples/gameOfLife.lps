@@ -40,10 +40,14 @@ cell(X, Y) <-
   member(X, Range),
   member(Y, Range).
 
+bothZeros(X, Y) <-
+  X == 0,
+  Y == 0.
+
 neighbourOffset(X, Y, A, B) <-
   member(Dx, [-1, 0, 1]),
   member(Dy, [-1, 0, 1]),
-  not([Dy == 0, Dx == 0]),
+  not(bothZeros(Dx, Dy)),
   A = X + Dx,
   B = Y + Dy.
 
@@ -52,7 +56,7 @@ adjacent(X, Y, L) <-
 
 % The following four clauses define predicates that depend on the state at time T.
 aliveNeighbours(X, Y, N, T) <-
-  adjacent(X, Y, L),
+  adjacent(X, Y, L) at T,
   countLivingNeighbours(L, N, T).
 
 countLivingNeighbours([], 0, _).
