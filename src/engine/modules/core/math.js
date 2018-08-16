@@ -393,37 +393,7 @@ const functors = {
   },
 
   'pow/2': function (v1Arg, v2Arg) {
-    let result = [];
-    let v1 = resolveValue.call(this, v1Arg);
-    if (v1 instanceof Array) {
-      v1.forEach((instance) => {
-        result = result.concat(functors['pow/2'].call(this, instance, v2Arg));
-      });
-      return result;
-    }
-
-    let v2 = resolveValue.call(this, v2Arg);
-    if (v2 instanceof Array) {
-      v2.forEach((instance) => {
-        result = result.concat(functors['pow/2'].call(this, v1, instance));
-      });
-      return result;
-    }
-
-    if (v1 instanceof Variable || v2 instanceof Variable) {
-      return [];
-    }
-
-    assertIsValue(v1);
-    assertIsValue(v2);
-    let value = new Value(Math.pow(Number(v1.evaluate()), Number(v2.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    return functors['**/2'].call(this, v1Arg, v2Arg);
   },
 
   'max/2': function (v1Arg, v2Arg) {
@@ -531,6 +501,31 @@ const functors = {
 
     assertIsValue(v1);
     let value = new Value(Math.log(Number(v1.evaluate())));
+
+    return [
+      {
+        theta: {},
+        replacement: value
+      }
+    ];
+  },
+
+  'log2/1': function (v1Arg) {
+    let result = [];
+    let v1 = resolveValue.call(this, v1Arg);
+    if (v1 instanceof Array) {
+      v1.forEach((instance) => {
+        result = result.concat(functors['log2/1'].call(this, instance));
+      });
+      return result;
+    }
+
+    if (v1 instanceof Variable) {
+      return [];
+    }
+
+    assertIsValue(v1);
+    let value = new Value(Math.log2(Number(v1.evaluate())));
 
     return [
       {
