@@ -86,7 +86,7 @@ describe('FunctorProvider', () => {
 
       let literal = new Functor('!', [new Variable('X')]);
       expect(provider.has(literal)).to.be.true;
-      let literal2 = new Functor('append', [new Variable('X'), new Variable('Y'), new Variable('Z')]);
+      let literal2 = new Functor('append', [new Variable('X'), new Variable('Y')]);
       expect(provider.has(literal2)).to.be.true;
     });
     it('should return false for undefined functors', () => {
