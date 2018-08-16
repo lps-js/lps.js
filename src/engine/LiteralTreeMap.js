@@ -361,6 +361,8 @@ function LiteralTreeMap() {
       existingTheta = {};
     }
 
+    let literalVariables = literal.getVariableHash();
+
     if (!(literal instanceof Functor)
         && !(literal instanceof Timable)
         && !(literal instanceof List)) {
@@ -430,13 +432,14 @@ function LiteralTreeMap() {
         });
       };
 
-      let updateVariableReplacement = (theta, original, replacement) => {
-        if (theta[replacement.evaluate()] === undefined) {
-          theta[original] = replacement;
+      let updateVariableReplacement = (theta, original) => {
+        let value = theta[original];
+        let replacement = theta[value.evaluate()];
+        if (replacement === undefined) {
           return;
         }
 
-        theta[original] = theta[replacement.evaluate()];
+        theta[original] = theta[value.evaluate()];
       };
 
       // the case of simple values
@@ -488,7 +491,7 @@ function LiteralTreeMap() {
                 newTheta[treeVarName] = new Variable(varName);
               } else {
                 newTheta[varName] = new Variable(treeVarName);
-                updateVariableReplacement(newTheta, varName, newTheta[varName]);
+                updateVariableReplacement(newTheta, varName);
               }
               subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
               result = result.concat(subResult);
