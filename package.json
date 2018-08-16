@@ -1,7 +1,7 @@
 {
   "name": "lps",
   "version": "1.0.0",
-  "description": "Logic Production Systems (LPS) interpreter written in JavaScript",
+  "description": "Logic Production Systems (LPS) runtime implementation in JS",
   "main": "index.js",
   "repository": "https://github.com/mauris/lps.js.git",
   "scripts": {
@@ -24,7 +24,7 @@
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-deprecate": "^0.5.4",
-    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-promise": "^3.8.0",
     "mocha": "^5.2.0",
     "mocha-sinon": "^2.1.0",
