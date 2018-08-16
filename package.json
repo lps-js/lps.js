@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm run test:source && npm run test:programs",
     "test:browser": "echo TODO",
-    "test:source": "nyc --all --cache mocha --require ./test/init.js \"test/lps.js/**/*.test.js\"",
+    "test:source": "nyc --all --cache mocha --check-leaks --require ./test/init.js \"test/lps.js/**/*.test.js\"",
     "test:source:fast": "mocha --require ./test/init.js \"test/lps.js/**/*.test.js\"",
     "test:programs": "mocha \"test/programs/**/*.test.js\"",
     "lint": "eslint test src",
