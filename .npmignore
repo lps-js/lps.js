@@ -1,0 +1,7 @@
+examples/
+test/
+.travis.yml
+.editorconfig
+.eslintrc.js
+webpack.config.js
+dist
