@@ -8,6 +8,8 @@ node_js:
   - "10"
 os:
   - linux
+  - osx
+script: npm run test:source
 cache:
   directories:
     - node_modules # NPM packages
