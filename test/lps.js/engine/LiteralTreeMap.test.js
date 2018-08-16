@@ -81,6 +81,27 @@ describe('LiteralTreeMap', () => {
       expect(result).to.be.length(0);
     });
 
+    it('should return the correct unification for a query with same variable name', () => {
+      let treeMap = new LiteralTreeMap();
+      let functor = new Functor('max_list', [new List([new Variable(['A'])]), new Variable('A')]);
+      treeMap.add(functor);
+
+      let query = new Functor('max_list', [new List([new Value(8)]), new Variable('A')]);
+      let result = treeMap.unifies(query);
+
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(1);
+
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(8);
+
+      expect(result[0]).to.have.property('leaf');
+      expect(result[0].leaf).to.be.equal(functor);
+    });
+
     it('should return the correct unification for a variablised literal version', () => {
       let treeMap = new LiteralTreeMap();
       let functor = new Functor('neighbours', [new Value('a'), new Value('b')]);
