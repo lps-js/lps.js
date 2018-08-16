@@ -427,6 +427,9 @@ function LiteralTreeMap() {
           }
           // this is a variable
           let treeVarName = symName.substring(11, symName.length - 1);
+          if (treeVariableRenameTheta[treeVarName] !== undefined) {
+            treeVarName = treeVariableRenameTheta[treeVarName].evaluate();
+          }
           if (theta[treeVarName] !== undefined) {
             return;
           }
@@ -659,7 +662,7 @@ function LiteralTreeMap() {
   }; // unifies
 
   this.clone = function clone() {
-    if (this instanceof __TreeLoaderType) {
+    if (this instanceof _TreeLoaderType) {
       return (tree) => {
         _count = tree.count;
         _root = tree.root.clone();
