@@ -9,14 +9,8 @@ const checkOrSetOutputArg = lpsRequire('engine/modules/core/checkOrSetOutputArg'
 
 const mathFunctors = lpsRequire('engine/modules/core/math');
 const ioFunctors = lpsRequire('engine/modules/core/io');
+const listFunctors = lpsRequire('engine/modules/core/list');
 const typesFunctors = lpsRequire('engine/modules/core/types');
-
-const assertIsList = function assertIsList(val) {
-  if (!(val instanceof List)) {
-    throw new Error('Must be list');
-  }
-};
-
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
@@ -357,120 +351,6 @@ module.exports = (engine, program) => {
       return result;
     },
 
-    'append/2': function (v1Arg, v2Arg) {
-      let v1 = resolveValue.call(this, v1Arg);
-      let v2 = resolveValue.call(this, v2Arg);
-      assertIsList(v1);
-      assertIsList(v2);
-
-      let newListArr = v1.flatten().concat(v2.flatten());
-      let newList = new List(newListArr);
-
-      return [
-        {
-          theta: {},
-          replacement: newList
-        }
-      ];
-    },
-
-    'append/3': function (v1Arg, v2Arg, v3Arg) {
-      let result = [];
-      let v1 = resolveValue.call(this, v1Arg);
-
-      let v2 = resolveValue.call(this, v2Arg);
-      if (v2 instanceof Array) {
-        v2.forEach((instance) => {
-          result = result.concat(coreFunctors['append/3'](v1, instance, v3Arg));
-        });
-        return result;
-      }
-
-      if (v1 instanceof Variable) {
-        return [
-          {
-            theta: {},
-            replacement: new Functor('append', [v1, v2, v3Arg])
-          }
-        ];
-      }
-      if (v2 instanceof Variable) {
-        return [
-          {
-            theta: {},
-            replacement: new Functor('append', [v1, v2, v3Arg])
-          }
-        ];
-      }
-
-      let newListArr = v1.flatten().concat(v2.flatten());
-      let newList = new List(newListArr);
-
-      return checkOrSetOutputArg.call(this, newList, v3Arg);
-    },
-
-    'length/1': function (v1Arg) {
-      let v1 = resolveValue.call(this, v1Arg);
-
-      assertIsList(v1);
-
-      let value = new Value(v1.flatten().length);
-
-      return [
-        {
-          theta: {},
-          replacement: value
-        }
-      ];
-    },
-
-    'length/2': function (v1Arg, v2Arg) {
-      let v1 = resolveValue.call(this, v1Arg);
-
-      assertIsList(v1);
-
-      let value = new Value(v1.flatten().length);
-      return checkOrSetOutputArg.call(this, value, v2Arg);
-    },
-
-    'member/2': function (v1Arg, v2Arg) {
-      let result = [];
-      let v1 = resolveValue.call(this, v1Arg);
-      if (v1 instanceof Array) {
-        v1.forEach((instance) => {
-          result = result.concat(coreFunctors['member/2'](instance, v2Arg));
-        });
-        return result;
-      }
-
-      let v2 = resolveValue.call(this, v2Arg);
-      assertIsList(v2);
-      let flattenedList = v2.flatten();
-      if (v1 instanceof Variable) {
-        let variableName = v1.evaluate();
-        for (let i = 0; i < flattenedList.length; i += 1) {
-          let theta = {};
-          theta[variableName] = flattenedList[i];
-          result.push({
-            theta: theta
-          });
-        }
-        return result;
-      }
-
-      assertIsValue(v1);
-      for (let i = 0; i < flattenedList.length; i += 1) {
-        if (flattenedList[i].evaluate() === v1.evaluate()) {
-          // found an instance
-          result.push({
-            theta: {}
-          });
-        }
-      }
-
-      return result;
-    },
-
     '=/2': function (lhs, rhs) {
       if (!(lhs instanceof Variable)) {
         throw new Error('LHS of variable assignment must be a variable. ' + lhs + ' given instead.');
@@ -506,20 +386,6 @@ module.exports = (engine, program) => {
       return [{ theta: theta }];
     },
 
-    'currentTime/1': function (timeArg) {
-      let currentTime = engine.getCurrentTime();
-      if (timeArg instanceof Variable) {
-        let theta = {};
-        theta[timeArg.evaluate()] = new Value(currentTime);
-        return [{ theta: theta }];
-      }
-      let incomingValue = timeArg.evaluate();
-      if (incomingValue === currentTime) {
-        return [{ theta: {} }];
-      }
-      return [];
-    },
-
     'functor/3': function (term, name, arity) {
       if (!(term instanceof Functor)) {
         throw new Error('Argument 1 of functor/3 must be a functor.');
@@ -550,6 +416,7 @@ module.exports = (engine, program) => {
   let functorProvider = program.getFunctorProvider();
   functorProvider.load(coreFunctors);
   functorProvider.load(typesFunctors);
+  functorProvider.load(listFunctors);
   functorProvider.load(ioFunctors);
   functorProvider.load(mathFunctors);
 };
