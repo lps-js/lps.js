@@ -1,16 +1,28 @@
-fluent(F) <- fluents(L), member(F, L).
-action(F) <- actions(L), member(F, L).
-event(F) <- events(L), member(F, L).
+fluent(F) <-
+  fluents(L),
+  member(F, L).
+action(F) <-
+  actions(L),
+  member(F, L).
+event(F) <-
+  events(L),
+  member(F, L).
 
-observe(F, T, T2) <- observe(F, T), T2 = T + 1.
+observe(F, T, T2) <-
+  observe(F, T),
+  T2 = T + 1.
 
 loadModule(F) <- loadModules(L), member(F, L).
 
-updates(A, Old, New, []) <- updates(A, Old, New).
-fluentActorDeclare(update, A, Old, New, Conds) <- updates(A, Old, New, Conds).
+updates(A, Old, New, []) <-
+  updates(A, Old, New).
+fluentActorDeclare(update, A, Old, New, Conds) <-
+  updates(A, Old, New, Conds).
 
 terminates(A, F, []) <- terminates(A, F).
-fluentActorDeclare(terminate, A, F, 0, Conds) <- terminates(A, F, Conds).
+fluentActorDeclare(terminate, A, F, 0, Conds) <-
+  terminates(A, F, Conds).
 
 initiates(A, F, []) <- initiates(A, F).
-fluentActorDeclare(initiate, A, 0, F, Conds) <- initiates(A, F, Conds).
+fluentActorDeclare(initiate, A, 0, F, Conds) <-
+  initiates(A, F, Conds).
