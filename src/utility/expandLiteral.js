@@ -4,12 +4,9 @@ const Variable = lpsRequire('engine/Variable');
 module.exports = function expandLiteral(literalArg, program, renameTheta) {
   let literal = literalArg;
 
-  let literalTreeMap = new LiteralTreeMap();
-  literalTreeMap.add(literal);
-
   let result = [];
   program
-    .getDefinitions(literalTreeMap, renameTheta)
+    .getDefinitions(literal, renameTheta)
     .forEach((tuple) => {
       let bodyLiterals = tuple.definition;
       let theta = tuple.theta;

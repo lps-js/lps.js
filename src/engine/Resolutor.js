@@ -109,8 +109,9 @@ Resolutor.explain =
 
       let literalMap = new LiteralTreeMap();
       literalMap.add(conjunct);
+
       program
-        .getDefinitions(literalMap, renameTheta)
+        .getDefinitions(conjunct, renameTheta)
         .forEach((tuple) => {
           let bodyLiterals = tuple.definition;
           let headLiteral = tuple.headLiteral;

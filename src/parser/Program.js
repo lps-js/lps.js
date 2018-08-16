@@ -227,6 +227,8 @@ function Program(nodeTree, functorProviderArg) {
   let _currentState = new LiteralTreeMap();
   let _executedActions = new LiteralTreeMap();
 
+  let _clauseMap = new LiteralTreeMap();
+
   let _fluents = {};
   let _actions = {};
   let _events = {};
@@ -421,18 +423,15 @@ function Program(nodeTree, functorProviderArg) {
     return evaluationResult;
   };
 
-  this.getDefinitions = function getDefinitions(literalMapArg, renameThetaArg) {
+  this.getDefinitions = function getDefinitions(literal, renameThetaArg) {
     let renameTheta = renameThetaArg;
     if (renameTheta === undefined) {
       renameTheta = {};
     }
 
     let result = [];
-    let literalMap = literalMapArg;
-    if (!(literalMap instanceof LiteralTreeMap)) {
-      literalMap = new LiteralTreeMap();
-      literalMap.add(literalMapArg);
-    }
+    let literalMap = new LiteralTreeMap();
+    literalMap.add(literal);
 
     _clauses.forEach((clause) => {
       // horn clause guarantees only one literal
@@ -465,6 +464,20 @@ function Program(nodeTree, functorProviderArg) {
     return result;
   };
 
+  let buildClauseMap = function buildClauseMap(map, clauses) {
+    // TODO
+    // clauses.forEach((clause) => {
+    //   let headLiteral = clause.getHeadLiterals()[0];
+    //   let list = [];
+    //   if (!map.contains(headLiteral)) {
+    //     map.add(headLiteral, list);
+    //   } else {
+    //     list = map.get(headLiteral);
+    //   }
+    //   list.push(clause);
+    // });
+  };
+
   this.augment = function augment(program) {
     if (!(program instanceof Program)) {
       throw stringLiterals.error(
@@ -479,14 +492,17 @@ function Program(nodeTree, functorProviderArg) {
       throw stringLiterals.error('program.selfAugmentation');
     }
 
+    let programClauses = program.getClauses();
+
     _rules = _rules.concat(program.getRules());
-    _clauses = _clauses.concat(program.getClauses());
+    _clauses = _clauses.concat(programClauses);
     _constraints = _constraints.concat(program.getConstraints());
     program
       .getFacts()
       .forEach((fact) => {
         _facts.add(fact);
       });
+    buildClauseMap(_clauseMap, programClauses);
   };
 
   if (nodeTree !== null && nodeTree !== undefined) {
@@ -497,6 +513,7 @@ function Program(nodeTree, functorProviderArg) {
       constraints: _constraints,
       facts: _facts
     });
+    buildClauseMap(_clauseMap, _clauses);
   }
 }
 
