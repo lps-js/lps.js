@@ -105,13 +105,13 @@ Resolutor.explain =
         variablesInUse[v] = true;
       };
       for (let i = 0; i < remainingLiterals.length; i += 1) {
-        let otherLiteral = remainingLiterals[i];
-        otherLiteral.getVariables()
+        remainingLiterals[i]
+          .getVariables()
           .forEach(variableSetFunc);
       }
-
       variablesInUse = Object.keys(variablesInUse);
       let renameTheta = variableArrayRename(variablesInUse);
+
       let literalMap = new LiteralTreeMap();
       literalMap.add(conjunct);
       program

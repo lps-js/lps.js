@@ -430,6 +430,15 @@ function LiteralTreeMap() {
         });
       };
 
+      let updateVariableReplacement = (theta, original, replacement) => {
+        if (theta[replacement.evaluate()] === undefined) {
+          theta[original] = replacement;
+          return;
+        }
+
+        theta[original] = theta[replacement.evaluate()];
+      };
+
       // the case of simple values
       if (current instanceof Value) {
         let value = current.evaluate();
@@ -479,6 +488,7 @@ function LiteralTreeMap() {
                 newTheta[treeVarName] = new Variable(varName);
               } else {
                 newTheta[varName] = new Variable(treeVarName);
+                updateVariableReplacement(newTheta, varName, newTheta[varName]);
               }
               subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
               result = result.concat(subResult);
@@ -638,9 +648,9 @@ function LiteralTreeMap() {
 
     let path = flattenLiteral(literal);
     return recursiveUnification(path, _root, 0, existingTheta);
-  };
+  }; // unifies
 
-  this.clone = function () {
+  this.clone = function clone() {
     if (this instanceof __TreeLoaderType) {
       return (tree) => {
         _count = tree.count;
@@ -655,15 +665,15 @@ function LiteralTreeMap() {
         }
       };
     }
-    let clone = new LiteralTreeMap();
-    let loader = clone.clone.call(new __TreeLoaderType());
+    let _clone = new LiteralTreeMap();
+    let loader = _clone.clone.call(new __TreeLoaderType());
     loader({
       root: _root,
       count: _count,
       argumentTree: _argumentTreeSymbol,
       argumentClauses: _argumentClauses
     });
-    return clone;
+    return _clone;
   };
 }
 

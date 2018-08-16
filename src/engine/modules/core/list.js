@@ -35,7 +35,6 @@ const functors = {
     assertIsList(v1);
 
     let value = new Value(v1.flatten().length);
-    console.log('Length: ' + value);
     return [
       {
         theta: {},
