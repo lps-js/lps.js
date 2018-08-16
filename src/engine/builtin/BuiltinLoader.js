@@ -4,7 +4,8 @@ const path = require('path');
 
 const builtinFiles = [
   'declarations',
-  'math'
+  'math',
+  'list'
 ];
 
 // loads a set of built-in clauses

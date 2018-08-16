@@ -1,0 +1,31 @@
+length(L, N) <-
+  is_variable(N),
+  N = length(L).
+length(L, N) <-
+  not is_variable(N),
+  N == length(L).
+
+append(A, B, C) <-
+  is_variable(C),
+  C = append(A, B).
+
+max_list([A], A).
+max_list([H|T], Max) <-
+  length([H|T], N),
+  N > 1,
+  max_list(T, M1),
+  Max = max(M1, H).
+
+min_list([A], A).
+min_list([H|T], Max) <-
+  length([H|T], N),
+  N > 1,
+  min_list(T, M1),
+  min(M1, H, Max).
+
+sum_list([], 0).
+sum_list([H|T], S) <-
+  length([H|T], N),
+  N > 1,
+  sum_list(T, S1),
+  S = S1 + H.
