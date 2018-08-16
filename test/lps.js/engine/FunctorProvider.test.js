@@ -1,3 +1,8 @@
+/*
+  This file is part of the lps.js project, released open source under
+  the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
+ */
+
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
 const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');

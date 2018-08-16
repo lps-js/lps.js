@@ -1,3 +1,8 @@
+/*
+  This file is part of the lps.js project, released open source under
+  the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
+ */
+
 const stringLiterals = lpsRequire('utility/strings');
 
 const NEWLINE_CHAR = '\n';
@@ -10,6 +15,7 @@ module.exports = function unexpectedTokenErrorMessage(source, currentToken, like
   let sourcePointerIndex = 0;
   let lineStartIndex = -1;
   let lineEndIndex = -1;
+  // extract the line where the error occurred
   while (sourcePointerIndex < sourceLength) {
     if (source[sourcePointerIndex] === NEWLINE_CHAR) {
       currentLineIndex += 1;
