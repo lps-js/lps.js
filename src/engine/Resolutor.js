@@ -142,7 +142,15 @@ Resolutor.explain =
 
       let newRemainingLiterals = remainingLiterals.slice(1, remainingLiterals.length);
 
+      let conjunctVars = conjunct.getVariableHash();
+
       literalThetas.forEach((t) => {
+        // delete non-queried keys in theta
+        Object.keys(t.theta).forEach((k) => {
+          if (conjunctVars[k] === undefined) {
+            delete t.theta[k];
+          }
+        });
         let compactedTheta = compactTheta(thetaSoFar, t.theta);
         let subResult = recursiveResolution(newRemainingLiterals, compactedTheta);
         result = result.concat(subResult);
@@ -151,22 +159,6 @@ Resolutor.explain =
     };
 
     let result = recursiveResolution(query, {}, []);
-    let variablesToOutput = {};
-
-    query.forEach((literal) => {
-      literal.getVariables().forEach((varName) => {
-        variablesToOutput[varName] = true;
-      });
-    });
-
-    result.forEach((tupleArg) => {
-      let tuple = tupleArg;
-      Object.keys(tuple.theta).forEach((key) => {
-        if (variablesToOutput[key] === undefined) {
-          delete tuple.theta[key];
-        }
-      });
-    });
     return result;
   };
 
