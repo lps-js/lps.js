@@ -30,6 +30,17 @@ function Variable(name) {
     return [_name];
   };
 
+  this.getVariableHash = function getVariableHash(existingHash) {
+    let hash = existingHash;
+    if (hash === undefined) {
+      hash = {};
+    }
+
+    hash[_name] = true;
+
+    return hash;
+  };
+
   /**
    * Perform a substitution on this term.
    * @param  {Object} theta The substitution theta

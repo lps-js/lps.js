@@ -30,6 +30,10 @@ function Value(value) {
     return [];
   };
 
+  this.getVariableHash = function getVariableHash() {
+    return {};
+  };
+
   /**
    * Perform a substitution on this term.
    * @param  {Object} theta The substitution theta

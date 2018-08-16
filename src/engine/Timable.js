@@ -54,7 +54,15 @@ function Timable(goal, startTimeArg, endTimeArg) {
   };
 
   this.getVariables = function getVariables() {
-    let hash = {};
+    return Object.keys(this.getVariableHash());
+  };
+
+  this.getVariableHash = function getVariableHash(existingHash) {
+    let hash = existingHash;
+    if (hash === undefined) {
+      hash = {};
+    }
+
     if (startTime instanceof Variable) {
       hash[startTime.evaluate()] = true;
     }
@@ -62,12 +70,9 @@ function Timable(goal, startTimeArg, endTimeArg) {
       hash[endTime.evaluate()] = true;
     }
 
-    goal.getVariables()
-      .forEach((argVar) => {
-        hash[argVar] = true;
-      });
+    goal.getVariableHash(hash);
 
-    return Object.keys(hash);
+    return hash;
   };
 
   this.isEarlierThan = function isEarlierThan(other) {

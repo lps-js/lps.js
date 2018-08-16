@@ -30,15 +30,20 @@ function Functor(name, args) {
   };
 
   this.getVariables = function getVariables() {
-    let hash = {};
+    return Object.keys(this.getVariableHash());
+  };
+
+  this.getVariableHash = function getVariableHash(existingHash) {
+    let hash = existingHash;
+    if (hash === undefined) {
+      hash = {};
+    }
 
     _args.forEach((arg) => {
-      arg.getVariables().forEach((argVar) => {
-        hash[argVar] = true;
-      });
+      arg.getVariableHash(hash);
     });
 
-    return Object.keys(hash);
+    return hash;
   };
 
   this.isGround = function isGround() {

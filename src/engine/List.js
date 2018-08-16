@@ -55,12 +55,17 @@ function List(head, tail) {
    * @return {Array} Return the array of unique variables occuring in this term
    */
   this.getVariables = function getVariables() {
-    let hash = {};
+    return Object.keys(this.getVariableHash());
+  };
+
+  this.getVariableHash = function getVariableHash(existingHash) {
+    let hash = existingHash;
+    if (hash === undefined) {
+      hash = {};
+    }
 
     const processArg = function processArg(arg) {
-      arg.getVariables().forEach((argVar) => {
-        hash[argVar] = true;
-      });
+      arg.getVariableHash(hash);
     };
 
     _head.forEach(processArg);
@@ -71,7 +76,7 @@ function List(head, tail) {
       hash[_tail.evaluate()] = true;
     }
 
-    return Object.keys(hash);
+    return hash;
   };
 
   /**
