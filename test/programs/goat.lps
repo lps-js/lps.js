@@ -2,7 +2,7 @@
 % https://bitbucket.org/lpsmasters/lps_corner/src/06b0de6227f751547e8d25937c05fa30208e45f5/examples/goat.lps?at=master
 
 maxTime(8).
-cycleInterval(500).
+cycleInterval(800).
 
 actions([
   row(_, _),

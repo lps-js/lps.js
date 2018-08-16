@@ -1,7 +1,7 @@
 % concurrentTowers.lps
 
 maxTime(10).
-cycleInterval(400).
+cycleInterval(600).
 
 continuousExecution(1).
 
@@ -21,7 +21,7 @@ true -> make_tower([a, b, c, floor], T1, T2).
 true -> make_tower([f, e, d, floor], T1, T2).
 
 clear(Block, T) <-
-  Block != floor, 
+  Block != floor,
   not location(_, Block, T).
 
 clear(floor, _).
@@ -36,7 +36,7 @@ make_tower([Block, Place|Places], T1, T3) <-
 
 make_on(Block, Place, T, T) <-
   location(Block, Place, T).
-  
+
 make_on(Block, Place, T1, T4) <-
   not location(Block, Place, T1),
   make_clear(Place, T1, T2),
