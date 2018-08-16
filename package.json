@@ -11,7 +11,9 @@
     "test:source:fast": "mocha --require ./test/init.js \"test/lps.js/**/*.test.js\"",
     "test:programs": "mocha \"test/programs/**/*.test.js\"",
     "lint": "eslint test src",
-    "build:browser": "webpack"
+    "build:browser": "webpack",
+    "preversion": "npm test",
+    "release:alpha": "npm version prerelease --preid=alpha && git push"
   },
   "author": {
     "name": "Sam Yong",
