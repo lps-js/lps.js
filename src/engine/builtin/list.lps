@@ -25,7 +25,5 @@ min_list([H|T], Max) <-
 
 sum_list([], 0).
 sum_list([H|T], S) <-
-  length([H|T], N),
-  N > 1,
   sum_list(T, S1),
   S = S1 + H.
