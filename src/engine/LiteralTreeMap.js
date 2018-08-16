@@ -3,6 +3,7 @@ const Timable = lpsRequire('engine/Timable');
 const List = lpsRequire('engine/List');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
+const variableArrayRename = lpsRequire('utility/variableArrayRename');
 
 function _TreeLoaderType() {}
 
@@ -366,6 +367,7 @@ function LiteralTreeMap() {
     }
 
     let literalVariables = literal.getVariableHash();
+    let treeVariableRenameTheta = variableArrayRename(Object.keys(literalVariables));
 
     if (!(literal instanceof Functor)
         && !(literal instanceof Timable)
