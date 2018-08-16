@@ -4,7 +4,7 @@ const List = lpsRequire('engine/List');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 
-function __TreeLoaderType() {}
+function _TreeLoaderType() {}
 
 function deepCopy(obj) {
   if (obj instanceof Array) {
@@ -13,7 +13,7 @@ function deepCopy(obj) {
   return obj;
 }
 
-function __TreeNode(size, tree) {
+function _TreeNode(size, tree) {
   this._size = size;
   this._tree = tree;
 
@@ -25,16 +25,16 @@ function __TreeNode(size, tree) {
     this._tree = {};
   }
 
-  this.clone = function () {
-    let clone = new __TreeNode(size, {});
+  this.clone = function clone() {
+    let cloneNode = new _TreeNode(size, {});
     this.indices().forEach((index) => {
-      if (this._tree[index] instanceof __TreeNode) {
-        clone._tree[index] = this._tree[index].clone();
+      if (this._tree[index] instanceof _TreeNode) {
+        cloneNode._tree[index] = this._tree[index].clone();
         return;
       }
-      clone._tree[index] = deepCopy(this._tree[index]);
+      cloneNode._tree[index] = deepCopy(this._tree[index]);
     });
-    return clone;
+    return cloneNode;
   };
 
   this.indices = function () {
@@ -45,7 +45,7 @@ function __TreeNode(size, tree) {
 }
 
 let recursivelyGetLeafNodes = (currentNode) => {
-  if (!(currentNode instanceof __TreeNode)) {
+  if (!(currentNode instanceof _TreeNode)) {
     return [currentNode];
   }
   let result = [];
@@ -59,12 +59,12 @@ let createSubtreeIfNotExist = (nArg, subtree) => {
   let n = nArg;
   if (n._tree[subtree] === undefined) {
     n._size += 1;
-    n._tree[subtree] = new __TreeNode();
+    n._tree[subtree] = new _TreeNode();
   }
 };
 
 function LiteralTreeMap() {
-  let _root = new __TreeNode();
+  let _root = new _TreeNode();
   let _count = 0;
 
   // only create an argument tree when needed otherwise we incur infinite loop
@@ -102,7 +102,10 @@ function LiteralTreeMap() {
     args.forEach((arg, idx) => {
       node = node._tree[lastNodeRep];
       let nodeRep = null;
-      if (!(arg instanceof Value) && !(arg instanceof Variable)) {
+      let argIsValue = arg instanceof Value;
+      let argIsVariable = arg instanceof Variable;
+
+      if (!argIsValue && !argIsVariable) {
         // use another tree to index this argument
         if (_argumentTreeSymbol === null) {
           _argumentTreeSymbol = new LiteralTreeMap();
@@ -114,7 +117,8 @@ function LiteralTreeMap() {
           _argumentClauses[nodeRep] = arg;
           _argumentTreeSymbol.add(arg, nodeRep);
         }
-      } else if (arg instanceof Variable) {
+      } else if (argIsVariable) {
+        // variable part
         let varName = arg.evaluate();
         // we need to recognise variables that are used again and bind them together
         if (_variableMapping[varName] === undefined) {
@@ -310,7 +314,7 @@ function LiteralTreeMap() {
   };
 
   this.clear = function clear() {
-    _root = new __TreeNode();
+    _root = new _TreeNode();
     _count = 0;
     _argumentTreeSymbol = null;
     _argumentClauses = {};
@@ -421,6 +425,7 @@ function LiteralTreeMap() {
             // it's a not variable
             return;
           }
+          // this is a variable
           let treeVarName = symName.substring(11, symName.length - 1);
           if (theta[treeVarName] !== undefined) {
             return;
@@ -669,7 +674,7 @@ function LiteralTreeMap() {
       };
     }
     let _clone = new LiteralTreeMap();
-    let loader = _clone.clone.call(new __TreeLoaderType());
+    let loader = _clone.clone.call(new _TreeLoaderType());
     loader({
       root: _root,
       count: _count,
