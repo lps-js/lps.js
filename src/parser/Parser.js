@@ -101,6 +101,12 @@ function Parser(source, pathname) {
     return funcNode;
   };
 
+  let _stringExpression = function _stringExpression() {
+    node = new AstNode(NodeTypes.Constant, currentToken);
+    _expect(TokenTypes.QuotedString);
+    return node;
+  };
+
   let _simpleExpression = function _simpleExpression() {
     let node;
     if (_foundToBe(TokenTypes.Symbol, '(')) {
@@ -109,6 +115,8 @@ function Parser(source, pathname) {
       _expectToBe(TokenTypes.Symbol, ')');
     } else if (_found(TokenTypes.Constant)) {
       node = _functorExpression();
+    } else if (_found(TokenTypes.QuotedString)) {
+      node = _stringExpression();
     } else {
       node = _variableOrNumberValueExpression();
     }
