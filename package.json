@@ -12,8 +12,15 @@
     "test:programs": "mocha \"test/programs/**/*.test.js\"",
     "lint": "eslint test src",
     "build:browser": "webpack",
-    "preversion": "npm test",
-    "release:alpha": "npm version prerelease --preid=alpha && git push"
+    
+    "preversion": "npm test && npm run build:browser",
+    "postversion": "git push --tags",
+    
+    "prepublishOnly": "npm test",
+    
+    "publish:alpha": "npm publish --tag alpha",
+    "publish:beta": "npm publish --tag beta",
+    "publish:latest": "npm publish"
   },
   "author": {
     "name": "Sam Yong",
