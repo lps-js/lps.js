@@ -236,7 +236,7 @@ function Lexer(source, pathname) {
     return result;
   };
 
-  let _extractQuotedConstant = function _extractQuotedConstant(charsArg) {
+  let _extractQuotedString = function _extractQuotedString(charsArg) {
     let buffer = '';
     let chars = charsArg;
     let line = chars[2].line;
@@ -256,7 +256,7 @@ function Lexer(source, pathname) {
       // skip over the closing delimiter
       _nextChar();
     }
-    let result = _makeToken(TokenTypes.Constant, buffer, line, col);
+    let result = _makeToken(TokenTypes.QuotedString, buffer, line, col);
     lastChars = _nextChar();
     return result;
   };
@@ -297,7 +297,7 @@ function Lexer(source, pathname) {
     }
 
     if (Lexicon.constantDelimiters.indexOf(c1) > -1) {
-      return _extractQuotedConstant(chars);
+      return _extractQuotedString(chars);
     }
 
     if (Lexicon.doubleSymbols.indexOf(c2) > -1) {
