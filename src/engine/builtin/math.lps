@@ -1,7 +1,16 @@
 max(X, Y, Z) <-
+  is_variable(Z),
   Z = max(X, Y).
+max(X, Y, Z) <-
+  not is_variable(Z),
+  Z == max(X, Y).
+
 min(X, Y, Z) <-
+  is_variable(Z),
   Z = min(X, Y).
+min(X, Y, Z) <-
+  not is_variable(Z),
+  Z == min(X, Y).
 
 abs(X, V) <-
   is_variable(V),
@@ -80,6 +89,13 @@ log(X, V) <-
   not is_variable(V),
   V == log(X).
 
+log2(X, V) <-
+  is_variable(V),
+  V = log2(X).
+log2(X, V) <-
+  not is_variable(V),
+  V == log2(X).
+
 floor(X, V) <-
   is_variable(V),
   V = floor(X).
@@ -101,12 +117,13 @@ round(X, V) <-
   not is_variable(V),
   V == round(X).
 
+random(A) <-
+  is_variable(A),
+  A = random.
+
 randomInt(X, Y, A) <-
   A = randomInt(X, Y).
 
 pi(V) <-
   is_variable(V),
   V = pi.
-pi(V) <-
-  not is_variable(V),
-  V == pi.
