@@ -332,13 +332,8 @@ function GoalNode(program, conjunctsArg, theta) {
     }
 
     let usedVariables = {};
-    let setUsedVariables = (v) => {
-      usedVariables[v] = true;
-    };
     for (let i = 0; i < this.conjuncts.length; i += 1) {
-      this.conjuncts[i]
-        .getVariables()
-        .forEach(setUsedVariables);
+      this.conjuncts[i].getVariableHash(usedVariables);
     }
     usedVariables = Object.keys(usedVariables);
 

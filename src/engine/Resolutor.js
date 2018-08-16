@@ -101,13 +101,8 @@ Resolutor.explain =
       });
 
       let variablesInUse = {};
-      let variableSetFunc = (v) => {
-        variablesInUse[v] = true;
-      };
       for (let i = 0; i < remainingLiterals.length; i += 1) {
-        remainingLiterals[i]
-          .getVariables()
-          .forEach(variableSetFunc);
+        remainingLiterals[i].getVariableHash(variablesInUse);
       }
       variablesInUse = Object.keys(variablesInUse);
       let renameTheta = variableArrayRename(variablesInUse);

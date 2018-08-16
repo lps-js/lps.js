@@ -24,9 +24,7 @@ let rulePreProcessor = function rulePreProcessor(engine, program) {
 
     let antecedentVariables = {};
     antecedent.forEach((literal) => {
-      literal.getVariables().forEach((vName) => {
-        antecedentVariables[vName] = true;
-      });
+      literal.getVariableHash(antecedentVariables);
     });
 
     let commonVariables = {};
@@ -43,9 +41,7 @@ let rulePreProcessor = function rulePreProcessor(engine, program) {
     ruleResult.forEach((tuple) => {
       let newAntecedentVariables = {};
       tuple.literalSet.forEach((literal) => {
-        literal.getVariables().forEach((vName) => {
-          newAntecedentVariables[vName] = true;
-        });
+        literal.getVariableHash(newAntecedentVariables);
       });
 
       let renameSet = [];

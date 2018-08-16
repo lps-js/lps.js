@@ -7,9 +7,7 @@ module.exports = function expandRuleAntecedent(result, literals, thetaPath, prog
   let literalsLength = literals.length;
   let usedVariables = {};
   literals.forEach((literal) => {
-    literal.getVariables().forEach((v) => {
-      usedVariables[v] = true;
-    });
+    literal.getVariableHash(usedVariables);
   });
   usedVariables = Object.keys(usedVariables);
   let renameTheta = variableArrayRename(usedVariables);
