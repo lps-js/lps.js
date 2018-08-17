@@ -365,240 +365,258 @@ function LiteralTreeMap() {
     recursiveTraverse(_root);
   };
 
+  let cloneTheta = function cloneTheta(theta) {
+    let clonedTheta = {};
+    Object.keys(theta)
+      .forEach((v) => {
+        clonedTheta[v] = theta[v];
+      });
+    return clonedTheta;
+  };
+
+  let extractSymbolContent = (symbol) => {
+    let symbolName = symbol.toString();
+    return symbolName.substring(11, symbolName.length - 1);
+  };
+
+  let unifyForValue = (value, path, node, callRecursiveUnification, externalThetaArg, internalThetaArg) => {
+    let externalTheta = externalThetaArg;
+    let internalTheta = internalThetaArg;
+    let result = [];
+    let subResult;
+    node.indices().forEach((index) => {
+      // index is not a number, variable, functor or list
+      if (value === index) {
+        subResult = callRecursiveUnification(path, node._tree[index], externalTheta, internalTheta);
+        result = result.concat(subResult);
+        return;
+      }
+      let isSymbol = typeof index === 'symbol';
+
+      // index must be a symbol (representing number, variable, functor or list)
+      if (!isSymbol) {
+        return;
+      }
+
+      let symName = index.toString();
+      let isNumber = symName.indexOf('Symbol(num:') === 0;
+      let isVariable = symName.indexOf('Symbol(var:') === 0;
+
+      // we skip over lists and functors because
+      // values cannot unify with lists / functors
+      if (!isNumber && !isVariable) {
+        return;
+      }
+
+      if (isNumber) {
+        // it's a number
+        let numValue = Number(extractSymbolContent(index));
+        if (value === numValue) {
+          // number match
+          subResult = callRecursiveUnification(path, node._tree[index], externalTheta, internalTheta);
+          result = result.concat(subResult);
+        }
+        return;
+      }
+
+      // this is a variable
+      let treeVarName = extractSymbolContent(index);
+      if (internalTheta[treeVarName] !== undefined) {
+        return;
+      }
+      let clonedInternalTheta = cloneTheta(internalTheta);
+      clonedInternalTheta[treeVarName] = new Value(value);
+      subResult = callRecursiveUnification(path, node._tree[index], externalTheta, clonedInternalTheta);
+      result = result.concat(subResult);
+    });
+    return result;
+  };
+
+  let recursiveUnification = (pathArg, node, externalThetaArg, internalThetaArg) => {
+    let path = pathArg;
+    let externalTheta = externalThetaArg;
+    let internalTheta = internalThetaArg;
+    if (path.length === 0) {
+      return [{ theta: externalThetaArg, leaf: node }];
+    }
+
+    // extract current key out
+    let currentKey = path.shift();
+    let currentKeyType = typeof currentKey;
+
+    // current key can be determined immediately
+    if (currentKeyType === 'string'
+        || currentKeyType === 'number') {
+      if (node._tree[currentKey] === undefined) {
+        // key not found at this point
+        return [];
+      }
+      return recursiveUnification(path, node._tree[currentKey], externalTheta, internalTheta);
+    }
+
+    let result = [];
+    let subResult;
+
+    if (currentKey instanceof Value) {
+      return unifyForValue(
+        currentKey.evaluate(),
+        path,
+        node,
+        recursiveUnification,
+        externalTheta,
+        internalTheta
+      );
+    }
+
+    if (currentKey instanceof Variable) {
+      let varName = currentKey.evaluate();
+      if (externalTheta[varName] !== undefined) {
+        // substituted earlier on
+        return unifyForValue(
+          externalTheta[varName].evaluate(),
+          path,
+          node,
+          recursiveUnification,
+          externalTheta,
+          internalTheta
+        );
+      } // value
+
+      node.indices().forEach((index) => {
+        if (node._tree[index] === undefined) {
+          return;
+        }
+        let isSymbol = typeof index === 'symbol';
+        let clonedInternalTheta;
+        let clonedExternalTheta;
+
+        // value is not a number, variable, functor or list
+        if (!isSymbol) {
+          // variable vs simple values
+          let clonedExternalTheta = cloneTheta(externalTheta);
+          clonedExternalTheta[varName] = new Value(index);
+          subResult = recursiveUnification(path, node._tree[index], clonedExternalTheta, internalTheta);
+          result = result.concat(subResult);
+        }
+        let symName = index.toString();
+        let isNumber = symName.indexOf('Symbol(num:') === 0;
+        let isVariable = symName.indexOf('Symbol(var:') === 0;
+
+        if (isNumber) {
+          // variable vs number
+          let numValue = Number(extractSymbolContent(index));
+          clonedExternalTheta = cloneTheta(externalTheta);
+          clonedExternalTheta[varName] = new Value(numValue);
+          subResult = recursiveUnification(path, node._tree[index], clonedExternalTheta, internalTheta);
+          result = result.concat(subResult);
+          return;
+        }
+
+        if (isVariable) {
+          // variable vs variable
+          let treeVarName = Number(extractSymbolContent(index));
+          // we perform internal substitution over external if it's variable vs variable
+          clonedInternalTheta = cloneTheta(internalTheta);
+          clonedInternalTheta[treeVarName] = new Variable(varName);
+          subResult = recursiveUnification(path, node._tree[index], externalTheta, clonedInternalTheta);
+          result = result.concat(subResult);
+          return;
+        }
+
+        // variable vs complex terms
+        let term = _argumentClauses[index];
+        clonedExternalTheta = cloneTheta(externalTheta);
+        clonedExternalTheta[varName] = term;
+        subResult = recursiveUnification(path, node._tree[index], clonedExternalTheta, internalTheta);
+        result = result.concat(subResult);
+      });
+    } // variable
+
+    if (!(currentKey instanceof Functor)
+        && !(currentKey instanceof Timable)
+        && !(currentKey instanceof List)) {
+      // here, i have no idea what you have passed in
+      return [];
+    }
+
+    // complex terms
+    if (_argumentTreeSymbol !== null) {
+      // there are some complex terms stored in this tree
+      // which we need to go through to find any matches
+
+      subResult = _argumentTreeSymbol.unifies(currentKey, internalTheta);
+      subResult.forEach((entry) => {
+        // combine theta
+        let tempInternalTheta = cloneTheta(internalTheta);
+        Object.keys(entry.theta).forEach((k) => {
+          tempInternalTheta[k] = entry.theta[k];
+        });
+        if (currentKey instanceof List
+            && entry.tailVariable !== undefined) {
+          // handle tail theta
+          entry.matchingTails.forEach((symbol) => {
+            if (node._tree[symbol] === undefined) {
+              return;
+            }
+            let list = _argumentClauses[symbol].flatten();
+            list.splice(0, entry.headEaten);
+            let matchingTailInternalTheta = cloneTheta(tempInternalTheta);
+            matchingTailInternalTheta[entry.tailVariable.evaluate()] = new List(list);
+            subResult = recursiveUnification(path, node._tree[symbol], externalTheta, matchingTailInternalTheta);
+            result = result.concat(subResult);
+          });
+          return;
+        }
+        if (node._tree[entry.leaf] === undefined) {
+          return;
+        }
+        subResult = recursiveUnification(path, node._tree[entry.leaf], externalTheta, internalTheta);
+        result = result.concat(subResult);
+      });
+    } // has argumentTreeSymbol
+
+    // otherwise we go through node to find some variables
+    // for internal substitution
+    node.indices().forEach((index) => {
+      let clonedInternalTheta;
+      if (node._tree[index] === undefined) {
+        return;
+      }
+      let isSymbol = typeof index === 'symbol';
+      if (!isSymbol) {
+        // index is not a variable, functor or list
+        return;
+      }
+      let symName = index.toString();
+      let isVariable = symName.indexOf('Symbol(var:') === 0;
+      if (isVariable) {
+        // it's a not variable
+        return;
+      }
+      let treeVarName = symName.substring(11, symName.length - 1);
+      if (internalTheta[treeVarName] !== undefined) {
+        // previously internally substituted.
+        return;
+      }
+      clonedInternalTheta = cloneTheta(internalTheta)
+      clonedInternalTheta[treeVarName] = currentKey;
+      subResult = recursiveUnification(path, node._tree[index], externalTheta, clonedInternalTheta);
+      result = result.concat(subResult);
+    });
+    return result;
+  }; // recursiveUnification
+
   this.unifies = function unifies(literal, existingThetaArg) {
     let existingTheta = existingThetaArg;
     if (existingTheta === undefined) {
       existingTheta = {};
     }
 
-    let literalVariables = literal.getVariableHash();
-    let treeVariableRenameTheta = variableArrayRename(Object.keys(literalVariables));
-
     if (!(literal instanceof Functor)
         && !(literal instanceof Timable)
         && !(literal instanceof List)) {
-      throw new Error('Literal is not a functor, timable or list');
+      throw new Error('Literal given for unification must be a functor, timable or list');
     }
-
-    let recursiveUnification = (path, node, i, thetaArg) => {
-      let theta = thetaArg;
-      if (i >= path.length) {
-        return [{ theta: theta, leaf: node }];
-      }
-
-      // make a copy of theta in case back tracking
-      let newTheta;
-      let result = [];
-      let subResult;
-
-      let current = path[i];
-      let currentType = typeof current;
-      if (currentType === 'string' || currentType === 'number') {
-        if (node._tree[current] === undefined) {
-          return [];
-        }
-        return recursiveUnification(path, node._tree[current], i + 1, theta);
-      }
-
-      let cloneTheta = () => {
-        newTheta = {};
-        Object.keys(theta).forEach((key) => {
-          newTheta[key] = theta[key];
-        });
-      };
-
-      let unifyForValue = (value) => {
-        node.indices().forEach((index) => {
-          // index is not a variable, functor or list
-          if (value === index) {
-            subResult = recursiveUnification(path, node._tree[index], i + 1, theta);
-            result = result.concat(subResult);
-            return;
-          }
-          if (typeof index !== 'symbol') {
-            return;
-          }
-          let symName = index.toString();
-          if (symName.indexOf('Symbol(num:') === 0) {
-            // it's a number
-            let numValue = Number(symName.substring(11, symName.length - 1));
-            if (value === numValue) {
-              subResult = recursiveUnification(path, node._tree[index], i + 1, theta);
-              result = result.concat(subResult);
-            }
-            return;
-          }
-          if (symName.indexOf('Symbol(var:') !== 0) {
-            // it's a not variable
-            return;
-          }
-          // this is a variable
-          let treeVarName = symName.substring(11, symName.length - 1);
-          if (treeVariableRenameTheta[treeVarName] !== undefined) {
-            treeVarName = treeVariableRenameTheta[treeVarName].evaluate();
-          }
-          if (theta[treeVarName] !== undefined) {
-            return;
-          }
-          cloneTheta();
-          newTheta[treeVarName] = new Value(value);
-          subResult = recursiveUnification(path, node._tree[index], i + 1, newTheta);
-          result = result.concat(subResult);
-        });
-      };
-
-      let updateVariableReplacement = (theta, original) => {
-        let value = theta[original];
-        let replacement = theta[value.evaluate()];
-        if (replacement === undefined) {
-          return;
-        }
-
-        theta[original] = theta[value.evaluate()];
-      };
-
-      // the case of simple values
-      if (current instanceof Value) {
-        let value = current.evaluate();
-        unifyForValue(value);
-        return result;
-      }
-
-      // the case of variables
-      if (current instanceof Variable) {
-        let invertUnificationOrder = false;
-        let varName = current.evaluate();
-
-        if (theta[varName] !== undefined) {
-          // a replacement for the this variable exists
-          if (theta[varName] instanceof Variable) {
-            theta[theta[varName].evaluate()] = new Variable(varName);
-            invertUnificationOrder = true;
-          } else {
-            unifyForValue(theta[varName].evaluate());
-            return result;
-          }
-        }
-
-        node.indices().forEach((value) => {
-          cloneTheta();
-          // value is a number, variable, functor or list
-          if (typeof value === 'symbol') {
-            let symName = value.toString();
-            if (symName.indexOf('Symbol(num:') === 0) {
-              if (node._tree[value] === undefined) {
-                return;
-              }
-              // it's a number
-              let numValue = Number(symName.substring(11, symName.length - 1));
-              newTheta[varName] = new Value(numValue);
-              subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
-              result = result.concat(subResult);
-              return;
-            }
-            if (symName.indexOf('Symbol(var:') === 0) {
-              if (node._tree[value] === undefined) {
-                return;
-              }
-              // it's a variable
-              let treeVarName = symName.substring(11, symName.length - 1);
-              if (invertUnificationOrder) {
-                newTheta[treeVarName] = new Variable(varName);
-              } else {
-                newTheta[varName] = new Variable(treeVarName);
-                updateVariableReplacement(newTheta, varName);
-              }
-              subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
-              result = result.concat(subResult);
-              return;
-            }
-            if (node._tree[value] === undefined) {
-              return;
-            }
-            let term = _argumentClauses[value];
-            newTheta[varName] = term;
-            subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
-            result = result.concat(subResult);
-            return;
-          }
-
-          if (node._tree[value] === undefined) {
-            return;
-          }
-          newTheta[varName] = new Value(value);
-          subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
-          result = result.concat(subResult);
-        });
-
-        if (invertUnificationOrder) {
-          result.forEach((srArg) => {
-            let sr = srArg;
-            delete sr.theta[varName];
-          });
-        }
-        return result;
-      }
-
-      // the case of complex terms
-      if (current instanceof Functor
-          || current instanceof Timable
-          || current instanceof List) {
-        // some matching functors!
-        if (_argumentTreeSymbol !== null) {
-          // pass existing theta
-          subResult = _argumentTreeSymbol.unifies(current, theta);
-          subResult.forEach((entry) => {
-            cloneTheta();
-            // combine theta
-            Object.keys(entry.theta).forEach((k) => {
-              newTheta[k] = entry.theta[k];
-            });
-            if (current instanceof List && entry.tailVariable !== undefined) {
-              // handle tail theta
-              entry.matchingTails.forEach((symbol) => {
-                if (node._tree[symbol] === undefined) {
-                  return;
-                }
-                let list = _argumentClauses[symbol].flatten();
-                list.splice(0, entry.headEaten);
-                newTheta[entry.tailVariable.evaluate()] = new List(list);
-                subResult = recursiveUnification(path, node._tree[symbol], i + 1, newTheta);
-                result = result.concat(subResult);
-              });
-              return;
-            }
-            if (node._tree[entry.leaf] === undefined) {
-              return;
-            }
-            subResult = recursiveUnification(path, node._tree[entry.leaf], i + 1, newTheta);
-            result = result.concat(subResult);
-          });
-        }
-        // go through to find variables
-        node.indices().forEach((value) => {
-          if (node._tree[value] === undefined) {
-            return;
-          }
-          // value is not a variable, functor or list
-          if (typeof value !== 'symbol') {
-            return;
-          }
-          let symName = value.toString();
-          if (symName.indexOf('Symbol(var:') !== 0) {
-            // it's a not variable
-            return;
-          }
-          cloneTheta();
-          let treeVarName = symName.substring(11, symName.length - 1);
-          newTheta[treeVarName] = current;
-          subResult = recursiveUnification(path, node._tree[value], i + 1, newTheta);
-          result = result.concat(subResult);
-        });
-        return result;
-      }
-
-      return result;
-    };
 
     if (literal instanceof List) {
       let subResult;
@@ -638,7 +656,11 @@ function LiteralTreeMap() {
           return;
         }
         let path = pathTuple.list;
-        paths.push({ idx: idxArg, path: path, tail: pathTuple.tail });
+        paths.push({
+          idx: idxArg,
+          path: path,
+          tail: pathTuple.tail
+        });
       });
 
       let result = [];
@@ -662,10 +684,10 @@ function LiteralTreeMap() {
         result = result.concat(subResult);
       });
       return result;
-    }
+    } // literal given is list
 
     let path = flattenLiteral(literal);
-    return recursiveUnification(path, _root, 0, existingTheta);
+    return recursiveUnification(path, _root, existingTheta, {});
   }; // unifies
 
   this.clone = function clone() {
