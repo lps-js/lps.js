@@ -575,9 +575,10 @@ function LiteralTreeMap() {
             }
             let list = _argumentClauses[symbol].flatten();
             list.splice(0, entry.headEaten);
-            let matchingTailInternalTheta = cloneTheta(tempInternalTheta);
-            matchingTailInternalTheta[entry.tailVariable.evaluate()] = new List(list);
-            subResult = recursiveUnification(path, node._tree[symbol], externalTheta, matchingTailInternalTheta);
+            let matchingTailExternalTheta = cloneTheta(tempExternalTheta);
+
+            matchingTailExternalTheta[entry.tailVariable.evaluate()] = new List(list);
+            subResult = recursiveUnification(path, node._tree[symbol], matchingTailExternalTheta, tempInternalTheta);
             result = result.concat(subResult);
           });
           return;
@@ -687,7 +688,7 @@ function LiteralTreeMap() {
           return;
         }
         // console.log(tuple.path)
-        subResult = recursiveUnification(tuple.path, _root._tree[tuple.idx], existingTheta, {});
+        subResult = recursiveUnification(tuple.path, _root._tree[tuple.idx], {}, existingTheta);
         if (tuple.tail !== null) {
           subResult = subResult.map((pairArg) => {
             let pair = pairArg;
@@ -702,12 +703,11 @@ function LiteralTreeMap() {
 
         result = result.concat(subResult);
       });
-      // console.log(result);
       return result;
     } // literal given is list
 
     let path = flattenLiteral(literal);
-    return recursiveUnification(path, _root, existingTheta, {});
+    return recursiveUnification(path, _root, {}, existingTheta);
   }; // unifies
 
   this.clone = function clone() {
