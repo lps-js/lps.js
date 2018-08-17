@@ -145,7 +145,7 @@ describe('LiteralTreeMap', () => {
       expect(result).to.be.length(0);
     });
 
-    it('should return the correct unification for a nested literal', () => {
+    it('should return the correct unification for a nested literal 1', () => {
       let treeMap = new LiteralTreeMap();
       let args = [
         new Functor('min', [new Value('5'), new Value('6')]),
@@ -175,7 +175,7 @@ describe('LiteralTreeMap', () => {
       expect(result[0].leaf).to.be.equal(functor);
     });
 
-    it('should return the correct unification for a nested literal', () => {
+    it('should return the correct unification for a nested literal 2', () => {
       let treeMap = new LiteralTreeMap();
       let args = [
         new Functor('min', [new Value('5'), new Value('6')]),
@@ -211,7 +211,7 @@ describe('LiteralTreeMap', () => {
       expect(result[0].leaf).to.be.equal(functor);
     });
 
-    it('should return the correct unification for a nested literal', () => {
+    it('should return the correct unification for a nested literal 3', () => {
       let treeMap = new LiteralTreeMap();
       let args = [
         new Variable('X'),
@@ -241,7 +241,7 @@ describe('LiteralTreeMap', () => {
       expect(result[0].leaf).to.be.equal(functor);
     });
 
-    it('should return the correct unification for a nested literal', () => {
+    it('should return the correct unification for a nested literal 4', () => {
       let treeMap = new LiteralTreeMap();
       let args = [
         new Variable('X'),
