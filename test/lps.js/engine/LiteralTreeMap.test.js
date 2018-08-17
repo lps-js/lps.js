@@ -316,6 +316,36 @@ describe('LiteralTreeMap', () => {
       expect(result[0].leaf).to.be.equal(functor);
     });
 
+    it('should return the correct unification for a head-tail list.', () => {
+      let treeMap = new LiteralTreeMap();
+      let list = new List([new Value(1), new Value(2)]);
+      let args = [
+        list
+      ];
+      let functor = new Functor('func', args);
+      treeMap.add(functor);
+
+      let query = new Functor('func', [new List([new Variable('A')], new Variable('B'))]);
+      let result = treeMap.unifies(query);
+
+      expect(result).to.be.an('array');
+      expect(result).to.be.length(1);
+
+      expect(result[0]).to.have.property('theta');
+      expect(Object.keys(result[0].theta)).to.be.length(2);
+      //
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(1);
+
+      expect(result[0].theta).to.have.property('B');
+      expect(result[0].theta.B).to.be.instanceof(List);
+      expect(result[0].theta.B.flatten().map(e => e.evaluate())).to.contain(2);
+
+      expect(result[0]).to.have.property('leaf');
+      expect(result[0].leaf).to.be.equal(functor);
+    });
+
     it('should return correct unification for recursive trees', () => {
       let treeMap = new LiteralTreeMap();
       let list = new List([new Value('a'), new Value('b'), new Value('d'), new Value('c')]);
