@@ -80,6 +80,13 @@ pow(X, Y, V) <-
   not is_variable(V),
   V == pow(X, Y).
 
+mod(X, V) <-
+  is_variable(V),
+  V = mod(X).
+mod(X, V) <-
+  not is_variable(V),
+  V == mod(X).
+
 exp(X, V) <-
   is_variable(V),
   V = exp(X).

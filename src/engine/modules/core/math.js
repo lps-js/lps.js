@@ -140,6 +140,39 @@ const functors = {
     ];
   },
 
+  'mod/2': function (v1Arg, v2Arg) {
+    let result = [];
+    let v1 = resolveValue.call(this, v1Arg);
+    if (v1 instanceof Array) {
+      v1.forEach((instance) => {
+        result = result.concat(functors['mod/2'].call(this, instance, v2Arg));
+      });
+      return result;
+    }
+
+    let v2 = resolveValue.call(this, v2Arg);
+    if (v2 instanceof Array) {
+      v2.forEach((instance) => {
+        result = result.concat(functors['mod/2'].call(this, v1, instance));
+      });
+      return result;
+    }
+
+    if (v1 instanceof Variable || v2 instanceof Variable) {
+      return [];
+    }
+
+    assertIsValue(v1);
+    assertIsValue(v2);
+
+    return [
+      {
+        theta: {},
+        replacement: new Value(Number(v1.evaluate()) % Number(v2.evaluate()))
+      }
+    ];
+  },
+
   '**/2': function (v1Arg, v2Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
