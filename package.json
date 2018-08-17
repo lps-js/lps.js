@@ -12,12 +12,9 @@
     "test:programs": "mocha \"test/programs/**/*.test.js\"",
     "lint": "eslint test src",
     "build:browser": "webpack",
-    
     "preversion": "npm test && npm run build:browser",
     "postversion": "git push --tags",
-    
     "prepublishOnly": "npm test",
-    
     "publish:alpha": "npm publish --tag alpha",
     "publish:beta": "npm publish --tag beta",
     "publish:latest": "npm publish"
@@ -30,16 +27,16 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "chai": "^4.1.2",
-    "eslint": "^4.19.1",
-    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-deprecate": "^0.5.4",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-promise": "^3.8.0",
     "mocha": "^5.2.0",
     "mocha-sinon": "^2.1.0",
-    "nyc": "^11.9.0",
+    "nyc": "^12.0.2",
     "raw-loader": "^0.5.1",
-    "sinon": "^4.5.0",
+    "sinon": "^6.1.5",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0"
   },
