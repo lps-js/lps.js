@@ -688,12 +688,13 @@ function LiteralTreeMap() {
           return;
         }
         // console.log(tuple.path)
+        let pathLength = tuple.path.length;
         subResult = recursiveUnification(tuple.path, _root._tree[tuple.idx], {}, existingTheta);
         if (tuple.tail !== null) {
           subResult = subResult.map((pairArg) => {
             let pair = pairArg;
             let leafNodes = recursivelyGetLeafNodes(pair.leaf);
-            pair.headEaten = tuple.path.length;
+            pair.headEaten = pathLength;
             pair.tailVariable = tuple.tail;
             pair.matchingTails = leafNodes;
             return pair;
