@@ -1,5 +1,5 @@
 maxTime(20).
-cycleInterval(400).
+cycleInterval(150).
 
 fluents([
   money(V),

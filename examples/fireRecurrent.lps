@@ -1,7 +1,7 @@
 maxTime(10).
 fluents([fire, water]).
 actions([eliminate, ignite(_), escape, refill]).
-% event(deal_with_fire).
+event(deal_with_fire).
 
 observe(ignite(sofa), 1, 2).
 observe(ignite(bed), 4, 5).

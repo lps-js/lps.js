@@ -1,6 +1,7 @@
 maxTime(5).
 fluent(fire).
 actions([eliminate, escape]).
+event(deal_with_fire).
 
 initially(fire).
 

@@ -4,11 +4,18 @@ fluents([locked(_), trash(_), bin(_)]).
 action(dispose(X, Y)).
 action(unlock(_)).
 
-initially([locked(container1), trash(bottle1), bin(container1), bin(container2)]).
+initially([
+  locked(container1),
+  trash(bottle1),
+  bin(container1),
+  bin(container2)
+]).
 
 observe(unlock(container1), 4, 5).
 
-trash(Object, T1) -> bin(Container, T1), dispose(Object, Container, T2, T3).
+trash(Object, T1) ->
+  bin(Container, T1),
+  dispose(Object, Container, T2, T3).
 
 terminates(unlock(Container), locked(Container)).
 terminates(dispose(Object, X), trash(Object)).

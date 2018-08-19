@@ -1,13 +1,13 @@
 maxTime(10).
-cycleInterval(800).
+cycleInterval(200).
 
 fluent(said(_, _)).
 action(say(_, _)).
 event(saying(_, _)).
 
 initially([
-	said(turing, []),
-	said(robot, [])
+  said(turing, []),
+  said(robot, [])
 ]).
 
 observe(say(turing, what), 1).
@@ -15,35 +15,42 @@ observe(say(turing, is), 2).
 observe(say(turing, your), 3).
 observe(say(turing, name), 4).
 
-saying(turing, sentence, T1, T2) -> saying(robot, sentence, T3, T4).
+saying(turing, sentence, T1, T2) ->
+  saying(robot, sentence, T3, T4).
 
 saying(Agent, sentence, T1, T3) <-
-	saying(Agent, nounphrase, T1, T2),
-	saying(Agent, verbphrase, T2, T3).
+  saying(Agent, nounphrase, T1, T2),
+  saying(Agent, verbphrase, T2, T3).
 
 saying(Agent, nounphrase, T1, T3) <-
-	saying(Agent, adjective, T1, T2),
-	saying(Agent, noun, T2, T3).
-	
+  saying(Agent, adjective, T1, T2),
+  saying(Agent, noun, T2, T3).
+
 saying(Agent, nounphrase, T1, T3) <-
-	saying(Agent, noun, T1, T3).
-	
-saying(Agent, verbphrase, T1, T3) <-
-	saying(Agent, verb, T1, T2),
-	saying(Agent, nounphrase, T2, T3).
+  saying(Agent, noun, T1, T3).
 
 saying(Agent, verbphrase, T1, T3) <-
-	saying(Agent, verb, T1, T3).
-	
-saying(Agent, adjective, T1, T2) <- say(Agent, my, T1, T2).
-saying(Agent, adjective, T1, T2) <- say(Agent, your, T1, T2).
+  saying(Agent, verb, T1, T2),
+  saying(Agent, nounphrase, T2, T3).
 
-saying(Agent, noun, T1, T2) <- say(Agent, name, T1, T2).
-saying(Agent, noun, T1, T2) <- say(Agent, what, T1, T2).
-saying(Agent, noun, T1, T2) <- say(Agent, bob, T1, T2).
+saying(Agent, verbphrase, T1, T3) <-
+  saying(Agent, verb, T1, T3).
 
-saying(Agent, verb, T1, T2) <- say(Agent, is, T1, T2).
+saying(Agent, adjective, T1, T2) <-
+  say(Agent, my, T1, T2).
+saying(Agent, adjective, T1, T2) <-
+  say(Agent, your, T1, T2).
+
+saying(Agent, noun, T1, T2) <-
+  say(Agent, name, T1, T2).
+saying(Agent, noun, T1, T2) <-
+  say(Agent, what, T1, T2).
+saying(Agent, noun, T1, T2) <-
+  say(Agent, bob, T1, T2).
+
+saying(Agent, verb, T1, T2) <-
+  say(Agent, is, T1, T2).
 
 updates(say(Agent, Word), said(Agent, OldPhrase), said(Agent, append(OldPhrase, [Word]))).
 
-<- say(Agent, Word1, T1, T2), say(Agent, Word2, T1, T2), Word1 != Word2.
+<- say(Agent, Word1), say(Agent, Word2), Word1 != Word2.
