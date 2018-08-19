@@ -139,3 +139,26 @@ randomInt(X, Y, A) <-
 pi(V) <-
   is_variable(V),
   V = pi.
+
+between(Low, High, Value) <-
+  Low <= High,
+  Value >= Low,
+  Value <= High.
+
+succ(N, N1) <-
+  not is_variable(N),
+  N >= 0,
+  not is_variable(N1),
+  N1 == N + 1.
+
+succ(N, N1) <-
+  not is_variable(N),
+  N >= 0,
+  is_variable(N1),
+  N1 = N + 1.
+
+succ(N, N1) <-
+  is_variable(N),
+  not is_variable(N1),
+  N1 > 1,
+  N = N1 - 1.
