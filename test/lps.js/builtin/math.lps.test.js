@@ -49,7 +49,7 @@ describe('math.lps', () => {
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
-  }); // describe sin/2
+  }); // sin/2
 
   describe('cos/2', () => {
     it('should return correct result for variable replacement', () => {
@@ -78,7 +78,7 @@ describe('math.lps', () => {
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
-  }); // describe cos/2
+  }); // cos/2
 
   describe('tan/2', () => {
     it('should return correct result for variable replacement', () => {
@@ -107,5 +107,52 @@ describe('math.lps', () => {
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
-  }); // describe tan/2
+  }); // tan/2
+
+  describe('succ/2', () => {
+    it('should return correct result for variable replacement 1', () => {
+      let result = engine.query(Program.literal('succ(5, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(6);
+    });
+
+    it('should return correct result for variable replacement 2', () => {
+      let result = engine.query(Program.literal('succ(A, 6)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(5);
+    });
+
+    it('should return empty array for non-match', () => {
+      let result = engine.query(Program.literal('succ(2, 5)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+
+    it('should return empty array for out of domain parameters', () => {
+      let result = engine.query(Program.literal('succ(N, -5)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+
+    it('should return empty array for out of domain parameters', () => {
+      let result = engine.query(Program.literal('succ(-5, N)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // succ/2
 });
