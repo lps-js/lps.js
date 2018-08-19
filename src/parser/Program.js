@@ -98,10 +98,11 @@ processArguments = function (nodes, singleUnderscoreVariableSetArg) {
         result.push(processVariable(node, singleUnderscoreVariableSet));
         break;
       }
-      default:
+      default: {
         let error = new Error();
         error.token = node.getToken();
         throw error;
+      }
     }
   });
 
@@ -129,10 +130,11 @@ let processLiteral = function processLiteral(node, singleUnderscoreVariableSet) 
       return processBinaryOperator(node, singleUnderscoreVariableSet);
     case NodeTypes.UnaryOperator:
       return processUnaryOperator(node, singleUnderscoreVariableSet);
-    default:
+    default: {
       let error = new Error();
       error.token = node.getToken();
       throw error;
+    }
   }
 };
 
@@ -231,7 +233,7 @@ function Program(nodeTree, functorProviderArg) {
   let _currentState = new LiteralTreeMap();
   let _executedActions = new LiteralTreeMap();
 
-  let _clauseMap = new LiteralTreeMap();
+  // let _clauseMap = new LiteralTreeMap();
 
   let _fluents = {};
   let _actions = {};
@@ -457,19 +459,19 @@ function Program(nodeTree, functorProviderArg) {
     return result;
   };
 
-  let buildClauseMap = function buildClauseMap(map, clauses) {
-    // TODO
-    // clauses.forEach((clause) => {
-    //   let headLiteral = clause.getHeadLiterals()[0];
-    //   let list = [];
-    //   if (!map.contains(headLiteral)) {
-    //     map.add(headLiteral, list);
-    //   } else {
-    //     list = map.get(headLiteral);
-    //   }
-    //   list.push(clause);
-    // });
-  };
+  // let buildClauseMap = function buildClauseMap(map, clauses) {
+  //   // TODO
+  //   // clauses.forEach((clause) => {
+  //   //   let headLiteral = clause.getHeadLiterals()[0];
+  //   //   let list = [];
+  //   //   if (!map.contains(headLiteral)) {
+  //   //     map.add(headLiteral, list);
+  //   //   } else {
+  //   //     list = map.get(headLiteral);
+  //   //   }
+  //   //   list.push(clause);
+  //   // });
+  // };
 
   this.augment = function augment(program) {
     if (!(program instanceof Program)) {
@@ -495,7 +497,7 @@ function Program(nodeTree, functorProviderArg) {
       .forEach((fact) => {
         _facts.add(fact);
       });
-    buildClauseMap(_clauseMap, programClauses);
+    // buildClauseMap(_clauseMap, programClauses);
   };
 
   if (nodeTree !== null && nodeTree !== undefined) {
@@ -506,7 +508,7 @@ function Program(nodeTree, functorProviderArg) {
       constraints: _constraints,
       facts: _facts
     });
-    buildClauseMap(_clauseMap, _clauses);
+    // buildClauseMap(_clauseMap, _clauses);
   }
 }
 
@@ -528,13 +530,13 @@ Program.literalSet = function literalSet(str) {
   return processLiteralSet(node.getChildren(), singleUnderscoreVariableSet);
 };
 
-Program.fromString = function fromString(code) {
+Program.fromString = function fromString(source) {
   return new Promise((resolve, reject) => {
     let token;
     try {
-      let parser = new Parser(code);
+      let parser = new Parser(source);
       token = parser.build();
-        resolve(new Program(token));
+      resolve(new Program(token));
     } catch (err) {
       let errorToken = err.token;
       console.log(errorToken);
@@ -550,9 +552,9 @@ Program.fromFile = function fromFile(pathname) {
       reject(stringLiterals.error('browserContext.loadProgramFromFile'));
       return;
     }
-    fs.readFile(pathname, 'utf8', (err, source) => {
-      if (err) {
-        reject(err);
+    fs.readFile(pathname, 'utf8', (fsErr, source) => {
+      if (fsErr) {
+        reject(fsErr);
         return;
       }
       let token;

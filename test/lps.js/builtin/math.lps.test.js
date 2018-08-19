@@ -4,7 +4,6 @@
  */
 
 const Value = lpsRequire('engine/Value');
-const Variable = lpsRequire('engine/Variable');
 const Engine = lpsRequire('engine/Engine');
 const Program = lpsRequire('parser/Program');
 
@@ -19,7 +18,7 @@ describe('math.lps', () => {
     engine = new Engine(program);
     engine.load()
       .then(() => {
-        done()
+        done();
       });
   });
 

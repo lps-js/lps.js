@@ -9,7 +9,6 @@ const Clause = lpsRequire('engine/Clause');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 const Program = lpsRequire('parser/Program');
-const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 
 const chai = require('chai');

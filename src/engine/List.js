@@ -66,7 +66,7 @@ function List(head, tail) {
 
   this.getVariableHash = function getVariableHash(existingHash) {
     let hash = existingHash;
-    if (_variableHash !== null)  {
+    if (_variableHash !== null) {
       if (hash === undefined) {
         return _variableHash;
       }

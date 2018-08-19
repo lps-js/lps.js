@@ -141,15 +141,13 @@ module.exports = (engine, program) => {
 
       if (peer instanceof Variable) {
         let variableName = peer.evaluate();
-        network.peers
-          .forEach((p) => {
-            let theta = {};
-            theta[variableName] =
-              new Functor('node', [new Value(p[0]), new Value(p[1])]);
-            result.push({
-              theta: theta
-            });
+        network.peers.forEach((p) => {
+          let theta = {};
+          theta[variableName] = new Functor('node', [new Value(p[0]), new Value(p[1])]);
+          result.push({
+            theta: theta
           });
+        });
         return result;
       }
 

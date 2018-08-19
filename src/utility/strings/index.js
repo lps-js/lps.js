@@ -46,7 +46,7 @@ const stringLiterals = function (pathArg, replacementsArg) {
   return formattable(currentPosition, replacements);
 };
 
-stringLiterals.error = function() {
+stringLiterals.error = function stringLiteralsError() {
   return new Error(stringLiterals.apply(null, arguments));
 };
 

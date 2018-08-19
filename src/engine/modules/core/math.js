@@ -7,7 +7,6 @@ const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const resolveValue = lpsRequire('engine/modules/core/resolveValue');
 const assertIsValue = lpsRequire('engine/modules/core/assertIsValue');
-const checkOrSetOutputArg = lpsRequire('engine/modules/core/checkOrSetOutputArg');
 
 const functors = {
   '+/2': function (v1Arg, v2Arg) {
@@ -648,7 +647,7 @@ const functors = {
     ];
   },
 
-  'random/0': function() {
+  'random/0': function () {
     let value = new Value(Math.random());
     return [
       {
@@ -658,7 +657,7 @@ const functors = {
     ];
   },
 
-  'randomInt/2': function(v1Arg, v2Arg) {
+  'randomInt/2': function (v1Arg, v2Arg) {
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
@@ -692,7 +691,7 @@ const functors = {
     ];
   },
 
-  'pi/0':  function () {
+  'pi/0': function () {
     let value = new Value(Math.PI);
     return [
       {
@@ -700,7 +699,7 @@ const functors = {
         replacement: value
       }
     ];
-  },
+  }
 
 };
 

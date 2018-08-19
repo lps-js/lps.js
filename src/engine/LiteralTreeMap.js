@@ -8,7 +8,6 @@ const Timable = lpsRequire('engine/Timable');
 const List = lpsRequire('engine/List');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
-const variableArrayRename = lpsRequire('utility/variableArrayRename');
 
 function _TreeLoaderType() {}
 
@@ -379,7 +378,7 @@ function LiteralTreeMap() {
     return symbolName.substring(11, symbolName.length - 1);
   };
 
-  let unifyForValue = (value, path, node, callRecursiveUnification, externalThetaArg, internalThetaArg) => {
+  let unifyForValue = (value, path, node, recursiveCall, externalThetaArg, internalThetaArg) => {
     let externalTheta = externalThetaArg;
     let internalTheta = internalThetaArg;
     let result = [];
@@ -387,7 +386,7 @@ function LiteralTreeMap() {
     node.indices().forEach((index) => {
       // index is not a number, variable, functor or list
       if (value === index) {
-        subResult = callRecursiveUnification(path, node._tree[index], externalTheta, internalTheta);
+        subResult = recursiveCall(path, node._tree[index], externalTheta, internalTheta);
         result = result.concat(subResult);
         return;
       }
@@ -413,7 +412,7 @@ function LiteralTreeMap() {
         let numValue = Number(extractSymbolContent(index));
         if (value === numValue) {
           // number match
-          subResult = callRecursiveUnification(path, node._tree[index], externalTheta, internalTheta);
+          subResult = recursiveCall(path, node._tree[index], externalTheta, internalTheta);
           result = result.concat(subResult);
         }
         return;
@@ -426,7 +425,7 @@ function LiteralTreeMap() {
       }
       let clonedInternalTheta = cloneTheta(internalTheta);
       clonedInternalTheta[treeVarName] = new Value(value);
-      subResult = callRecursiveUnification(path, node._tree[index], externalTheta, clonedInternalTheta);
+      subResult = recursiveCall(path, node._tree[index], externalTheta, clonedInternalTheta);
       result = result.concat(subResult);
     });
     return result;
@@ -487,7 +486,8 @@ function LiteralTreeMap() {
       } // value
 
       node.indices().forEach((index) => {
-        if (node._tree[index] === undefined) {
+        let subtree = node._tree[index];
+        if (subtree === undefined) {
           return;
         }
         let isSymbol = typeof index === 'symbol';
@@ -497,9 +497,9 @@ function LiteralTreeMap() {
         // value is not a number, variable, functor or list
         if (!isSymbol) {
           // variable vs simple values
-          let clonedExternalTheta = cloneTheta(externalTheta);
+          clonedExternalTheta = cloneTheta(externalTheta);
           clonedExternalTheta[varName] = new Value(index);
-          subResult = recursiveUnification(path, node._tree[index], clonedExternalTheta, internalTheta);
+          subResult = recursiveUnification(path, subtree, clonedExternalTheta, internalTheta);
           result = result.concat(subResult);
           return;
         }
@@ -512,7 +512,7 @@ function LiteralTreeMap() {
           let numValue = Number(extractSymbolContent(index));
           clonedExternalTheta = cloneTheta(externalTheta);
           clonedExternalTheta[varName] = new Value(numValue);
-          subResult = recursiveUnification(path, node._tree[index], clonedExternalTheta, internalTheta);
+          subResult = recursiveUnification(path, subtree, clonedExternalTheta, internalTheta);
           result = result.concat(subResult);
           return;
         }
@@ -532,7 +532,7 @@ function LiteralTreeMap() {
           } else {
             clonedExternalTheta[varName] = internalTheta[treeVarName];
           }
-          subResult = recursiveUnification(path, node._tree[index], clonedExternalTheta, clonedInternalTheta);
+          subResult = recursiveUnification(path, subtree, clonedExternalTheta, clonedInternalTheta);
           result = result.concat(subResult);
           return;
         }
@@ -541,7 +541,7 @@ function LiteralTreeMap() {
         let term = _argumentClauses[index];
         clonedExternalTheta = cloneTheta(externalTheta);
         clonedExternalTheta[varName] = term;
-        subResult = recursiveUnification(path, node._tree[index], clonedExternalTheta, internalTheta);
+        subResult = recursiveUnification(path, subtree, clonedExternalTheta, internalTheta);
         result = result.concat(subResult);
       });
 
@@ -582,7 +582,12 @@ function LiteralTreeMap() {
             let matchingTailExternalTheta = cloneTheta(tempExternalTheta);
 
             matchingTailExternalTheta[entry.tailVariable.evaluate()] = new List(list);
-            subResult = recursiveUnification(path, node._tree[symbol], matchingTailExternalTheta, tempInternalTheta);
+            subResult = recursiveUnification(
+              path,
+              node._tree[symbol],
+              matchingTailExternalTheta,
+              tempInternalTheta
+            );
             result = result.concat(subResult);
           });
           return;
@@ -590,7 +595,12 @@ function LiteralTreeMap() {
         if (node._tree[entry.leaf] === undefined) {
           return;
         }
-        subResult = recursiveUnification(path, node._tree[entry.leaf], tempExternalTheta, tempInternalTheta);
+        subResult = recursiveUnification(
+          path,
+          node._tree[entry.leaf],
+          tempExternalTheta,
+          tempInternalTheta
+        );
         result = result.concat(subResult);
       });
     } // has argumentTreeSymbol
@@ -618,7 +628,7 @@ function LiteralTreeMap() {
         // previously internally substituted.
         return;
       }
-      clonedInternalTheta = cloneTheta(internalTheta)
+      clonedInternalTheta = cloneTheta(internalTheta);
       clonedInternalTheta[treeVarName] = currentKey;
       subResult = recursiveUnification(path, node._tree[index], externalTheta, clonedInternalTheta);
       result = result.concat(subResult);

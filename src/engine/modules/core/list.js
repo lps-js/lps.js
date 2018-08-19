@@ -8,7 +8,6 @@ const Variable = lpsRequire('engine/Variable');
 const List = lpsRequire('engine/List');
 const resolveValue = lpsRequire('engine/modules/core/resolveValue');
 const assertIsValue = lpsRequire('engine/modules/core/assertIsValue');
-const checkOrSetOutputArg = lpsRequire('engine/modules/core/checkOrSetOutputArg');
 
 const assertIsList = function assertIsList(val) {
   if (!(val instanceof List)) {
