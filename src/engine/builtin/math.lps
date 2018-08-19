@@ -140,8 +140,10 @@ pi(V) <-
   is_variable(V),
   V = pi.
 
+between(A, A, A).
+
 between(Low, High, Value) <-
-  Low <= High,
+  Low < High,
   Value >= Low,
   Value <= High.
 
