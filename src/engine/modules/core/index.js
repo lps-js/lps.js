@@ -25,14 +25,13 @@ module.exports = (engine, program) => {
       if (!(literal instanceof Functor) && !(literal instanceof Timable)) {
         throw new Error('Literal not functor or timable in !/1 argument');
       }
-      let theta = {};
+      let result = [];
 
       let thisProgram = this.getProgram();
       let queryResult = thisProgram.query(literal);
-      let result = [];
       if (queryResult.length === 0) {
         result.push({
-          theta: theta
+          theta: {}
         });
       }
       return result;
