@@ -7,12 +7,19 @@ const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 const Timable = lpsRequire('engine/Timable');
 
+/**
+ * Sort timables into set of earlyConjuncts and laterConjuncts
+ * @param  {Array} conjunction The conjunction. Must be an array of functors or timables
+ * @param  {number} forTime     A positive integer of the time to determine earlyConjuncts
+ * @return {Array}             Return a pair of early conjuncts and later conjuncts
+ */
 function sortTimables(conjunction, forTime) {
   let earlyConjuncts = [];
   let laterConjuncts = [];
 
   let dependentTimeVariables = {};
 
+  // determine the time dependent variables
   for (let k = 0; k < conjunction.length; k += 1) {
     let conjunct = conjunction[k];
 
@@ -35,6 +42,7 @@ function sortTimables(conjunction, forTime) {
     }
   }
 
+  // sort between early and later
   for (let k = 0; k < conjunction.length; k += 1) {
     let conjunct = conjunction[k];
 
@@ -52,14 +60,6 @@ function sortTimables(conjunction, forTime) {
       continue;
     }
 
-    for (let i = 0; i < earlyConjuncts; i += 1) {
-      if (earlyConjuncts[i] instanceof Timable
-          && conjunct.isEarlierThan(earlyConjuncts[i])) {
-        laterConjuncts = laterConjuncts.concat(earlyConjuncts);
-        earlyConjuncts = [conjunct];
-      }
-    }
-
     let conjunctStartTime = conjunct.getStartTime();
 
     if (conjunctStartTime instanceof Variable) {
@@ -68,6 +68,7 @@ function sortTimables(conjunction, forTime) {
         continue;
       }
     }
+
     earlyConjuncts.push(conjunct);
   }
 
