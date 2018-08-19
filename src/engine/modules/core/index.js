@@ -159,22 +159,6 @@ module.exports = (engine, program) => {
         return result;
       }
 
-      if (v1 instanceof Variable) {
-        result.push({
-          theta: {},
-          replacement: new Functor('<=/2', [v1, v2])
-        });
-        return result;
-      }
-
-      if (v2 instanceof Variable) {
-        result.push({
-          theta: {},
-          replacement: new Functor('<=/2', [v1, v2])
-        });
-        return result;
-      }
-
       if (v1 instanceof Variable || v2 instanceof Variable) {
         return [];
       }
