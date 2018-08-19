@@ -57,6 +57,9 @@
     "nonPositiveIntegerCycleInterval": "Cycle interval must be a positive integer, %s was given.",
     "updatingParametersWhileRunning": "Cannot set %s while LPS program is in execution. Parameters can only be set before the LPS program starts.",
     "fluentUpdaterActionArgumentVariable": "When declaring an initiate, terminate or update, the action must have the last argument as the time variable.",
-    "rejectObservationWarning": "Rejecting observation '%s' from time %s to %s in order to satisfy program constraints"
+    "rejectObservationWarning": "Rejecting observation '%s' from time %s to %s in order to satisfy program constraints",
+    "loadingLoadedEngine": "Cannot load LPS engine: LPS Engine already loaded",
+    "invalidObservationScheduling": "End time for observation scheduling must be greater than start time: Tried scheduling %s from %s to %s.",
+    "invalidStartTimeObservationScheduling": "Start time for observation scheduling given must be greater than the current time: Tried scheduling %s for time %s at current time %s."
   }
 }

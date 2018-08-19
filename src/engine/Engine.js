@@ -850,7 +850,10 @@ function Engine(programArg, workingDirectory) {
     let endTime = endTimeArg;
     if (startTime === undefined
         || startTime < _currentTime) {
-      throw new Error('Invalid start time for observation scheduling for ' + observation);
+      throw stringLiterals.error(
+        'engine.invalidStartTimeObservationScheduling',
+        [observation, startTime, _currentTime]
+      );
     }
 
     if (startTime === _currentTime && _isInCycle) {
@@ -863,7 +866,10 @@ function Engine(programArg, workingDirectory) {
     }
 
     if (endTime <= startTime) {
-      throw new Error('Invalid end time for observation scheduling for ' + observation);
+      throw stringLiterals.error(
+        'engine.invalidObservationScheduling',
+        [observation, startTime, endTime]
+      );
     }
 
     if (_observations[startTime] === undefined) {
@@ -907,7 +913,7 @@ function Engine(programArg, workingDirectory) {
   let _loaded = false;
   this.load = function load() {
     if (_loaded) {
-      return Promise.reject(new Error('LPS Engine already loaded'));
+      return Promise.reject(stringLiterals.error('engine.loadingLoadedEngine'));
     }
     _loaded = true;
     let coreModule = require('./modules/core');
