@@ -8,12 +8,12 @@ const List = lpsRequire('engine/List');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
 const Program = lpsRequire('parser/Program');
+const FunctorProvider = lpsRequire('engine/FunctorProvider');
 const Value = lpsRequire('engine/Value');
 const processRules = lpsRequire('utility/processRules');
 const compactTheta = lpsRequire('utility/compactTheta');
 const EventManager = lpsRequire('observer/Manager');
 const constraintCheck = lpsRequire('utility/constraintCheck');
-const Tester = lpsRequire('engine/test/Tester');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const SyntacticSugarProcessor = lpsRequire('engine/builtin/SyntacticSugarProcessor');
 const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
@@ -53,7 +53,8 @@ const evaluateGoalTrees = function evaluateGoalTrees(currentTime, goalTrees) {
     });
 };
 
-function Engine(program, workingDirectory) {
+function Engine(programArg, workingDirectory) {
+  let _program = programArg;
   let _maxTime = 20;
   let _cycleInterval = 100; // milliseconds
   let _isContinuousExecution = false;
@@ -79,8 +80,10 @@ function Engine(program, workingDirectory) {
   let _lastCycleActions = null;
   let _lastCycleObservations = null;
 
+  let _functorProvider = new FunctorProvider(this);
+
   let processMaxTimeDeclarations = function processMaxTimeDeclarations() {
-    let result = program.query(Program.literal('maxTime(X)'));
+    let result = this.query(Program.literal('maxTime(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
         return;
@@ -90,7 +93,7 @@ function Engine(program, workingDirectory) {
   };
 
   let processCycleIntervalDeclarations = function processCycleIntervalDeclarations() {
-    let result = program.query(Program.literal('cycleInterval(X)'));
+    let result = this.query(Program.literal('cycleInterval(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
         return;
@@ -100,7 +103,7 @@ function Engine(program, workingDirectory) {
   };
 
   let processContinuousExecutionDeclarations = function processContinuousExecutionDeclarations() {
-    let result = program.query(Program.literal('continuousExecution(X)'));
+    let result = this.query(Program.literal('continuousExecution(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
         return;
@@ -111,41 +114,41 @@ function Engine(program, workingDirectory) {
   };
 
   let processFluentDeclarations = function processFluentDeclarations() {
-    let result = program.query(Program.literal('fluent(X)'));
+    let result = this.query(Program.literal('fluent(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined) {
         return;
       }
 
       let fluent = SyntacticSugarProcessor.shorthand(r.theta.X);
-      program.defineFluent(fluent);
+      _program.defineFluent(fluent);
     });
   };
 
   let processActionDeclarations = function processActionDeclarations() {
-    let result = program.query(Program.literal('action(X)'));
+    let result = this.query(Program.literal('action(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined) {
         return;
       }
       let literal = SyntacticSugarProcessor.shorthand(r.theta.X);
-      program.defineAction(literal);
+      _program.defineAction(literal);
     });
   };
 
   let processEventDeclarations = function processEventDeclarations() {
-    let result = program.query(Program.literal('event(X)'));
+    let result = this.query(Program.literal('event(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined) {
         return;
       }
       let literal = SyntacticSugarProcessor.shorthand(r.theta.X);
-      program.defineEvent(literal);
+      _program.defineEvent(literal);
     });
   };
 
   let processInitialFluentDeclarations = function processInitialFluentDeclarations() {
-    let result = program.query(Program.literal('initially(F)'));
+    let result = this.query(Program.literal('initially(F)'));
     let processInitialFluent = (valueArg) => {
       let value = valueArg;
       if (!(value instanceof Functor)) {
@@ -153,11 +156,11 @@ function Engine(program, workingDirectory) {
         return;
       }
       let initialFluent = new Functor(value.getName(), value.getArguments());
-      if (!program.isFluent(initialFluent)) {
+      if (!_program.isFluent(initialFluent)) {
         // invalid fluent
         return;
       }
-      program
+      _program
         .getState()
         .add(initialFluent);
     };
@@ -180,7 +183,6 @@ function Engine(program, workingDirectory) {
   const fluentActorDeclarationLiteral = Program
     .literal('fluentActorDeclare(T, A, Old, New, Conds)');
   let updateStateWithFluentActors = function updateStateWithFluentActors(actions, state) {
-    let functorProvider = program.getFunctorProvider();
     let newState = new LiteralTreeMap();
     state
       .forEach((literal) => {
@@ -190,7 +192,7 @@ function Engine(program, workingDirectory) {
 
     // query has to be done on the spot as some of the declarations
     // may be intensional instead of static
-    let result = program.query(fluentActorDeclarationLiteral);
+    let result = this.query(fluentActorDeclarationLiteral);
 
     result.forEach((r) => {
       let type = r.theta.T;
@@ -241,7 +243,7 @@ function Engine(program, workingDirectory) {
       actions.unifies(actor.a)
         .forEach((node) => {
           let substitutedCondition = actor.c.substitute(node.theta);
-          let subQueryResult = program.query(substitutedCondition.flatten());
+          let subQueryResult = this.query(substitutedCondition.flatten());
           subQueryResult.forEach((tuple) => {
             thetaSets.push({
               theta: compactTheta(node.theta, tuple.theta)
@@ -264,7 +266,7 @@ function Engine(program, workingDirectory) {
             initiateThetaSet.push(currentTheta);
             let terminatedFluentSet = Resolutor
               .handleBuiltInFunctorArgumentInLiteral(
-                functorProvider,
+                _functorProvider,
                 terminatedGroundFluent.substitute(currentTheta)
               );
             terminatedFluentSet.forEach((fluent) => {
@@ -280,7 +282,7 @@ function Engine(program, workingDirectory) {
             let initiatedGroundFluent = actor.i.substitute(theta);
             let initiatedFluentSet = Resolutor
               .handleBuiltInFunctorArgumentInLiteral(
-                functorProvider,
+                _functorProvider,
                 initiatedGroundFluent
               );
             initiatedFluentSet.forEach((fluent) => {
@@ -302,9 +304,11 @@ function Engine(program, workingDirectory) {
       // no observations for current time
       return activeObservations;
     }
-    let cloneProgram = program.clone();
+    let cloneProgram = _program.clone();
 
     cloneProgram.setExecutedActions(new LiteralTreeMap());
+
+    let originalProgram = _program;
 
     // process observations
     _observations[_currentTime].forEach((ob) => {
@@ -319,14 +323,19 @@ function Engine(program, workingDirectory) {
       let postCloneProgram = cloneProgram.clone();
       let postState = postCloneProgram.getState();
       postCloneProgram.setExecutedActions(new LiteralTreeMap());
-      postState = updateStateWithFluentActors(tempTreeMap, postState);
+      postState = updateStateWithFluentActors.call(this, tempTreeMap, postState);
       postCloneProgram.updateState(postState);
 
       // only perform pre-checks
-      if (constraintCheck(cloneProgram)
-          && constraintCheck(postCloneProgram)) {
-        activeObservations.add(action);
+      _program = cloneProgram;
+      if (constraintCheck(this, cloneProgram)) {
+        _program = postCloneProgram;
+        if (constraintCheck(this, postCloneProgram)) {
+          activeObservations.add(action);
+        }
+        _program = originalProgram;
       } else {
+        _program = originalProgram;
         // reject incoming observation
         cloneProgram.getExecutedActions()
           .remove(action);
@@ -358,7 +367,7 @@ function Engine(program, workingDirectory) {
   let actionsSelector = function actionsSelector(goalTrees) {
     let selectionDone = false;
     let selection;
-    let recursiveActionsSelector = function (actionsSoFar, programSoFar, l) {
+    let recursiveActionsSelector = (actionsSoFar, programSoFar, l) => {
       if (l >= goalTrees.length) {
         let actions = new LiteralTreeMap();
         actionsSoFar.forEach((map) => {
@@ -387,20 +396,27 @@ function Engine(program, workingDirectory) {
         });
 
         // pre-condition check
-        if (!constraintCheck(cloneProgram)) {
+        let originalProgram = _program;
+        _program = cloneProgram;
+        if (!constraintCheck(this, cloneProgram)) {
+          _program = originalProgram;
           return;
         }
+        _program = originalProgram;
 
         // post condition checks
         let clonePostProgram = programSoFar.clone();
         clonePostProgram.setExecutedActions(new LiteralTreeMap());
         let postState = clonePostProgram.getState();
-        postState = updateStateWithFluentActors(candidateActions, postState);
+        postState = updateStateWithFluentActors.call(this, candidateActions, postState);
         clonePostProgram.updateState(postState);
 
-        if (!constraintCheck(clonePostProgram)) {
+        _program = clonePostProgram;
+        if (!constraintCheck(this, clonePostProgram)) {
+          _program = originalProgram;
           return;
         }
+        _program = originalProgram;
 
         let promise = recursiveActionsSelector(
           actionsSoFar.concat([candidateActions]),
@@ -431,7 +447,7 @@ function Engine(program, workingDirectory) {
         );
     };
 
-    return recursiveActionsSelector([], program, 0);
+    return recursiveActionsSelector([], _program, 0);
   };
 
   /*
@@ -439,7 +455,7 @@ function Engine(program, workingDirectory) {
   */
   const performCycle = function performCycle() {
     let updatedState = new LiteralTreeMap();
-    program
+    _program
       .getState()
       .forEach((literal) => {
         updatedState.add(literal);
@@ -451,16 +467,16 @@ function Engine(program, workingDirectory) {
     // actions for exection that has been observed in the same cycle.
     // the idea of "someone else has done something I needed to do, thanks anyway"
     let executedActions = new LiteralTreeMap();
-    let cycleObservations = processCycleObservations();
+    let cycleObservations = processCycleObservations.call(this);
     cycleObservations.forEach((observation) => {
       executedActions.add(observation);
     });
 
     // to handle time for this iteration
-    program.setExecutedActions(executedActions);
+    _program.setExecutedActions(executedActions);
 
     // decide which actions from set of candidate actions to execute
-    return actionsSelector(_goals)
+    return actionsSelector.call(this, _goals)
       .then((selectedActions) => {
         let selectedAndExecutedActions = new LiteralTreeMap();
         // process selected actions
@@ -469,15 +485,15 @@ function Engine(program, workingDirectory) {
             return;
           }
           let selectedLiterals = Resolutor
-            .handleBuiltInFunctorArgumentInLiteral(program.getFunctorProvider(), l);
+            .handleBuiltInFunctorArgumentInLiteral(_functorProvider, l);
           selectedLiterals.forEach((literal) => {
             executedActions.add(literal);
             selectedAndExecutedActions.add(literal);
           });
         });
 
-        updatedState = updateStateWithFluentActors(executedActions, updatedState);
-        program.setExecutedActions(executedActions);
+        updatedState = updateStateWithFluentActors.call(this, executedActions, updatedState);
+        _program.setExecutedActions(executedActions);
 
         // reset statistics
         _numLastCycleFailedRules = 0;
@@ -487,7 +503,7 @@ function Engine(program, workingDirectory) {
         let newFiredGoals = [];
         if (_currentTime > 0) {
           // skip pre-processing in cycle 0 to 1.
-          newFiredGoals = processRules(program, _goals, _currentTime);
+          newFiredGoals = processRules(this, _program, _goals, _currentTime);
           _goals = _goals.concat(newFiredGoals);
           promise = evaluateGoalTrees(_currentTime, _goals);
         }
@@ -500,12 +516,12 @@ function Engine(program, workingDirectory) {
             // preparation for next cycle
             _currentTime += 1;
 
-            program.setExecutedActions(new LiteralTreeMap());
-            program.updateState(updatedState);
+            _program.setExecutedActions(new LiteralTreeMap());
+            _program.updateState(updatedState);
 
             // build goal clauses for each rule
             // we need to derive the partially executed rule here too
-            newFiredGoals = processRules(program, _goals, _currentTime);
+            newFiredGoals = processRules(this, _program, _goals, _currentTime);
             _goals = _goals.concat(newFiredGoals);
             return evaluateGoalTrees(_currentTime, _goals);
           })
@@ -533,6 +549,18 @@ function Engine(program, workingDirectory) {
 
   this.getMaxTime = function getMaxTime() {
     return _maxTime;
+  };
+
+  this.isInCycle = function isInCycle() {
+    return _isInCycle;
+  };
+
+  this.isRunning = function isRunning() {
+    return _isRunning;
+  };
+
+  this.isPaused = function isPaused() {
+    return _isPaused;
   };
 
   this.getCycleInterval = function getCycleInterval() {
@@ -624,7 +652,7 @@ function Engine(program, workingDirectory) {
 
   this.getTimelessFacts = function getTimelessFacts() {
     let facts = [];
-    program.getFacts()
+    _program.getFacts()
       .forEach((fact) => {
         facts.push(fact.toString());
       });
@@ -633,7 +661,7 @@ function Engine(program, workingDirectory) {
 
   this.getActiveFluents = function getActiveFluents() {
     let fluents = [];
-    program.getState()
+    _program.getState()
       .forEach((fluent) => {
         fluents.push(fluent.toString());
       });
@@ -641,7 +669,7 @@ function Engine(program, workingDirectory) {
   };
 
   this.getNumActiveFluents = function getNumActiveFluents() {
-    return program.getState().size();
+    return _program.getState().size();
   };
 
   this.getNumLastCycleFiredRules = function getNumLastCycleFiredRules() {
@@ -659,7 +687,7 @@ function Engine(program, workingDirectory) {
   this.query = function query(literalArg, type) {
     let literal = literalArg;
     if (type === 'fluent') {
-      return program.getState().unifies(literal);
+      return _program.getState().unifies(literal);
     }
 
     if (type === 'action') {
@@ -670,7 +698,7 @@ function Engine(program, workingDirectory) {
       return _lastCycleObservations.unifies(literal);
     }
 
-    return program.query(literal);
+    return _program.query(literal, this);
   };
 
   this.hasHalted = function hasHalted() {
@@ -706,7 +734,7 @@ function Engine(program, workingDirectory) {
       return Promise.reject();
     }
     let startTime = Date.now();
-    return performCycle()
+    return performCycle.call(this)
       .then(() => {
         _lastCycleExecutionTime = Date.now() - startTime;
         _isInCycle = false;
@@ -782,7 +810,11 @@ function Engine(program, workingDirectory) {
     if (_isRunning) {
       throw new Error('Cannot define JS predicates after starting LPS execution');
     }
-    program.getFunctorProvider().define(name, callback);
+    _functorProvider.define(name, callback);
+  };
+
+  this.getFunctorProvider = function getFunctorProvider() {
+    return _functorProvider;
   };
 
   this.on = function on(event, listener) {
@@ -857,27 +889,19 @@ function Engine(program, workingDirectory) {
     processSingleObservation(observation);
   };
 
-  this.test = function test(specFile) {
-    if (_isRunning) {
-      throw new Error(stringLiterals('engine.startingTestWhileRunning'));
-    }
-    let tester = new Tester(this);
-    return tester.test(specFile);
-  };
-
   // we preprocess some of the built-in processors by looking at the facts
-  // of the program.
+  // of the _program.
   this.on('loaded', () => {
-    processMaxTimeDeclarations();
-    processCycleIntervalDeclarations();
-    processContinuousExecutionDeclarations();
-    processFluentDeclarations();
-    processActionDeclarations();
-    processEventDeclarations();
-    processInitialFluentDeclarations();
-    ObserveDeclarationProcessor.processDeclarations(this, program);
-    rulePreProcessor(this, program);
-    TimableProcessor(this, program);
+    processMaxTimeDeclarations.call(this);
+    processCycleIntervalDeclarations.call(this);
+    processContinuousExecutionDeclarations.call(this);
+    processFluentDeclarations.call(this);
+    processActionDeclarations.call(this);
+    processEventDeclarations.call(this);
+    processInitialFluentDeclarations.call(this);
+    ObserveDeclarationProcessor.processDeclarations(this, _program);
+    rulePreProcessor(this, _program);
+    TimableProcessor(this, _program);
 
     _engineEventManager.notify('ready', this);
   });
@@ -889,10 +913,10 @@ function Engine(program, workingDirectory) {
     }
     _loaded = true;
     let coreModule = require('./modules/core');
-    coreModule(this, program);
+    coreModule(this, _program);
 
     return BuiltinLoader
-      .load(this, program)
+      .load(this, _program)
       .then((consult) => {
         // start processing consult/1, consult/2 and loadModule/1 declarations in main program
         return consult.process(workingDirectory);

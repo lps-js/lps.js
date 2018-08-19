@@ -3,7 +3,6 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const FunctorProvider = lpsRequire('engine/FunctorProvider');
 const Clause = lpsRequire('engine/Clause');
 const Functor = lpsRequire('engine/Functor');
 const NodeTypes = lpsRequire('parser/NodeTypes');
@@ -225,7 +224,7 @@ let processProgramTree = function processProgramTree(rootNode, properties) {
   });
 };
 
-function Program(nodeTree, functorProviderArg) {
+function Program(nodeTree) {
   let _rules = [];
   let _clauses = [];
   let _constraints = [];
@@ -239,15 +238,8 @@ function Program(nodeTree, functorProviderArg) {
   let _actions = {};
   let _events = {};
 
-  let _functorProvider;
-  if (functorProviderArg === undefined) {
-    _functorProvider = new FunctorProvider(this);
-  } else {
-    _functorProvider = functorProviderArg.clone(this);
-  }
-
   this.clone = function clone() {
-    let program = new Program(null, _functorProvider);
+    let program = new Program(null);
     let newFacts = new LiteralTreeMap();
     _facts.forEach((fact) => {
       newFacts.add(fact);
@@ -412,10 +404,6 @@ function Program(nodeTree, functorProviderArg) {
     _currentState = newState;
   };
 
-  this.getFunctorProvider = function getFunctorProvider() {
-    return _functorProvider;
-  };
-
   this.getExecutedActions = function getExecutedActions() {
     return _executedActions;
   };
@@ -424,9 +412,8 @@ function Program(nodeTree, functorProviderArg) {
     _executedActions = newSet;
   };
 
-  this.query = function query(goal, otherFacts) {
-    let evaluationResult = Resolutor.explain(goal, this, otherFacts);
-    return evaluationResult;
+  this.query = function query(goal, engine, otherFacts) {
+    return Resolutor.explain(goal, this, engine, otherFacts);
   };
 
   this.getDefinitions = function getDefinitions(literal) {
@@ -539,7 +526,6 @@ Program.fromString = function fromString(source) {
       resolve(new Program(token));
     } catch (err) {
       let errorToken = err.token;
-      console.log(errorToken);
       let errorMessage = unexpectedTokenErrorMessage(source, errorToken, err.likelyMissing);
       reject(new Error(errorMessage));
     }

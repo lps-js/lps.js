@@ -26,8 +26,7 @@ module.exports = (engine, program) => {
       }
       let result = [];
 
-      let thisProgram = this.getProgram();
-      let queryResult = thisProgram.query(literal);
+      let queryResult = engine.query(literal);
       if (queryResult.length === 0) {
         result.push({
           theta: {}
@@ -363,7 +362,7 @@ module.exports = (engine, program) => {
       if (!(output instanceof Variable)) {
         throw new Error('The last argument of findall/3 must be a variable.');
       }
-      let goalResult = this.getProgram().query(goal);
+      let goalResult = engine.query(goal);
       let outputResult = [];
       goalResult.forEach((tuple) => {
         outputResult.push(template.substitute(tuple.theta));
@@ -400,7 +399,7 @@ module.exports = (engine, program) => {
     }
   };
 
-  let functorProvider = program.getFunctorProvider();
+  let functorProvider = engine.getFunctorProvider();
   functorProvider.load(coreFunctors);
   functorProvider.load(typesFunctors);
   functorProvider.load(listFunctors);

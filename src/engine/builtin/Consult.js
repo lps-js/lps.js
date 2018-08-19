@@ -103,8 +103,8 @@ function Consult(engine, targetProgram) {
     }
     let promises = [];
     let result = [];
-    result = result.concat(currentProgram.query(consultLiteral1));
-    result = result.concat(currentProgram.query(consultLiteral2));
+    result = result.concat(currentProgram.query(consultLiteral1, engine));
+    result = result.concat(currentProgram.query(consultLiteral2, engine));
 
     let handleEntry = (theta) => {
       if (!(theta.File instanceof Functor)) {
@@ -148,7 +148,7 @@ function Consult(engine, targetProgram) {
       promises.push(handleEntry(r.theta));
     });
 
-    let moduleResult = currentProgram.query(loadModuleLiteral);
+    let moduleResult = currentProgram.query(loadModuleLiteral, engine);
     moduleResult.forEach((r) => {
       if (r.theta.Module === undefined) {
         return;

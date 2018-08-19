@@ -6,25 +6,25 @@
 const coreModule = lpsRequire('engine/modules/core');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Program = lpsRequire('parser/Program');
+const Engine = lpsRequire('engine/Engine');
 
 const chai = require('chai');
 const expect = chai.expect;
 
 describe('coreModule', () => {
+  let program = new Program()
+  let engine = new Engine(program);
+  let functorProvider = engine.getFunctorProvider();
+  coreModule(engine, program);
+
   describe('core', () => {
     describe('!/1', () => {
       it('should be defined', () => {
-        let program = new Program();
-        coreModule(null, program);
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('!/1')).to.be.true;
       });
 
       it('should return correct negation result', () => {
-        let program = new Program();
-        coreModule(null, program);
-
-        let result = program.query(Program.literal('!fact(a)'));
+        let result = engine.query(Program.literal('!fact(a)'));
         expect(result).to.be.an('array');
         expect(result).to.be.length(1);
         expect(result[0]).to.have.property('theta');
@@ -34,14 +34,10 @@ describe('coreModule', () => {
 
       it('should return correct negation result', () => {
         let facts = new LiteralTreeMap();
-        let program = new Program();
-        coreModule(null, program);
-
         facts.add(Program.literal('fact(a)'));
-
         program.setFacts(facts);
 
-        let result = program.query(Program.literal('!fact(a)'));
+        let result = engine.query(Program.literal('!fact(a)'));
         expect(result).to.be.an('array');
         expect(result).to.be.length(0);
       });

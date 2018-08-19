@@ -655,7 +655,6 @@ function LiteralTreeMap() {
 
     if (literal instanceof List) {
       let subResult;
-      // console.log('unifying list')
 
       let buildListPath = (list, remainingLength) => {
         let listHead = list.getHead();
@@ -705,14 +704,11 @@ function LiteralTreeMap() {
         });
       });
 
-      // console.log(paths);
-
       let result = [];
       paths.forEach((tuple) => {
         if (_root._tree[tuple.idx] === undefined) {
           return;
         }
-        // console.log(tuple.path)
         let pathLength = tuple.path.length;
         subResult = recursiveUnification(tuple.path, _root._tree[tuple.idx], {}, existingTheta, {});
         if (tuple.tail !== null) {

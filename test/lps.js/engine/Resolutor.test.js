@@ -10,6 +10,7 @@ const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
 const Program = lpsRequire('parser/Program');
 const Variable = lpsRequire('engine/Variable');
+const Engine = lpsRequire('engine/Engine');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -25,9 +26,10 @@ describe('Resolutor', () => {
       let state = new LiteralTreeMap();
       state.add(new Functor('fire', [new Value(1)]));
       let program = new Program();
+      let engine = new Engine(program);
       program.updateState(state);
 
-      let result = Resolutor.reduceRuleAntecedent(program, rule, 1);
+      let result = Resolutor.reduceRuleAntecedent(engine, program, rule, 1);
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(result[0].theta).to.be.not.undefined;

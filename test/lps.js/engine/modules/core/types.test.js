@@ -8,24 +8,24 @@ const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const List = lpsRequire('engine/List');
-const Program = lpsRequire('parser/Program');
+const Engine = lpsRequire('engine/Engine');
 
 const chai = require('chai');
 const expect = chai.expect;
 
 describe('coreModule', () => {
-  let program = new Program();
-  coreModule(null, program);
+  let engine = new Engine();
+  coreModule(engine, null);
+  let functorProvider = engine.getFunctorProvider();
 
   describe('types', () => {
     describe('is_ground/1', () => {
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_ground/1')).to.be.true;
       });
 
       it('should return is_ground() correctly for ground term', () => {
-        let functorProvider = program.getFunctorProvider();
+        let functorProvider = engine.getFunctorProvider();
         let params = [
           new Value(1)
         ];
@@ -38,7 +38,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_ground() correctly for unground term', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A')
         ];
@@ -50,12 +49,10 @@ describe('coreModule', () => {
 
     describe('is_list/1', () => {
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_list/1')).to.be.true;
       });
 
       it('should return is_list() correctly for a list', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new List([])
         ];
@@ -68,7 +65,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_list() correctly for non-list term', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A')
         ];
@@ -80,12 +76,10 @@ describe('coreModule', () => {
 
     describe('is_variable/1', () => {
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_variable/1')).to.be.true;
       });
 
       it('should return is_variable() correctly for a variable', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A')
         ];
@@ -98,7 +92,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_variable() correctly for non-variable term', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value('a')
         ];
@@ -110,12 +103,10 @@ describe('coreModule', () => {
 
     describe('is_number/1', () => {
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_number/1')).to.be.true;
       });
 
       it('should return is_number() correctly for an integer number value', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(5)
         ];
@@ -128,7 +119,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_number() correctly for a float number value', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(0.885)
         ];
@@ -141,7 +131,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_number() correctly for a non-number value', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value('test')
         ];
@@ -153,12 +142,10 @@ describe('coreModule', () => {
 
     describe('is_integer/1', () => {
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_integer/1')).to.be.true;
       });
 
       it('should return is_integer() correctly for an integer number value', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(5)
         ];
@@ -171,7 +158,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_integer() correctly for a float number value', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(0.885)
         ];
@@ -181,7 +167,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_integer() correctly for a non-number value', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value('test')
         ];
@@ -193,12 +178,10 @@ describe('coreModule', () => {
 
     describe('is_float/1', () => {
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_float/1')).to.be.true;
       });
 
       it('should return is_float() correctly for an integer number value', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(5)
         ];
@@ -208,7 +191,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_float() correctly for a float number value', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(0.885)
         ];
@@ -221,7 +203,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_float() correctly for a non-number value', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value('test')
         ];

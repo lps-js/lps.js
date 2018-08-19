@@ -10,6 +10,7 @@ const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 const Program = lpsRequire('parser/Program');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
+const Engine = lpsRequire('engine/Engine');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -29,12 +30,13 @@ describe('processRules', () => {
     events.add(new Functor('smoke_detected', [new Value('kitchen'), new Value(14), new Value(15)]));
 
     let program = new Program();
+    let engine = new Engine(program);
     program.updateRules([rule]);
 
     program.setExecutedActions(events);
 
     let goals = [];
-    let result = processRules(program, goals, 15);
+    let result = processRules(engine, program, goals, 15);
     expect(result).to.be.instanceof(Array);
     expect(result).to.be.length(0);
   });

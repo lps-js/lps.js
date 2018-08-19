@@ -3,13 +3,13 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-module.exports = function constraintCheck(program) {
+module.exports = function constraintCheck(engine, program) {
   let result = true;
   let constraints = program.getConstraints();
   for (let i = 0; i < constraints.length; i += 1) {
     let constraint = constraints[i];
     let literals = constraint.getBodyLiterals();
-    let queryResult = program.query(literals);
+    let queryResult = engine.query(literals);
 
     if (queryResult.length > 0) {
       result = false;

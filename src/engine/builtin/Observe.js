@@ -14,7 +14,7 @@ function Observe() {
 }
 
 Observe.processDeclarations = function processDeclarations(engine, program) {
-  let result = program.query(observeLiteral);
+  let result = engine.query(observeLiteral);
   result.forEach((r) => {
     if (r.theta.O === undefined
         || r.theta.ST === undefined

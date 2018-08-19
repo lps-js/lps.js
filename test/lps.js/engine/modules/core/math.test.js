@@ -8,28 +8,26 @@ const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const Program = lpsRequire('parser/Program');
+const Engine = lpsRequire('engine/Engine');
 
 const chai = require('chai');
 const expect = chai.expect;
 
 describe('coreModule', () => {
+  let program = new Program();
+  let engine = new Engine(program);
+  coreModule(engine, program);
+
+  let functorProvider = engine.getFunctorProvider();
+
   describe('math', () => {
     describe('+/2', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
 
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('+/2')).to.be.true;
       });
 
       it('should return addition correctly', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(1),
           new Value(2)
@@ -47,7 +45,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 1', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A'),
           new Value(2)
@@ -58,7 +55,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 2', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(2),
           new Variable('A')
@@ -70,21 +66,11 @@ describe('coreModule', () => {
     }); // describe +/2
 
     describe('-/2', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('-/2')).to.be.true;
       });
 
       it('should return subtraction correctly', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(2),
           new Value(1)
@@ -102,7 +88,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 1', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A'),
           new Value(2)
@@ -113,7 +98,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 2', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(2),
           new Variable('A')
@@ -125,21 +109,11 @@ describe('coreModule', () => {
     }); // describe -/2
 
     describe('*/2', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('*/2')).to.be.true;
       });
 
       it('should return multiplication correctly', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(2),
           new Value(3)
@@ -157,7 +131,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 1', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A'),
           new Value(2)
@@ -168,7 +141,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 2', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(2),
           new Variable('A')
@@ -180,21 +152,11 @@ describe('coreModule', () => {
     }); // describe */2
 
     describe('//2', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('//2')).to.be.true;
       });
 
       it('should return division correctly', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(6),
           new Value(2)
@@ -212,7 +174,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 1', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A'),
           new Value(2)
@@ -223,7 +184,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 2', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(2),
           new Variable('A')
@@ -235,21 +195,11 @@ describe('coreModule', () => {
     }); // describe //2
 
     describe('**/2', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('**/2')).to.be.true;
       });
 
       it('should return power correctly', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(6),
           new Value(2)
@@ -267,7 +217,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 1', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A'),
           new Value(2)
@@ -278,7 +227,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument 2', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(2),
           new Variable('A')
@@ -290,21 +238,11 @@ describe('coreModule', () => {
     }); // describe **/2
 
     describe('-/1', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('-/1')).to.be.true;
       });
 
       it('should return negative number correctly', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(6)
         ];
@@ -321,7 +259,6 @@ describe('coreModule', () => {
       });
 
       it('should return negative number correctly', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           Program.literal('2 + 6')
         ];
@@ -339,7 +276,6 @@ describe('coreModule', () => {
 
 
       it('should return no result for variables in argument', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A')
         ];
@@ -350,21 +286,11 @@ describe('coreModule', () => {
     }); // describe -/1
 
     describe('abs/1', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('abs/1')).to.be.true;
       });
 
       it('should return negative number as positive number', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(-6)
         ];
@@ -381,7 +307,6 @@ describe('coreModule', () => {
       });
 
       it('should return positive number as positive number', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(6)
         ];
@@ -399,7 +324,6 @@ describe('coreModule', () => {
 
 
       it('should throw error for variables in argument', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A')
         ];
@@ -411,21 +335,11 @@ describe('coreModule', () => {
     }); // describe abs/1
 
     describe('sin/1', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('sin/1')).to.be.true;
       });
 
       it('should return correct result', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Value(30)
         ];
@@ -443,7 +357,6 @@ describe('coreModule', () => {
       });
 
       it('should return no result for variables in argument', () => {
-        let functorProvider = program.getFunctorProvider();
         let params = [
           new Variable('A')
         ];
@@ -454,21 +367,11 @@ describe('coreModule', () => {
     }); // describe sin/1
 
     describe('pi/0', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
-        let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('pi/0')).to.be.true;
       });
 
       it('should return correct result', () => {
-        let functorProvider = program.getFunctorProvider();
         let result = functorProvider.execute(new Functor('pi', []));
         expect(result).to.be.an('array');
         expect(result).to.be.length(1);

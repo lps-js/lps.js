@@ -9,20 +9,16 @@ const fs = require('fs');
 
 const functorIdentifierRegex = /^[^\s_A-Z][^\s]*\/[0-9]*$/;
 
-function FunctorProvider(programArg, functors) {
-  let program = programArg;
-  let _functors = functors;
-  if (functors === undefined) {
-    _functors = {};
-  }
+function FunctorProvider(engine) {
+  let _functors = {};
 
-  this.load = function load(filepath) {
-    let definitions = filepath;
-    if (typeof filepath === 'string') {
-      if (!fs.existsSync(filepath)) {
-        throw new Error('File not found' + filepath + ' for loading predicate definitions in LPS');
+  this.load = function load(pathname) {
+    let definitions = pathname;
+    if (typeof pathname === 'string') {
+      if (!fs.existsSync(pathname)) {
+        throw new Error('File not found' + pathname + ' for loading predicate definitions in LPS');
       }
-      definitions = require(filepath);
+      definitions = require(pathname);
       this.load(definitions);
       return;
     }
@@ -98,17 +94,8 @@ function FunctorProvider(programArg, functors) {
     return result;
   };
 
-  this.getProgram = function getProgram() {
-    return program;
-  };
-
-  this.clone = function clone(forProgram) {
-    let cloneFunctors = {};
-    Object.keys(_functors).forEach((k) => {
-      cloneFunctors[k] = _functors[k];
-    });
-    let cloneProvider = new FunctorProvider(forProgram, cloneFunctors);
-    return cloneProvider;
+  this.getEngine = function getEngine() {
+    return engine;
   };
 }
 

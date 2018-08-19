@@ -60,8 +60,8 @@ Resolutor.findUnifications = function findUnifications(literal, factsArg) {
   return unifications;
 };
 
-Resolutor.explain = function explain(queryArg, program, otherFacts) {
-  let functorProvider = program.getFunctorProvider();
+Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
+  let functorProvider = engine.getFunctorProvider();
   let facts = [
     program.getFacts(),
     program.getState(),
@@ -144,13 +144,13 @@ Resolutor.explain = function explain(queryArg, program, otherFacts) {
   return result;
 };
 
-Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(program, rule, forTime) {
+Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(engine, program, rule, forTime) {
   let facts = [
     program.getFacts(),
     program.getState(),
     program.getExecutedActions()
   ];
-  let functorProvider = program.getFunctorProvider();
+  let functorProvider = engine.getFunctorProvider();
 
   let recursiveResolution = function (result, remainingLiterals, theta, laterAntecedent) {
     if (remainingLiterals.length === 0) {

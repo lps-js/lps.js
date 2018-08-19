@@ -1,4 +1,5 @@
-const LPS = require('../../index');
+const LPS = lpsRequire('LPS');
+const Tester = lpsRequire('engine/test/Tester');
 
 const path = require('path');
 const chai = require('chai');
@@ -13,7 +14,9 @@ let testFunction = function testFunction(file, updateTimeout, done) {
         done(err);
       });
       updateTimeout(engine.getMaxTime() * engine.getCycleInterval());
-      return engine.test(path.join(__dirname, file + '.spec.lps'));
+      let tester = new Tester(engine);
+      let specFile = path.join(__dirname, file + '.spec.lps');
+      return tester.test(specFile);
     })
     .then((result) => {
       if (!result.success) {

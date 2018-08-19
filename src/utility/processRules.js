@@ -10,7 +10,7 @@ const Functor = lpsRequire('engine/Functor');
 const Timable = lpsRequire('engine/Timable');
 const Resolutor = lpsRequire('engine/Resolutor');
 
-module.exports = function processRules(program, goals, currentTime) {
+module.exports = function processRules(engine, program, goals, currentTime) {
   let rules = program.getRules();
   let newGoals = [];
 
@@ -42,7 +42,7 @@ module.exports = function processRules(program, goals, currentTime) {
         return;
       }
     }
-    newGoals.push(new GoalTree(program, consequent));
+    newGoals.push(new GoalTree(engine, program, consequent));
   };
 
   let newRules = [];
@@ -55,7 +55,7 @@ module.exports = function processRules(program, goals, currentTime) {
       // preserve a rule if it has timeable in its antecedent
       newRules.push(rule);
     }
-    let resolutions = Resolutor.reduceRuleAntecedent(program, rule, currentTime);
+    let resolutions = Resolutor.reduceRuleAntecedent(engine, program, rule, currentTime);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {

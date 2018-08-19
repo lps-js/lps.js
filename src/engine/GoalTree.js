@@ -21,7 +21,7 @@ const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, re
   return expandLiteral(conjunct, program, renameTheta);
 };
 
-let resolveStateConditions = function resolveStateConditions(program, earlyConjuncts, forTime) {
+let resolveStateConditions = function resolveStateConditions(engine, program, earlyConjuncts, forTime) {
   let nodes = [];
 
   let processConjuncts = function processConjuncts(
@@ -63,7 +63,7 @@ let resolveStateConditions = function resolveStateConditions(program, earlyConju
     let conjunctVariables = conjunct.getVariables();
     let isConjunctAction = program.isAction(goal);
 
-    let literalThetas = program.query(goal);
+    let literalThetas = engine.query(goal);
 
     if (literalThetas.length === 0) {
       if (isConjunctAction) {
@@ -166,10 +166,9 @@ const resolveSimpleActions = function resolveSimpleActions(
 };
 
 const processArgumentFunctorsInClause = function processArgumentFunctorsInClause(
-  program,
+  functorProvider,
   reductionResult
 ) {
-  let functorProvider = program.getFunctorProvider();
   let newChildren = [];
   reductionResult.forEach((r) => {
     let nodes = [];
@@ -227,7 +226,7 @@ let buildRenameThetaForConjunction = function buildRenameThetaForConjunction(con
   return renameTheta;
 };
 
-function GoalNode(program, conjunctsArg, theta) {
+function GoalNode(engine, program, conjunctsArg, theta) {
   // deduplicate terms in the conjunction
   this.conjuncts = dedupeConjunction(conjunctsArg);
 
@@ -380,6 +379,7 @@ function GoalNode(program, conjunctsArg, theta) {
 
     if (!hasMacroExpansion) {
       let stateConditionResolutionResult = resolveStateConditions(
+        engine,
         program,
         earlyConjuncts,
         forTime
@@ -408,8 +408,8 @@ function GoalNode(program, conjunctsArg, theta) {
       return !hasExpiredTimable(n[0], forTime);
     });
 
-    let newChildren = processArgumentFunctorsInClause(program, reductionResult)
-      .map(node => new GoalNode(program, node[0], node[1]));
+    let newChildren = processArgumentFunctorsInClause(engine.getFunctorProvider(), reductionResult)
+      .map(node => new GoalNode(engine, program, node[0], node[1]));
     this.children = this.children.concat(newChildren);
 
     let numFailed = 0;
@@ -457,12 +457,12 @@ function GoalNode(program, conjunctsArg, theta) {
   };
 }
 
-function GoalTree(program, goalClause) {
+function GoalTree(engine, program, goalClause) {
   let _root;
   if (goalClause instanceof GoalNode) {
     _root = goalClause;
   } else {
-    _root = new GoalNode(program, goalClause, {});
+    _root = new GoalNode(engine, program, goalClause, {});
   }
 
   let _leafNodes = [_root];
@@ -527,7 +527,7 @@ function GoalTree(program, goalClause) {
     currentTime,
     callback
   ) {
-    let functorProvider = program.getFunctorProvider();
+    let functorProvider = engine.getFunctorProvider();
 
     _leafNodes.forEach((node) => {
       let candidateActionSets = [];
