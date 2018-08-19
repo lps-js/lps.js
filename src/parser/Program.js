@@ -428,43 +428,32 @@ function Program(nodeTree, functorProviderArg) {
     return evaluationResult;
   };
 
-  this.getDefinitions = function getDefinitions(literal, renameThetaArg) {
-    let renameTheta = renameThetaArg;
-    if (renameTheta === undefined) {
-      renameTheta = {};
-    }
-
+  this.getDefinitions = function getDefinitions(literal) {
     let result = [];
     let literalMap = new LiteralTreeMap();
     literalMap.add(literal);
 
     _clauses.forEach((clause) => {
       // horn clause guarantees only one literal
-      let headLiterals = clause
-        .getHeadLiterals();
-      let headLiteral = headLiterals[0]
-        .substitute(renameTheta);
+      let headLiterals = clause.getHeadLiterals();
+      let headLiteral = headLiterals[0];
 
-      let unifications = literalMap.unifies(headLiteral);
-      if (unifications.length === 0) {
-        return;
-      }
-      unifications.forEach((tuple) => {
-        let unificationTheta = tuple.theta;
-        let updatedHeadLiteral = headLiteral.substitute(unificationTheta);
-        let bodyLiterals = clause.getBodyLiterals()
-          .map((blArg) => {
-            let bl = blArg
-              .substitute(renameTheta)
-              .substitute(unificationTheta);
-            return bl;
+      literalMap
+        .unifies(headLiteral)
+        .forEach((tuple) => {
+          let unificationTheta = tuple.theta;
+          let updatedHeadLiteral = headLiteral.substitute(unificationTheta);
+          let bodyLiterals = clause.getBodyLiterals()
+            .map((bl) => {
+              return bl.substitute(unificationTheta);
+            });
+          result.push({
+            headLiteral: updatedHeadLiteral,
+            theta: unificationTheta,
+            internalTheta: tuple.internalTheta,
+            definition: bodyLiterals
           });
-        result.push({
-          headLiteral: updatedHeadLiteral,
-          theta: unificationTheta,
-          definition: bodyLiterals
         });
-      });
     });
     return result;
   };
