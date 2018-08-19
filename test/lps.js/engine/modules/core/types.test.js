@@ -150,5 +150,85 @@ describe('coreModule', () => {
         expect(result).to.be.length(0);
       });
     }); // is_number/1
+
+    describe('is_integer/1', () => {
+      it('should be defined', () => {
+        let functorProvider = program.getFunctorProvider();
+        expect(functorProvider.has('is_integer/1')).to.be.true;
+      });
+
+      it('should return is_integer() correctly for an integer number value', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Value(5)
+        ];
+        let result = functorProvider.execute(new Functor('is_integer', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(1);
+        expect(result[0]).to.have.property('theta');
+        expect(result[0].theta).to.be.an('object');
+        expect(result[0].theta).to.be.empty;
+      });
+
+      it('should return is_integer() correctly for a float number value', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Value(0.885)
+        ];
+        let result = functorProvider.execute(new Functor('is_integer', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(0);
+      });
+
+      it('should return is_integer() correctly for a non-number value', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Value('test')
+        ];
+        let result = functorProvider.execute(new Functor('is_integer', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(0);
+      });
+    }); // is_integer/1
+
+    describe('is_float/1', () => {
+      it('should be defined', () => {
+        let functorProvider = program.getFunctorProvider();
+        expect(functorProvider.has('is_float/1')).to.be.true;
+      });
+
+      it('should return is_float() correctly for an integer number value', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Value(5)
+        ];
+        let result = functorProvider.execute(new Functor('is_float', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(0);
+      });
+
+      it('should return is_float() correctly for a float number value', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Value(0.885)
+        ];
+        let result = functorProvider.execute(new Functor('is_float', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(1);
+        expect(result[0]).to.have.property('theta');
+        expect(result[0].theta).to.be.an('object');
+        expect(result[0].theta).to.be.empty;
+      });
+
+      it('should return is_float() correctly for a non-number value', () => {
+        let functorProvider = program.getFunctorProvider();
+        let params = [
+          new Value('test')
+        ];
+        let result = functorProvider.execute(new Functor('is_float', params));
+        expect(result).to.be.an('array');
+        expect(result).to.be.length(0);
+      });
+    }); // is_float/1
   });
 });
