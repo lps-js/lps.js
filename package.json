@@ -12,9 +12,12 @@
     "test:programs": "mocha \"test/programs/**/*.test.js\"",
     "lint": "eslint test src",
     "build:browser": "webpack",
+    
     "preversion": "npm test && npm run build:browser",
-    "postversion": "git push --tags",
+    "postversion": "git push --tags && npm run build:browser",
+    
     "prepublishOnly": "npm test",
+    
     "publish:alpha": "npm publish --tag alpha",
     "publish:beta": "npm publish --tag beta",
     "publish:stable": "npm publish --tag stable"
