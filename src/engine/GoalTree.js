@@ -17,8 +17,7 @@ const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming'
 const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const expandLiteral = lpsRequire('utility/expandLiteral');
 
-const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, usedVariables) {;
-  let renameTheta = variableArrayRename(usedVariables);
+const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, renameTheta) {
   return expandLiteral(conjunct, program, renameTheta);
 };
 
@@ -218,6 +217,16 @@ const processArgumentFunctorsInClause = function processArgumentFunctorsInClause
   return newChildren;
 };
 
+let buildRenameThetaForConjunction = function buildRenameThetaForConjunction(conjuncts) {
+  let usedVariables = {};
+  for (let j = 0; j < conjuncts.length; j += 1) {
+    conjuncts[j].getVariableHash(usedVariables);
+  }
+  usedVariables = Object.keys(usedVariables);
+  let renameTheta = variableArrayRename(usedVariables);
+  return renameTheta;
+};
+
 function GoalNode(program, conjunctsArg, theta) {
   // deduplicate terms in the conjunction
   this.conjuncts = dedupeConjunction(conjunctsArg);
@@ -225,6 +234,8 @@ function GoalNode(program, conjunctsArg, theta) {
   this.theta = theta;
   this.children = [];
   this.hasBranchFailed = false;
+
+  this.renameTheta = buildRenameThetaForConjunction(this.conjuncts);
 
   this.getEarliestDeadline = function getEarliestDeadline(currentTime) {
     let earliestDeadline = null;
@@ -324,12 +335,6 @@ function GoalNode(program, conjunctsArg, theta) {
 
     let reductionResult = [];
 
-    let usedVariables = {};
-    for (let j = 0; j < this.conjuncts.length; j += 1) {
-      this.conjuncts[j].getVariableHash(usedVariables);
-    }
-    usedVariables = Object.keys(usedVariables);
-
     let hasMacroExpansion = false;
     for (let i = 0; i < earlyConjuncts.length; i += 1) {
       let conjunct = earlyConjuncts[i];
@@ -339,7 +344,7 @@ function GoalNode(program, conjunctsArg, theta) {
       let compositeReductionResult = reduceCompositeEvent(
         conjunct,
         program,
-        usedVariables
+        this.renameTheta
       );
       if (compositeReductionResult.length === 0) {
         if (conjunct instanceof Timable
@@ -352,8 +357,7 @@ function GoalNode(program, conjunctsArg, theta) {
       }
       for (let k = 0; k < compositeReductionResult.length; k += 1) {
         let crrArg = compositeReductionResult[k];
-        // crr needs to rename variables to avoid clashes
-        // also at the same time handle any output variables
+        // need to handle any output variables
         let mapper = (term) => {
           return term.substitute(crrArg.theta);
         };
