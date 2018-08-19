@@ -15,6 +15,7 @@ const Engine = lpsRequire('engine/Engine');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const Functor = lpsRequire('engine/Functor');
+const Tester = lpsRequire('engine/test/Tester');
 const List = lpsRequire('engine/List');
 const stringLiterals = lpsRequire('utility/strings');
 
@@ -55,5 +56,6 @@ LPS.Value = Value;
 LPS.Variable = Variable;
 LPS.List = List;
 LPS.Functor = Functor;
+LPS.Tester = Tester;
 
 module.exports = LPS;
