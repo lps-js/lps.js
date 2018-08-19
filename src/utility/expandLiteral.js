@@ -5,31 +5,39 @@
 
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Variable = lpsRequire('engine/Variable');
+const compactTheta = lpsRequire('utility/compactTheta');
 
 module.exports = function expandLiteral(literalArg, program, renameTheta) {
   let literal = literalArg;
 
   let result = [];
   program
-    .getDefinitions(literal, renameTheta)
+    .getDefinitions(literal)
     .forEach((tuple) => {
-      let bodyLiterals = tuple.definition;
-      let theta = tuple.theta;
-      let outputTheta = {};
+      let theta = {};
+      Object.keys(tuple.internalTheta).forEach((v) => {
+        let value = tuple.internalTheta[v];
+        if (value instanceof Variable && renameTheta[value.evaluate()] !== undefined) {
+          theta[renameTheta[value.evaluate()].evaluate()] = new Variable(v);
+        } else if (value instanceof Variable) {
+          theta[value.evaluate()] = new Variable(v);
+        }
+      });
 
-      // restore output variables
-      Object.keys(theta)
-        .forEach((varName) => {
-          if (theta[varName] instanceof Variable) {
-            // output variable
-            outputTheta[theta[varName].evaluate()] = new Variable(varName);
-            delete theta[varName];
-          }
+      theta = compactTheta(tuple.internalTheta, theta)
+      let bodyLiterals = tuple.definition.map(c => {
+        return c.substitute(renameTheta).substitute(theta);
+      });
+
+      let updatedHead = tuple.headLiteral.substitute(renameTheta).substitute(theta);
+      let headMap = new LiteralTreeMap();
+      headMap.add(updatedHead);
+      let unifications = headMap.unifies(literal);
+      unifications.forEach((u) => {
+        result.push({
+          conjuncts: bodyLiterals.map(l => l.substitute(u.theta)),
+          theta: u.theta
         });
-
-      result.push({
-        clause: bodyLiterals,
-        theta: theta
       });
     });
   return result;
