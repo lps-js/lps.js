@@ -82,7 +82,7 @@ function Tester(engine) {
     queryResult.forEach((r) => {
       let time1 = r.theta.T1.evaluate();
       let time2;
-      if (r.theta.T2 instanceof Variable) {
+      if (r.theta.T2 === undefined || r.theta.T2 instanceof Variable) {
         time2 = null;
       } else {
         time2 = r.theta.T2.evaluate();
@@ -128,7 +128,7 @@ function Tester(engine) {
     queryResult.forEach((r) => {
       let time1 = r.theta.T1.evaluate();
       let time2;
-      if (r.theta.T2 instanceof Variable) {
+      if (r.theta.T2 === undefined || r.theta.T2 instanceof Variable) {
         time2 = null;
       } else {
         time2 = r.theta.T2.evaluate();
