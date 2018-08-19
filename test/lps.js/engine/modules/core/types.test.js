@@ -25,7 +25,6 @@ describe('coreModule', () => {
       });
 
       it('should return is_ground() correctly for ground term', () => {
-        let functorProvider = engine.getFunctorProvider();
         let params = [
           new Value(1)
         ];

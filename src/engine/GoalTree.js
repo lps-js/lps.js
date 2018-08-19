@@ -21,7 +21,12 @@ const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, re
   return expandLiteral(conjunct, program, renameTheta);
 };
 
-let resolveStateConditions = function resolveStateConditions(engine, program, earlyConjuncts, forTime) {
+let resolveStateConditions = function resolveStateConditions(
+  engine,
+  program,
+  earlyConjuncts,
+  forTime
+) {
   let nodes = [];
 
   let processConjuncts = function processConjuncts(

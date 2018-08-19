@@ -13,6 +13,7 @@ function Observe() {
 
 }
 
+// eslint-disable-next-line no-unused-vars
 Observe.processDeclarations = function processDeclarations(engine, program) {
   let result = engine.query(observeLiteral);
   result.forEach((r) => {

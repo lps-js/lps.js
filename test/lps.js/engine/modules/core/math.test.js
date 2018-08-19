@@ -22,7 +22,6 @@ describe('coreModule', () => {
 
   describe('math', () => {
     describe('+/2', () => {
-
       it('should be defined', () => {
         expect(functorProvider.has('+/2')).to.be.true;
       });

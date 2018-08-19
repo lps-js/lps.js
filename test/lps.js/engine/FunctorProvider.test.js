@@ -3,7 +3,6 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const FunctorProvider = lpsRequire('engine/FunctorProvider');
 const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
@@ -24,7 +23,6 @@ describe('FunctorProvider', () => {
 
   describe('define(name, func)', () => {
     it('should throw error for invalid names', () => {
-      let provider = new FunctorProvider(null);
       expect(() => {
         provider.define('*invali dName*/2', noop);
       }).to.throw();
@@ -46,7 +44,6 @@ describe('FunctorProvider', () => {
     });
 
     it('should not throw error for valid names', () => {
-      let provider = new FunctorProvider(null);
       expect(() => {
         provider.define('valid/2', noop);
       }).to.not.throw();
@@ -65,8 +62,6 @@ describe('FunctorProvider', () => {
     });
 
     it('should define the functor as expected', () => {
-      let provider = new FunctorProvider(null);
-
       /* eslint-disable-next-line no-unused-vars */
       provider.define('testingName', (arg) => {});
       expect(provider.has('testingName/1')).to.be.true;
@@ -97,7 +92,6 @@ describe('FunctorProvider', () => {
       expect(provider.has(literal2)).to.be.true;
     });
     it('should return false for undefined functors', () => {
-      let provider = new FunctorProvider(null);
       expect(provider.has('_/1')).to.be.false;
       expect(provider.has('+/5')).to.be.false;
       expect(provider.has('===/2')).to.be.false;
@@ -112,8 +106,6 @@ describe('FunctorProvider', () => {
     });
 
     it('should return true for user-defined functors', () => {
-      let provider = new FunctorProvider(null);
-
       expect(provider.has('test/2')).to.be.false;
       provider.define('test/2', noop);
       expect(provider.has('test/2')).to.be.true;

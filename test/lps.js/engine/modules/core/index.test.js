@@ -12,7 +12,7 @@ const chai = require('chai');
 const expect = chai.expect;
 
 describe('coreModule', () => {
-  let program = new Program()
+  let program = new Program();
   let engine = new Engine(program);
   let functorProvider = engine.getFunctorProvider();
   coreModule(engine, program);

@@ -83,7 +83,7 @@ function Engine(programArg, workingDirectory) {
   let _functorProvider = new FunctorProvider(this);
 
   let checkConstraintSatisfaction = function checkConstraintSatisfaction(otherProgram) {
-    let originalProgram = _program
+    let originalProgram = _program;
     _program = otherProgram;
     let result = constraintCheck(this, otherProgram);
     _program = originalProgram;
@@ -117,7 +117,10 @@ function Engine(programArg, workingDirectory) {
         return;
       }
       let value = r.theta.X.evaluate();
-      _isContinuousExecution = (value === 'yes' || value === 'on' || value === 'true' || value === 1);
+      _isContinuousExecution = (value === 'yes'
+        || value === 'on'
+        || value === 'true'
+        || value === 1);
     });
   };
 
