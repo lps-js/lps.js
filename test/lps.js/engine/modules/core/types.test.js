@@ -14,16 +14,11 @@ const chai = require('chai');
 const expect = chai.expect;
 
 describe('coreModule', () => {
+  let program = new Program();
+  coreModule(null, program);
+
   describe('types', () => {
     describe('is_ground/1', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
         let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_ground/1')).to.be.true;
@@ -54,14 +49,6 @@ describe('coreModule', () => {
     }); // is_ground/1
 
     describe('is_list/1', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
         let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_list/1')).to.be.true;
@@ -92,14 +79,6 @@ describe('coreModule', () => {
     }); // is_list/1
 
     describe('is_variable/1', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
         let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_variable/1')).to.be.true;
@@ -130,14 +109,6 @@ describe('coreModule', () => {
     }); // is_variable/1
 
     describe('is_number/1', () => {
-      let program;
-      beforeEach(() => {
-        program = new Program();
-
-        // core module is loaded by Engine
-        coreModule(null, program);
-      });
-
       it('should be defined', () => {
         let functorProvider = program.getFunctorProvider();
         expect(functorProvider.has('is_number/1')).to.be.true;
