@@ -548,6 +548,7 @@ Program.fromFile = function fromFile(pathname) {
   return new Promise((resolve, reject) => {
     if (process.browser) {
       reject(stringLiterals.error('browserContext.loadProgramFromFile'));
+      return;
     }
     fs.readFile(pathname, 'utf8', (err, source) => {
       if (err) {
