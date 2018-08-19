@@ -336,12 +336,6 @@ function GoalNode(program, conjunctsArg, theta) {
       return [[this.theta]];
     }
 
-    let usedVariables = {};
-    for (let i = 0; i < this.conjuncts.length; i += 1) {
-      this.conjuncts[i].getVariableHash(usedVariables);
-    }
-    usedVariables = Object.keys(usedVariables);
-
     let pair = sortTimables(this.conjuncts, forTime);
     let earlyConjuncts = pair[0];
     let laterConjuncts = pair[1];
@@ -354,6 +348,12 @@ function GoalNode(program, conjunctsArg, theta) {
     }
 
     let reductionResult = [];
+
+    let usedVariables = {};
+    for (let j = 0; j < this.conjuncts.length; j += 1) {
+      this.conjuncts[j].getVariableHash(usedVariables);
+    }
+    usedVariables = Object.keys(usedVariables);
 
     let hasMacroExpansion = false;
     for (let i = 0; i < earlyConjuncts.length; i += 1) {
