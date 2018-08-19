@@ -1,0 +1,1 @@
+{"hasFailed":false,"conjuncts":"colour(C),occurs(paint(iz, C), T1, T2)","children":[{"hasFailed":false,"conjuncts":"occurs(paint(iz, red), T1, T2)"},{"hasFailed":false,"conjuncts":"occurs(paint(iz, yellow), T1, T2)"},{"hasFailed":false,"conjuncts":"occurs(paint(iz, blue), T1, T2)"}]}

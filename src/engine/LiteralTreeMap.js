@@ -433,7 +433,7 @@ function LiteralTreeMap() {
   };
 
   let recursiveUnification = (pathArg, node, externalThetaArg, internalThetaArg) => {
-    let path = pathArg;
+    let path = pathArg.concat([]);
     let externalTheta = externalThetaArg;
     let internalTheta = internalThetaArg;
     if (path.length === 0) {
@@ -524,7 +524,11 @@ function LiteralTreeMap() {
           clonedInternalTheta = cloneTheta(internalTheta);
           clonedExternalTheta = cloneTheta(externalTheta);
           if (internalTheta[treeVarName] === undefined) {
-            clonedInternalTheta[treeVarName] = new Variable(varName);
+            if (externalTheta[varName] === undefined) {
+              clonedInternalTheta[treeVarName] = new Variable(varName);
+            } else {
+              clonedInternalTheta[treeVarName] = externalTheta[varName];
+            }
           } else {
             clonedExternalTheta[varName] = internalTheta[treeVarName];
           }
@@ -646,6 +650,12 @@ function LiteralTreeMap() {
         let listTail = list.getTail();
         if (listTail instanceof List) {
           let sublist = buildListPath(listTail, remainingLength - listHead.length);
+          if (sublist === null) {
+            return {
+              list: listHead,
+              tail: listTail
+            };
+          }
           return {
             list: listHead.concat(sublist.list),
             tail: sublist.tail
@@ -689,7 +699,7 @@ function LiteralTreeMap() {
         }
         // console.log(tuple.path)
         let pathLength = tuple.path.length;
-        subResult = recursiveUnification(tuple.path, _root._tree[tuple.idx], {}, existingTheta);
+        subResult = recursiveUnification(tuple.path, _root._tree[tuple.idx], {}, existingTheta, {});
         if (tuple.tail !== null) {
           subResult = subResult.map((pairArg) => {
             let pair = pairArg;
@@ -708,7 +718,7 @@ function LiteralTreeMap() {
     } // literal given is list
 
     let path = flattenLiteral(literal);
-    return recursiveUnification(path, _root, {}, existingTheta);
+    return recursiveUnification(path, _root, {}, existingTheta, {});
   }; // unifies
 
   this.clone = function clone() {
