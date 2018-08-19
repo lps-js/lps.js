@@ -9,7 +9,7 @@ node_js:
 os:
   - linux
   - osx
-script: npm run test:source
+script: npm run test
 cache:
   directories:
     - node_modules # NPM packages
