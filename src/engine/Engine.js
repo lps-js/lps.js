@@ -82,6 +82,14 @@ function Engine(programArg, workingDirectory) {
 
   let _functorProvider = new FunctorProvider(this);
 
+  let checkConstraintSatisfaction = function checkConstraintSatisfaction(otherProgram) {
+    let originalProgram = _program
+    _program = otherProgram;
+    let result = constraintCheck(this, otherProgram);
+    _program = originalProgram;
+    return result;
+  };
+
   let processMaxTimeDeclarations = function processMaxTimeDeclarations() {
     let result = this.query(Program.literal('maxTime(X)'));
     result.forEach((r) => {
@@ -308,8 +316,6 @@ function Engine(programArg, workingDirectory) {
 
     cloneProgram.setExecutedActions(new LiteralTreeMap());
 
-    let originalProgram = _program;
-
     // process observations
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action;
@@ -327,15 +333,11 @@ function Engine(programArg, workingDirectory) {
       postCloneProgram.updateState(postState);
 
       // only perform pre-checks
-      _program = cloneProgram;
-      if (constraintCheck(this, cloneProgram)) {
-        _program = postCloneProgram;
-        if (constraintCheck(this, postCloneProgram)) {
+      if (checkConstraintSatisfaction.call(this, cloneProgram)) {
+        if (checkConstraintSatisfaction.call(this, postCloneProgram)) {
           activeObservations.add(action);
         }
-        _program = originalProgram;
       } else {
-        _program = originalProgram;
         // reject incoming observation
         cloneProgram.getExecutedActions()
           .remove(action);
@@ -396,13 +398,9 @@ function Engine(programArg, workingDirectory) {
         });
 
         // pre-condition check
-        let originalProgram = _program;
-        _program = cloneProgram;
-        if (!constraintCheck(this, cloneProgram)) {
-          _program = originalProgram;
+        if (!checkConstraintSatisfaction.call(this, cloneProgram)) {
           return;
         }
-        _program = originalProgram;
 
         // post condition checks
         let clonePostProgram = programSoFar.clone();
@@ -411,12 +409,9 @@ function Engine(programArg, workingDirectory) {
         postState = updateStateWithFluentActors.call(this, candidateActions, postState);
         clonePostProgram.updateState(postState);
 
-        _program = clonePostProgram;
-        if (!constraintCheck(this, clonePostProgram)) {
-          _program = originalProgram;
+        if (!checkConstraintSatisfaction.call(this, clonePostProgram)) {
           return;
         }
-        _program = originalProgram;
 
         let promise = recursiveActionsSelector(
           actionsSoFar.concat([candidateActions]),
