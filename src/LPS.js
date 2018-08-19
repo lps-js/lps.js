@@ -40,7 +40,7 @@ LPS.loadString = function loadString(source) {
 
 LPS.loadFile = function loadFile(fileArg) {
   if (process.browser) {
-    reject(new Error(stringLiterals('browserContext.loadProgramFromFile')));
+    return Promise.reject(new Error(stringLiterals('browserContext.loadProgramFromFile')));
   }
   let file = fileArg;
   file = path.resolve(file);
