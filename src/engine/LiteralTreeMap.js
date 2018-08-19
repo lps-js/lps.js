@@ -421,6 +421,11 @@ function LiteralTreeMap() {
       // this is a variable
       let treeVarName = extractSymbolContent(index);
       if (internalTheta[treeVarName] !== undefined) {
+        // already a substitution exists
+        if (internalTheta[treeVarName].evaluate() === value) {
+          subResult = recursiveCall(path, node._tree[index], externalTheta, internalTheta);
+          result = result.concat(subResult);
+        }
         return;
       }
       let clonedInternalTheta = cloneTheta(internalTheta);
