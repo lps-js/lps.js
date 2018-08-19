@@ -5,3 +5,4 @@ test/
 .eslintrc.js
 webpack.config.js
 dist
+loaders
