@@ -15,36 +15,11 @@ const dedupeConjunction = lpsRequire('utility/dedupeConjunction');
 const sortTimables = lpsRequire('utility/sortTimables');
 const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming');
 const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
+const expandLiteral = lpsRequire('utility/expandLiteral');
 
-const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, usedVariables) {
-  let reductions = [];
-
+const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, usedVariables) {;
   let renameTheta = variableArrayRename(usedVariables);
-  let hasNewRenames = false;
-  let processRenameTheta = (varName) => {
-    let newVarName = renameTheta[varName].evaluate();
-    if (renameTheta[newVarName] !== undefined) {
-      renameTheta[varName] = renameTheta[newVarName];
-      hasNewRenames = true;
-    }
-  };
-  do {
-    hasNewRenames = false;
-    Object.keys(renameTheta).forEach(processRenameTheta);
-  } while (hasNewRenames);
-
-  program
-    .getDefinitions(conjunct, renameTheta)
-    .forEach((tuple) => {
-      let theta = tuple.theta;
-      let definition = tuple.definition;
-      reductions.push({
-        conjuncts: definition,
-        theta: theta
-      });
-    });
-
-  return reductions;
+  return expandLiteral(conjunct, program, renameTheta);
 };
 
 let resolveStateConditions = function resolveStateConditions(program, earlyConjuncts, forTime) {
