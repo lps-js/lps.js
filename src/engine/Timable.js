@@ -11,6 +11,7 @@ const timableName = 'occurs';
 function Timable(goal, startTimeArg, endTimeArg) {
   let startTime = startTimeArg;
   let endTime = endTimeArg;
+  let _variableHash = null;
 
   this.getName = function getName() {
     return timableName;
@@ -64,19 +65,36 @@ function Timable(goal, startTimeArg, endTimeArg) {
 
   this.getVariableHash = function getVariableHash(existingHash) {
     let hash = existingHash;
+    if (_variableHash !== null)  {
+      if (hash === undefined) {
+        return _variableHash;
+      }
+      Object.keys(_variableHash).forEach((v) => {
+        hash[v] = true;
+      });
+      return hash;
+    }
+
     if (hash === undefined) {
       hash = {};
     }
+    let storedHash = {};
 
     if (startTime instanceof Variable) {
-      hash[startTime.evaluate()] = true;
+      let startTimeVarName = startTime.evaluate();
+      hash[startTimeVarName] = true;
+      storedHash[startTimeVarName] = true;
     }
     if (endTime instanceof Variable) {
-      hash[endTime.evaluate()] = true;
+      let endTimeVarName = endTime.evaluate();
+      hash[endTimeVarName] = true;
+      storedHash[endTimeVarName] = true;
     }
 
+    goal.getVariableHash(storedHash);
     goal.getVariableHash(hash);
 
+    _variableHash = storedHash;
     return hash;
   };
 

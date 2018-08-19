@@ -7,6 +7,7 @@ function Functor(name, args) {
   let _name = name;
   let _args = args;
   let _argsCount = 0;
+  let _variableHash = null;
 
   if (typeof _args === 'undefined') {
     _args = [];
@@ -40,14 +41,27 @@ function Functor(name, args) {
 
   this.getVariableHash = function getVariableHash(existingHash) {
     let hash = existingHash;
+    if (_variableHash !== null)  {
+      if (hash === undefined) {
+        return _variableHash;
+      }
+      Object.keys(_variableHash).forEach((v) => {
+        hash[v] = true;
+      });
+      return hash;
+    }
+
     if (hash === undefined) {
       hash = {};
     }
+    let storedHash = {};
 
     _args.forEach((arg) => {
       arg.getVariableHash(hash);
+      arg.getVariableHash(storedHash);
     });
 
+    _variableHash = storedHash;
     return hash;
   };
 

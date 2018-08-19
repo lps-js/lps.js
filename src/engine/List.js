@@ -15,6 +15,7 @@ const Variable = lpsRequire('engine/Variable');
 function List(head, tail) {
   let _head = head;
   let _tail = tail;
+  let _variableHash = null;
 
   if (tail === undefined) {
     // empty list for tail
@@ -65,11 +66,24 @@ function List(head, tail) {
 
   this.getVariableHash = function getVariableHash(existingHash) {
     let hash = existingHash;
+    if (_variableHash !== null)  {
+      if (hash === undefined) {
+        return _variableHash;
+      }
+      Object.keys(_variableHash).forEach((v) => {
+        hash[v] = true;
+      });
+      return hash;
+    }
+
+    // if we're writing into existing hash, don't store the hash
     if (hash === undefined) {
       hash = {};
     }
+    let storedHash = {};
 
     const processArg = function processArg(arg) {
+      arg.getVariableHash(storedHash);
       arg.getVariableHash(hash);
     };
 
@@ -78,9 +92,11 @@ function List(head, tail) {
     if (_tail instanceof List) {
       processArg(_tail);
     } else if (_tail instanceof Variable) {
+      storedHash[_tail.evaluate()] = true;
       hash[_tail.evaluate()] = true;
     }
 
+    _variableHash = storedHash;
     return hash;
   };
 
