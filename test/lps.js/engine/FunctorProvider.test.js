@@ -17,9 +17,14 @@ const noop = () => {};
 
 describe('FunctorProvider', () => {
   let program = new Program();
-  let engine = new Engine(program);
-  let provider = engine.getFunctorProvider();
-  coreModule(engine, program);
+  let engine;
+  let provider;
+
+  beforeEach(() => {
+    engine = new Engine(program);
+    provider = engine.getFunctorProvider();
+    coreModule(engine, program);
+  });
 
   describe('define(name, func)', () => {
     it('should throw error for invalid names', () => {
