@@ -4,6 +4,7 @@
  */
 
 const Value = lpsRequire('engine/Value');
+const Variable = lpsRequire('engine/Variable');
 const Engine = lpsRequire('engine/Engine');
 const Program = lpsRequire('parser/Program');
 
@@ -155,4 +156,98 @@ describe('math.lps', () => {
       expect(result).to.have.length(0);
     });
   }); // succ/2
+
+  describe('between/3', () => {
+    it('should return correct result for correct parameters', () => {
+      let result = engine.query(Program.literal('between(2, 6, 4)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.be.empty;
+    });
+
+    it('should return correct result for same values', () => {
+      let result = engine.query(Program.literal('between(2, 2, 2)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.empty;
+    });
+
+    it('should return correct result for high low values', () => {
+      let result = engine.query(Program.literal('between(2, 2, X)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('X');
+      expect(result[0].theta.X).to.have.instanceof(Value);
+      expect(result[0].theta.X.evaluate()).to.have.equal(2);
+    });
+
+    it('should return correct result for all variables', () => {
+      let result = engine.query(Program.literal('between(A, B, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.have.instanceof(Variable);
+      expect(result[0].theta.A.evaluate()).to.have.equal('A');
+
+      expect(result[0].theta).to.have.property('B');
+      expect(result[0].theta.B).to.have.instanceof(Variable);
+      expect(result[0].theta.B.evaluate()).to.have.equal('A');
+    });
+
+    it('should return correct result for all variables', () => {
+      let result = engine.query(Program.literal('between(X, Y, X)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('X');
+      expect(result[0].theta.X).to.have.instanceof(Variable);
+      expect(result[0].theta.X.evaluate()).to.have.equal('X');
+
+      expect(result[0].theta).to.have.property('Y');
+      expect(result[0].theta.Y).to.have.instanceof(Variable);
+      expect(result[0].theta.Y.evaluate()).to.have.equal('X');
+    });
+
+    it('should return empty array for incorrect high low values', () => {
+      let result = engine.query(Program.literal('between(8, 5, 6)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+
+    it('should return empty array for non-grounding 1', () => {
+      let result = engine.query(Program.literal('between(A, 5, 4)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+
+    it('should return empty array for non-grounding 2', () => {
+      let result = engine.query(Program.literal('between(3, A, 4)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+
+    it('should return empty array for non-grounding 3', () => {
+      let result = engine.query(Program.literal('between(2, 5, B)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // between/3
 });
