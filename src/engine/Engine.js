@@ -790,7 +790,7 @@ function Engine(programArg, workingDirectory) {
 
   this.run = function run() {
     if (_maxTime <= 0) {
-      throw stringLiterals.error('engine.maxTimeInvalid');
+      throw stringLiterals.error('engine.maxTimeInvalid', _maxTime);
     }
     if (this.hasHalted()) {
       return;

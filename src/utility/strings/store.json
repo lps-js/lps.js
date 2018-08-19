@@ -51,7 +51,7 @@
   },
   
   "engine": {
-    "maxTimeInvalid": "Max number of cycles to execute must be a positive integer.",
+    "maxTimeInvalid": "Max number of cycles to execute must be a positive integer: %s was given as max number of cycles.",
     "cycleIntervalExceeded": "Previous cycle has exceeded its time limit of %sms. LPS will now terminate.",
     "definePredicatesWhileRunning": "Cannot define JS predicates after starting LPS execution",
     "nonPositiveIntegerCycleInterval": "Cycle interval must be a positive integer, %s was given.",
