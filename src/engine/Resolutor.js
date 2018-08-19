@@ -78,7 +78,7 @@ Resolutor.explain =
     }
 
     let query = queryArg;
-    if (query instanceof Functor || query instanceof Timable) {
+    if (!(query instanceof Array)) {
       query = [query];
     }
 
@@ -92,8 +92,7 @@ Resolutor.explain =
       }
       let conjunct = remainingLiterals[0]
         .substitute(thetaSoFar);
-      let literal = conjunct
-        .getGoal();
+      let literal = conjunct.getGoal();
 
       let literalThetas = [];
       let substitutedInstances = Resolutor
@@ -105,35 +104,26 @@ Resolutor.explain =
         literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
       });
 
-      let variablesInUse = {};
-      for (let i = 0; i < remainingLiterals.length; i += 1) {
-        remainingLiterals[i].getVariableHash(variablesInUse);
-      }
-      variablesInUse = Object.keys(variablesInUse);
-      let renameTheta = variableArrayRename(variablesInUse);
-
       let literalMap = new LiteralTreeMap();
       literalMap.add(conjunct);
 
       program
-        .getDefinitions(conjunct, renameTheta)
+        .getDefinitions(conjunct)
         .forEach((tuple) => {
           let bodyLiterals = tuple.definition;
           let headLiteral = tuple.headLiteral;
 
           // perform resolution on the subgoal
           let subResult = recursiveResolution(bodyLiterals, {});
+          let updatedHeadLiteralMap = new LiteralTreeMap();
           subResult.forEach((r) => {
-            let updatedHeadLiteral = headLiteral
-              .substitute(r.theta)
-              .substitute(renameTheta);
-            let unifications = literalMap.unifies(updatedHeadLiteral);
-            if (unifications.length === 0) {
-              return;
-            }
-            unifications.forEach((t) => {
-              literalThetas.push({ theta: t.theta });
-            });
+            let updatedHeadLiteral = headLiteral.substitute(r.theta);
+            updatedHeadLiteralMap.add(updatedHeadLiteral);
+          });
+          let unifications = updatedHeadLiteralMap.unifies(conjunct);
+
+          unifications.forEach((t) => {
+            literalThetas.push({ theta: t.theta });
           });
         });
 
@@ -146,12 +136,6 @@ Resolutor.explain =
       let conjunctVars = conjunct.getVariableHash();
 
       literalThetas.forEach((t) => {
-        // delete non-queried keys in theta
-        Object.keys(t.theta).forEach((k) => {
-          if (conjunctVars[k] === undefined) {
-            delete t.theta[k];
-          }
-        });
         let compactedTheta = compactTheta(thetaSoFar, t.theta);
         let subResult = recursiveResolution(newRemainingLiterals, compactedTheta);
         result = result.concat(subResult);
