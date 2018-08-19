@@ -107,7 +107,7 @@ function Parser(source, pathname) {
   };
 
   let _stringExpression = function _stringExpression() {
-    node = new AstNode(NodeTypes.Constant, currentToken);
+    let node = new AstNode(NodeTypes.Constant, currentToken);
     _expect(TokenTypes.QuotedString);
     return node;
   };

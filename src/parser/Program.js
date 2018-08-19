@@ -7,7 +7,6 @@ const FunctorProvider = lpsRequire('engine/FunctorProvider');
 const Clause = lpsRequire('engine/Clause');
 const Functor = lpsRequire('engine/Functor');
 const NodeTypes = lpsRequire('parser/NodeTypes');
-const AstNode = lpsRequire('parser/AstNode');
 const List = lpsRequire('engine/List');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');

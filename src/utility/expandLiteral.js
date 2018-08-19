@@ -24,7 +24,7 @@ module.exports = function expandLiteral(literalArg, program, renameTheta) {
         }
       });
 
-      theta = compactTheta(tuple.internalTheta, theta)
+      theta = compactTheta(tuple.internalTheta, theta);
       let bodyLiterals = tuple.definition.map(c => {
         return c.substitute(renameTheta).substitute(theta);
       });
