@@ -28,18 +28,10 @@ module.exports = function expandRuleAntecedent(result, literals, thetaPath, prog
     }
 
     expansionResult.forEach((crrArg) => {
-      // crr needs to rename variables to avoid clashes
-      // also at the same time handle any output variables
-      let remappedClauseFront = otherLiteralsFront.map((l) => {
-        return l
-          .substitute(crrArg.theta);
-      });
-      let remappedClauseBack = otherLiteralsBack.map((l) => {
-        return l
-          .substitute(crrArg.theta);
-      });
+      let remappedClauseFront = otherLiteralsFront;
+      let remappedClauseBack = otherLiteralsBack;
       let newRule = remappedClauseFront
-        .concat(crrArg.clause)
+        .concat(crrArg.conjuncts)
         .concat(remappedClauseBack);
       // check and expand the new antecedent again
       expandRuleAntecedent(result, newRule, thetaPath.concat([crrArg.theta]), program);
