@@ -5,12 +5,12 @@ const chai = require('chai');
 const expect = chai.expect;
 require('mocha-sinon');
 
-let testFunction = function testFunction(file, updateTimeout) {
+let testFunction = function testFunction(file, updateTimeout, done) {
   let errors = [];
   return LPS.loadFile(path.join(__dirname, file + '.lps'))
     .then((engine) => {
       engine.on('error', (err) => {
-        errors.push(err);
+        done(err);
       });
       updateTimeout(engine.getMaxTime() * engine.getCycleInterval());
       return engine.test(path.join(__dirname, file + '.spec.lps'));
@@ -68,7 +68,7 @@ describe('Programs Test', function () {
         this.timeout(timeout + 2000);
       };
 
-      testFunction(file, updateTimeout)
+      testFunction(file, updateTimeout, done)
         .then(() => {
           done();
         })
