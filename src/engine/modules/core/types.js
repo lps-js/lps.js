@@ -4,6 +4,7 @@
  */
 
 const List = lpsRequire('engine/List');
+const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 
 const functors = {
@@ -28,6 +29,51 @@ const functors = {
   'is_list/1': function (operand) {
     let result = [];
     if (operand instanceof List) {
+      result.push({ theta: {} });
+    }
+    return result;
+  },
+
+  /**
+   * Check if a given term is a number
+   * @param  {Object} operand The term data representation
+   * @return {Array}         Predicate operation result
+   * @version 1.0.2
+   */
+  'is_number/1': function (operand) {
+    let result = [];
+    if (operand instanceof Value
+        && typeof operand.evaluate() === 'number') {
+      result.push({ theta: {} });
+    }
+    return result;
+  },
+
+  /**
+   * Check if a given term is numeric and is an integer
+   * @param  {Object} operand The term data representation
+   * @return {Array}         Predicate operation result
+   * @version 1.0.2
+   */
+  'is_integer/1': function (operand) {
+    let result = [];
+    if (operand instanceof Value
+        && Number.isInteger(operand.evaluate())) {
+      result.push({ theta: {} });
+    }
+    return result;
+  },
+
+  /**
+   * Check if a given term is numeric and is a float
+   * @param  {Object} operand The term data representation
+   * @return {Array}         Predicate operation result
+   * @version 1.0.2
+   */
+  'is_float/1': function (operand) {
+    let result = [];
+    if (operand instanceof Value
+        && operand.evaluate() % 1 !== 0) {
       result.push({ theta: {} });
     }
     return result;
