@@ -27,7 +27,7 @@ item(shirt, 8).
 
 true -> shop(T1, T2).
 
-shop(T1, T2) <-
+shop(T1, T3) <-
   money(M, T1),
   item(I, P),
   M >= P,
