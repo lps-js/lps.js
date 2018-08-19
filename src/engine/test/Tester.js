@@ -10,6 +10,7 @@ const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
+const stringLiterals = lpsRequire('utility/strings');
 const coreModule = lpsRequire('engine/modules/core');
 
 const numComparatorProcessor = function numComparatorProcessor(actual, expectedArg) {
@@ -173,7 +174,7 @@ function Tester(engine) {
 
   this.test = function test(specFile) {
     if (engine.isRunning()) {
-      return Promise.reject()
+      return Promise.reject(stringLiterals.error('test.testWhileRunning'));
     }
     expectations = {};
     timelessExpectations = [];

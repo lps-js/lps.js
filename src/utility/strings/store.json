@@ -46,6 +46,10 @@
     "loadProgramFromFile": "Unable to load program from a file in browser context; File system API unavailable."
   },
   
+  "tester": {
+    "testWhileRunning": "Cannot start tests for LPS program after execution has started."
+  },
+  
   "engine": {
     "cycleIntervalExceeded": "Previous cycle has exceeded its time limit of %sms. LPS will now terminate.",
     "startingTestWhileRunning": "Cannot start tests for LPS program after execution has started.",
