@@ -25,16 +25,22 @@ module.exports = function variableArrayRename(varArr, namePatternArg) {
   });
 
   let newTheta = {};
-  Object.keys(theta).forEach((varName) => {
-    newTheta[varName] = theta[varName];
-    if (theta[varName] instanceof Variable) {
-      let varNameP = theta[varName].evaluate();
-      if (theta[varNameP] !== undefined) {
-        // do another round of renaming
-        newTheta[varName] = new Variable(namePattern.replace('*', varNameP));
+  let hasChanges = false;
+  do {
+    newTheta = {};
+    hasChanges = false;
+    Object.keys(theta).forEach((varName) => {
+      newTheta[varName] = theta[varName];
+      if (theta[varName] instanceof Variable) {
+        let varNameP = theta[varName].evaluate();
+        if (theta[varNameP] !== undefined) {
+          // do another round of renaming
+          newTheta[varName] = new Variable(namePattern.replace('*', varNameP));
+          hasChanges = true;
+        }
       }
-    }
-  });
-  theta = newTheta;
+    });
+    theta = newTheta;
+  } while(hasChanges);
   return theta;
 };
