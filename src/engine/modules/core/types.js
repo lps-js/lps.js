@@ -73,6 +73,7 @@ const functors = {
   'is_float/1': function (operand) {
     let result = [];
     if (operand instanceof Value
+        && Number(operand.evaluate()) === operand.evaluate()
         && operand.evaluate() % 1 !== 0) {
       result.push({ theta: {} });
     }
