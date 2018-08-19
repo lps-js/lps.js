@@ -789,6 +789,9 @@ function Engine(programArg, workingDirectory) {
   };
 
   this.run = function run() {
+    if (_maxTime <= 0) {
+      throw stringLiterals.error('engine.maxTimeInvalid');
+    }
     if (this.hasHalted()) {
       return;
     }
@@ -803,7 +806,7 @@ function Engine(programArg, workingDirectory) {
 
   this.define = function define(name, callback) {
     if (_isRunning) {
-      throw new Error('Cannot define JS predicates after starting LPS execution');
+      throw stringLiterals.error('engine.definePredicatesWhileRunning');
     }
     _functorProvider.define(name, callback);
   };
