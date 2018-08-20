@@ -75,8 +75,13 @@ module.exports = function unexpectedTokenErrorMessage(source, currentToken, like
 
   let tokenType = String(currentToken.type).slice(7, -1) || 'undefined';
 
+  let messageKey = 'parser.syntaxError';
+  if (process.browser) {
+    messageKey = 'parser.syntaxErrorBrowser';
+  }
+
   let message = stringLiterals(
-    'parser.syntaxError',
+    messageKey,
     currentToken.value,
     tokenType,
     currentToken.line + 1,
