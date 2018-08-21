@@ -232,8 +232,6 @@ function Program(nodeTree) {
   let _currentState = new LiteralTreeMap();
   let _executedActions = new LiteralTreeMap();
 
-  // let _clauseMap = new LiteralTreeMap();
-
   let _fluents = {};
   let _actions = {};
   let _events = {};
@@ -446,20 +444,6 @@ function Program(nodeTree) {
     return result;
   };
 
-  // let buildClauseMap = function buildClauseMap(map, clauses) {
-  //   // TODO
-  //   // clauses.forEach((clause) => {
-  //   //   let headLiteral = clause.getHeadLiterals()[0];
-  //   //   let list = [];
-  //   //   if (!map.contains(headLiteral)) {
-  //   //     map.add(headLiteral, list);
-  //   //   } else {
-  //   //     list = map.get(headLiteral);
-  //   //   }
-  //   //   list.push(clause);
-  //   // });
-  // };
-
   this.augment = function augment(program) {
     if (!(program instanceof Program)) {
       throw stringLiterals.error(
@@ -484,7 +468,6 @@ function Program(nodeTree) {
       .forEach((fact) => {
         _facts.add(fact);
       });
-    // buildClauseMap(_clauseMap, programClauses);
   };
 
   if (nodeTree !== null && nodeTree !== undefined) {
@@ -495,7 +478,6 @@ function Program(nodeTree) {
       constraints: _constraints,
       facts: _facts
     });
-    // buildClauseMap(_clauseMap, _clauses);
   }
 }
 
