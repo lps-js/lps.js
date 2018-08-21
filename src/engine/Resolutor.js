@@ -160,10 +160,7 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(engine, program, 
       });
       return;
     }
-    let newTheta = {};
-    Object.keys(theta).forEach((v) => {
-      newTheta[v] = theta[v];
-    });
+    let newTheta = Object.assign({}, theta);
     let conjunct = remainingLiterals[0]
       .substitute(newTheta);
     let thetaDelta = resolveTimableThetaTiming(conjunct, newTheta, forTime);

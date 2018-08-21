@@ -364,15 +364,6 @@ function LiteralTreeMap() {
     recursiveTraverse(_root);
   };
 
-  let cloneTheta = function cloneTheta(theta) {
-    let clonedTheta = {};
-    Object.keys(theta)
-      .forEach((v) => {
-        clonedTheta[v] = theta[v];
-      });
-    return clonedTheta;
-  };
-
   let extractSymbolContent = (symbol) => {
     let symbolName = symbol.toString();
     return symbolName.substring(11, symbolName.length - 1);
@@ -428,7 +419,7 @@ function LiteralTreeMap() {
         }
         return;
       }
-      let clonedInternalTheta = cloneTheta(internalTheta);
+      let clonedInternalTheta = Object.assign({}, internalTheta);
       clonedInternalTheta[treeVarName] = new Value(value);
       subResult = recursiveCall(path, node._tree[index], externalTheta, clonedInternalTheta);
       result = result.concat(subResult);
@@ -502,7 +493,7 @@ function LiteralTreeMap() {
         // value is not a number, variable, functor or list
         if (!isSymbol) {
           // variable vs simple values
-          clonedExternalTheta = cloneTheta(externalTheta);
+          clonedExternalTheta = Object.assign({}, externalTheta);
           clonedExternalTheta[varName] = new Value(index);
           subResult = recursiveUnification(path, subtree, clonedExternalTheta, internalTheta);
           result = result.concat(subResult);
@@ -515,7 +506,7 @@ function LiteralTreeMap() {
         if (isNumber) {
           // variable vs number
           let numValue = Number(extractSymbolContent(index));
-          clonedExternalTheta = cloneTheta(externalTheta);
+          clonedExternalTheta = Object.assign({}, externalTheta);
           clonedExternalTheta[varName] = new Value(numValue);
           subResult = recursiveUnification(path, subtree, clonedExternalTheta, internalTheta);
           result = result.concat(subResult);
@@ -526,8 +517,8 @@ function LiteralTreeMap() {
           // variable vs variable
           let treeVarName = extractSymbolContent(index);
           // we perform internal substitution over external if it's variable vs variable
-          clonedInternalTheta = cloneTheta(internalTheta);
-          clonedExternalTheta = cloneTheta(externalTheta);
+          clonedInternalTheta = Object.assign({}, internalTheta);
+          clonedExternalTheta = Object.assign({}, externalTheta);
           if (internalTheta[treeVarName] === undefined) {
             if (externalTheta[varName] === undefined) {
               clonedInternalTheta[treeVarName] = new Variable(varName);
@@ -544,7 +535,7 @@ function LiteralTreeMap() {
 
         // variable vs complex terms
         let term = _argumentClauses[index];
-        clonedExternalTheta = cloneTheta(externalTheta);
+        clonedExternalTheta = Object.assign({}, externalTheta);
         clonedExternalTheta[varName] = term;
         subResult = recursiveUnification(path, subtree, clonedExternalTheta, internalTheta);
         result = result.concat(subResult);
@@ -567,8 +558,8 @@ function LiteralTreeMap() {
       subResult = _argumentTreeSymbol.unifies(currentKey, internalTheta);
       subResult.forEach((entry) => {
         // combine theta
-        let tempExternalTheta = cloneTheta(externalTheta);
-        let tempInternalTheta = cloneTheta(internalTheta);
+        let tempExternalTheta = Object.assign({}, externalTheta);
+        let tempInternalTheta = Object.assign({}, internalTheta);
         Object.keys(entry.theta).forEach((k) => {
           tempExternalTheta[k] = entry.theta[k];
         });
@@ -584,7 +575,7 @@ function LiteralTreeMap() {
             }
             let list = _argumentClauses[symbol].flatten();
             list.splice(0, entry.headEaten);
-            let matchingTailExternalTheta = cloneTheta(tempExternalTheta);
+            let matchingTailExternalTheta = Object.assign({}, tempExternalTheta);
 
             matchingTailExternalTheta[entry.tailVariable.evaluate()] = new List(list);
             subResult = recursiveUnification(
@@ -633,7 +624,7 @@ function LiteralTreeMap() {
         // previously internally substituted.
         return;
       }
-      clonedInternalTheta = cloneTheta(internalTheta);
+      clonedInternalTheta = Object.assign({}, internalTheta);
       clonedInternalTheta[treeVarName] = currentKey;
       subResult = recursiveUnification(path, node._tree[index], externalTheta, clonedInternalTheta);
       result = result.concat(subResult);

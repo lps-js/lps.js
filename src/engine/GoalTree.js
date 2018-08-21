@@ -51,11 +51,7 @@ let resolveStateConditions = function resolveStateConditions(
       return true;
     }
 
-    let newTheta = {};
-    Object.keys(thetaSoFar).forEach((v) => {
-      newTheta[v] = thetaSoFar[v];
-    });
-
+    let newTheta = Object.assign({}, thetaSoFar);
     let conjunct = remainingConjuncts[0]
       .substitute(newTheta);
     let thetaDelta = resolveTimableThetaTiming(conjunct, newTheta, forTime);

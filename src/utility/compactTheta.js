@@ -9,7 +9,8 @@ module.exports = function compactTheta(theta1, theta2) {
   let theta = {};
   Object.keys(theta1).forEach((key) => {
     let substitution = theta1[key];
-    while (substitution instanceof Variable && theta2[substitution.evaluate()] !== undefined) {
+    while (substitution instanceof Variable
+        && theta2[substitution.evaluate()] !== undefined) {
       if (theta2[substitution.evaluate()] instanceof Variable
           && substitution.evaluate() === theta2[substitution.evaluate()].evaluate()) {
         break;
@@ -18,9 +19,6 @@ module.exports = function compactTheta(theta1, theta2) {
     }
     theta[key] = substitution;
   });
-  Object.keys(theta2).forEach((key) => {
-    let substitution = theta2[key];
-    theta[key] = substitution;
-  });
+  theta = Object.assign(theta, theta2);
   return theta;
 };
