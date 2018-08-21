@@ -8,6 +8,7 @@ const List = lpsRequire('engine/List');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
+const Program = lpsRequire('parser/Program');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -429,6 +430,27 @@ describe('LiteralTreeMap', () => {
 
       expect(result[0]).to.have.property('leaf');
       expect(result[0].leaf).to.be.equal(functor);
+    });
+  });
+
+  describe('clone', () => {
+    it('should return empty clone tree for an empty tree', () => {
+      let tree = new LiteralTreeMap();
+      expect(tree).to.have.property('clone');
+      expect(tree.clone).to.be.a('function');
+      let clonedTree = tree.clone();
+      expect(clonedTree).to.be.instanceof(LiteralTreeMap);
+      expect(clonedTree.size()).to.be.equal(0);
+    });
+
+    it('should return the correct clone tree for a given tree 1', () => {
+      let tree = new LiteralTreeMap();
+      let fact = Program.literal('fact(A, A)');
+      tree.add(fact);
+
+      let clonedTree = tree.clone();
+      expect(clonedTree.size()).to.be.equal(1);
+      expect(clonedTree.contains(fact)).to.be.true;
     });
   });
 });
