@@ -38,6 +38,8 @@ let buildProgramArgsPredicate = function (programArgs) {
   if (programArgs === undefined) {
     _programArgs = [];
   }
+  // map to values
+  _programArgs = _programArgs.map(arg => new Value(arg));
   let argsList = new List(_programArgs);
   let theta = {
     L: argsList
