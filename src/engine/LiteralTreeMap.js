@@ -33,11 +33,12 @@ function _TreeNode(size, tree) {
   this.clone = function clone() {
     let cloneNode = new _TreeNode(size, {});
     this.indices().forEach((index) => {
-      if (this._tree[index] instanceof _TreeNode) {
-        cloneNode._tree[index] = this._tree[index].clone();
+      let childNode = this._tree[index];
+      if (childNode instanceof _TreeNode) {
+        cloneNode._tree[index] = childNode.clone();
         return;
       }
-      cloneNode._tree[index] = deepCopy(this._tree[index]);
+      cloneNode._tree[index] = deepCopy(childNode);
     });
     return cloneNode;
   };
@@ -356,10 +357,10 @@ function LiteralTreeMap() {
         callback(node);
         return;
       }
-      let indices = node.indices();
-      indices.forEach((key) => {
-        recursiveTraverse(node._tree[key]);
-      });
+      node.indices()
+        .forEach((key) => {
+          recursiveTraverse(node._tree[key]);
+        });
     };
     recursiveTraverse(_root);
   };
@@ -729,12 +730,12 @@ function LiteralTreeMap() {
         _count = tree.count;
         _root = tree.root.clone();
         _argumentTreeSymbol = null;
+        _numericMapping = Object.assign({}, tree.numericMapping);
+        _variableMapping = Object.assign({}, tree.variableMapping);
         _argumentClauses = {};
+        _argumentClauses = Object.assign({}, tree.argumentClauses);
         if (tree.argumentTree !== null) {
           _argumentTreeSymbol = tree.argumentTree.clone();
-          Object.keys(tree.argumentClauses).forEach((key) => {
-            _argumentClauses[key] = tree.argumentClauses[key];
-          });
         }
       };
     }
@@ -744,7 +745,9 @@ function LiteralTreeMap() {
       root: _root,
       count: _count,
       argumentTree: _argumentTreeSymbol,
-      argumentClauses: _argumentClauses
+      argumentClauses: _argumentClauses,
+      variableMapping: _variableMapping,
+      numericMapping: _numericMapping
     });
     return _clone;
   };
