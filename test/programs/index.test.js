@@ -8,9 +8,11 @@ require('mocha-sinon');
 
 let testFunction = function testFunction(file, updateTimeout, done) {
   let errors = [];
+  let engineError = false;
   return LPS.loadFile(path.join(__dirname, file + '.lps'))
     .then((engine) => {
       engine.on('error', (err) => {
+        engineError = true;
         done(err);
       });
       updateTimeout(engine.getMaxTime() * engine.getCycleInterval());
@@ -25,8 +27,12 @@ let testFunction = function testFunction(file, updateTimeout, done) {
       if (errors.length > 0) {
         console.log(errors);
       }
+      if (engineError) {
+        return;
+      }
       expect(errors.length).to.be.equal(0);
       expect(result.success).to.be.true;
+      done();
     });
 };
 
@@ -67,14 +73,11 @@ describe('Programs Test', function () {
   files.forEach((file) => {
     it('should test ' + file + '.lps', function (done) {
       let updateTimeout = (timeout) => {
-        this.slow((0.75 * timeout) + 2000);
+        this.slow((0.5 * timeout) + 500);
         this.timeout(timeout + 2000);
       };
 
       testFunction(file, updateTimeout, done)
-        .then(() => {
-          done();
-        })
         .catch((err) => {
           done(err);
         });
