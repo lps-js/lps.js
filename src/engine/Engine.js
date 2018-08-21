@@ -729,7 +729,9 @@ function Engine(programArg, workingDirectory) {
           _engineEventManager.notify('error', err);
         });
     };
-    continuousExecutionFunc();
+    setTimeout(() => {
+      continuousExecutionFunc();
+    }, 0)
   };
 
   let _startNormalExecution = () => {
