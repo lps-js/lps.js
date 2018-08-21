@@ -472,12 +472,7 @@ function GoalTree(engine, program, goalClause) {
 
   let _leafNodes = [_root];
   let _evaluateQueue = [_root];
-  let _rootNodeMap = new ConjunctionMap();
-  _rootNodeMap.add(goalClause, null);
 
-  this.isSameRootConjunction = function isSameRootConjunction(otherGoal) {
-    return _rootNodeMap.get(otherGoal) === null;
-  };
 
   this.getEarliestDeadline = function getEarliestDeadline(currentTime) {
     let earliestDeadline = null;
