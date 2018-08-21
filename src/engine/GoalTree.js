@@ -10,7 +10,6 @@ const Timable = lpsRequire('engine/Timable');
 const Variable = lpsRequire('engine/Variable');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
-const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 const dedupeConjunction = lpsRequire('utility/dedupeConjunction');
 const sortTimables = lpsRequire('utility/sortTimables');
 const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming');

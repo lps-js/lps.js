@@ -9,7 +9,6 @@ const List = lpsRequire('engine/List');
 const Timable = lpsRequire('engine/Timable');
 const Functor = lpsRequire('engine/Functor');
 const resolveValue = lpsRequire('engine/modules/core/resolveValue');
-const assertIsValue = lpsRequire('engine/modules/core/assertIsValue');
 
 const mathFunctors = lpsRequire('engine/modules/core/math');
 const ioFunctors = lpsRequire('engine/modules/core/io');

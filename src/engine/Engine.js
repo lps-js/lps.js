@@ -691,7 +691,7 @@ function Engine(programArg, workingDirectory) {
       return Promise.resolve();
     }
     _engineEventManager.notify('preCycle', this);
-    _isInCycle = true
+    _isInCycle = true;
     let startTime = Date.now();
     return performCycle.call(this)
       .then(() => {
@@ -731,7 +731,7 @@ function Engine(programArg, workingDirectory) {
     };
     setTimeout(() => {
       continuousExecutionFunc();
-    }, 0)
+    }, 0);
   };
 
   let _startNormalExecution = () => {
