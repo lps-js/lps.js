@@ -31,7 +31,7 @@ function _TreeNode(size, tree) {
   }
 
   this.clone = function clone() {
-    let cloneNode = new _TreeNode(size, {});
+    let cloneNode = new _TreeNode(this._size, {});
     this.indices().forEach((index) => {
       let childNode = this._tree[index];
       if (childNode instanceof _TreeNode) {
