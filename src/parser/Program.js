@@ -238,10 +238,7 @@ function Program(nodeTree) {
 
   this.clone = function clone() {
     let program = new Program(null);
-    let newFacts = new LiteralTreeMap();
-    _facts.forEach((fact) => {
-      newFacts.add(fact);
-    });
+    let newFacts = _facts.clone();
     program.setFacts(newFacts);
     program.setClauses(_clauses.concat());
     program.setConstraints(_constraints.concat());
@@ -259,16 +256,10 @@ function Program(nodeTree) {
       program.defineFluent(fluentId);
     });
 
-    let newState = new LiteralTreeMap();
-    _currentState.forEach((l) => {
-      newState.add(l);
-    });
+    let newState = _currentState.clone();
     program.updateState(newState);
 
-    let newExecutedActions = new LiteralTreeMap();
-    _executedActions.forEach((l) => {
-      newExecutedActions.add(l);
-    });
+    let newExecutedActions = _executedActions.clone();
     program.setExecutedActions(newExecutedActions);
     return program;
   };
