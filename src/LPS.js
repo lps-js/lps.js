@@ -19,6 +19,8 @@ const Tester = lpsRequire('engine/test/Tester');
 const List = lpsRequire('engine/List');
 const stringLiterals = lpsRequire('utility/strings');
 
+const programArgsPredicate = Program.literal('lpsArgs(L)');
+
 function LPS() {
 
 }
@@ -31,15 +33,29 @@ LPS.literalSet = function literalSet(str) {
   return Program.literalSet(str);
 };
 
-LPS.loadString = function loadString(source) {
+let buildProgramArgsPredicate = function (programArgs) {
+  let _programArgs = programArgs;
+  if (programArgs === undefined) {
+    _programArgs = [];
+  }
+  let argsList = new List(_programArgs);
+  let theta = {
+    L: argsList
+  };
+  return programArgsPredicate.substitute(theta);
+};
+
+LPS.loadString = function loadString(source, programArgs) {
   return Program.fromString(source)
     .then((program) => {
+      let programArgsFact = buildProgramArgsPredicate(programArgs);
+      program.getFacts().add(programArgsFact);
       let engine = new Engine(program);
       return engine.load();
     });
 };
 
-LPS.loadFile = function loadFile(fileArg) {
+LPS.loadFile = function loadFile(fileArg, programArgs) {
   if (process.browser) {
     return Promise.reject(new Error(stringLiterals('browserContext.loadProgramFromFile')));
   }
@@ -47,6 +63,8 @@ LPS.loadFile = function loadFile(fileArg) {
   file = path.resolve(file);
   return Program.fromFile(file)
     .then((program) => {
+      let programArgsFact = buildProgramArgsPredicate(programArgs);
+      program.getFacts().add(programArgsFact);
       let engine = new Engine(program, path.dirname(file));
       return engine.load();
     });
