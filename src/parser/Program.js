@@ -224,6 +224,8 @@ let processProgramTree = function processProgramTree(rootNode, properties) {
   });
 };
 
+function _ProgramCloneType() {}
+
 function Program(nodeTree) {
   let _rules = [];
   let _clauses = [];
@@ -237,30 +239,35 @@ function Program(nodeTree) {
   let _events = {};
 
   this.clone = function clone() {
+    if (this instanceof _ProgramCloneType) {
+      return (program) => {
+        _fluents = Object.assign({}, program.fluents);
+        _actions = Object.assign({}, program.actions);
+        _events = Object.assign({}, program.events);
+
+        _facts = program.facts.clone();
+
+        _rules = program.rules.concat();
+        _clauses = program.clauses.concat();
+        _constraints = program.constraints.concat();
+
+        _currentState = program.state.clone();
+        _executedActions = program.executedActions.clone();
+      };
+    }
     let program = new Program(null);
-    let newFacts = _facts.clone();
-    program.setFacts(newFacts);
-    program.setClauses(_clauses.concat());
-    program.setConstraints(_constraints.concat());
-    program.updateRules(_rules.concat());
-
-    Object.keys(_actions).forEach((actionId) => {
-      program.defineAction(actionId);
+    let loader = program.clone.call(new _ProgramCloneType());
+    loader({
+      fluents: _fluents,
+      actions: _actions,
+      events: _events,
+      facts: _facts,
+      rules: _rules,
+      clauses: _clauses,
+      constraints: _constraints,
+      state: _currentState,
+      executedActions: _executedActions
     });
-
-    Object.keys(_events).forEach((eventId) => {
-      program.defineEvent(eventId);
-    });
-
-    Object.keys(_fluents).forEach((fluentId) => {
-      program.defineFluent(fluentId);
-    });
-
-    let newState = _currentState.clone();
-    program.updateState(newState);
-
-    let newExecutedActions = _executedActions.clone();
-    program.setExecutedActions(newExecutedActions);
     return program;
   };
 
