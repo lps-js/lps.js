@@ -97,7 +97,7 @@ function Clause(head, body) {
    * @return {Array} Return a shallow copy of the head literals in the clause
    */
   this.getHeadLiterals = function getHeadLiterals() {
-    return _head.concat([]);
+    return _head.concat();
   };
 
   /**
@@ -105,7 +105,7 @@ function Clause(head, body) {
    * @return {Array} Return a shallow copy of the body literals in the clause
    */
   this.getBodyLiterals = function getBodyLiterals() {
-    return _body.concat([]);
+    return _body.concat();
   };
 
   /**

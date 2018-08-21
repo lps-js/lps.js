@@ -437,7 +437,7 @@ function LiteralTreeMap() {
   };
 
   let recursiveUnification = (pathArg, node, externalThetaArg, internalThetaArg) => {
-    let path = pathArg.concat([]);
+    let path = pathArg.concat();
     let externalTheta = externalThetaArg;
     let internalTheta = internalThetaArg;
     if (path.length === 0) {

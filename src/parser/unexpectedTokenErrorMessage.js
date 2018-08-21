@@ -8,7 +8,7 @@ const stringLiterals = lpsRequire('utility/strings');
 const NEWLINE_CHAR = '\n';
 
 const getLines = function getLines(source, lineNumbersArg) {
-  let lineNumbers = lineNumbersArg.concat([]);
+  let lineNumbers = lineNumbersArg.concat();
   lineNumbers.sort();
 
   let currentLineIndex = 0;

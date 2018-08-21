@@ -27,7 +27,7 @@ function List(head, tail) {
    * @return {Array} Return the array representing the head of the list
    */
   this.getHead = function getHead() {
-    return _head.concat([]);
+    return _head.concat();
   };
 
   /**

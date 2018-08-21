@@ -57,7 +57,7 @@ let rulePreProcessor = function rulePreProcessor(engine, program) {
         }
       });
 
-      let tupleConsequent = consequent.concat([]);
+      let tupleConsequent = consequent.concat();
       let replacement = {};
       Object.keys(commonVariables).forEach((k) => {
         replacement[k] = new Variable(k);

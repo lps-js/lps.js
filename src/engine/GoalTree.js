@@ -199,7 +199,7 @@ const processArgumentFunctorsInClause = function processArgumentFunctorsInClause
         let instances = Resolutor
           .handleBuiltInFunctorArgumentInLiteral(functorProvider, goal);
         instances.forEach((instance) => {
-          let conjunctsCopy = conjuncts.concat([]);
+          let conjunctsCopy = conjuncts.concat();
           if (conjuncts[l] instanceof Timable) {
             conjunctsCopy[l] = new Timable(
               instance,

@@ -53,7 +53,7 @@ function Consult(engine, targetProgram) {
           return;
         }
 
-        let bodyLiteralsClone = bodyLiterals.concat([]);
+        let bodyLiteralsClone = bodyLiterals.concat();
         bodyLiteralsClone.splice(idx, 1);
         let newStatement = new Clause(statement.getHeadLiterals(), bodyLiteralsClone);
         unifications.forEach((u) => {

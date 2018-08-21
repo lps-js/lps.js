@@ -81,7 +81,7 @@ function Functor(name, args) {
 
   this.getArguments = function getArguments() {
     // content of _args is immutable
-    return _args.concat([]);
+    return _args.concat();
   };
 
   this.substitute = function substitute(theta) {

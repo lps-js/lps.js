@@ -243,9 +243,9 @@ function Program(nodeTree) {
       newFacts.add(fact);
     });
     program.setFacts(newFacts);
-    program.setClauses(_clauses.concat([]));
-    program.setConstraints(_constraints.concat([]));
-    program.updateRules(_rules.concat([]));
+    program.setClauses(_clauses.concat());
+    program.setConstraints(_constraints.concat());
+    program.updateRules(_rules.concat());
 
     Object.keys(_actions).forEach((actionId) => {
       program.defineAction(actionId);
