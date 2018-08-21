@@ -708,9 +708,7 @@ function Engine(programArg, workingDirectory) {
       }
 
       // schedule next cycle ahead
-      let timer = setTimeout(() => {
-        continuousExecutionFunc();
-      }, _cycleInterval);
+      let timer = setTimeout(continuousExecutionFunc, _cycleInterval);
 
       this.step()
         .then(() => {
@@ -719,9 +717,7 @@ function Engine(programArg, workingDirectory) {
             return;
           }
           clearTimeout(timer);
-          setTimeout(() => {
-            continuousExecutionFunc();
-          }, 0);
+          setImmediate(continuousExecutionFunc);
         })
         .catch((err) => {
           this.halt();
@@ -729,9 +725,7 @@ function Engine(programArg, workingDirectory) {
           _engineEventManager.notify('error', err);
         });
     };
-    setTimeout(() => {
-      continuousExecutionFunc();
-    }, 0);
+    setImmediate(continuousExecutionFunc);
   };
 
   let _startNormalExecution = () => {

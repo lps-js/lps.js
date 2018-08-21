@@ -492,7 +492,7 @@ function GoalTree(engine, program, goalClause) {
         return;
       }
 
-      setTimeout(() => {
+      setImmediate(() => {
         _leafNodes = [];
         let newEvaluateQueue = [];
         let result = [];
@@ -513,7 +513,7 @@ function GoalTree(engine, program, goalClause) {
 
         _evaluateQueue = newEvaluateQueue;
         resolve(result);
-      }, 0);
+      });
     });
   };
 
