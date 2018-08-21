@@ -1,0 +1,3 @@
+action(act/1).
+maxTime(3).
+lpsArgs(L), write(L), member(A, L) -> act(A, T1, T2).
