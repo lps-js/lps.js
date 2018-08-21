@@ -681,12 +681,8 @@ function Engine(programArg, workingDirectory) {
     if (_isInCycle) {
       // previous cycle has not ended.
       this.halt();
-      _engineEventManager
-        .notify(
-          'error',
-          stringLiterals(['engine', 'cycleIntervalExceeded'], [_cycleInterval])
-        );
-      return Promise.reject();
+      let error = stringLiterals.error(['engine', 'cycleIntervalExceeded'], [_cycleInterval]);
+      return Promise.reject(error);
     }
     if (_isPaused) {
       return Promise.resolve();
@@ -710,26 +706,25 @@ function Engine(programArg, workingDirectory) {
       if (_isPaused) {
         return;
       }
+
+      // schedule next cycle ahead
       let timer = setTimeout(() => {
-        this.halt();
-        _engineEventManager
-          .notify(
-            'error',
-            stringLiterals(['engine', 'cycleIntervalExceeded'], [_cycleInterval])
-          );
+        continuousExecutionFunc();
       }, _cycleInterval);
+
       this.step()
         .then(() => {
-          clearTimeout(timer);
           if (this.hasHalted()) {
             _engineEventManager.notify('done', this);
             return;
           }
+          clearTimeout(timer);
           setTimeout(() => {
             continuousExecutionFunc();
           }, 0);
         })
         .catch((err) => {
+          this.halt();
           clearTimeout(timer);
           _engineEventManager.notify('error', err);
         });
