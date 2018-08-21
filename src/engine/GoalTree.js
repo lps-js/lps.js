@@ -495,7 +495,7 @@ function GoalTree(engine, program, goalClause) {
     return _root.conjuncts.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(forTime) {
+  this.evaluate = function evaluate(forTime, processedNodes) {
     return new Promise((resolve) => {
       if (_evaluateQueue.length === 0) {
         resolve(null);
@@ -506,7 +506,6 @@ function GoalTree(engine, program, goalClause) {
         _leafNodes = [];
         let newEvaluateQueue = [];
         let result = [];
-        let processedNodes = new ConjunctionMap();
 
         for (let i = 0; i < _evaluateQueue.length; i += 1) {
           let node = _evaluateQueue[i];

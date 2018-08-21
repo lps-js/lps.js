@@ -17,41 +17,10 @@ const constraintCheck = lpsRequire('utility/constraintCheck');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const SyntacticSugarProcessor = lpsRequire('engine/builtin/SyntacticSugarProcessor');
 const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
-const goalTreeSorter = lpsRequire('utility/goalTreeSorter');
 const rulePreProcessor = lpsRequire('engine/builtin/RulePreProcessor');
 const TimableProcessor = lpsRequire('engine/builtin/TimableProcessor');
 const stringLiterals = lpsRequire('utility/strings');
-
-const evaluateGoalTrees = function evaluateGoalTrees(currentTime, goalTrees) {
-  let goalTreeProcessingPromises = [];
-  let newGoals = [];
-  goalTrees.forEach((goalTree) => {
-    let treePromise = goalTree
-      .evaluate(currentTime)
-      .then((evaluationResult) => {
-        if (evaluationResult === null) {
-          // goal tree failed
-          return Promise.resolve();
-        }
-
-        // goal tree has been resolved
-        if (evaluationResult.length > 0) {
-          return Promise.resolve();
-        }
-
-        // goal tree has not been resolved, so let's persist the tree
-        // to the next cycle
-        newGoals.push(goalTree);
-        return Promise.resolve();
-      });
-    goalTreeProcessingPromises.push(treePromise);
-  });
-
-  return Promise.all(goalTreeProcessingPromises)
-    .then(() => {
-      return Promise.resolve(newGoals);
-    });
-};
+const evaluateGoalTrees = lpsRequire('utility/evaluateGoalTrees');
 
 function Engine(programArg, workingDirectory) {
   let _program = programArg;
@@ -509,7 +478,6 @@ function Engine(programArg, workingDirectory) {
         return promise
           .then((newGoals) => {
             _goals = newGoals;
-            _goals.sort(goalTreeSorter(_currentTime));
 
             // preparation for next cycle
             _currentTime += 1;
@@ -525,9 +493,6 @@ function Engine(programArg, workingDirectory) {
           })
           .then((newGoals) => {
             _goals = newGoals;
-
-            // ensure goal trees are sorted by their deadlines
-            _goals.sort(goalTreeSorter(_currentTime));
 
             _lastCycleActions = selectedAndExecutedActions;
             _lastCycleObservations = cycleObservations;
