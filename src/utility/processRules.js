@@ -30,18 +30,6 @@ module.exports = function processRules(engine, program, goals, currentTime) {
   };
 
   const fireRule = function fireRule(consequent) {
-    for (let i = 0; i < goals.length; i += 1) {
-      if (goals[i].isSameRootConjunction(consequent)) {
-        // a same root conjunction exists, don't refire
-        return;
-      }
-    }
-    for (let i = 0; i < newGoals.length; i += 1) {
-      if (newGoals[i].isSameRootConjunction(consequent)) {
-        // a same root conjunction exists, don't refire
-        return;
-      }
-    }
     newGoals.push(new GoalTree(engine, program, consequent));
   };
 
