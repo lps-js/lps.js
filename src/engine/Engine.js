@@ -687,11 +687,11 @@ function Engine(programArg, workingDirectory) {
     if (_isPaused) {
       return Promise.resolve();
     }
-    _engineEventManager.notify('preCycle', this);
-    _isInCycle = true;
     if (this.hasHalted()) {
-      return Promise.reject();
+      return Promise.resolve();
     }
+    _engineEventManager.notify('preCycle', this);
+    _isInCycle = true
     let startTime = Date.now();
     return performCycle.call(this)
       .then(() => {
@@ -703,7 +703,7 @@ function Engine(programArg, workingDirectory) {
 
   let _startContinuousExecution = () => {
     let continuousExecutionFunc = () => {
-      if (_isPaused) {
+      if (_isPaused || this.hasHalted()) {
         return;
       }
 
