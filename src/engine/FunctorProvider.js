@@ -5,23 +5,12 @@
 
 const Functor = lpsRequire('engine/Functor');
 
-const fs = require('fs');
-
 const functorIdentifierRegex = /^[^\s_A-Z][^\s]*\/[0-9]*$/;
 
 function FunctorProvider(engine) {
   let _functors = {};
 
-  this.load = function load(pathname) {
-    let definitions = pathname;
-    if (typeof pathname === 'string') {
-      if (!fs.existsSync(pathname)) {
-        throw new Error('File not found' + pathname + ' for loading predicate definitions in LPS');
-      }
-      definitions = require(pathname);
-      this.load(definitions);
-      return;
-    }
+  this.load = function load(definitions) {
     Object.keys(definitions).forEach((key) => {
       let func = definitions[key];
       if (func instanceof Array) {
