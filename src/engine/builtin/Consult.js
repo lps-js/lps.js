@@ -80,6 +80,12 @@ function Consult(engine, targetProgram) {
       .getClauses()
       .forEach(createReplacementFunc(newClauses, treeMap));
     program.setClauses(newClauses);
+
+    let newConstraints = [];
+    program
+      .getConstraints()
+      .forEach(createReplacementFunc(newConstraints, treeMap));
+    program.setConstraints(newConstraints);
   };
 
   this.consultFile = function consultFile(file, id) {
