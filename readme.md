@@ -24,6 +24,9 @@ LPS extends the notion of a production system by unifying both production rules 
 
 In LPS, the production rules can be seen as the goals of an agent while the logic program forms the beliefs of the agent. LPS can be used to model system dynamics, run simulations and build agent-oriented systems, multi-agent systems and teleo-reactive programs. 
 
+### Atom Language Package
+
+The syntax highlighting and autocomplete package for LPS supported by lps.js can be installed for Atom text editor. See https://github.com/mauris/language-lps for more details.
 
 # Usage
 
