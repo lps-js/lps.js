@@ -304,6 +304,10 @@ function GoalNode(engine, program, conjunctsArg, theta) {
     evaluationQueue,
     processedNodes
   ) {
+    if (this.conjuncts.length === 0) {
+      return [[this.theta]];
+    }
+
     let cachedValue = processedNodes.get(this.conjuncts);
     if (cachedValue !== undefined) {
       if (cachedValue === null) {
@@ -313,12 +317,9 @@ function GoalNode(engine, program, conjunctsArg, theta) {
     }
 
     if (hasExpiredTimable(this.conjuncts, forTime)) {
+      this.hasBranchFailed = true;
       processedNodes.add(this.conjuncts, null);
       return null;
-    }
-
-    if (this.conjuncts.length === 0) {
-      return [[this.theta]];
     }
 
     let pair = sortTimables(this.conjuncts, forTime);
@@ -402,11 +403,6 @@ function GoalNode(engine, program, conjunctsArg, theta) {
         });
       }
     }
-
-    // check for expired conjuncts
-    reductionResult = reductionResult.filter((n) => {
-      return !hasExpiredTimable(n[0], forTime);
-    });
 
     let newChildren = processArgumentFunctorsInClause(engine.getFunctorProvider(), reductionResult)
       .map(node => new GoalNode(engine, program, node[0], node[1]));
