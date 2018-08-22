@@ -4,6 +4,7 @@ location(X, N1, T1),
   Y @< X ->
     decideSwap(X, N1, Y, N1 + 1) from T2 to T3.
 
+% to swap
 decideSwap(X, N1, Y, N2) from T1 to T2 <-
   location(X, N1, T1),
   location(Y, N2, T1),
@@ -12,7 +13,11 @@ decideSwap(X, N1, Y, N2) from T1 to T2 <-
   swap(X, N1, Y, N2, T2, T3),
   unlock(X, Y, T2, T3).
 
-decideSwap(X, N1, Y, N2) from T to T <- 
+% or not to swap
+decideSwap(X, N1, Y, N2) from T to T <-
   location(X, N1, T),
   location(Y, N2, T),
   X @< Y.
+
+% that is the question
+% William Shakespeare's Hamlet, Act III, Scene I

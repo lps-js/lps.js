@@ -20,43 +20,49 @@ fluent(fireTruckDirection(D)).
 
 initially(fireTruckDirection(right)).
 
-click(I, X, Y, T1, T2), flammable(I) -> ignite(I, T2, T3).
+click(I, X, Y, T1, T2),
+  flammable(I) ->
+    ignite(I, T2, T3).
 
-% draw fire station icon
-true -> I = fireStation, positionItem(I, X, Y), draw_image(I, X, Y, 64, 64, fireStation).
-
-% draw sofa icon
-true -> I = sofa, positionItem(I, X, Y), draw_image(I, X, Y, 64, 64, sofa).
-
-% draw grill icon
-true -> I = grill, positionItem(I, X, Y), draw_image(I, X, Y, 64, 64, grill).
+% draw fire station, sofa and grill
+member(I, [fireStation, sofa, grill]) ->
+  positionItem(I, X, Y),
+  draw_image(I, X, Y, 64, 64, I).
 
 % draw fire truck
 true ->
   positionItem(fireStation, X, Y),
   draw_image(fireTruck, X, Y, 64, 64, fireTruck),
-  hide(fireTruck). 
+  hide(fireTruck).
 
 % draw fire for grill
-true -> positionItem(grill, X, Y), draw_image(grillFire, X + 12, Y + 12, 48, 48, fire), hide(grillFire).
+true ->
+  positionItem(grill, X, Y),
+  draw_image(grillFire, X + 12, Y + 12, 48, 48, fire),
+  hide(grillFire).
 
 % draw fire for sofa
-true -> positionItem(sofa, X, Y), draw_image(sofaFire, X + 12, Y + 12, 48, 48, fire), hide(sofaFire).
+true ->
+  positionItem(sofa, X, Y),
+  draw_image(sofaFire, X + 12, Y + 12, 48, 48, fire),
+  hide(sofaFire).
 
-deployFirefighters(T1, T2) -> 
+deployFirefighters(T1, T2) ->
   show(fireTruck).
 
 % when moving firefighter, move fire truck
-% moveFirefightersTo(Item, T1, T2) ->
-%   positionItem(Item, X, Y),
-%   move(fireTruck, X, Y).
-  
-location(Current, T1), fireTruckDirection(Dir, T1), moveFirefightersTo(Item, T1, T2) ->
-  positionItem(Current, X1, _),
+moveFirefightersTo(Item, T1, T2) ->
   positionItem(Item, X, Y),
-  checkTruckFlipNeeded(X1, X, Dir, T3, T4),
   move(fireTruck, X, Y).
-  
+
+location(Current, T1),
+  fireTruckDirection(Dir, T1),
+  moveFirefightersTo(Item, T1, T2) ->
+    positionItem(Current, X1, _),
+    positionItem(Item, X, Y),
+    checkTruckFlipNeeded(X1, X, Dir, T3, T4),
+    move(fireTruck, X, Y).
+
 checkTruckFlipNeeded(X1, X2, Dir, T1, T2) <-
   X1 < X2,
   Dir == left,
@@ -78,20 +84,28 @@ checkTruckFlipNeeded(X1, X2, Dir, T1, T2) <-
   Dir == right.
 
 % animate return to station
-location(Current, T1), fireTruckDirection(Dir, T1), returnToStation(T1, T2) ->
-  positionItem(Current, X1, _),
-  positionItem(fireStation, X, Y),
-  checkTruckFlipNeeded(X1, X, Dir, T2, T3),
-  move(fireTruck, X, Y),
-  hide(fireTruck).
+location(Current, T1),
+  fireTruckDirection(Dir, T1),
+  returnToStation(T1, T2) ->
+    positionItem(Current, X1, _),
+    positionItem(fireStation, X, Y),
+    checkTruckFlipNeeded(X1, X, Dir, T2, T3),
+    move(fireTruck, X, Y),
+    hide(fireTruck).
 
 % show fire when ignited
-ignite(sofa, T2, T) -> show(sofaFire).
-ignite(grill, T2, T) -> show(grillFire).
+ignite(sofa, T2, T) ->
+  show(sofaFire).
+ignite(grill, T2, T) ->
+  show(grillFire).
 
 % hide fire when put out
-putOutFire(sofa, T1, T2) -> hide(sofaFire).
-putOutFire(grill, T1, T2) -> hide(grillFire).
+putOutFire(sofa, T1, T2) ->
+  hide(sofaFire).
+putOutFire(grill, T1, T2) ->
+  hide(grillFire).
 
-updates(changeDirection, fireTruckDirection(_), fireTruckDirection(left)) <- fireTruckDirection(right, _).
-updates(changeDirection, fireTruckDirection(_), fireTruckDirection(right)) <- fireTruckDirection(left, _).
+updates(changeDirection, fireTruckDirection(_), fireTruckDirection(left)) <-
+  fireTruckDirection(right, _).
+updates(changeDirection, fireTruckDirection(_), fireTruckDirection(right)) <-
+  fireTruckDirection(left, _).

@@ -13,9 +13,6 @@ actions([
   returnToStation
 ]).
 
-observe(ignite(sofa), 3, 4).
-observe(ignite(grill), 3, 4).
-
 flammable(sofa).
 flammable(grill).
 
@@ -23,7 +20,9 @@ initially([
   location(fireStation)
 ]).
 
-fire(Item, T1), location(fireStation, T1) -> deal_with_fire(Item, T1, T2).
+fire(Item, T1),
+  location(fireStation, T1) ->
+    deal_with_fire(Item, T1, T2).
 
 deal_with_fire(Item, T1, T3) <-
   location(fireStation, T1),
@@ -51,7 +50,8 @@ handleItemWithFire(Item, T1, T3) <-
   moveFirefightersTo(Item, T1, T2),
   deal_with_fire(Item, T2, T3).
 
-initiates(ignite(Object), fire(Object)) <- flammable(Object).
+initiates(ignite(Object), fire(Object)) <-
+  flammable(Object).
 
 terminates(putOutFire(I), fire(I)).
 updates(deployFirefighters, location(_), location(otw)).
@@ -59,7 +59,14 @@ updates(moveFirefightersTo(L), location(_), location(L)).
 updates(returnToStation, location(_), location(fireStation)).
 
 % cannot put out fire if not at the location
-<- not location(X, T), putOutFire(X, T, _).
+<- not location(X),
+  putOutFire(X).
 
-<- moveFirefightersTo(X, T1, T2), moveFirefightersTo(Y, T1, T2), X != Y.
-<- putOutFire(X, T1, T2), putOutFire(Y, T1, T2), X != Y.
+<- moveFirefightersTo(X),
+  moveFirefightersTo(Y),
+  X != Y.
+
+% cannot put out fire at different places at the same time
+<- putOutFire(X),
+  putOutFire(Y),
+  X != Y.
