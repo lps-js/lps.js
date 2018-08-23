@@ -6,7 +6,6 @@
 const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
-const SyntacticSugar = lpsRequire('utility/SyntacticSugar');
 
 const maxTimeDeclarationTerm = ProgramFactory.literal('maxTime(X)');
 const cycleIntervalDeclarationTerm = ProgramFactory.literal('cycleInterval(X)');

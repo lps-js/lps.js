@@ -21,6 +21,7 @@ const evaluateGoalTrees = lpsRequire('utility/evaluateGoalTrees');
 const builtinProcessor = lpsRequire('engine/builtin/builtin');
 const consultProcessor = lpsRequire('engine/processors/consult');
 const observeProcessor = lpsRequire('engine/processors/observe');
+const initiallyProcessor = lpsRequire('engine/processors/initially');
 const ruleAntecedentProcessor = lpsRequire('engine/processors/ruleAntecedent');
 const settingsProcessor = lpsRequire('engine/processors/settings');
 const timableProcessor = lpsRequire('engine/processors/timable');
@@ -63,36 +64,6 @@ function Engine(programArg) {
   };
 
   let processInitialFluentDeclarations = function processInitialFluentDeclarations() {
-    let result = this.query(ProgramFactory.literal('initially(F)'));
-    let processInitialFluent = (valueArg) => {
-      let value = valueArg;
-      if (!(value instanceof Functor)) {
-        // invalid in initially
-        return;
-      }
-      let initialFluent = new Functor(value.getName(), value.getArguments());
-      if (!_program.isFluent(initialFluent)) {
-        // invalid fluent
-        return;
-      }
-      _program
-        .getState()
-        .add(initialFluent);
-    };
-    result.forEach((r) => {
-      if (r.theta.F === undefined) {
-        return;
-      }
-      let value = r.theta.F;
-      if (value instanceof List) {
-        let list = value.flatten();
-        list.forEach((v) => {
-          processInitialFluent(v);
-        });
-        return;
-      }
-      processInitialFluent(value);
-    });
   };
 
   const fluentActorDeclarationLiteral = ProgramFactory
@@ -807,7 +778,7 @@ function Engine(programArg) {
   this.on('loaded', () => {
     settingsProcessor(this, _program);
     timableProcessor(this, _program);
-    processInitialFluentDeclarations.call(this);
+    initiallyProcessor(this, _program);
     observeProcessor(this, _program);
     ruleAntecedentProcessor(this, _program);
 
