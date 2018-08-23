@@ -16,10 +16,10 @@ const compactTheta = lpsRequire('utility/compactTheta');
 const EventManager = lpsRequire('utility/observer/Manager');
 const constraintCheck = lpsRequire('utility/constraintCheck');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
-const SyntacticSugarProcessor = lpsRequire('engine/builtin/SyntacticSugarProcessor');
-const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
-const rulePreProcessor = lpsRequire('engine/builtin/RulePreProcessor');
-const TimableProcessor = lpsRequire('engine/builtin/TimableProcessor');
+const SyntacticSugarProcessor = lpsRequire('engine/processors/SyntacticSugarProcessor');
+const ObserveDeclarationProcessor = lpsRequire('engine/processors/Observe');
+const rulePreProcessor = lpsRequire('engine/processors/RulePreProcessor');
+const TimableProcessor = lpsRequire('engine/processors/TimableProcessor');
 const stringLiterals = lpsRequire('utility/strings');
 const evaluateGoalTrees = lpsRequire('utility/evaluateGoalTrees');
 

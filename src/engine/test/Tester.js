@@ -9,7 +9,7 @@ const Value = lpsRequire('engine/Value');
 const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
-const ObserveDeclarationProcessor = lpsRequire('engine/builtin/Observe');
+const ObserveDeclarationProcessor = lpsRequire('engine/processors/Observe');
 const stringLiterals = lpsRequire('utility/strings');
 const coreModule = lpsRequire('engine/modules/core');
 

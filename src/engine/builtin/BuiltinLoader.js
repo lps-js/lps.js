@@ -3,7 +3,7 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const Consult = lpsRequire('engine/builtin/Consult');
+const Consult = lpsRequire('engine/processors/Consult');
 const Program = lpsRequire('engine/Program');
 const path = require('path');
 
