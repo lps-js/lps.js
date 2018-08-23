@@ -4,7 +4,6 @@
  */
 
 const Functor = lpsRequire('engine/Functor');
-const Value = lpsRequire('engine/Value');
 const List = lpsRequire('engine/List');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
 

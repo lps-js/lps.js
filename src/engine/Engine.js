@@ -7,10 +7,8 @@ const Functor = lpsRequire('engine/Functor');
 const List = lpsRequire('engine/List');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
-const Program = lpsRequire('engine/Program');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
-const Value = lpsRequire('engine/Value');
 const processRules = lpsRequire('utility/processRules');
 const compactTheta = lpsRequire('utility/compactTheta');
 const EventManager = lpsRequire('utility/observer/Manager');
@@ -61,9 +59,6 @@ function Engine(programArg) {
     let result = constraintCheck(this, otherProgram);
     _program = originalProgram;
     return result;
-  };
-
-  let processInitialFluentDeclarations = function processInitialFluentDeclarations() {
   };
 
   const fluentActorDeclarationLiteral = ProgramFactory
@@ -433,7 +428,7 @@ function Engine(programArg) {
     }
 
     _maxTime = newMaxTime;
-  }
+  };
 
   this.isInCycle = function isInCycle() {
     return _isInCycle;

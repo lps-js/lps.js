@@ -43,7 +43,12 @@ const builtinModules = [
   'p2p'
 ];
 
-const processLoadModules = function processLoadModules(currentProgram, targetProgram, engine) {
+const processLoadModules = function processLoadModules(
+  currentProgram,
+  targetProgram,
+  engine,
+  workingDirectory
+) {
   let moduleResult = currentProgram.query(loadModuleLiteral, engine);
   moduleResult.forEach((r) => {
     if (r.theta.Module === undefined) {
@@ -66,6 +71,7 @@ const processLoadModules = function processLoadModules(currentProgram, targetPro
 
 const handleConsultEntry = function handleConsultEntry(
   theta,
+  workingDirectory,
   consultFile,
   processConsultDeclarations
 ) {
@@ -151,12 +157,8 @@ function consultProcessor(engine, targetProgram) {
 
   let processConsultDeclarations = function processConsultDeclarations(
     currentProgram,
-    workingDirectoryArg
+    workingDirectory
   ) {
-    let workingDirectory = workingDirectoryArg;
-    if (workingDirectory === undefined) {
-      workingDirectory = '';
-    }
     let promises = [];
     let result = [];
     result = result.concat(currentProgram.query(consultLiteral1, engine));
@@ -172,14 +174,24 @@ function consultProcessor(engine, targetProgram) {
           let theta = {};
           theta.File = new Functor(file, []);
           theta.Id = r.theta.Id;
-          promises.push(handleConsultEntry(theta, consultFile, processConsultDeclarations));
+          promises.push(handleConsultEntry(
+            theta,
+            workingDirectory,
+            consultFile,
+            processConsultDeclarations
+          ));
         });
         return;
       }
-      promises.push(handleConsultEntry(r.theta, consultFile, processConsultDeclarations));
+      promises.push(handleConsultEntry(
+        r.theta,
+        workingDirectory,
+        consultFile,
+        processConsultDeclarations
+      ));
     });
 
-    processLoadModules(currentProgram, targetProgram, engine);
+    processLoadModules(currentProgram, targetProgram, engine, workingDirectory);
     return Promise.all(promises);
   };
 

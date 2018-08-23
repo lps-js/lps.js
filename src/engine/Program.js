@@ -3,10 +3,7 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const Clause = lpsRequire('engine/Clause');
 const Functor = lpsRequire('engine/Functor');
-const List = lpsRequire('engine/List');
-const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const Timable = lpsRequire('engine/Timable');
 const Resolutor = lpsRequire('engine/Resolutor');

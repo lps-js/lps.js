@@ -11,7 +11,7 @@ const maxTimeDeclarationTerm = ProgramFactory.literal('maxTime(X)');
 const cycleIntervalDeclarationTerm = ProgramFactory.literal('cycleInterval(X)');
 const continuousExecutionDeclarationTerm = ProgramFactory.literal('continuousExecution(X)');
 
-const processSettingsDeclarations = (engine, program, query, define) => {
+const processSettingsDeclarations = (engine, query, define) => {
   let result = engine.query(query);
   result.forEach((r) => {
     if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
@@ -21,7 +21,7 @@ const processSettingsDeclarations = (engine, program, query, define) => {
   });
 };
 
-const processContinuousExecutionDeclarations = (engine, program) => {
+const processContinuousExecutionDeclarations = (engine) => {
   let result = engine.query(continuousExecutionDeclarationTerm);
   result.forEach((r) => {
     if (r.theta.X === undefined
@@ -36,10 +36,19 @@ const processContinuousExecutionDeclarations = (engine, program) => {
   });
 };
 
+// eslint-disable-next-line no-unused-vars
 const settingsProcessor = function settingsProcessor(engine, program) {
-  processSettingsDeclarations(engine, program, maxTimeDeclarationTerm, engine.setMaxTime);
-  processSettingsDeclarations(engine, program, cycleIntervalDeclarationTerm, engine.setCycleInterval);
-  processContinuousExecutionDeclarations(engine, program);
-}
+  processSettingsDeclarations(
+    engine,
+    maxTimeDeclarationTerm,
+    engine.setMaxTime
+  );
+  processSettingsDeclarations(
+    engine,
+    cycleIntervalDeclarationTerm,
+    engine.setCycleInterval
+  );
+  processContinuousExecutionDeclarations(engine);
+};
 
 module.exports = settingsProcessor;

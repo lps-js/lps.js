@@ -31,7 +31,7 @@ function builtinProcessor(engine, program) {
     } else {
       let filepath = path.join(__dirname, filename + '.lps');
       let theta = {
-        'File': new Value(filepath)
+        File: new Value(filepath)
       };
       program.getFacts()
         .add(consultTerm.substitute(theta));
