@@ -14,8 +14,13 @@ const builtinFiles = [
 ];
 
 // loads a set of built-in clauses
-let loadBuiltinFiles = function loadBuiltinFiles(consult, program) {
+let loadBuiltinFiles = function loadBuiltinFiles(engine, program) {
   let loadingPromises = [];
+
+  let consultProcessor;
+  if (!process.browser) {
+    consultProcessor = new Consult(engine, program);
+  }
 
   let loadFile = (filename) => {
     let promise;
@@ -28,26 +33,21 @@ let loadBuiltinFiles = function loadBuiltinFiles(consult, program) {
         });
     } else {
       let filepath = path.join(__dirname, filename + '.lps');
-      promise = consult.consultFile(filepath);
+      promise = consultProcessor.consultFile(filepath);
     }
     loadingPromises.push(promise);
   };
 
   builtinFiles.forEach(loadFile);
 
-  return Promise.all(loadingPromises)
-    .then(() => Promise.resolve(consult));
+  return Promise.all(loadingPromises);
 };
 
 function BuiltinLoader() {
 }
 
-BuiltinLoader.load = function load(engine, program, consultArg) {
-  let consult = consultArg;
-  if (consult === undefined) {
-    consult = new Consult(engine, program);
-  }
-  return loadBuiltinFiles(consult, program);
+BuiltinLoader.load = function load(engine, program) {
+  return loadBuiltinFiles(engine, program);
 };
 
 module.exports = BuiltinLoader;

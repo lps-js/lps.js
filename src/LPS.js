@@ -65,9 +65,10 @@ LPS.loadFile = function loadFile(fileArg, programArgs) {
   file = path.resolve(file);
   return ProgramFactory.fromFile(file)
     .then((program) => {
+      program.setWorkingDirectory(path.dirname(file));
       let programArgsFact = buildProgramArgsPredicate(programArgs);
       program.getFacts().add(programArgsFact);
-      let engine = new Engine(program, path.dirname(file));
+      let engine = new Engine(program);
       return engine.load();
     });
 };

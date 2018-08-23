@@ -22,6 +22,7 @@ function Program() {
   let _facts = new LiteralTreeMap();
   let _currentState = new LiteralTreeMap();
   let _executedActions = new LiteralTreeMap();
+  let _workingDirectory = '';
 
   let _fluents = {};
   let _actions = {};
@@ -42,6 +43,8 @@ function Program() {
 
         _currentState = program.state.clone();
         _executedActions = program.executedActions.clone();
+
+        _workingDirectory = program.workingDirectory;
       };
     }
     let program = new Program();
@@ -55,7 +58,8 @@ function Program() {
       clauses: _clauses,
       constraints: _constraints,
       state: _currentState,
-      executedActions: _executedActions
+      executedActions: _executedActions,
+      workingDirectory: _workingDirectory
     });
     return program;
   };
@@ -147,6 +151,14 @@ function Program() {
     return _fluents[id] !== undefined
       || _actions[id] !== undefined
       || _events[id] !== undefined;
+  };
+
+  this.setWorkingDirectory = function setWorkingDirectory(dir) {
+    _workingDirectory = dir;
+  };
+
+  this.getWorkingDirectory = function getWorkingDirectory() {
+    return _workingDirectory;
   };
 
   this.getFacts = function getFacts() {

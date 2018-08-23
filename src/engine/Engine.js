@@ -17,13 +17,14 @@ const EventManager = lpsRequire('utility/observer/Manager');
 const constraintCheck = lpsRequire('utility/constraintCheck');
 const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
 const SyntacticSugarProcessor = lpsRequire('engine/processors/SyntacticSugarProcessor');
+const Consult = lpsRequire('engine/processors/Consult');
 const ObserveDeclarationProcessor = lpsRequire('engine/processors/Observe');
 const rulePreProcessor = lpsRequire('engine/processors/RulePreProcessor');
 const TimableProcessor = lpsRequire('engine/processors/TimableProcessor');
 const stringLiterals = lpsRequire('utility/strings');
 const evaluateGoalTrees = lpsRequire('utility/evaluateGoalTrees');
 
-function Engine(programArg, workingDirectory) {
+function Engine(programArg) {
   let _program = programArg;
   let _maxTime = 20;
   let _cycleInterval = 100; // milliseconds
@@ -881,9 +882,10 @@ function Engine(programArg, workingDirectory) {
 
     return BuiltinLoader
       .load(this, _program)
-      .then((consult) => {
+      .then(() => {
         // start processing consult/1, consult/2 and loadModule/1 declarations in main program
-        return consult.process(workingDirectory);
+        let consult = new Consult(this, _program);
+        return consult.process();
       })
       .then(() => {
         _engineEventManager.notify('loaded', this);

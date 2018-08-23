@@ -179,9 +179,9 @@ function ConsultProcessor(engine, targetProgram) {
     return Promise.all(promises);
   };
 
-  this.process = function process(workingDirectory) {
+  this.process = function process() {
     return processConsultDeclarations
-      .call(this, targetProgram, workingDirectory);
+      .call(this, targetProgram, targetProgram.getWorkingDirectory());
   };
 }
 
