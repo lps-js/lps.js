@@ -8,7 +8,7 @@ const Functor = lpsRequire('engine/Functor');
 const Clause = lpsRequire('engine/Clause');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
-const Program = lpsRequire('parser/Program');
+const Program = lpsRequire('engine/Program');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 

@@ -8,7 +8,7 @@ const Clause = lpsRequire('engine/Clause');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
-const Program = lpsRequire('parser/Program');
+const Program = lpsRequire('engine/Program');
 const Variable = lpsRequire('engine/Variable');
 const Engine = lpsRequire('engine/Engine');
 

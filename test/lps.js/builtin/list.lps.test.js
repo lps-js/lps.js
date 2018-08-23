@@ -5,7 +5,7 @@
 
 const Value = lpsRequire('engine/Value');
 const Engine = lpsRequire('engine/Engine');
-const Program = lpsRequire('parser/Program');
+const Program = lpsRequire('engine/Program');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
 
 const chai = require('chai');

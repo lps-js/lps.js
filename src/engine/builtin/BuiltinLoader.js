@@ -4,7 +4,7 @@
  */
 
 const Consult = lpsRequire('engine/builtin/Consult');
-const Program = lpsRequire('parser/Program');
+const Program = lpsRequire('engine/Program');
 const path = require('path');
 
 const builtinFiles = [
