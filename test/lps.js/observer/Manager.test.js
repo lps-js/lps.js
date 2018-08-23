@@ -3,7 +3,7 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const Manager = lpsRequire('observer/Manager');
+const Manager = lpsRequire('utility/observer/Manager');
 
 const chai = require('chai');
 const expect = chai.expect;
