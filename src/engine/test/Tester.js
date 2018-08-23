@@ -3,7 +3,7 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const Engine = lpsRequire('engine/Engine');
 const Value = lpsRequire('engine/Value');
 const Functor = lpsRequire('engine/Functor');
@@ -62,7 +62,7 @@ function Tester(engine) {
   // expect/3
   // expect(Type, Time, L)
   let processTypeOneExpectations = function processTypeOneExpectations(program) {
-    let queryResult = program.query(Program.literal('expect(Type, T, F)'), engine);
+    let queryResult = program.query(ProgramFactory.literal('expect(Type, T, F)'), engine);
 
     queryResult.forEach((r) => {
       let type = r.theta.Type.evaluate();
@@ -80,7 +80,7 @@ function Tester(engine) {
   // expect/4
   // expect(Type, T1, T2, L)
   let processTypeTwoExpectations = function processTypeTwoExpectations(program) {
-    let queryResult = program.query(Program.literal('expect(Type, T1, T2, F)'), engine);
+    let queryResult = program.query(ProgramFactory.literal('expect(Type, T1, T2, F)'), engine);
     queryResult.forEach((r) => {
       let time1 = r.theta.T1.evaluate();
       let time2;
@@ -108,7 +108,7 @@ function Tester(engine) {
   // expect_num_of/3
   // expect_num_of(Type, Time, Num)
   let processTypeThreeExpectations = function processTypeThreeExpectations(program) {
-    let queryResult = program.query(Program.literal('expect_num_of(Type, T, Num)'), engine);
+    let queryResult = program.query(ProgramFactory.literal('expect_num_of(Type, T, Num)'), engine);
 
     queryResult.forEach((r) => {
       let time = r.theta.T.evaluate();
@@ -126,7 +126,7 @@ function Tester(engine) {
   // expect_num_of/4
   // expect_num_of(Type, T1, T2, Num)
   let processTypeFourExpectations = function processTypeFourExpectations(program) {
-    let queryResult = program.query(Program.literal('expect_num_of(Type, T1, T2, Num)'), engine);
+    let queryResult = program.query(ProgramFactory.literal('expect_num_of(Type, T1, T2, Num)'), engine);
     queryResult.forEach((r) => {
       let time1 = r.theta.T1.evaluate();
       let time2;
@@ -154,7 +154,7 @@ function Tester(engine) {
   // expect/1
   // expect(L)
   let processTypeFiveExpectations = function processTypeFiveExpectations(program) {
-    let queryResult = program.query(Program.literal('expect(L)'), engine);
+    let queryResult = program.query(ProgramFactory.literal('expect(L)'), engine);
     queryResult.forEach((r) => {
       timelessExpectations.push({
         fact: r.theta.L
@@ -165,7 +165,7 @@ function Tester(engine) {
   // expect_num_cycles/1
   // expect_num_cycles(L)
   let processTypeSixExpectations = function processTypeSixExpectations(program) {
-    let queryResult = program.query(Program.literal('expect_num_cycles(N)'), engine);
+    let queryResult = program.query(ProgramFactory.literal('expect_num_cycles(N)'), engine);
     queryResult.forEach((r) => {
       let expectation = r.theta.N;
       numCyclesExpectations.push(expectation);
@@ -181,7 +181,7 @@ function Tester(engine) {
 
     let program;
     let testEngine;
-    return Program.fromFile(specFile)
+    return ProgramFactory.fromFile(specFile)
       .then((p) => {
         program = p;
         testEngine = new Engine(program);

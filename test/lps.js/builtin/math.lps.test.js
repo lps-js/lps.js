@@ -7,6 +7,7 @@ const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const Engine = lpsRequire('engine/Engine');
 const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -25,7 +26,7 @@ describe('math.lps', () => {
 
   describe('sin/2', () => {
     it('should return correct result for variable replacement', () => {
-      let result = engine.query(Program.literal('sin(60, A)'));
+      let result = engine.query(ProgramFactory.literal('sin(60, A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -37,7 +38,7 @@ describe('math.lps', () => {
     });
 
     it('should return correct result for variable replacement', () => {
-      let result = engine.query(Program.literal('sin(60, ' + Math.sin(60) + ')'));
+      let result = engine.query(ProgramFactory.literal('sin(60, ' + Math.sin(60) + ')'));
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
       expect(result[0]).to.have.property('theta');
@@ -45,7 +46,7 @@ describe('math.lps', () => {
     });
 
     it('should return empty array for non-match', () => {
-      let result = engine.query(Program.literal('sin(60, 2)'));
+      let result = engine.query(ProgramFactory.literal('sin(60, 2)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
@@ -54,7 +55,7 @@ describe('math.lps', () => {
 
   describe('cos/2', () => {
     it('should return correct result for variable replacement', () => {
-      let result = engine.query(Program.literal('cos(60, A)'));
+      let result = engine.query(ProgramFactory.literal('cos(60, A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -66,7 +67,7 @@ describe('math.lps', () => {
     });
 
     it('should return correct result for variable replacement', () => {
-      let result = engine.query(Program.literal('cos(60, ' + Math.cos(60) + ')'));
+      let result = engine.query(ProgramFactory.literal('cos(60, ' + Math.cos(60) + ')'));
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
       expect(result[0]).to.have.property('theta');
@@ -74,7 +75,7 @@ describe('math.lps', () => {
     });
 
     it('should return empty array for non-match', () => {
-      let result = engine.query(Program.literal('cos(60, 2)'));
+      let result = engine.query(ProgramFactory.literal('cos(60, 2)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
@@ -83,7 +84,7 @@ describe('math.lps', () => {
 
   describe('tan/2', () => {
     it('should return correct result for variable replacement', () => {
-      let result = engine.query(Program.literal('tan(60, A)'));
+      let result = engine.query(ProgramFactory.literal('tan(60, A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -95,7 +96,7 @@ describe('math.lps', () => {
     });
 
     it('should return correct result for variable replacement', () => {
-      let result = engine.query(Program.literal('tan(60, ' + Math.tan(60) + ')'));
+      let result = engine.query(ProgramFactory.literal('tan(60, ' + Math.tan(60) + ')'));
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
       expect(result[0]).to.have.property('theta');
@@ -103,7 +104,7 @@ describe('math.lps', () => {
     });
 
     it('should return empty array for non-match', () => {
-      let result = engine.query(Program.literal('tan(60, 2)'));
+      let result = engine.query(ProgramFactory.literal('tan(60, 2)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
@@ -112,7 +113,7 @@ describe('math.lps', () => {
 
   describe('succ/2', () => {
     it('should return correct result for variable replacement 1', () => {
-      let result = engine.query(Program.literal('succ(5, A)'));
+      let result = engine.query(ProgramFactory.literal('succ(5, A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -124,7 +125,7 @@ describe('math.lps', () => {
     });
 
     it('should return correct result for variable replacement 2', () => {
-      let result = engine.query(Program.literal('succ(A, 6)'));
+      let result = engine.query(ProgramFactory.literal('succ(A, 6)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -136,21 +137,21 @@ describe('math.lps', () => {
     });
 
     it('should return empty array for non-match', () => {
-      let result = engine.query(Program.literal('succ(2, 5)'));
+      let result = engine.query(ProgramFactory.literal('succ(2, 5)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
 
     it('should return empty array for out of domain parameters', () => {
-      let result = engine.query(Program.literal('succ(N, -5)'));
+      let result = engine.query(ProgramFactory.literal('succ(N, -5)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
 
     it('should return empty array for out of domain parameters', () => {
-      let result = engine.query(Program.literal('succ(-5, N)'));
+      let result = engine.query(ProgramFactory.literal('succ(-5, N)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
@@ -159,7 +160,7 @@ describe('math.lps', () => {
 
   describe('between/3', () => {
     it('should return correct result for correct parameters', () => {
-      let result = engine.query(Program.literal('between(2, 6, 4)'));
+      let result = engine.query(ProgramFactory.literal('between(2, 6, 4)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -169,7 +170,7 @@ describe('math.lps', () => {
     });
 
     it('should return correct result for same values', () => {
-      let result = engine.query(Program.literal('between(2, 2, 2)'));
+      let result = engine.query(ProgramFactory.literal('between(2, 2, 2)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -179,7 +180,7 @@ describe('math.lps', () => {
     });
 
     it('should return correct result for high low values', () => {
-      let result = engine.query(Program.literal('between(2, 2, X)'));
+      let result = engine.query(ProgramFactory.literal('between(2, 2, X)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -191,7 +192,7 @@ describe('math.lps', () => {
     });
 
     it('should return correct result for all variables', () => {
-      let result = engine.query(Program.literal('between(A, B, A)'));
+      let result = engine.query(ProgramFactory.literal('between(A, B, A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -207,7 +208,7 @@ describe('math.lps', () => {
     });
 
     it('should return correct result for all variables', () => {
-      let result = engine.query(Program.literal('between(X, Y, X)'));
+      let result = engine.query(ProgramFactory.literal('between(X, Y, X)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -223,28 +224,28 @@ describe('math.lps', () => {
     });
 
     it('should return empty array for incorrect high low values', () => {
-      let result = engine.query(Program.literal('between(8, 5, 6)'));
+      let result = engine.query(ProgramFactory.literal('between(8, 5, 6)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
 
     it('should return empty array for non-grounding 1', () => {
-      let result = engine.query(Program.literal('between(A, 5, 4)'));
+      let result = engine.query(ProgramFactory.literal('between(A, 5, 4)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
 
     it('should return empty array for non-grounding 2', () => {
-      let result = engine.query(Program.literal('between(3, A, 4)'));
+      let result = engine.query(ProgramFactory.literal('between(3, A, 4)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
 
     it('should return empty array for non-grounding 3', () => {
-      let result = engine.query(Program.literal('between(2, 5, B)'));
+      let result = engine.query(ProgramFactory.literal('between(2, 5, B)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);

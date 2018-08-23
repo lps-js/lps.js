@@ -8,11 +8,11 @@ const stringLiterals = lpsRequire('utility/strings');
 const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
-const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 
 const net = require('net');
 
-const receiveEventLiteral = Program.literal('p2pReceive(NetworkId, Peer, Message)');
+const receiveEventLiteral = ProgramFactory.literal('p2pReceive(NetworkId, Peer, Message)');
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
@@ -53,7 +53,7 @@ module.exports = (engine, program) => {
       let theta = {
         NetworkId: new Functor(data.networkId, []),
         Peer: new Functor('node', [new Value(socket.remoteAddress), new Value(data.port)]),
-        Message: Program.literal(data.message)
+        Message: ProgramFactory.literal(data.message)
       };
 
       engine.observe(receiveEventLiteral.substitute(theta));

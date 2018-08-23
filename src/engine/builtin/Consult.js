@@ -3,7 +3,7 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Value = lpsRequire('engine/Value');
 const Clause = lpsRequire('engine/Clause');
@@ -15,25 +15,25 @@ const path = require('path');
  * The consult/1 definition
  * @type {Functor}
  */
-const consultLiteral1 = Program.literal('consult(File)');
+const consultLiteral1 = ProgramFactory.literal('consult(File)');
 
 /**
  * The consult/2 definition
  * @type {Functor}
  */
-const consultLiteral2 = Program.literal('consult(File, Id)');
+const consultLiteral2 = ProgramFactory.literal('consult(File, Id)');
 
 /**
  * The processId/1 definition
  * @type {Functor}
  */
-const processIdLiteral = Program.literal('processId(Id)');
+const processIdLiteral = ProgramFactory.literal('processId(Id)');
 
 /**
  * The loadModule/1 definition
  * @type {Functor}
  */
-const loadModuleLiteral = Program.literal('loadModule(Module)');
+const loadModuleLiteral = ProgramFactory.literal('loadModule(Module)');
 
 // path to the built-in modules
 const builtinModulePath = 'engine/modules';
@@ -89,7 +89,7 @@ function Consult(engine, targetProgram) {
   };
 
   this.consultFile = function consultFile(file, id) {
-    return Program.fromFile(file)
+    return ProgramFactory.fromFile(file)
       .then((loadedProgram) => {
         if (id !== undefined) {
           processProgramWithId(loadedProgram, id);

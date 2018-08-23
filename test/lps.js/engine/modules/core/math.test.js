@@ -7,6 +7,7 @@ const coreModule = lpsRequire('engine/modules/core');
 const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
+const ProgramBuilder = lpsRequire('parser/ProgramBuilder');
 const Program = lpsRequire('parser/Program');
 const Engine = lpsRequire('engine/Engine');
 
@@ -259,7 +260,7 @@ describe('coreModule', () => {
 
       it('should return negative number correctly', () => {
         let params = [
-          Program.literal('2 + 6')
+          ProgramFactory.literal('2 + 6')
         ];
         let result = functorProvider.execute(new Functor('-', params));
         expect(result).to.be.an('array');

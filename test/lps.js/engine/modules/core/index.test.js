@@ -24,7 +24,7 @@ describe('coreModule', () => {
       });
 
       it('should return correct negation result', () => {
-        let result = engine.query(Program.literal('!fact(a)'));
+        let result = engine.query(ProgramFactory.literal('!fact(a)'));
         expect(result).to.be.an('array');
         expect(result).to.be.length(1);
         expect(result[0]).to.have.property('theta');
@@ -34,10 +34,10 @@ describe('coreModule', () => {
 
       it('should return correct negation result', () => {
         let facts = new LiteralTreeMap();
-        facts.add(Program.literal('fact(a)'));
+        facts.add(ProgramFactory.literal('fact(a)'));
         program.setFacts(facts);
 
-        let result = engine.query(Program.literal('!fact(a)'));
+        let result = engine.query(ProgramFactory.literal('!fact(a)'));
         expect(result).to.be.an('array');
         expect(result).to.be.length(0);
       });

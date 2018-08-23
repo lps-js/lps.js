@@ -9,6 +9,7 @@ const Clause = lpsRequire('engine/Clause');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 const Program = lpsRequire('parser/Program');
+const ProgramBuilder = lpsRequire('parser/ProgramBuilder');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 
 const chai = require('chai');
@@ -18,15 +19,15 @@ describe('expandLiteral', () => {
   it('should return correct expansion for simple case 1', () => {
     let clauses = [
       new Clause(
-        Program.literalSet('head(X, Y)'),
-        Program.literalSet('body1(X, Z), body2(Z, Y)')
+        ProgramFactory.literalSet('head(X, Y)'),
+        ProgramFactory.literalSet('body1(X, Z), body2(Z, Y)')
       )
     ];
 
     let program = new Program();
     program.setClauses(clauses);
 
-    let result = expandLiteral(Program.literal('head(1, 2)'), program, {});
+    let result = expandLiteral(ProgramFactory.literal('head(1, 2)'), program, {});
     expect(result).to.be.an('array');
     expect(result).to.have.length(1);
     expect(result[0]).to.have.property('conjuncts');
@@ -44,8 +45,8 @@ describe('expandLiteral', () => {
   it('should return correct expansion with used variable names 3', () => {
     let clauses = [
       new Clause(
-        Program.literalSet('head(X, Y)'),
-        Program.literalSet('body1(X, Z), body2(Z, Y)')
+        ProgramFactory.literalSet('head(X, Y)'),
+        ProgramFactory.literalSet('body1(X, Z), body2(Z, Y)')
       )
     ];
 
@@ -55,7 +56,7 @@ describe('expandLiteral', () => {
     let usedVariables = ['Z'];
     let renameTheta = variableArrayRename(usedVariables);
 
-    let result = expandLiteral(Program.literal('head(1, 2)'), program, renameTheta);
+    let result = expandLiteral(ProgramFactory.literal('head(1, 2)'), program, renameTheta);
 
     expect(result).to.be.an('array');
     expect(result).to.have.length(1);
@@ -74,8 +75,8 @@ describe('expandLiteral', () => {
   it('should return correct expansion with used variable names 4', () => {
     let clauses = [
       new Clause(
-        Program.literalSet('head(X, Y)'),
-        Program.literalSet('body1(X, Z), body2(Z, Y)')
+        ProgramFactory.literalSet('head(X, Y)'),
+        ProgramFactory.literalSet('body1(X, Z), body2(Z, Y)')
       )
     ];
 
@@ -85,7 +86,7 @@ describe('expandLiteral', () => {
     let usedVariables = ['X', 'Z'];
     let renameTheta = variableArrayRename(usedVariables);
 
-    let result = expandLiteral(Program.literal('head(X, Z)'), program, renameTheta);
+    let result = expandLiteral(ProgramFactory.literal('head(X, Z)'), program, renameTheta);
 
     expect(result).to.be.an('array');
     expect(result).to.have.length(1);
@@ -104,15 +105,15 @@ describe('expandLiteral', () => {
   it('should return correct expansion for simple case 5', () => {
     let clauses = [
       new Clause(
-        Program.literalSet('head(X, X)'),
-        Program.literalSet('body1(X)')
+        ProgramFactory.literalSet('head(X, X)'),
+        ProgramFactory.literalSet('body1(X)')
       )
     ];
 
     let program = new Program();
     program.setClauses(clauses);
 
-    let result = expandLiteral(Program.literal('head(A, B)'), program, {});
+    let result = expandLiteral(ProgramFactory.literal('head(A, B)'), program, {});
 
     expect(result).to.be.an('array');
     expect(result).to.have.length(1);
@@ -131,15 +132,15 @@ describe('expandLiteral', () => {
   it('should return correct expansion for simple case 6', () => {
     let clauses = [
       new Clause(
-        Program.literalSet('head(X, X)'),
-        Program.literalSet('body1(X)')
+        ProgramFactory.literalSet('head(X, X)'),
+        ProgramFactory.literalSet('body1(X)')
       )
     ];
 
     let program = new Program();
     program.setClauses(clauses);
 
-    let result = expandLiteral(Program.literal('head(5, B)'), program, {});
+    let result = expandLiteral(ProgramFactory.literal('head(5, B)'), program, {});
 
     expect(result).to.be.an('array');
     expect(result).to.have.length(1);
@@ -158,15 +159,15 @@ describe('expandLiteral', () => {
   it('should return correct expansion for simple case 7', () => {
     let clauses = [
       new Clause(
-        Program.literalSet('head(X, X)'),
-        Program.literalSet('body1(X)')
+        ProgramFactory.literalSet('head(X, X)'),
+        ProgramFactory.literalSet('body1(X)')
       )
     ];
 
     let program = new Program();
     program.setClauses(clauses);
 
-    let result = expandLiteral(Program.literal('head(B, 5)'), program, {});
+    let result = expandLiteral(ProgramFactory.literal('head(B, 5)'), program, {});
 
     expect(result).to.be.an('array');
     expect(result).to.have.length(1);

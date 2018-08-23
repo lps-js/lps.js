@@ -3,13 +3,13 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 
-const listenLiteral = Program.literal('p2pListen(Port)');
+const listenLiteral = ProgramFactory.literal('p2pListen(Port)');
 
-const joinLiteral1 = Program.literal('p2pJoin(NetworkId)');
-const joinLiteral2 = Program.literal('p2pJoin(NetworkId, Port)');
-const joinLiteral3 = Program.literal('p2pJoin(NetworkId, Address, Port)');
+const joinLiteral1 = ProgramFactory.literal('p2pJoin(NetworkId)');
+const joinLiteral2 = ProgramFactory.literal('p2pJoin(NetworkId, Port)');
+const joinLiteral3 = ProgramFactory.literal('p2pJoin(NetworkId, Address, Port)');
 
 const defaultPort = 4100;
 const defaultAddress = '127.0.0.1';

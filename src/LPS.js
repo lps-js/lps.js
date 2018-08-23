@@ -10,7 +10,7 @@ global.lpsRequire = (name) => {
   return require(`${__dirname}/${name}`);
 };
 
-const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const Engine = lpsRequire('engine/Engine');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
@@ -19,18 +19,18 @@ const Tester = lpsRequire('engine/test/Tester');
 const List = lpsRequire('engine/List');
 const stringLiterals = lpsRequire('utility/strings');
 
-const programArgsPredicate = Program.literal('lpsArgs(L)');
+const programArgsPredicate = ProgramFactory.literal('lpsArgs(L)');
 
 function LPS() {
 
 }
 
 LPS.literal = function literal(str) {
-  return Program.literal(str);
+  return ProgramFactory.literal(str);
 };
 
 LPS.literalSet = function literalSet(str) {
-  return Program.literalSet(str);
+  return ProgramFactory.literalSet(str);
 };
 
 let buildProgramArgsPredicate = function (programArgs) {
@@ -48,7 +48,7 @@ let buildProgramArgsPredicate = function (programArgs) {
 };
 
 LPS.loadString = function loadString(source, programArgs) {
-  return Program.fromString(source)
+  return ProgramFactory.fromString(source)
     .then((program) => {
       let programArgsFact = buildProgramArgsPredicate(programArgs);
       program.getFacts().add(programArgsFact);
@@ -63,7 +63,7 @@ LPS.loadFile = function loadFile(fileArg, programArgs) {
   }
   let file = fileArg;
   file = path.resolve(file);
-  return Program.fromFile(file)
+  return ProgramFactory.fromFile(file)
     .then((program) => {
       let programArgsFact = buildProgramArgsPredicate(programArgs);
       program.getFacts().add(programArgsFact);

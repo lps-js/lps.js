@@ -6,6 +6,7 @@
 const Value = lpsRequire('engine/Value');
 const Engine = lpsRequire('engine/Engine');
 const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -24,7 +25,7 @@ describe('list.lps', () => {
 
   describe('max_list/3', () => {
     it('should return correct value for list of 2 elements', () => {
-      let result = engine.query(Program.literal('max_list([5, 8], A)'));
+      let result = engine.query(ProgramFactory.literal('max_list([5, 8], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -36,7 +37,7 @@ describe('list.lps', () => {
     });
 
     it('should return correct value for list of more elements', () => {
-      let result = engine.query(Program.literal('max_list([8, 4, 6, 10, 9], A)'));
+      let result = engine.query(ProgramFactory.literal('max_list([8, 4, 6, 10, 9], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -48,7 +49,7 @@ describe('list.lps', () => {
     });
 
     it('should return correct value for list of only 1 element', () => {
-      let result = engine.query(Program.literal('max_list([8], A)'));
+      let result = engine.query(ProgramFactory.literal('max_list([8], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -60,7 +61,7 @@ describe('list.lps', () => {
     });
 
     it('should return no result for list of no elements', () => {
-      let result = engine.query(Program.literal('max_list([], A)'));
+      let result = engine.query(ProgramFactory.literal('max_list([], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
@@ -69,7 +70,7 @@ describe('list.lps', () => {
 
   describe('min_list/3', () => {
     it('should return correct value for list of 2 elements', () => {
-      let result = engine.query(Program.literal('min_list([5, 8], A)'));
+      let result = engine.query(ProgramFactory.literal('min_list([5, 8], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -81,7 +82,7 @@ describe('list.lps', () => {
     });
 
     it('should return correct value for list of more elements', () => {
-      let result = engine.query(Program.literal('min_list([8, 4, 6, 10, 9], A)'));
+      let result = engine.query(ProgramFactory.literal('min_list([8, 4, 6, 10, 9], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -93,7 +94,7 @@ describe('list.lps', () => {
     });
 
     it('should return correct value for list of only 1 element', () => {
-      let result = engine.query(Program.literal('min_list([8], A)'));
+      let result = engine.query(ProgramFactory.literal('min_list([8], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -105,7 +106,7 @@ describe('list.lps', () => {
     });
 
     it('should return no result for list of no elements', () => {
-      let result = engine.query(Program.literal('min_list([], A)'));
+      let result = engine.query(ProgramFactory.literal('min_list([], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
@@ -114,7 +115,7 @@ describe('list.lps', () => {
 
   describe('sum_list/3', () => {
     it('should return correct value for list of 2 elements', () => {
-      let result = engine.query(Program.literal('sum_list([5, 8], A)'));
+      let result = engine.query(ProgramFactory.literal('sum_list([5, 8], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -126,7 +127,7 @@ describe('list.lps', () => {
     });
 
     it('should return correct value for list of more elements', () => {
-      let result = engine.query(Program.literal('sum_list([8, 4, 6, 10, 9], A)'));
+      let result = engine.query(ProgramFactory.literal('sum_list([8, 4, 6, 10, 9], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -138,7 +139,7 @@ describe('list.lps', () => {
     });
 
     it('should return correct value for list of only 1 element', () => {
-      let result = engine.query(Program.literal('sum_list([8], A)'));
+      let result = engine.query(ProgramFactory.literal('sum_list([8], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -150,7 +151,7 @@ describe('list.lps', () => {
     });
 
     it('should return no result for list of no elements', () => {
-      let result = engine.query(Program.literal('sum_list([], A)'));
+      let result = engine.query(ProgramFactory.literal('sum_list([], A)'));
 
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);

@@ -8,7 +8,7 @@ const List = lpsRequire('engine/List');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
-const Program = lpsRequire('parser/Program');
+const ProgramBuilder = lpsRequire('parser/ProgramBuilder');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -445,7 +445,7 @@ describe('LiteralTreeMap', () => {
 
     it('should return the correct clone tree for a given tree 1', () => {
       let tree = new LiteralTreeMap();
-      let fact = Program.literal('fact(A, A)');
+      let fact = ProgramFactory.literal('fact(A, A)');
       tree.add(fact);
 
       let clonedTree = tree.clone();

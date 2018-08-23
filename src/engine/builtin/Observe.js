@@ -3,11 +3,11 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const Value = lpsRequire('engine/Value');
 const stringLiterals = lpsRequire('utility/strings');
 
-const observeLiteral = Program.literal('observe(O, ST, ET)');
+const observeLiteral = ProgramFactory.literal('observe(O, ST, ET)');
 
 function Observe() {
 

@@ -8,6 +8,7 @@ const List = lpsRequire('engine/List');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
 const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
 const Value = lpsRequire('engine/Value');
 const processRules = lpsRequire('utility/processRules');
@@ -60,7 +61,7 @@ function Engine(programArg, workingDirectory) {
   };
 
   let processMaxTimeDeclarations = function processMaxTimeDeclarations() {
-    let result = this.query(Program.literal('maxTime(X)'));
+    let result = this.query(ProgramFactory.literal('maxTime(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
         return;
@@ -70,7 +71,7 @@ function Engine(programArg, workingDirectory) {
   };
 
   let processCycleIntervalDeclarations = function processCycleIntervalDeclarations() {
-    let result = this.query(Program.literal('cycleInterval(X)'));
+    let result = this.query(ProgramFactory.literal('cycleInterval(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
         return;
@@ -80,7 +81,7 @@ function Engine(programArg, workingDirectory) {
   };
 
   let processContinuousExecutionDeclarations = function processContinuousExecutionDeclarations() {
-    let result = this.query(Program.literal('continuousExecution(X)'));
+    let result = this.query(ProgramFactory.literal('continuousExecution(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
         return;
@@ -94,7 +95,7 @@ function Engine(programArg, workingDirectory) {
   };
 
   let processFluentDeclarations = function processFluentDeclarations() {
-    let result = this.query(Program.literal('fluent(X)'));
+    let result = this.query(ProgramFactory.literal('fluent(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined) {
         return;
@@ -106,7 +107,7 @@ function Engine(programArg, workingDirectory) {
   };
 
   let processActionDeclarations = function processActionDeclarations() {
-    let result = this.query(Program.literal('action(X)'));
+    let result = this.query(ProgramFactory.literal('action(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined) {
         return;
@@ -117,7 +118,7 @@ function Engine(programArg, workingDirectory) {
   };
 
   let processEventDeclarations = function processEventDeclarations() {
-    let result = this.query(Program.literal('event(X)'));
+    let result = this.query(ProgramFactory.literal('event(X)'));
     result.forEach((r) => {
       if (r.theta.X === undefined) {
         return;
@@ -128,7 +129,7 @@ function Engine(programArg, workingDirectory) {
   };
 
   let processInitialFluentDeclarations = function processInitialFluentDeclarations() {
-    let result = this.query(Program.literal('initially(F)'));
+    let result = this.query(ProgramFactory.literal('initially(F)'));
     let processInitialFluent = (valueArg) => {
       let value = valueArg;
       if (!(value instanceof Functor)) {
@@ -160,7 +161,7 @@ function Engine(programArg, workingDirectory) {
     });
   };
 
-  const fluentActorDeclarationLiteral = Program
+  const fluentActorDeclarationLiteral = ProgramFactory
     .literal('fluentActorDeclare(T, A, Old, New, Conds)');
   let updateStateWithFluentActors = function updateStateWithFluentActors(actions, state) {
     let newState = new LiteralTreeMap();

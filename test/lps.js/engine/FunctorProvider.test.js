@@ -7,6 +7,7 @@ const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 const Program = lpsRequire('parser/Program');
+const ProgramBuilder = lpsRequire('parser/ProgramBuilder');
 const Engine = lpsRequire('engine/Engine');
 const coreModule = lpsRequire('engine/modules/core');
 
@@ -125,14 +126,14 @@ describe('FunctorProvider', () => {
 
   describe('execute(literal)', () => {
     it('should execute built-in functors', () => {
-      let result = provider.execute(Program.literal('!fact(1)'));
+      let result = provider.execute(ProgramFactory.literal('!fact(1)'));
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(Object.keys(result[0].theta)).to.be.empty;
     });
 
     it('should execute built-in functors', () => {
-      let result = provider.execute(Program.literal('1+2'));
+      let result = provider.execute(ProgramFactory.literal('1+2'));
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(Object.keys(result[0].theta)).to.be.empty;
@@ -147,7 +148,7 @@ describe('FunctorProvider', () => {
         callValue = arg.evaluate();
         return [{ theta: {} }];
       });
-      let result = provider.execute(Program.literal('testFunc(2)'));
+      let result = provider.execute(ProgramFactory.literal('testFunc(2)'));
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(Object.keys(result[0].theta)).to.be.empty;
@@ -156,13 +157,13 @@ describe('FunctorProvider', () => {
 
     it('should throw error for undefined functor', () => {
       expect(() => {
-        provider.execute(Program.literal('what(5)'));
+        provider.execute(ProgramFactory.literal('what(5)'));
       }).to.throw();
     });
 
     describe('assignment', () => {
       it('should give correct assignment', () => {
-        let result = provider.execute(Program.literal('X = 5 * 2'));
+        let result = provider.execute(ProgramFactory.literal('X = 5 * 2'));
         expect(result).to.be.instanceof(Array);
         expect(result).to.be.length(1);
         expect(Object.keys(result[0].theta)).to.be.length(1);
@@ -172,7 +173,7 @@ describe('FunctorProvider', () => {
 
       it('should throw an error for incorrect assignment', () => {
         expect(() => {
-          provider.execute(Program.literal('5 = 5 * 2'));
+          provider.execute(ProgramFactory.literal('5 = 5 * 2'));
         }).to.throw();
       });
     });
