@@ -73,7 +73,7 @@ function Consult(engine, targetProgram) {
     let rules = program.getRules();
     let newRules = [];
     rules.forEach(createReplacementFunc(newRules, treeMap));
-    program.updateRules(newRules);
+    program.setRules(newRules);
 
     let newClauses = [];
     program

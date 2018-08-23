@@ -18,7 +18,7 @@ const TimableProcessor = function TimableProcessor(engine, program) {
 
     return new Clause(consequent, antecedent);
   });
-  program.updateRules(rules);
+  program.setRules(rules);
 
   let clauses = program.getClauses();
   clauses = clauses.map((clause) => {

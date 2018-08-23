@@ -27,7 +27,7 @@ describe('Resolutor', () => {
       state.add(new Functor('fire', [new Value(1)]));
       let program = new Program();
       let engine = new Engine(program);
-      program.updateState(state);
+      program.setState(state);
 
       let result = Resolutor.reduceRuleAntecedent(engine, program, rule, 1);
       expect(result).to.be.instanceof(Array);

@@ -303,7 +303,7 @@ function Engine(programArg, workingDirectory) {
       let postState = postCloneProgram.getState();
       postCloneProgram.setExecutedActions(new LiteralTreeMap());
       postState = updateStateWithFluentActors.call(this, tempTreeMap, postState);
-      postCloneProgram.updateState(postState);
+      postCloneProgram.setState(postState);
 
       // only perform pre-checks
       if (checkConstraintSatisfaction.call(this, cloneProgram)) {
@@ -380,7 +380,7 @@ function Engine(programArg, workingDirectory) {
         clonePostProgram.setExecutedActions(new LiteralTreeMap());
         let postState = clonePostProgram.getState();
         postState = updateStateWithFluentActors.call(this, candidateActions, postState);
-        clonePostProgram.updateState(postState);
+        clonePostProgram.setState(postState);
 
         if (!checkConstraintSatisfaction.call(this, clonePostProgram)) {
           return;
@@ -484,7 +484,7 @@ function Engine(programArg, workingDirectory) {
             _currentTime += 1;
 
             _program.setExecutedActions(new LiteralTreeMap());
-            _program.updateState(updatedState);
+            _program.setState(updatedState);
 
             // build goal clauses for each rule
             // we need to derive the partially executed rule here too

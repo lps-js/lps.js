@@ -31,7 +31,7 @@ describe('processRules', () => {
 
     let program = new Program();
     let engine = new Engine(program);
-    program.updateRules([rule]);
+    program.setRules([rule]);
 
     program.setExecutedActions(events);
 

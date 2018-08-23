@@ -81,7 +81,7 @@ let rulePreProcessor = function rulePreProcessor(engine, program) {
       newRules.push(new Clause(tupleConsequent, tuple.literalSet));
     });
   });
-  program.updateRules(newRules);
+  program.setRules(newRules);
 };
 
 module.exports = rulePreProcessor;

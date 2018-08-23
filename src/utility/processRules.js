@@ -67,6 +67,6 @@ module.exports = function processRules(engine, program, goals, currentTime) {
       }
     });
   });
-  program.updateRules(newRules);
+  program.setRules(newRules);
   return newGoals;
 };

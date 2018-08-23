@@ -235,7 +235,7 @@ ProgramFactory.build = function build(ast) {
   processProgramTree(ast, result);
   program.setConstraints(result.constraints);
   program.setClauses(result.clauses);
-  program.updateRules(result.rules);
+  program.setRules(result.rules);
   program.setFacts(result.auxiliary);
   return program;
 };

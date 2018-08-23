@@ -173,19 +173,19 @@ function Program() {
     _constraints = constraints;
   };
 
-  this.updateRules = function updateRules(rules) {
+  this.setRules = function setRules(rules) {
     _rules = rules;
   };
 
   this.getRules = function getRules() {
-    return _rules.map(x => x);
+    return _rules;
   };
 
   this.getState = function getState() {
     return _currentState;
   };
 
-  this.updateState = function updateState(newState) {
+  this.setState = function setState(newState) {
     _currentState = newState;
   };
 
