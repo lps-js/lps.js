@@ -7,7 +7,7 @@ const coreModule = lpsRequire('engine/modules/core');
 const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
-const ProgramBuilder = lpsRequire('parser/ProgramBuilder');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const Program = lpsRequire('parser/Program');
 const Engine = lpsRequire('engine/Engine');
 

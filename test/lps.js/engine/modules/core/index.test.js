@@ -6,6 +6,7 @@
 const coreModule = lpsRequire('engine/modules/core');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Program = lpsRequire('parser/Program');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const Engine = lpsRequire('engine/Engine');
 
 const chai = require('chai');

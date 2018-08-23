@@ -8,7 +8,7 @@ const List = lpsRequire('engine/List');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
-const ProgramBuilder = lpsRequire('parser/ProgramBuilder');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 
 const chai = require('chai');
 const expect = chai.expect;
