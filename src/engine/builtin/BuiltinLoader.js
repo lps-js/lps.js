@@ -42,8 +42,11 @@ let loadBuiltinFiles = function loadBuiltinFiles(consult, program) {
 function BuiltinLoader() {
 }
 
-BuiltinLoader.load = function load(engine, program) {
-  let consult = new Consult(engine, program);
+BuiltinLoader.load = function load(engine, program, consultArg) {
+  let consult = consultArg;
+  if (consult === undefined) {
+    consult = new Consult(engine, program);
+  }
   return loadBuiltinFiles(consult, program);
 };
 
