@@ -15,7 +15,6 @@ const processRules = lpsRequire('utility/processRules');
 const compactTheta = lpsRequire('utility/compactTheta');
 const EventManager = lpsRequire('utility/observer/Manager');
 const constraintCheck = lpsRequire('utility/constraintCheck');
-const SyntacticSugar = lpsRequire('utility/SyntacticSugar');
 const stringLiterals = lpsRequire('utility/strings');
 const evaluateGoalTrees = lpsRequire('utility/evaluateGoalTrees');
 
@@ -23,6 +22,7 @@ const builtinProcessor = lpsRequire('engine/builtin/builtin');
 const consultProcessor = lpsRequire('engine/processors/consult');
 const observeProcessor = lpsRequire('engine/processors/observe');
 const ruleAntecedentProcessor = lpsRequire('engine/processors/ruleAntecedent');
+const settingsProcessor = lpsRequire('engine/processors/settings');
 const timableProcessor = lpsRequire('engine/processors/timable');
 
 function Engine(programArg) {
@@ -60,74 +60,6 @@ function Engine(programArg) {
     let result = constraintCheck(this, otherProgram);
     _program = originalProgram;
     return result;
-  };
-
-  let processMaxTimeDeclarations = function processMaxTimeDeclarations() {
-    let result = this.query(ProgramFactory.literal('maxTime(X)'));
-    result.forEach((r) => {
-      if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
-        return;
-      }
-      _maxTime = r.theta.X.evaluate();
-    });
-  };
-
-  let processCycleIntervalDeclarations = function processCycleIntervalDeclarations() {
-    let result = this.query(ProgramFactory.literal('cycleInterval(X)'));
-    result.forEach((r) => {
-      if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
-        return;
-      }
-      _cycleInterval = r.theta.X.evaluate();
-    });
-  };
-
-  let processContinuousExecutionDeclarations = function processContinuousExecutionDeclarations() {
-    let result = this.query(ProgramFactory.literal('continuousExecution(X)'));
-    result.forEach((r) => {
-      if (r.theta.X === undefined || !(r.theta.X instanceof Value)) {
-        return;
-      }
-      let value = r.theta.X.evaluate();
-      _isContinuousExecution = (value === 'yes'
-        || value === 'on'
-        || value === 'true'
-        || value === 1);
-    });
-  };
-
-  let processFluentDeclarations = function processFluentDeclarations() {
-    let result = this.query(ProgramFactory.literal('fluent(X)'));
-    result.forEach((r) => {
-      if (r.theta.X === undefined) {
-        return;
-      }
-
-      let fluent = SyntacticSugar.shorthand(r.theta.X);
-      _program.defineFluent(fluent);
-    });
-  };
-
-  let processActionDeclarations = function processActionDeclarations() {
-    let result = this.query(ProgramFactory.literal('action(X)'));
-    result.forEach((r) => {
-      if (r.theta.X === undefined) {
-        return;
-      }
-      let literal = SyntacticSugar.shorthand(r.theta.X);
-      _program.defineAction(literal);
-    });
-  };
-
-  let processEventDeclarations = function processEventDeclarations() {
-    let result = this.query(ProgramFactory.literal('event(X)'));
-    result.forEach((r) => {
-      if (r.theta.X === undefined) {
-        return;
-      }
-      let literal = SyntacticSugar.shorthand(r.theta.X);
-      _program.defineEvent(literal);
-    });
   };
 
   let processInitialFluentDeclarations = function processInitialFluentDeclarations() {
@@ -550,20 +482,20 @@ function Engine(programArg) {
 
   this.setCycleInterval = function setCycleInterval(newCycleInterval) {
     if (typeof newCycleInterval !== 'number') {
-      throw new Error(stringLiterals(
+      throw stringLiterals.error(
         'engine.parameterInvalidType',
         1,
         'Engine.setCycleInterval',
         'number',
         typeof val
-      ));
+      );
     }
     if (newCycleInterval <= 0
         || !Number.isInteger(newCycleInterval)) {
-      throw new Error(stringLiterals('engine.nonPositiveIntegerCycleInterval', newCycleInterval));
+      throw stringLiterals.error('engine.nonPositiveIntegerCycleInterval', newCycleInterval);
     }
     if (_isRunning) {
-      throw new Error(stringLiterals('engine.updatingParametersWhileRunning', 'cycle interval'));
+      throw stringLiterals.error('engine.updatingParametersWhileRunning', 'cycle interval');
     }
     _cycleInterval = newCycleInterval;
   };
@@ -574,19 +506,19 @@ function Engine(programArg) {
 
   this.setContinuousExecution = function setContinuousExecution(val) {
     if (typeof val !== 'boolean') {
-      throw new Error(stringLiterals(
+      throw stringLiterals.error(
         'engine.parameterInvalidType',
         1,
         'Engine.setContinuousExecution',
         'boolean',
         typeof val
-      ));
+      );
     }
     if (_isRunning) {
-      throw new Error(stringLiterals(
+      throw stringLiterals.error(
         'engine.updatingParametersWhileRunning',
         'continuous execution mode'
-      ));
+      );
     }
     _isContinuousExecution = val;
   };
@@ -873,15 +805,10 @@ function Engine(programArg) {
   // we preprocess some of the built-in processors by looking at the facts
   // of the _program.
   this.on('loaded', () => {
-    processMaxTimeDeclarations.call(this);
-    processCycleIntervalDeclarations.call(this);
-    processContinuousExecutionDeclarations.call(this);
-    processFluentDeclarations.call(this);
-    processActionDeclarations.call(this);
-    processEventDeclarations.call(this);
+    settingsProcessor(this, _program);
+    timableProcessor(this, _program);
     processInitialFluentDeclarations.call(this);
     observeProcessor(this, _program);
-    timableProcessor(this, _program);
     ruleAntecedentProcessor(this, _program);
 
     _engineEventManager.notify('ready', this);

@@ -56,6 +56,7 @@
     "cycleIntervalExceeded": "Previous cycle has exceeded its time limit of %sms. LPS will now terminate.",
     "definePredicatesWhileRunning": "Cannot define JS predicates after starting LPS execution",
     "nonPositiveIntegerCycleInterval": "Cycle interval must be a positive integer, %s was given.",
+    "nonPositiveIntegerMaxTime": "Max cycle time must be a positive integer, %s was given.",
     "updatingParametersWhileRunning": "Cannot set %s while LPS program is in execution. Parameters can only be set before the LPS program starts.",
     "fluentUpdaterActionArgumentVariable": "When declaring an initiate, terminate or update, the action must have the last argument as the time variable.",
     "rejectObservationWarning": "Rejecting observation '%s' from time %s to %s in order to satisfy program constraints",
