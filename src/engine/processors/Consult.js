@@ -43,7 +43,53 @@ const builtinModules = [
   'p2p'
 ];
 
-function Consult(engine, targetProgram) {
+const processLoadModules = function processLoadModules(currentProgram, targetProgram, engine) {
+  let moduleResult = currentProgram.query(loadModuleLiteral, engine);
+  moduleResult.forEach((r) => {
+    if (r.theta.Module === undefined) {
+      return;
+    }
+    let moduleArg = r.theta.Module.evaluate();
+    let builtinIndex = builtinModules.indexOf(moduleArg);
+
+    if (builtinIndex !== -1) {
+      let moduleName = builtinModules[builtinIndex];
+      let module = lpsRequire(`${builtinModulePath}/${moduleName}`);
+      module(engine, targetProgram);
+      return;
+    }
+    let pathname = path.resolve(workingDirectory, moduleArg);
+    let module = require(pathname);
+    module(engine, targetProgram);
+  });
+};
+
+const handleConsultEntry = function handleConsultEntry(theta, consult) {
+  if (!(theta.File instanceof Functor)) {
+    return Promise.reject(new Error('Consult file not value'));
+  }
+  let promise;
+  let filepath = theta.File.evaluate();
+  if (!path.isAbsolute(filepath) && workingDirectory !== '') {
+    // work path from the current working directory given
+    filepath = path.resolve(workingDirectory, filepath);
+  }
+  if (theta.Id === undefined || !(theta.Id instanceof Functor)) {
+    promise = consult.consultFile(filepath);
+  } else {
+    promise = consult.consultFile(filepath, theta.Id.evaluate());
+  }
+
+  return promise
+    .then((loadedProgram) => {
+      // recursively process consult declarations in loaded targetProgram
+      // also pass in the working directory from this loaded file
+      return processConsultDeclarations
+        .call(consult, loadedProgram, path.dirname(filepath));
+    });
+};
+
+function ConsultProcessor(engine, targetProgram) {
   let createReplacementFunc = function createReplacementFunc(set, treeMap) {
     return (statement) => {
       let bodyLiterals = statement.getBodyLiterals();
@@ -112,31 +158,6 @@ function Consult(engine, targetProgram) {
     result = result.concat(currentProgram.query(consultLiteral1, engine));
     result = result.concat(currentProgram.query(consultLiteral2, engine));
 
-    let handleEntry = (theta) => {
-      if (!(theta.File instanceof Functor)) {
-        return Promise.reject(new Error('Consult file not value'));
-      }
-      let promise;
-      let filepath = theta.File.evaluate();
-      if (!path.isAbsolute(filepath) && workingDirectory !== '') {
-        // work path from the current working directory given
-        filepath = path.resolve(workingDirectory, filepath);
-      }
-      if (theta.Id === undefined || !(theta.Id instanceof Functor)) {
-        promise = this.consultFile(filepath);
-      } else {
-        promise = this.consultFile(filepath, theta.Id.evaluate());
-      }
-
-      return promise
-        .then((loadedProgram) => {
-          // recursively process consult declarations in loaded targetProgram
-          // also pass in the working directory from this loaded file
-          return processConsultDeclarations
-            .call(this, loadedProgram, path.dirname(filepath));
-        });
-    };
-
     result.forEach((r) => {
       if (r.theta.File === undefined) {
         return;
@@ -147,32 +168,14 @@ function Consult(engine, targetProgram) {
           let theta = {};
           theta.File = new Functor(file, []);
           theta.Id = r.theta.Id;
-          promises.push(handleEntry(theta));
+          promises.push(handleConsultEntry(theta, this));
         });
         return;
       }
-      promises.push(handleEntry(r.theta));
+      promises.push(handleConsultEntry(r.theta, this));
     });
 
-    let moduleResult = currentProgram.query(loadModuleLiteral, engine);
-    moduleResult.forEach((r) => {
-      if (r.theta.Module === undefined) {
-        return;
-      }
-      let moduleArg = r.theta.Module.evaluate();
-      let builtinIndex = builtinModules.indexOf(moduleArg);
-
-      if (builtinIndex !== -1) {
-        let moduleName = builtinModules[builtinIndex];
-        let module = lpsRequire(`${builtinModulePath}/${moduleName}`);
-        module(engine, targetProgram);
-        return;
-      }
-      let pathname = path.resolve(workingDirectory, moduleArg);
-      let module = require(pathname);
-      module(engine, targetProgram);
-    });
-
+    processLoadModules(currentProgram, targetProgram, engine);
     return Promise.all(promises);
   };
 
@@ -182,13 +185,13 @@ function Consult(engine, targetProgram) {
   };
 }
 
-Consult.processDeclarations = function processDeclarations(
+ConsultProcessor.processDeclarations = function processDeclarations(
   engine,
   program,
   workingDirectory
 ) {
-  let consult = new Consult(engine, program);
+  let consult = new ConsultProcessor(engine, program);
   return consult.process(workingDirectory);
 };
 
-module.exports = Consult;
+module.exports = ConsultProcessor;
