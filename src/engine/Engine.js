@@ -517,6 +517,21 @@ function Engine(programArg) {
     return _maxTime;
   };
 
+  this.setMaxTime = function setMaxTime(newMaxTime) {
+    if (_isRunning) {
+      throw stringLiterals.error(
+        'engine.updatingParametersWhileRunning',
+        'max cycle time'
+      );
+    }
+    if (newMaxTime <= 0
+        || !Number.isInteger(newMaxTime)) {
+      throw stringLiterals.error('engine.nonPositiveIntegerMaxTime', newMaxTime);
+    }
+
+    _maxTime = newMaxTime;
+  }
+
   this.isInCycle = function isInCycle() {
     return _isInCycle;
   };
