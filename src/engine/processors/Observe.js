@@ -9,12 +9,8 @@ const stringLiterals = lpsRequire('utility/strings');
 
 const observeLiteral = ProgramFactory.literal('observe(O, ST, ET)');
 
-function Observe() {
-
-}
-
 // eslint-disable-next-line no-unused-vars
-Observe.processDeclarations = function processDeclarations(engine, program) {
+function observeProcessor(engine, program) {
   let result = engine.query(observeLiteral);
   result.forEach((r) => {
     if (r.theta.O === undefined
@@ -52,6 +48,6 @@ Observe.processDeclarations = function processDeclarations(engine, program) {
     }
     engine.scheduleObservation(observation, sTime, eTime);
   });
-};
+}
 
-module.exports = Observe;
+module.exports = observeProcessor;

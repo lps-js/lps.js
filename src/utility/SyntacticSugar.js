@@ -7,11 +7,11 @@ const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');
 const Value = lpsRequire('engine/Value');
 
-function SyntacticSugarProcessor() {
+function SyntacticSugar() {
 
 }
 
-SyntacticSugarProcessor.shorthand = function shorthand(termArg) {
+SyntacticSugar.shorthand = function shorthand(termArg) {
   let term = termArg;
   if (term instanceof Functor && term.getId() === '//2') {
     let termArguments = term.getArguments();
@@ -30,4 +30,4 @@ SyntacticSugarProcessor.shorthand = function shorthand(termArg) {
   return term;
 };
 
-module.exports = SyntacticSugarProcessor;
+module.exports = SyntacticSugar;

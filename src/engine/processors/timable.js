@@ -6,7 +6,7 @@
 const Clause = lpsRequire('engine/Clause');
 const createLiteralTimingMapper = lpsRequire('utility/createLiteralTimingMapper');
 
-const TimableProcessor = function TimableProcessor(engine, program) {
+const timableProcessor = function timableProcessor(engine, program) {
   let timableMapper = createLiteralTimingMapper(program);
 
   let rules = program.getRules();
@@ -32,4 +32,4 @@ const TimableProcessor = function TimableProcessor(engine, program) {
   program.setClauses(clauses);
 };
 
-module.exports = TimableProcessor;
+module.exports = timableProcessor;

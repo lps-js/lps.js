@@ -15,14 +15,15 @@ const processRules = lpsRequire('utility/processRules');
 const compactTheta = lpsRequire('utility/compactTheta');
 const EventManager = lpsRequire('utility/observer/Manager');
 const constraintCheck = lpsRequire('utility/constraintCheck');
-const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
-const SyntacticSugarProcessor = lpsRequire('engine/processors/SyntacticSugarProcessor');
-const Consult = lpsRequire('engine/processors/Consult');
-const ObserveDeclarationProcessor = lpsRequire('engine/processors/Observe');
-const rulePreProcessor = lpsRequire('engine/processors/RulePreProcessor');
-const TimableProcessor = lpsRequire('engine/processors/TimableProcessor');
+const SyntacticSugar = lpsRequire('utility/SyntacticSugar');
 const stringLiterals = lpsRequire('utility/strings');
 const evaluateGoalTrees = lpsRequire('utility/evaluateGoalTrees');
+
+const builtinProcessor = lpsRequire('engine/builtin/builtin');
+const consultProcessor = lpsRequire('engine/processors/consult');
+const observeProcessor = lpsRequire('engine/processors/observe');
+const ruleAntecedentProcessor = lpsRequire('engine/processors/ruleAntecedent');
+const timableProcessor = lpsRequire('engine/processors/timable');
 
 function Engine(programArg) {
   let _program = programArg;
@@ -102,7 +103,7 @@ function Engine(programArg) {
         return;
       }
 
-      let fluent = SyntacticSugarProcessor.shorthand(r.theta.X);
+      let fluent = SyntacticSugar.shorthand(r.theta.X);
       _program.defineFluent(fluent);
     });
   };
@@ -113,7 +114,7 @@ function Engine(programArg) {
       if (r.theta.X === undefined) {
         return;
       }
-      let literal = SyntacticSugarProcessor.shorthand(r.theta.X);
+      let literal = SyntacticSugar.shorthand(r.theta.X);
       _program.defineAction(literal);
     });
   };
@@ -124,7 +125,7 @@ function Engine(programArg) {
       if (r.theta.X === undefined) {
         return;
       }
-      let literal = SyntacticSugarProcessor.shorthand(r.theta.X);
+      let literal = SyntacticSugar.shorthand(r.theta.X);
       _program.defineEvent(literal);
     });
   };
@@ -864,9 +865,9 @@ function Engine(programArg) {
     processActionDeclarations.call(this);
     processEventDeclarations.call(this);
     processInitialFluentDeclarations.call(this);
-    ObserveDeclarationProcessor.processDeclarations(this, _program);
-    rulePreProcessor(this, _program);
-    TimableProcessor(this, _program);
+    observeProcessor(this, _program);
+    timableProcessor(this, _program);
+    ruleAntecedentProcessor(this, _program);
 
     _engineEventManager.notify('ready', this);
   });
@@ -880,12 +881,10 @@ function Engine(programArg) {
     let coreModule = require('./modules/core');
     coreModule(this, _program);
 
-    return BuiltinLoader
-      .load(this, _program)
+    return builtinProcessor(this, _program)
       .then(() => {
         // start processing consult/1, consult/2 and loadModule/1 declarations in main program
-        let consult = new Consult(this, _program);
-        return consult.process();
+        return consultProcessor(this, _program);
       })
       .then(() => {
         _engineEventManager.notify('loaded', this);

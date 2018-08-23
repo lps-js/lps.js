@@ -8,8 +8,8 @@ const Engine = lpsRequire('engine/Engine');
 const Value = lpsRequire('engine/Value');
 const Functor = lpsRequire('engine/Functor');
 const Variable = lpsRequire('engine/Variable');
-const BuiltinLoader = lpsRequire('engine/builtin/BuiltinLoader');
-const ObserveDeclarationProcessor = lpsRequire('engine/processors/Observe');
+const builtinProcessor = lpsRequire('engine/builtin/builtin');
+const observeProcessor = lpsRequire('engine/processors/observe');
 const stringLiterals = lpsRequire('utility/strings');
 const coreModule = lpsRequire('engine/modules/core');
 
@@ -187,10 +187,10 @@ function Tester(engine) {
         testEngine = new Engine(program);
         coreModule(testEngine, program);
 
-        return BuiltinLoader.load(testEngine, program);
+        return builtinProcessor(testEngine, program);
       })
       .then(() => {
-        ObserveDeclarationProcessor.processDeclarations(testEngine, program);
+        observeProcessor(testEngine, program);
         processTypeOneExpectations(program);
         processTypeTwoExpectations(program);
         processTypeThreeExpectations(program);

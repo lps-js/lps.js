@@ -2,9 +2,9 @@
   This file is part of the lps.js project, released open source under
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
-
-const Consult = lpsRequire('engine/processors/Consult');
 const Program = lpsRequire('engine/Program');
+const Value = lpsRequire('engine/Value');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const path = require('path');
 
 const builtinFiles = [
@@ -13,14 +13,11 @@ const builtinFiles = [
   'list'
 ];
 
-// loads a set of built-in clauses
-let loadBuiltinFiles = function loadBuiltinFiles(engine, program) {
-  let loadingPromises = [];
+const consultTerm = ProgramFactory.literal('consult(File)');
 
-  let consultProcessor;
-  if (!process.browser) {
-    consultProcessor = new Consult(engine, program);
-  }
+// loads a set of built-in clauses
+function builtinProcessor(engine, program) {
+  let loadingPromises = [];
 
   let loadFile = (filename) => {
     let promise;
@@ -33,7 +30,12 @@ let loadBuiltinFiles = function loadBuiltinFiles(engine, program) {
         });
     } else {
       let filepath = path.join(__dirname, filename + '.lps');
-      promise = consultProcessor.consultFile(filepath);
+      let theta = {
+        'File': new Value(filepath)
+      };
+      program.getFacts()
+        .add(consultTerm.substitute(theta));
+      promise = Promise.resolve();
     }
     loadingPromises.push(promise);
   };
@@ -41,13 +43,6 @@ let loadBuiltinFiles = function loadBuiltinFiles(engine, program) {
   builtinFiles.forEach(loadFile);
 
   return Promise.all(loadingPromises);
-};
-
-function BuiltinLoader() {
 }
 
-BuiltinLoader.load = function load(engine, program) {
-  return loadBuiltinFiles(engine, program);
-};
-
-module.exports = BuiltinLoader;
+module.exports = builtinProcessor;

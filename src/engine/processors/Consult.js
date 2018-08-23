@@ -64,9 +64,14 @@ const processLoadModules = function processLoadModules(currentProgram, targetPro
   });
 };
 
-const handleConsultEntry = function handleConsultEntry(theta, consult) {
-  if (!(theta.File instanceof Functor)) {
-    return Promise.reject(new Error('Consult file not value'));
+const handleConsultEntry = function handleConsultEntry(
+  theta,
+  consultFile,
+  processConsultDeclarations
+) {
+  if (!(theta.File instanceof Functor && theta.File.getArgumentCount() === 0)
+      && !(theta.File instanceof Value)) {
+    return Promise.reject(new Error('Consult file not value: ' + theta.File));
   }
   let promise;
   let filepath = theta.File.evaluate();
@@ -75,21 +80,20 @@ const handleConsultEntry = function handleConsultEntry(theta, consult) {
     filepath = path.resolve(workingDirectory, filepath);
   }
   if (theta.Id === undefined || !(theta.Id instanceof Functor)) {
-    promise = consult.consultFile(filepath);
+    promise = consultFile(filepath);
   } else {
-    promise = consult.consultFile(filepath, theta.Id.evaluate());
+    promise = consultFile(filepath, theta.Id.evaluate());
   }
 
   return promise
     .then((loadedProgram) => {
       // recursively process consult declarations in loaded targetProgram
       // also pass in the working directory from this loaded file
-      return processConsultDeclarations
-        .call(consult, loadedProgram, path.dirname(filepath));
+      return processConsultDeclarations(loadedProgram, path.dirname(filepath));
     });
 };
 
-function ConsultProcessor(engine, targetProgram) {
+function consultProcessor(engine, targetProgram) {
   let createReplacementFunc = function createReplacementFunc(set, treeMap) {
     return (statement) => {
       let bodyLiterals = statement.getBodyLiterals();
@@ -134,7 +138,7 @@ function ConsultProcessor(engine, targetProgram) {
     program.setConstraints(newConstraints);
   };
 
-  this.consultFile = function consultFile(file, id) {
+  const consultFile = function consultFile(file, id) {
     return ProgramFactory.fromFile(file)
       .then((loadedProgram) => {
         if (id !== undefined) {
@@ -168,30 +172,18 @@ function ConsultProcessor(engine, targetProgram) {
           let theta = {};
           theta.File = new Functor(file, []);
           theta.Id = r.theta.Id;
-          promises.push(handleConsultEntry(theta, this));
+          promises.push(handleConsultEntry(theta, consultFile, processConsultDeclarations));
         });
         return;
       }
-      promises.push(handleConsultEntry(r.theta, this));
+      promises.push(handleConsultEntry(r.theta, consultFile, processConsultDeclarations));
     });
 
     processLoadModules(currentProgram, targetProgram, engine);
     return Promise.all(promises);
   };
 
-  this.process = function process() {
-    return processConsultDeclarations
-      .call(this, targetProgram, targetProgram.getWorkingDirectory());
-  };
+  return processConsultDeclarations(targetProgram, targetProgram.getWorkingDirectory());
 }
 
-ConsultProcessor.processDeclarations = function processDeclarations(
-  engine,
-  program,
-  workingDirectory
-) {
-  let consult = new ConsultProcessor(engine, program);
-  return consult.process(workingDirectory);
-};
-
-module.exports = ConsultProcessor;
+module.exports = consultProcessor;

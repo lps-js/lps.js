@@ -8,7 +8,7 @@ const Variable = lpsRequire('engine/Variable');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const expandRuleAntecedent = lpsRequire('utility/expandRuleAntecedent');
 
-let rulePreProcessor = function rulePreProcessor(engine, program) {
+let ruleAntecedentProcessor = function ruleAntecedentProcessor(engine, program) {
   let newRules = [];
   let rules = program.getRules();
 
@@ -84,4 +84,4 @@ let rulePreProcessor = function rulePreProcessor(engine, program) {
   program.setRules(newRules);
 };
 
-module.exports = rulePreProcessor;
+module.exports = ruleAntecedentProcessor;
