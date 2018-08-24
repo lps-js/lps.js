@@ -2,7 +2,14 @@ const lpsRequire = require('../src/lpsRequire');
 const Lexer = lpsRequire('parser/Lexer');
 const TokenTypes = lpsRequire('parser/TokenTypes');
 
-module.exports = function(source, map, meta) {
+/**
+ * The LPS minification loader for webpack.
+ * Removes not-needed whitespace to reduce bytes for browser bundling
+ * @param  {string} source The initial source loaded
+ * @return {string}        Returns the resulting output for loading LPS file.
+ */
+module.exports = function(source) {
+  // tokenize the file, then reconstruct without the whitespace
   let lexer = new Lexer(source);
 
   let currentToken = lexer.get();
