@@ -3,15 +3,12 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const Functor = lpsRequire('engine/Functor');
-const List = lpsRequire('engine/List');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
 
 const processRules = lpsRequire('utility/processRules');
-const compactTheta = lpsRequire('utility/compactTheta');
 const EventManager = lpsRequire('utility/observer/Manager');
 const constraintCheck = lpsRequire('utility/constraintCheck');
 const stringLiterals = lpsRequire('utility/strings');
@@ -73,7 +70,7 @@ function Engine(programArg) {
     }
     let cloneProgram = _program.clone();
 
-    cloneProgram.setExecutedActions(new LiteralTreeMap());
+    cloneProgram.setExecutedActions(activeObservations);
 
     // process observations
     _observations[_currentTime].forEach((ob) => {
@@ -82,8 +79,7 @@ function Engine(programArg) {
       let tempTreeMap = new LiteralTreeMap();
       tempTreeMap.add(action);
 
-      cloneProgram.getExecutedActions()
-        .add(action);
+      activeObservations.add(action);
 
       let postCloneProgram = cloneProgram.clone();
       let postState = postCloneProgram.getState();
@@ -92,14 +88,10 @@ function Engine(programArg) {
       postCloneProgram.setState(postState);
 
       // only perform pre-checks
-      if (checkConstraintSatisfaction.call(this, cloneProgram)) {
-        if (checkConstraintSatisfaction.call(this, postCloneProgram)) {
-          activeObservations.add(action);
-        }
-      } else {
+      if (!checkConstraintSatisfaction.call(this, cloneProgram) ||
+          !checkConstraintSatisfaction.call(this, postCloneProgram)) {
         // reject incoming observation
-        cloneProgram.getExecutedActions()
-          .remove(action);
+        activeObservations.remove(action);
 
         // notify
         _engineEventManager.notify('warning', {

@@ -3,7 +3,6 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Functor = lpsRequire('engine/Functor');
 const List = lpsRequire('engine/List');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
