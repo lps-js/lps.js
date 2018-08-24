@@ -325,6 +325,9 @@ function Engine(programArg) {
   };
 
   this.setCycleInterval = function setCycleInterval(newCycleInterval) {
+    if (_isRunning) {
+      throw stringLiterals.error('engine.updatingParametersWhileRunning', 'cycle interval');
+    }
     if (typeof newCycleInterval !== 'number') {
       throw stringLiterals.error(
         'engine.parameterInvalidType',
@@ -338,9 +341,6 @@ function Engine(programArg) {
         || !Number.isInteger(newCycleInterval)) {
       throw stringLiterals.error('engine.nonPositiveIntegerCycleInterval', newCycleInterval);
     }
-    if (_isRunning) {
-      throw stringLiterals.error('engine.updatingParametersWhileRunning', 'cycle interval');
-    }
     _cycleInterval = newCycleInterval;
   };
 
@@ -349,6 +349,12 @@ function Engine(programArg) {
   };
 
   this.setContinuousExecution = function setContinuousExecution(val) {
+    if (_isRunning) {
+      throw stringLiterals.error(
+        'engine.updatingParametersWhileRunning',
+        'continuous execution mode'
+      );
+    }
     if (typeof val !== 'boolean') {
       throw stringLiterals.error(
         'engine.parameterInvalidType',
@@ -356,12 +362,6 @@ function Engine(programArg) {
         'Engine.setContinuousExecution',
         'boolean',
         typeof val
-      );
-    }
-    if (_isRunning) {
-      throw stringLiterals.error(
-        'engine.updatingParametersWhileRunning',
-        'continuous execution mode'
       );
     }
     _isContinuousExecution = val;
