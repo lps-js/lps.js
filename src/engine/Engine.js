@@ -237,18 +237,16 @@ function Engine(programArg) {
           });
         });
 
+        // update state for next cycle
         updatedState = updateStateWithFluentActors(this, executedActions, updatedState);
         _program.setExecutedActions(executedActions);
-
-        // reset statistics
-        _numLastCycleFailedRules = 0;
-        _numLastCycleResolvedRules = 0;
 
         let promise = Promise.resolve([]);
         let newFiredGoals = [];
         if (_currentTime > 0) {
           // skip pre-processing in cycle 0 to 1.
           newFiredGoals = processRules(this, _program, _goals, _currentTime);
+          _profiler.increaseBy('lastCycleNumFiredRules', newFiredGoals.length);
           _goals = _goals.concat(newFiredGoals);
           promise = evaluateGoalTrees(_currentTime, _goals);
         }
@@ -266,6 +264,7 @@ function Engine(programArg) {
             // build goal clauses for each rule
             // we need to derive the partially executed rule here too
             newFiredGoals = processRules(this, _program, _goals, _currentTime);
+            _profiler.increaseBy('lastCycleNumFiredRules', newFiredGoals.length);
             _goals = _goals.concat(newFiredGoals);
             return evaluateGoalTrees(_currentTime, _goals);
           })
@@ -278,6 +277,10 @@ function Engine(programArg) {
             return Promise.resolve();
           });
       });
+  };
+
+  this.getProfiler = function getProfiler() {
+    return _profiler;
   };
 
   this.getCurrentTime = function getCurrentTime() {
@@ -450,6 +453,7 @@ function Engine(programArg) {
       return Promise.resolve();
     }
     _engineEventManager.notify('preCycle', this);
+    _profiler.set('lastCycleNumFiredRules', 0);
     _isInCycle = true;
     let startTime = Date.now();
     return performCycle.call(this)
@@ -650,6 +654,9 @@ function Engine(programArg) {
         return Promise.resolve(this);
       });
   };
+
+
+  _profiler.set('numPaused', 0);
 }
 
 module.exports = Engine;

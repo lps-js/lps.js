@@ -52,6 +52,7 @@ function Tester(engine) {
   let expectations = {};
   let timelessExpectations = [];
   let numCyclesExpectations = [];
+  let profiler = engine.getProfiler();
 
   let checkAndCreateExpectation = function checkAndCreateExpectation(time) {
     if (expectations[time] === undefined) {
@@ -245,13 +246,13 @@ function Tester(engine) {
               let testNumber = 0;
               switch (entry.type) {
                 case 'fluent':
-                  testNumber = engine.getNumActiveFluents();
+                  testNumber = profiler.get('numState');
                   break;
                 case 'action':
-                  testNumber = engine.getNumLastCycleActions();
+                  testNumber = profiler.get('lastCycleNumActions');
                   break;
                 case 'observation':
-                  testNumber = engine.getNumLastCycleObservations();
+                  testNumber = profiler.get('lastCycleNumObservations');
                   break;
                 default:
                   errors.push('Invalid number of type "' + entry.type + '" encountered.');
