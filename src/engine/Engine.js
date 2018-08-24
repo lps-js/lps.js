@@ -248,7 +248,7 @@ function Engine(programArg) {
           newFiredGoals = processRules(this, _program, _goals, _currentTime);
           _profiler.increaseBy('lastCycleNumFiredRules', newFiredGoals.length);
           _goals = _goals.concat(newFiredGoals);
-          promise = evaluateGoalTrees(_currentTime, _goals);
+          promise = evaluateGoalTrees(_currentTime, _goals, _profiler);
         }
 
         return promise
@@ -266,7 +266,7 @@ function Engine(programArg) {
             newFiredGoals = processRules(this, _program, _goals, _currentTime);
             _profiler.increaseBy('lastCycleNumFiredRules', newFiredGoals.length);
             _goals = _goals.concat(newFiredGoals);
-            return evaluateGoalTrees(_currentTime, _goals);
+            return evaluateGoalTrees(_currentTime, _goals, _profiler);
           })
           .then((newGoals) => {
             _goals = newGoals;
@@ -454,6 +454,8 @@ function Engine(programArg) {
     }
     _engineEventManager.notify('preCycle', this);
     _profiler.set('lastCycleNumFiredRules', 0);
+    _profiler.set('lastCycleNumFailedGoal', 0);
+    _profiler.set('lastCycleNumResolvedGoal', 0);
     _isInCycle = true;
     let startTime = Date.now();
     return performCycle.call(this)

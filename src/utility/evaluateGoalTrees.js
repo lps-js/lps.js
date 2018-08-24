@@ -6,7 +6,7 @@
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 const goalTreeSorter = lpsRequire('utility/goalTreeSorter');
 
-module.exports = function evaluateGoalTrees(currentTime, goalTrees) {
+module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler) {
   let goalTreeProcessingPromises = [];
   let newGoals = [];
   let processedNodes = new ConjunctionMap();
@@ -16,11 +16,15 @@ module.exports = function evaluateGoalTrees(currentTime, goalTrees) {
       .then((evaluationResult) => {
         if (evaluationResult === null) {
           // goal tree failed
+          profiler.increment('lastCycleNumFailedGoal');
+          profiler.increment('totalNumFailedGoal');
           return Promise.resolve();
         }
 
         // goal tree has been resolved
         if (evaluationResult.length > 0) {
+          profiler.increment('lastCycleNumResolvedGoal');
+          profiler.increment('totalNumResolvedGoal');
           return Promise.resolve();
         }
 
