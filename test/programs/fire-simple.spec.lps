@@ -4,6 +4,9 @@ expect_num_of(fluent, 1, 1).
 expect_num_of(action, 1, 0).
 expect(fluent, 1, fire).
 
+expect_num_of(firedRules,  1, 1).
+expect_num_of(firedRules,  2, _, 0).
+
 expect_num_of(fluent, 2, 0).
 expect_num_of(action, 2, 1).
 expect(action, 1, 2, eliminate).
