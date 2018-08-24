@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'production',
@@ -18,6 +19,9 @@ module.exports = {
       { test: /\.lps/, use: 'lps-min-loader' }
     ]
   },
+  plugins: [
+    new webpack.IgnorePlugin(/(modules\/(p2p|fs))/)
+  ],
   node: {
     fs: 'empty',
     net: 'empty'
