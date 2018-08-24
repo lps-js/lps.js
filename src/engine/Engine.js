@@ -204,7 +204,7 @@ function Engine(programArg) {
     Perform Cycle
   */
   const performCycle = function performCycle() {
-    let updatedState = _program.getState().clone();;
+    let updatedState = _program.getState().clone();
 
     // update with observations
     // observation needs to take precedence in processing over
