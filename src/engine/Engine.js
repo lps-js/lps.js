@@ -47,10 +47,6 @@ function Engine(programArg) {
 
   let _currentTime = 0;
 
-  let _numLastCycleFiredRules = 0;
-  let _numLastCycleResolvedRules = 0;
-  let _numLastCycleFailedRules = 0;
-
   let _lastCycleActions = null;
   let _lastCycleObservations = null;
 
