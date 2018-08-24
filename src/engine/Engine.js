@@ -204,12 +204,7 @@ function Engine(programArg) {
     Perform Cycle
   */
   const performCycle = function performCycle() {
-    let updatedState = new LiteralTreeMap();
-    _program
-      .getState()
-      .forEach((literal) => {
-        updatedState.add(literal);
-      });
+    let updatedState = _program.getState().clone();;
 
     // update with observations
     // observation needs to take precedence in processing over
