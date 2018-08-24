@@ -454,7 +454,7 @@ function GoalNode(engine, program, conjunctsArg, theta) {
   };
 }
 
-function GoalTree(engine, program, goalClause) {
+function GoalTree(engine, program, goalClause, birthTimestamp) {
   let _root;
   if (goalClause instanceof GoalNode) {
     _root = goalClause;
@@ -571,7 +571,10 @@ function GoalTree(engine, program, goalClause) {
       };
     };
 
-    return JSON.stringify(processNode(_root));
+    return JSON.stringify({
+      birth: birthTimestamp,
+      root: processNode(_root)
+    });
   };
 }
 

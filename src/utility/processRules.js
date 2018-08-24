@@ -11,12 +11,13 @@ const Functor = lpsRequire('engine/Functor');
 const Timable = lpsRequire('engine/Timable');
 const Resolutor = lpsRequire('engine/Resolutor');
 
-module.exports = function processRules(engine, program, goals, currentTime) {
+module.exports = function processRules(engine, program, state, goals, currentTime) {
   let rules = program.getRules();
   let newGoals = [];
 
   const containsTimables = function containsTimables(rule) {
     let firstConjunct = rule.getBodyLiterals()[0];
+    // unfold negation
     while (firstConjunct instanceof Functor
         && firstConjunct.getId() === '!/1') {
       firstConjunct = firstConjunct.getArguments()[0];
@@ -31,7 +32,7 @@ module.exports = function processRules(engine, program, goals, currentTime) {
   };
 
   const fireRule = function fireRule(consequent) {
-    newGoals.push(new GoalTree(engine, program, consequent));
+    newGoals.push(new GoalTree(engine, program, consequent, currentTime));
   };
 
   let newRules = [];
@@ -44,7 +45,7 @@ module.exports = function processRules(engine, program, goals, currentTime) {
       // preserve a rule if it has timeable in its antecedent
       newRules.push(rule);
     }
-    let resolutions = Resolutor.reduceRuleAntecedent(engine, program, rule, currentTime);
+    let resolutions = Resolutor.reduceRuleAntecedent(engine, state, rule, currentTime);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
