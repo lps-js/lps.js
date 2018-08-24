@@ -3,6 +3,7 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
+const lpsRequire = require('../lpsRequire');
 const Clause = lpsRequire('engine/Clause');
 const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const GoalTree = lpsRequire('engine/GoalTree');

@@ -3,6 +3,7 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
+const lpsRequire = require('../lpsRequire');
 const Lexer = lpsRequire('parser/Lexer');
 const AstNode = lpsRequire('parser/AstNode');
 const NodeTypes = lpsRequire('parser/NodeTypes');

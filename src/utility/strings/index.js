@@ -12,7 +12,7 @@ const formattable = function (strArg, replacements) {
   return str;
 };
 
-const messages = lpsRequire('utility/strings/store.json');
+const messages = require('./store.json');
 
 const invalidPathMessage = 'Invalid path for string literal retrival';
 const nonStringLiteralPositionMessage = 'String literal retrival: Path does not point to a string';

@@ -3,6 +3,7 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
+const lpsRequire = require('../lpsRequire');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
@@ -395,18 +396,6 @@ function Engine(programArg) {
     _program.getState()
       .forEach(forEachToString(fluents));
     return fluents;
-  };
-
-  this.getNumLastCycleFiredRules = function getNumLastCycleFiredRules() {
-    return _numLastCycleFiredRules;
-  };
-
-  this.getNumLastCycleResolvedRules = function getNumLastCycleResolvedRules() {
-    return _numLastCycleResolvedRules;
-  };
-
-  this.getNumLastCycleFailedRules = function getNumLastCycleFailedRules() {
-    return _numLastCycleFailedRules;
   };
 
   this.query = function query(literalArg, type) {

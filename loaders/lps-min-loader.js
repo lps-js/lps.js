@@ -1,4 +1,4 @@
-require('../src/LPS');
+const lpsRequire = require('../src/lpsRequire');
 const Lexer = lpsRequire('parser/Lexer');
 const TokenTypes = lpsRequire('parser/TokenTypes');
 

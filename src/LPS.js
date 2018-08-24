@@ -5,11 +5,7 @@
 
 const path = require('path');
 
-global.lpsRequire = (name) => {
-  // let pathname = path.join(__dirname, name);
-  return require(`${__dirname}/${name}`);
-};
-
+const lpsRequire = require('./lpsRequire');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const Engine = lpsRequire('engine/Engine');
 const Value = lpsRequire('engine/Value');
