@@ -21,7 +21,7 @@ const numComparatorProcessor = function numComparatorProcessor(actual, expectedA
   }
 
   if (!(expected instanceof Functor) || expected.getArgumentCount() < 1) {
-    throw new Error('Invalid value given for comparator ' + expected);
+    throw stringLiterals.error('tester.invalidValueForExpectedNumOf', expected);
   }
 
   switch (expected.getId()) {
@@ -44,18 +44,18 @@ const numComparatorProcessor = function numComparatorProcessor(actual, expectedA
       return expected.getArguments()[0].evaluate() <= actual
         && actual <= expected.getArguments()[1].evaluate();
     default:
-      throw new Error('Unknown comparator given ' + expected);
+      throw stringLiterals.error('tester.unknownComparator', expected);
   }
 };
 
 const numericExpectationMap = {
-  'fluent': 'numState',
-  'action': 'lastCycleNumActions',
-  'observation': 'lastCycleNumObservations',
-  'firedRule': 'lastCycleNumFiredRules',
-  'failedGoal': 'lastCycleNumFailedGoal',
-  'resolvedGoal': 'lastCycleNumResolvedGoal',
-  'unresolvedGoal': 'lastCycleNumUnresolvedGoals'
+  fluent: 'numState',
+  action: 'lastCycleNumActions',
+  observation: 'lastCycleNumObservations',
+  firedRule: 'lastCycleNumFiredRules',
+  failedGoal: 'lastCycleNumFailedGoal',
+  resolvedGoal: 'lastCycleNumResolvedGoal',
+  unresolvedGoal: 'lastCycleNumUnresolvedGoals'
 };
 
 function Tester(engine) {
@@ -249,23 +249,35 @@ function Tester(engine) {
               let qResult = engine.query(entry.literal, entry.type);
               testResult = qResult.length > 0;
               if (!testResult) {
-                errors.push('Expecting ' + entry.type + ' "' + entry.literal + '" at time ' + engineTime);
+                errors.push(stringLiterals(
+                  'tester.expectCycleQuery',
+                  entry.type,
+                  entry.literal,
+                  engineTime
+                ));
               }
             }
             if (entry.num_of !== undefined) {
               let testNumber = 0;
+              let pluralToSingularForm = entry.type.substring(0, entry.type.length - 1);
               if (numericExpectationMap[entry.type] !== undefined) {
                 testNumber = profiler.get(numericExpectationMap[entry.type]);
-              } else if (numericExpectationMap[entry.type.substring(0, entry.type.length - 1)] !== undefined) {
+              } else if (numericExpectationMap[pluralToSingularForm] !== undefined) {
                 // plural form
-                  testNumber = profiler.get(numericExpectationMap[entry.type.substring(0, entry.type.length - 1)]);
+                testNumber = profiler.get(numericExpectationMap[pluralToSingularForm]);
               } else {
-                errors.push('Invalid number of type "' + entry.type + '" encountered.');
+                errors.push(stringLiterals('tester.invalidExpectationType', entry.type));
                 return;
               }
               testResult = numComparatorProcessor(testNumber, entry.num_of);
               if (!testResult) {
-                errors.push('Expecting number of ' + entry.type + ' at time ' + engineTime + ' to be ' + entry.num_of + ', program has ' + testNumber);
+                errors.push(stringLiterals(
+                  'expectNumOf',
+                  entry.type,
+                  engineTime,
+                  entry.num_of,
+                  testNumber
+                ));
               }
             }
             if (testResult) {
@@ -288,10 +300,14 @@ function Tester(engine) {
             const nonExecutedExpectations = Object.keys(expectations);
             if (nonExecutedExpectations.length > 0) {
               totalExpectations += 1;
-              errors.push(nonExecutedExpectations.length + ' expectation cycles not executed');
-              nonExecutedExpectations.forEach((key) => {
-                errors.push('Expectations for cycle ' + key + ' were not executed');
-              });
+              errors.push(stringLiterals(
+                'tester.numNonExecutedExpectationCycles',
+                nonExecutedExpectations.length
+              ));
+              errors.push(stringLiterals(
+                'tester.nonExecutedExpectations',
+                nonExecutedExpectations.join(', ')
+              ));
             }
 
             let lastCycleTime = engine.getCurrentTime();
@@ -300,11 +316,7 @@ function Tester(engine) {
               if (numComparatorProcessor(lastCycleTime, expectation)) {
                 passedExpectations += 1;
               } else {
-                errors.push('Expecting number of cycles executed to be '
-                  + expectation
-                  + ', program executed '
-                  + lastCycleTime
-                  + ' cycles');
+                errors.push(stringLiterals('tester.expectNumCycles', expectation, lastCycleTime));
               }
             });
 

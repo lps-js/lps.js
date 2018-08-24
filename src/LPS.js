@@ -15,7 +15,7 @@ const Engine = lpsRequire('engine/Engine');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const Functor = lpsRequire('engine/Functor');
-const Tester = lpsRequire('engine/test/Tester');
+const Tester = lpsRequire('engine/tester/Tester');
 const List = lpsRequire('engine/List');
 const stringLiterals = lpsRequire('utility/strings');
 

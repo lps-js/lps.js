@@ -48,7 +48,15 @@
   },
   
   "tester": {
-    "testWhileRunning": "Cannot start tests for LPS program after execution has started."
+    "testWhileRunning": "Cannot start tests for LPS program after execution has started.",
+    "invalidValueForExpectedNumOf": "Invalid value given for comparison: value must be a number or a special comparison predicate. %s was given.",
+    "unknownComparator": "Unknown special comparison predicate given: %s",
+    "expectCycleQuery" : "Expecting %s '%s' at time %s.",
+    "invalidExpectationType": "Invalid expectation type given: %s",
+    "expectNumOf": "Expecting number of %s at time %s to be %s, program has %s.",
+    "nonExecutedExpectations": "Expectations for cycle(s) %s not executed.",
+    "numNonExecutedExpectationCycles": "Program ended early: %s expectation cycles were not executed.",
+    "expectNumCycles": "Expecting %s cycles to be executed in total, program executed only %s cycles."
   },
   
   "engine": {

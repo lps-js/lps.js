@@ -1,5 +1,5 @@
 const LPS = lpsRequire('LPS');
-const Tester = lpsRequire('engine/test/Tester');
+const Tester = lpsRequire('engine/tester/Tester');
 
 const path = require('path');
 const chai = require('chai');
