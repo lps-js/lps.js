@@ -233,18 +233,18 @@ function Engine(programArg) {
           });
         });
 
-        // update state for next cycle
-        updatedState = updateStateWithFluentActors(this, executedActions, updatedState);
-        _program.setExecutedActions(executedActions);
-
-        let promise = Promise.resolve([]);
+        let promise = Promise.resolve(_goals);
         let newFiredGoals = [];
+
         if (_currentTime > 0) {
-          // skip pre-processing in cycle 0 to 1.
-          newFiredGoals = processRules(this, _program, _goals, _currentTime);
+          let preState = [
+            _program.getFacts(),
+            _program.getExecutedActions()
+          ];
+          newFiredGoals = processRules(this, _program, preState, _goals, _currentTime);
           _profiler.increaseBy('lastCycleNumFiredRules', newFiredGoals.length);
           _goals = _goals.concat(newFiredGoals);
-          promise = evaluateGoalTrees(_currentTime, _goals, _profiler);
+          promise = evaluateGoalTrees(_currentTime, _goals, _profiler, 'actions');
         }
 
         return promise
@@ -253,16 +253,21 @@ function Engine(programArg) {
 
             // preparation for next cycle
             _currentTime += 1;
-
-            _program.setExecutedActions(new LiteralTreeMap());
+            updatedState = updateStateWithFluentActors(this, executedActions, updatedState);
             _program.setState(updatedState);
+            _program.setExecutedActions(new LiteralTreeMap())
+            // return Promise.resolve(_goals);
 
+            let postState = [
+              _program.getFacts(),
+              _program.getState()
+            ];
             // build goal clauses for each rule
             // we need to derive the partially executed rule here too
-            newFiredGoals = processRules(this, _program, _goals, _currentTime);
+            newFiredGoals = processRules(this, _program, postState, _goals, _currentTime);
             _profiler.increaseBy('lastCycleNumFiredRules', newFiredGoals.length);
             _goals = _goals.concat(newFiredGoals);
-            return evaluateGoalTrees(_currentTime, _goals, _profiler);
+            return evaluateGoalTrees(_currentTime, _goals, _profiler, 'state');
           })
           .then((newGoals) => {
             _goals = newGoals;
@@ -512,6 +517,7 @@ function Engine(programArg) {
     }
     _isRunning = true;
     _engineEventManager.notify('run', this);
+
     if (_isContinuousExecution) {
       _startContinuousExecution();
       return;

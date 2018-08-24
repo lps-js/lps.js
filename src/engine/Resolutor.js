@@ -5,6 +5,7 @@
 
 const lpsRequire = require('../lpsRequire');
 const Functor = lpsRequire('engine/Functor');
+const Timable = lpsRequire('engine/Timable');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const compactTheta = lpsRequire('utility/compactTheta');
 const sortTimables = lpsRequire('utility/sortTimables');
@@ -145,12 +146,12 @@ Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
   return result;
 };
 
-Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(engine, program, rule, forTime) {
-  let facts = [
-    program.getFacts(),
-    program.getState(),
-    program.getExecutedActions()
-  ];
+Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
+  engine,
+  state,
+  rule,
+  forTime
+) {
   let functorProvider = engine.getFunctorProvider();
 
   let recursiveResolution = function (result, remainingLiterals, theta, laterAntecedent) {
@@ -175,11 +176,11 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(engine, program, 
       if (functorProvider.has(l.getId())) {
         literalThetas = literalThetas.concat(functorProvider.execute(l));
       }
-      literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
+      literalThetas = literalThetas.concat(Resolutor.findUnifications(l, state));
     });
 
     if (literalThetas.length === 0) {
-      if (!program.isTimable(literal)) {
+      if (!(conjunct instanceof Timable)) {
         return;
       }
       result.push({

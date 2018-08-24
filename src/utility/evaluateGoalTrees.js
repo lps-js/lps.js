@@ -7,13 +7,13 @@ const lpsRequire = require('../lpsRequire');
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 const goalTreeSorter = lpsRequire('utility/goalTreeSorter');
 
-module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler) {
+module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler, mode) {
   let goalTreeProcessingPromises = [];
   let newGoals = [];
   let processedNodes = new ConjunctionMap();
   goalTrees.forEach((goalTree) => {
     let treePromise = goalTree
-      .evaluate(currentTime, processedNodes)
+      .evaluate(currentTime, processedNodes, mode)
       .then((evaluationResult) => {
         if (evaluationResult === null) {
           // goal tree failed

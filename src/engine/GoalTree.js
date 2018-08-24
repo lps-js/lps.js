@@ -25,7 +25,8 @@ let resolveStateConditions = function resolveStateConditions(
   engine,
   program,
   earlyConjuncts,
-  forTime
+  forTime,
+  mode
 ) {
   let nodes = [];
 
@@ -58,11 +59,22 @@ let resolveStateConditions = function resolveStateConditions(
     let goal = conjunct
       .getGoal()
       .substitute(thetaDelta);
+    let isConjunctAction = program.isAction(goal);
+    let isConjunctFluent = program.isFluent(goal);
 
     let otherConjuncts = remainingConjuncts.slice(1);
 
+    // console.log(mode);
+    // console.log(conjunct + ' - ' + isConjunctFluent);
+    if (mode === 'state' && isConjunctAction) {
+      return processConjuncts(
+        otherConjuncts,
+        residueConjuncts.concat([conjunct]),
+        thetaSoFar
+      );;
+    }
+
     let conjunctVariables = conjunct.getVariables();
-    let isConjunctAction = program.isAction(goal);
 
     let literalThetas = engine.query(goal);
 
@@ -303,7 +315,8 @@ function GoalNode(engine, program, conjunctsArg, theta) {
     forTime,
     leafNodes,
     evaluationQueue,
-    processedNodes
+    processedNodes,
+    mode
   ) {
     if (this.conjuncts.length === 0) {
       return [[this.theta]];
@@ -379,12 +392,13 @@ function GoalNode(engine, program, conjunctsArg, theta) {
     let isFirstConjunctUntimed = earlyConjuncts[0] instanceof Timable
       && earlyConjuncts[0].isAnytime();
 
-    if (!hasMacroExpansion) {
+    if (!hasMacroExpansion && !(mode === 'actions' && this.children.length > 0)) {
       let stateConditionResolutionResult = resolveStateConditions(
         engine,
         program,
         earlyConjuncts,
-        forTime
+        forTime,
+        mode
       );
       if (stateConditionResolutionResult === null
           && !isFirstConjunctUntimed) {
@@ -415,7 +429,8 @@ function GoalNode(engine, program, conjunctsArg, theta) {
         forTime,
         leafNodes,
         evaluationQueue,
-        processedNodes
+        processedNodes,
+        mode
       );
 
       if (result === null || result.length === 0) {
@@ -482,7 +497,7 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
     return _root.conjuncts.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(forTime, processedNodes) {
+  this.evaluate = function evaluate(forTime, processedNodes, mode) {
     return new Promise((resolve) => {
       if (_evaluateQueue.length === 0) {
         resolve(null);
@@ -500,7 +515,8 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
             forTime,
             _leafNodes,
             newEvaluateQueue,
-            processedNodes
+            processedNodes,
+            mode
           );
           if (nodeResult !== null && nodeResult.length !== 0) {
             result = nodeResult;
