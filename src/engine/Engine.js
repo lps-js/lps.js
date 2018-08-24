@@ -24,6 +24,12 @@ const ruleAntecedentProcessor = lpsRequire('engine/processors/ruleAntecedent');
 const settingsProcessor = lpsRequire('engine/processors/settings');
 const timableProcessor = lpsRequire('engine/processors/timable');
 
+const forEachToString = (arr) => {
+  return (item) => {
+    arr.push(item.toString());
+  };
+};
+
 function Engine(programArg) {
   let _program = programArg;
   let _maxTime = 20;
@@ -367,9 +373,7 @@ function Engine(programArg) {
     if (_lastCycleActions === null) {
       return actions;
     }
-    _lastCycleActions.forEach((action) => {
-      actions.push(action.toString());
-    });
+    _lastCycleActions.forEach(forEachToString(actions));
     return actions;
   };
 
@@ -378,27 +382,21 @@ function Engine(programArg) {
     if (_lastCycleObservations === null) {
       return observations;
     }
-    _lastCycleObservations.forEach((observation) => {
-      observations.push(observation.toString());
-    });
+    _lastCycleObservations.forEach(forEachToString(observations));
     return observations;
   };
 
   this.getTimelessFacts = function getTimelessFacts() {
     let facts = [];
     _program.getFacts()
-      .forEach((fact) => {
-        facts.push(fact.toString());
-      });
+      .forEach(forEachToString(facts));
     return facts;
   };
 
   this.getActiveFluents = function getActiveFluents() {
     let fluents = [];
     _program.getState()
-      .forEach((fluent) => {
-        fluents.push(fluent.toString());
-      });
+      .forEach(forEachToString(fluents));
     return fluents;
   };
 
