@@ -454,8 +454,8 @@ function Engine(programArg) {
     }
     _engineEventManager.notify('preCycle', this);
     _profiler.set('lastCycleNumFiredRules', 0);
-    _profiler.set('lastCycleNumFailedGoal', 0);
-    _profiler.set('lastCycleNumResolvedGoal', 0);
+    _profiler.set('lastCycleNumFailedGoals', 0);
+    _profiler.set('lastCycleNumResolvedGoals', 0);
     _isInCycle = true;
     let startTime = Date.now();
     return performCycle.call(this)

@@ -16,15 +16,15 @@ module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler) {
       .then((evaluationResult) => {
         if (evaluationResult === null) {
           // goal tree failed
-          profiler.increment('lastCycleNumFailedGoal');
-          profiler.increment('totalNumFailedGoal');
+          profiler.increment('lastCycleNumFailedGoals');
+          profiler.increment('totalNumFailedGoals');
           return Promise.resolve();
         }
 
         // goal tree has been resolved
         if (evaluationResult.length > 0) {
-          profiler.increment('lastCycleNumResolvedGoal');
-          profiler.increment('totalNumResolvedGoal');
+          profiler.increment('lastCycleNumResolvedGoals');
+          profiler.increment('totalNumResolvedGoals');
           return Promise.resolve();
         }
 

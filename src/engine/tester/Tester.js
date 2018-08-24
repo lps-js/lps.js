@@ -53,8 +53,8 @@ const numericExpectationMap = {
   action: 'lastCycleNumActions',
   observation: 'lastCycleNumObservations',
   firedRule: 'lastCycleNumFiredRules',
-  failedGoal: 'lastCycleNumFailedGoal',
-  resolvedGoal: 'lastCycleNumResolvedGoal',
+  failedGoal: 'lastCycleNumFailedGoals',
+  resolvedGoal: 'lastCycleNumResolvedGoals',
   unresolvedGoal: 'lastCycleNumUnresolvedGoals'
 };
 
@@ -272,7 +272,7 @@ function Tester(engine) {
               testResult = numComparatorProcessor(testNumber, entry.num_of);
               if (!testResult) {
                 errors.push(stringLiterals(
-                  'expectNumOf',
+                  'tester.expectNumOf',
                   entry.type,
                   engineTime,
                   entry.num_of,
