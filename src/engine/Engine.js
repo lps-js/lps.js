@@ -10,6 +10,7 @@ const FunctorProvider = lpsRequire('engine/FunctorProvider');
 
 const processRules = lpsRequire('utility/processRules');
 const EventManager = lpsRequire('utility/observer/Manager');
+const Profiler = lpsRequire('utility/profiler/Profiler');
 const constraintCheck = lpsRequire('utility/constraintCheck');
 const stringLiterals = lpsRequire('utility/strings');
 const evaluateGoalTrees = lpsRequire('utility/evaluateGoalTrees');
@@ -33,6 +34,7 @@ function Engine(programArg) {
   let _isRunning = false;
 
   let _engineEventManager = new EventManager();
+  let _profiler = new Profiler();
 
   let _observations = {};
 
@@ -40,9 +42,6 @@ function Engine(programArg) {
 
   let _currentTime = 0;
 
-  let _lastCycleExecutionTime = null;
-  let _numLastCycleActions = 0;
-  let _numLastCycleObservations = 0;
   let _numLastCycleFiredRules = 0;
   let _numLastCycleResolvedRules = 0;
   let _numLastCycleFailedRules = 0;
@@ -276,10 +275,6 @@ function Engine(programArg) {
             _lastCycleActions = selectedAndExecutedActions;
             _lastCycleObservations = cycleObservations;
 
-            // update statistics
-            _numLastCycleActions = _lastCycleActions.size();
-            _numLastCycleObservations = _lastCycleObservations.size();
-
             return Promise.resolve();
           });
       });
@@ -367,10 +362,6 @@ function Engine(programArg) {
     _isContinuousExecution = val;
   };
 
-  this.getLastCycleExecutionTime = function getLastCycleExecutionTime() {
-    return _lastCycleExecutionTime;
-  };
-
   this.getLastCycleActions = function getLastCycleActions() {
     let actions = [];
     if (_lastCycleActions === null) {
@@ -382,13 +373,6 @@ function Engine(programArg) {
     return actions;
   };
 
-  this.getNumLastCycleActions = function getNumLastCycleActions() {
-    if (_lastCycleActions === null) {
-      return 0;
-    }
-    return _numLastCycleActions;
-  };
-
   this.getLastCycleObservations = function getLastCycleObservations() {
     let observations = [];
     if (_lastCycleObservations === null) {
@@ -398,13 +382,6 @@ function Engine(programArg) {
       observations.push(observation.toString());
     });
     return observations;
-  };
-
-  this.getNumLastCycleObservations = function getNumLastCycleObservations() {
-    if (_lastCycleObservations === null) {
-      return 0;
-    }
-    return _numLastCycleObservations;
   };
 
   this.getTimelessFacts = function getTimelessFacts() {
@@ -423,10 +400,6 @@ function Engine(programArg) {
         fluents.push(fluent.toString());
       });
     return fluents;
-  };
-
-  this.getNumActiveFluents = function getNumActiveFluents() {
-    return _program.getState().size();
   };
 
   this.getNumLastCycleFiredRules = function getNumLastCycleFiredRules() {
@@ -489,7 +462,14 @@ function Engine(programArg) {
     let startTime = Date.now();
     return performCycle.call(this)
       .then(() => {
-        _lastCycleExecutionTime = Date.now() - startTime;
+        _profiler.set('lastCycleExecutionTime', Date.now() - startTime);
+
+        // update statistics
+        _profiler.set('numState', _program.getState().size());
+        _profiler.set('lastCycleNumUnresolvedGoals', _goals.length);
+        _profiler.set('lastCycleNumActions', _lastCycleActions.size());
+        _profiler.set('lastCycleNumObservations', _lastCycleObservations.size());
+
         _isInCycle = false;
         _engineEventManager.notify('postCycle', this);
       });
@@ -583,6 +563,7 @@ function Engine(programArg) {
     }
     _isPaused = true;
     _engineEventManager.notify('paused', this);
+    _profiler.increment('numPaused');
   };
 
   this.unpause = function unpause() {
