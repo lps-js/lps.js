@@ -48,6 +48,16 @@ const numComparatorProcessor = function numComparatorProcessor(actual, expectedA
   }
 };
 
+const numericExpectationMap = {
+  'fluent': 'numState',
+  'action': 'lastCycleNumActions',
+  'observation': 'lastCycleNumObservations',
+  'firedRule': 'lastCycleNumFiredRules',
+  'failedGoal': 'lastCycleNumFailedGoal',
+  'resolvedGoal': 'lastCycleNumResolvedGoal',
+  'unresolvedGoal': 'lastCycleNumUnresolvedGoals'
+};
+
 function Tester(engine) {
   let expectations = {};
   let timelessExpectations = [];
@@ -244,24 +254,14 @@ function Tester(engine) {
             }
             if (entry.num_of !== undefined) {
               let testNumber = 0;
-              switch (entry.type) {
-                case 'fluents':
-                case 'fluent':
-                  testNumber = profiler.get('numState');
-                  break;
-                case 'actions':
-                case 'action':
-                  testNumber = profiler.get('lastCycleNumActions');
-                  break;
-                case 'observations':
-                case 'observation':
-                  testNumber = profiler.get('lastCycleNumObservations');
-                  break;
-                case 'firedRules':
-                  testNumber = profiler.get('lastCycleNumFiredRules');
-                  break;
-                default:
-                  errors.push('Invalid number of type "' + entry.type + '" encountered.');
+              if (numericExpectationMap[entry.type] !== undefined) {
+                testNumber = profiler.get(numericExpectationMap[entry.type]);
+              } else if (numericExpectationMap[entry.type.substring(0, entry.type.length - 1)] !== undefined) {
+                // plural form
+                  testNumber = profiler.get(numericExpectationMap[entry.type.substring(0, entry.type.length - 1)]);
+              } else {
+                errors.push('Invalid number of type "' + entry.type + '" encountered.');
+                return;
               }
               testResult = numComparatorProcessor(testNumber, entry.num_of);
               if (!testResult) {
