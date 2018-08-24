@@ -5,7 +5,6 @@
 
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
-const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
 
 const processRules = lpsRequire('utility/processRules');
@@ -93,8 +92,8 @@ function Engine(programArg) {
       postCloneProgram.setState(postState);
 
       // only perform pre-checks
-      if (!checkConstraintSatisfaction.call(this, cloneProgram) ||
-          !checkConstraintSatisfaction.call(this, postCloneProgram)) {
+      if (!checkConstraintSatisfaction.call(this, cloneProgram)
+          || !checkConstraintSatisfaction.call(this, postCloneProgram)) {
         // reject incoming observation
         activeObservations.remove(action);
 
