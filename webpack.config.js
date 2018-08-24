@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const metadata = require('./package.json')
 
 module.exports = {
   mode: 'production',
@@ -22,6 +23,7 @@ module.exports = {
   plugins: [
     new webpack.IgnorePlugin(/engine\/modules\/(p2p|fs)/),
     new webpack.IgnorePlugin(/engine\/processors\/consult/),
+    new webpack.BannerPlugin('lps.js ' + metadata.version + ' (browser). BSD-3-Clause. https://github.com/mauris/lps.js')
   ],
   node: {
     fs: 'empty',
