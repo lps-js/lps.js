@@ -20,7 +20,8 @@ module.exports = {
     ]
   },
   plugins: [
-    new webpack.IgnorePlugin(/(modules\/(p2p|fs))/)
+    new webpack.IgnorePlugin(/engine\/modules\/(p2p|fs)/),
+    new webpack.IgnorePlugin(/engine\/processors\/consult/),
   ],
   node: {
     fs: 'empty',

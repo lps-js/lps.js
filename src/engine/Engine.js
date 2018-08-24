@@ -17,7 +17,6 @@ const evaluateGoalTrees = lpsRequire('utility/evaluateGoalTrees');
 const updateStateWithFluentActors = lpsRequire('utility/updateStateWithFluentActors');
 
 const builtinProcessor = lpsRequire('engine/builtin/builtin');
-const consultProcessor = lpsRequire('engine/processors/consult');
 const observeProcessor = lpsRequire('engine/processors/observe');
 const initiallyProcessor = lpsRequire('engine/processors/initially');
 const ruleAntecedentProcessor = lpsRequire('engine/processors/ruleAntecedent');
@@ -637,6 +636,11 @@ function Engine(programArg) {
 
     return builtinProcessor(this, _program)
       .then(() => {
+        if (process.browser) {
+          // skip consult processing for browser context
+          return Promise.resolve();
+        }
+        const consultProcessor = lpsRequire('engine/processors/consult');
         // start processing consult/1, consult/2 and loadModule/1 declarations in main program
         return consultProcessor(this, _program);
       })
