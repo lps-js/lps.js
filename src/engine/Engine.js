@@ -623,8 +623,6 @@ function Engine(programArg) {
     initiallyProcessor(this, _program);
     observeProcessor(this, _program);
     ruleAntecedentProcessor(this, _program);
-
-    _engineEventManager.notify('ready', this);
   });
 
   let _loaded = false;
@@ -647,7 +645,10 @@ function Engine(programArg) {
         return consultProcessor(this, _program);
       })
       .then(() => {
-        _engineEventManager.notify('loaded', this);
+        return _engineEventManager.notify('loaded', this);
+      })
+      .then(() => {
+        _engineEventManager.notify('ready', this);
         return Promise.resolve(this);
       });
   };
