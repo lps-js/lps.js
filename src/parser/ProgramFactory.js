@@ -273,6 +273,7 @@ ProgramFactory.fromString = function fromString(source) {
       resolve(program);
     } catch (err) {
       let errorToken = err.token;
+      errorToken.file = '(string)';
       let errorMessage = unexpectedTokenErrorMessage(source, errorToken, err.likelyMissing);
       reject(new Error(errorMessage));
     }
