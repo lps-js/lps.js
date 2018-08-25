@@ -13,6 +13,7 @@ const Variable = lpsRequire('engine/Variable');
 const Functor = lpsRequire('engine/Functor');
 const Tester = lpsRequire('engine/tester/Tester');
 const List = lpsRequire('engine/List');
+const Program = lpsRequire('engine/Program');
 const stringLiterals = lpsRequire('utility/strings');
 
 const programArgsPredicate = ProgramFactory.literal('lpsArgs(L)');
@@ -95,6 +96,7 @@ LPS.Variable = Variable;
 LPS.List = List;
 LPS.Functor = Functor;
 LPS.Tester = Tester;
+LPS.Program = Program;
 LPS.ProgramFactory = ProgramFactory;
 
 module.exports = LPS;
