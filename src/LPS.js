@@ -43,28 +43,49 @@ let buildProgramArgsPredicate = function (programArgs) {
   return programArgsPredicate.substitute(theta);
 };
 
-LPS.loadString = function loadString(source, programArgs) {
+const updateProgramArgs = function updateProgramArgs(programArgs) {
+  return (program) => {
+    let programArgsFact = buildProgramArgsPredicate(programArgs);
+    program.getFacts().add(programArgsFact);
+    return Promise.resolve(program);
+  };
+};
+
+LPS.createFromString = function createFromString(source, programArgs) {
   return ProgramFactory.fromString(source)
+    .then(updateProgramArgs(programArgs))
     .then((program) => {
-      let programArgsFact = buildProgramArgsPredicate(programArgs);
-      program.getFacts().add(programArgsFact);
       let engine = new Engine(program);
+      return Promise.resolve(engine);
+    });
+};
+
+LPS.loadString = function loadString(source, programArgs) {
+  return LPS.createFromString(source, programArgs)
+    .then((engine) => {
       return engine.load();
     });
 };
 
-LPS.loadFile = function loadFile(fileArg, programArgs) {
+LPS.createFromFile = function createFromFile(fileArg, programArgs) {
   if (process.browser) {
     return Promise.reject(new Error(stringLiterals('browserContext.loadProgramFromFile')));
   }
   let file = fileArg;
   file = path.resolve(file);
+
   return ProgramFactory.fromFile(file)
+    .then(updateProgramArgs(programArgs))
     .then((program) => {
       program.setWorkingDirectory(path.dirname(file));
-      let programArgsFact = buildProgramArgsPredicate(programArgs);
-      program.getFacts().add(programArgsFact);
       let engine = new Engine(program);
+      return Promise.resolve(engine);
+    });
+};
+
+LPS.loadFile = function loadFile(fileArg, programArgs) {
+  return LPS.createFromFile(fileArg, programArgs)
+    .then((engine) => {
       return engine.load();
     });
 };
