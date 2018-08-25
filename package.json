@@ -4,6 +4,15 @@
   "description": "Logic Production Systems (LPS) runtime implementation in JS",
   "main": "index.js",
   "repository": "https://github.com/mauris/lps.js.git",
+  "keywords": [
+    "ai",
+    "logic",
+    "lps",
+    "library",
+    "language",
+    "compiler",
+    "interpreter"
+  ],
   "scripts": {
     "test": "npm run test:source && npm run test:programs",
     "test:browser": "echo TODO",
