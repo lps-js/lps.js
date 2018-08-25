@@ -95,5 +95,6 @@ LPS.Variable = Variable;
 LPS.List = List;
 LPS.Functor = Functor;
 LPS.Tester = Tester;
+LPS.ProgramFactory = ProgramFactory;
 
 module.exports = LPS;
