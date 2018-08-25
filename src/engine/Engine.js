@@ -567,6 +567,16 @@ function Engine(programArg) {
     _startNormalExecution();
   };
 
+  this.loadModule = function loadModule(module) {
+    if (_isRunning) {
+      throw stringLiterals.error('engine.definePredicatesWhileRunning');
+    }
+    if (typeof module !== 'function') {
+      throw stringLiterals.error('engine.loadModuleInvalidType');
+    }
+    return module(this, _program);
+  };
+
   this.scheduleObservation = function scheduleObservation(observation, startTimeArg, endTimeArg) {
     let startTime = startTimeArg;
     let endTime = endTimeArg;
