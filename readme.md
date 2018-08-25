@@ -31,10 +31,10 @@ The syntax highlighting and autocomplete package for LPS supported by lps.js can
 # Usage
 
 ### As CLI programs
-lps.js provides several CLI programs to run and interact with LPS programs. For instructions on installation and how to use these CLI tools, see the [lps-cli](https://github.com/mauris/lps-cli) repository.
+lps.js provides several CLI programs to run and interact with LPS programs. For instructions on installation and how to use these CLI tools, see the [lps-cli](https://github.com/mauris/lps-cli) repository. Also see the [npm repository](https://www.npmjs.com/package/lps-cli).
 
 ### As npm Library
-To use lps.js as a npm library, you need to have a `package.json` ready for your application (see [npm documentation](https://docs.npmjs.com/getting-started/using-a-package.json)), then run the following command:
+To use [lps.js as a npm library](npmjs.com/package/lps), you need to have a `package.json` ready for your application (see [npm documentation](https://docs.npmjs.com/getting-started/using-a-package.json)), then run the following command:
 
     $ npm install --save lps
     
