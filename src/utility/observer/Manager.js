@@ -20,12 +20,13 @@ function Manager() {
 
   this.notify = function notify(event, sender) {
     if (_events[event] === undefined) {
-      return;
+      return Promise.resolve();
     }
 
     _events[event].forEach((listener) => {
       listener(sender);
     });
+    return Promise.resolve();
   };
 }
 
