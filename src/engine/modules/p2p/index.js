@@ -21,9 +21,9 @@ module.exports = (engine, program) => {
     // in browserify mode
     throw new Error(stringLiterals(['modules', 'browserModeModuleLoadFailure'], ['p2p']));
   }
-  // ensure that p2pReceive/5 is defined in the program so that developer do not
+  // ensure that p2pReceive/3 is defined in the program so that developer do not
   // need to do it manually.
-  program.defineEvent('p2pReceive/5');
+  program.defineEvent('p2pReceive/3');
 
   let declarationProcessor = new P2P2PDeclarationProcessor(engine, program);
 
@@ -197,5 +197,5 @@ module.exports = (engine, program) => {
     }
   };
 
-  program.getFunctorProvider().load(functors);
+  engine.getFunctorProvider().load(functors);
 };

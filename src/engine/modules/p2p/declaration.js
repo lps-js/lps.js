@@ -18,7 +18,7 @@ const defaultAddress = '127.0.0.1';
 function P2PDeclarationProcessor(engine, program) {
   this.processListenDeclarations = function processListenDeclarations() {
     let result = [];
-    result = result.concat(program.query(listenLiteral));
+    result = result.concat(engine.query(listenLiteral));
 
     let port;
     result.forEach((r) => {
@@ -34,9 +34,9 @@ function P2PDeclarationProcessor(engine, program) {
 
   this.processNetworkDeclarations = function processNetworkDeclarations() {
     let result = [];
-    result = result.concat(program.query(joinLiteral1));
-    result = result.concat(program.query(joinLiteral2));
-    result = result.concat(program.query(joinLiteral3));
+    result = result.concat(engine.query(joinLiteral1));
+    result = result.concat(engine.query(joinLiteral2));
+    result = result.concat(engine.query(joinLiteral3));
 
     let networks = {};
     result.forEach((r) => {
