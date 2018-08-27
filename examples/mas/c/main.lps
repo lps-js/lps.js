@@ -21,10 +21,10 @@ observe(wantToBuy(alice, cereal), 3, 4).
 %% ---------------------
 % This section would be better modelled in the agent file
 % but because of the duplication issues, i'm leaving it here for now.
-loanIfNotEnough(Agent, Price, Amount, T, T) <-
+loanIfNotEnough(Agent, Price, Amount) from T1 to T2 <-
   Price <= Amount.
 
-loanIfNotEnough(Agent, Price, Amount, T1, T2) <-
+loanIfNotEnough(Agent, Price, Amount) from T1 to T2 <-
   Price > Amount,
   consult(_, Peer),
   % Peer != Agent,
