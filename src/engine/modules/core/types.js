@@ -82,13 +82,14 @@ const functors = {
   },
 
   'atom_number/1': function (operand) {
-    let result = [];
-    if (operand instanceof Value) {
-      result.push({
+    let result = [
+      {
         theta: {},
         replacement: new Value(Number(operand.evaluate()))
       });
     }
+      }
+    ];
     return result;
   }
 };
