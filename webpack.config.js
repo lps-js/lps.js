@@ -7,7 +7,7 @@ module.exports = {
   entry: './index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'lps.bundle.js'
+    filename: 'lps-' + metadata.version + '.bundle.js'
   },
   resolveLoader: {
     modules: [
