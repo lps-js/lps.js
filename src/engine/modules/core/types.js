@@ -89,7 +89,7 @@ const functors = {
       }
     ];
     return result;
-  }
+  },
 
   'atom_string/1': function (operand) {
     let result = [
