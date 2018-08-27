@@ -86,10 +86,10 @@ const handleConsultEntry = function handleConsultEntry(
     // work path from the current working directory given
     filepath = path.resolve(workingDirectory, filepath);
   }
-  if (theta.Id === undefined || !(theta.Id instanceof Functor)) {
+  if (theta.Id === undefined || !(theta.Id instanceof Functor || theta.Id instanceof Value)) {
     promise = consultFile(filepath);
   } else {
-    promise = consultFile(filepath, theta.Id.evaluate());
+    promise = consultFile(filepath, theta.Id);
   }
 
   return promise
@@ -123,7 +123,7 @@ function consultProcessor(engine, targetProgram) {
   let processProgramWithId = function processProgramWithId(program, id) {
     let treeMap = new LiteralTreeMap();
     let theta = {
-      Id: new Value(id)
+      Id: id
     };
     treeMap.add(processIdLiteral.substitute(theta));
 
