@@ -29,7 +29,7 @@ describe('Resolutor', () => {
       let engine = new Engine(program);
       program.setState(state);
 
-      let result = Resolutor.reduceRuleAntecedent(engine, state, rule, 1);
+      let result = Resolutor.reduceRuleAntecedent(engine, [state], rule, 1);
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(result[0].theta).to.be.not.undefined;
@@ -37,6 +37,28 @@ describe('Resolutor', () => {
       expect(result[0].theta.T1).to.be.not.undefined;
       expect(result[0].theta.T1).to.be.instanceof(Value);
       expect(result[0].theta.T1.evaluate()).to.be.equal(1);
+    });
+
+    it('should return the correct result', () => {
+      let rule = new Clause(
+        [new Functor('buy', [new Value('alice'), new Variable('Item')])],
+        [new Functor('wantToBuy', [new Value('alice'), new Variable('Item')])]
+      );
+
+      let state = new LiteralTreeMap();
+      state.add(new Functor('wantToBuy', [new Value('alice'), new Value('cereal')]));
+      let program = new Program();
+      let engine = new Engine(program);
+      // program.setState(state);
+
+      let result = Resolutor.reduceRuleAntecedent(engine, [state], rule, 1);
+      expect(result).to.be.instanceof(Array);
+      expect(result).to.be.length(1);
+      expect(result[0].theta).to.be.not.undefined;
+      expect(Object.keys(result[0].theta)).to.be.length(1);
+      expect(result[0].theta.Item).to.be.not.undefined;
+      expect(result[0].theta.Item).to.be.instanceof(Value);
+      expect(result[0].theta.Item.evaluate()).to.be.equal('cereal');
     });
   });
 });
