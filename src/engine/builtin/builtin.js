@@ -11,7 +11,8 @@ const path = require('path');
 const builtinFiles = [
   'declarations',
   'math',
-  'list'
+  'list',
+  'types'
 ];
 
 const consultTerm = ProgramFactory.literal('consult(File)');

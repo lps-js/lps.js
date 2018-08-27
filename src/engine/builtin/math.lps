@@ -164,6 +164,3 @@ succ(N, N1) <-
   not is_variable(N1),
   N1 > 1,
   N = N1 - 1.
-
-atom_number(N, O) <-
-  O = atom_number(N).
