@@ -542,7 +542,11 @@ function Engine(programArg) {
   };
 
   this.observe = function observe(observation) {
-    this.scheduleObservation(observation, _currentTime);
+    let scheduledTime = _currentTime;
+    if (scheduledTime === 0) {
+      scheduledTime = 1;
+    }
+    this.scheduleObservation(observation, scheduledTime);
   };
 
   this.pause = function pause() {
