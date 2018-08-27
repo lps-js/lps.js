@@ -91,6 +91,7 @@ Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
       });
       return result;
     }
+
     let conjunct = remainingLiterals[0]
       .substitute(thetaSoFar);
     let literal = conjunct.getGoal();
