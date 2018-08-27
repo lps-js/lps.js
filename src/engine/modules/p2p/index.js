@@ -72,10 +72,11 @@ module.exports = (engine, program) => {
   });
 
   server.listen(listeningPort, () => {
+    // update actual port in use, in case original listeningPort = 0
     listeningPort = server.address().port;
-    Object.keys(networks).forEach((networkId) => {
-      let network = networks[networkId];
 
+    // perform connection to each network defined
+    Object.values(networks).forEach((network) => {
       network.peers = [];
       let client = new net.Socket();
 
@@ -86,6 +87,7 @@ module.exports = (engine, program) => {
         client.write(JSON.stringify(payload));
       });
 
+      // update from tracking
       client.on('data', (data) => {
         let strData = data.toString('utf8');
 
@@ -124,6 +126,18 @@ module.exports = (engine, program) => {
       network.client = client;
     });
   });
+
+  let cleanUpConnections = () => {
+    Object.values(networks).forEach((network) => {
+      if (network.client) {
+        network.client.destroy();
+      }
+    });
+    server.close();
+  };
+
+  engine.on('error', cleanUpConnections);
+  engine.on('done', cleanUpConnections);
 
   let isPeerIdentifier = function isPeerIdentifier(peer) {
     if (!(peer instanceof Functor)) {
