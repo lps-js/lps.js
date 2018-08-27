@@ -20,7 +20,7 @@
     "test:source:fast": "mocha --require ./test/init.js \"test/lps.js/**/*.test.js\"",
     "test:programs": "mocha --require ./test/init.js \"test/programs/**/*.test.js\"",
     "lint": "eslint test src",
-    "build:browser": "rm dist/*.js && webpack",
+    "build:browser": "rm -f dist/*.js && webpack",
     "preversion": "npm test && npm run build:browser",
     "postversion": "git push --tags && git push && npm run build:browser",
     "prepublishOnly": "npm test",
