@@ -4,17 +4,14 @@
  */
 
 module.exports = function constraintCheck(engine, program) {
-  let result = true;
   let constraints = program.getConstraints();
   for (let i = 0; i < constraints.length; i += 1) {
     let constraint = constraints[i];
     let literals = constraint.getBodyLiterals();
     let queryResult = engine.query(literals);
-
     if (queryResult.length > 0) {
-      result = false;
-      break;
+      return false;
     }
   }
-  return result;
+  return true;
 };
