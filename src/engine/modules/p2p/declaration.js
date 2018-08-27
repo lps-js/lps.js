@@ -57,6 +57,7 @@ function P2PDeclarationProcessor(engine, program) {
       }
 
       networks[networkId] = {
+        networkId: r.theta.NetworkId,
         address: address,
         port: port
       };
