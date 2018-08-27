@@ -86,8 +86,16 @@ const functors = {
       {
         theta: {},
         replacement: new Value(Number(operand.evaluate()))
-      });
-    }
+      }
+    ];
+    return result;
+  }
+
+  'atom_string/1': function (operand) {
+    let result = [
+      {
+        theta: {},
+        replacement: new Value(String(operand.evaluate()))
       }
     ];
     return result;
