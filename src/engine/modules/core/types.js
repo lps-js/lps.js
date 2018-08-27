@@ -82,10 +82,15 @@ const functors = {
   },
 
   'atom_number/1': function (operand) {
+    let convertedNumber = Number(operand.evaluate());
+    if (Number.isNaN(convertedNumber)) {
+      // NaN check required
+      return [];
+    }
     let result = [
       {
         theta: {},
-        replacement: new Value(Number(operand.evaluate()))
+        replacement: new Value(convertedNumber)
       }
     ];
     return result;
