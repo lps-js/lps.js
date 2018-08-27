@@ -32,14 +32,14 @@ loanIfNotEnough(Agent, Price, Amount, T1, T2) <-
 %% ---------------------
 
 % You cannot buy unless you have the money for the item
-<- buy(Agent, Item, T1, T2), money(Agent, Amt, T1), itemPrice(Item, Price), Price > Amt.
+<- buy(Agent, Item), money(Agent, Amt), itemPrice(Item, Price), Price > Amt.
 
 % You cannot lend unless you have the money
-<- lend(Lender, Borrower, Amount, T1, T2), money(Lender, Balance), Balance < Amount.
+<- lend(Lender, Borrower, Amount), money(Lender, Balance), Balance < Amount.
 
 % you cannot borrow or lend yourself
-<- borrow(A, A, _, _, _).
-<- lend(A, A, _, _, _).
+<- borrow(Agent, Agent, _).
+<- lend(Agent, Agent, _).
 
 updates(lend(Lender, Borrower, Amount), money(Lender, Balance), money(Lender, Balance - Amount)).
 updates(lend(Lender, Borrower, Amount), money(Borrower, Balance), money(Borrower, Balance + Amount)).
