@@ -35,10 +35,23 @@ const functors = {
     assertIsValue(v1);
     assertIsValue(v2);
 
+    let v1Value = v1.evaluate();
+    let v2Value = v2.evaluate();
+
+    if (typeof v1Value === 'string' || typeof v2Value === 'string') {
+      // string concatenation
+      return [
+        {
+          theta: {},
+          replacement: new Value(String(v1Value) + String(v2Value))
+        }
+      ];
+    }
+
     return [
       {
         theta: {},
-        replacement: new Value(Number(v1.evaluate()) + Number(v2.evaluate()))
+        replacement: new Value(Number(v1Value) + Number(v2Value))
       }
     ];
   },
