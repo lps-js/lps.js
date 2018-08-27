@@ -14,6 +14,8 @@ const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const net = require('net');
 
 const receiveEventLiteral = ProgramFactory.literal('p2pReceive(NetworkId, Peer, Message)');
+const connectedEventLiteral = ProgramFactory.literal('p2pConnected(NetworkId)');
+const peerConnectedEventLiteral = ProgramFactory.literal('p2pPeerConnected(NetworkId, node(Address, Port))');
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
@@ -21,9 +23,11 @@ module.exports = (engine, program) => {
     // in browserify mode
     throw new Error(stringLiterals(['modules', 'browserModeModuleLoadFailure'], ['p2p']));
   }
-  // ensure that p2pReceive/3 is defined in the program so that developer do not
+  // ensure that events are defined in the program so that developer do not
   // need to do it manually.
-  program.defineEvent('p2pReceive/3');
+  program.defineEvent(receiveEventLiteral);
+  program.defineEvent(connectedEventLiteral);
+  program.defineEvent(peerConnectedEventLiteral);
 
   let declarationProcessor = new P2P2PDeclarationProcessor(engine, program);
 
@@ -86,13 +90,27 @@ module.exports = (engine, program) => {
         let strData = data.toString('utf8');
 
         let info = JSON.parse(strData);
+        let theta;
 
         if (info.peers !== undefined) {
           network.peers = info.peers;
+          // initial connection
+          theta = {
+            NetworkId: network.networkId
+          };
+          engine.observe(connectedEventLiteral.substitute(theta));
         }
 
         if (info.newNode !== undefined) {
           network.peers.push(info.newNode);
+
+          // new node connected, raise event for LPS
+          theta = {
+            NetworkId: network.networkId,
+            Address: new Value(info.newNode[0]),
+            Port: new Value(info.newNode[1])
+          };
+          engine.observe(peerConnectedEventLiteral.substitute(theta));
         }
 
         if (info.removeNode !== undefined) {
