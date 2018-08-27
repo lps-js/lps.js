@@ -1,0 +1,8 @@
+loadModule(p2p).
+maxTime(200).
+cycleInterval(500).
+
+p2pJoin(test).
+
+p2pConnected(NetworkId, T1, T2) -> write('i am connected to '), write(NetworkId).
+p2pPeerConnected(NetworkId, Peer, T1, T2) -> write(Peer), write('is connected').
