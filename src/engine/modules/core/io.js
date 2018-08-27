@@ -5,7 +5,11 @@
 
 const functors = {
   'write/1': function (term) {
-    console.log(String(term));
+    process.stdout.write(String(term));
+    return [{ theta: {} }];
+  },
+  'writeln/1': function (term) {
+    process.stdout.write(String(term) + '\n');
     return [{ theta: {} }];
   }
 };
