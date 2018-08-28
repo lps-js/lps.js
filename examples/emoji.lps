@@ -1,0 +1,8 @@
+maxTime(3).
+
+event(😀).
+action(😆).
+observe(😀, 1, 2).
+
+😀 from T1 to T2 ->
+  😆 from T2 to T3.
