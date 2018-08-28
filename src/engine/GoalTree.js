@@ -60,7 +60,6 @@ let resolveStateConditions = function resolveStateConditions(
       .getGoal()
       .substitute(thetaDelta);
     let isConjunctAction = program.isAction(goal);
-    let isConjunctFluent = program.isFluent(goal);
 
     let otherConjuncts = remainingConjuncts.slice(1);
 
@@ -71,7 +70,7 @@ let resolveStateConditions = function resolveStateConditions(
         otherConjuncts,
         residueConjuncts.concat([conjunct]),
         thetaSoFar
-      );;
+      );
     }
 
     let conjunctVariables = conjunct.getVariables();

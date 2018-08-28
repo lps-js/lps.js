@@ -255,8 +255,7 @@ function Engine(programArg) {
             _currentTime += 1;
             updatedState = updateStateWithFluentActors(this, executedActions, updatedState);
             _program.setState(updatedState);
-            _program.setExecutedActions(new LiteralTreeMap())
-            // return Promise.resolve(_goals);
+            _program.setExecutedActions(new LiteralTreeMap());
 
             let postState = [
               _program.getFacts(),

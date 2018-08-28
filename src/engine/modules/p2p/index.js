@@ -29,7 +29,7 @@ module.exports = (engine, program) => {
   program.defineEvent(connectedEventLiteral);
   program.defineEvent(peerConnectedEventLiteral);
 
-  let declarationProcessor = new P2P2PDeclarationProcessor(engine, program);
+  let declarationProcessor = new P2P2PDeclarationProcessor(engine);
 
   // check if a user-preferred port number is defined
   let listeningPort = declarationProcessor.processListenDeclarations();
@@ -76,7 +76,8 @@ module.exports = (engine, program) => {
     listeningPort = server.address().port;
 
     // perform connection to each network defined
-    Object.values(networks).forEach((network) => {
+    Object.values(networks).forEach((networkArg) => {
+      let network = networkArg;
       network.peers = [];
       let client = new net.Socket();
 

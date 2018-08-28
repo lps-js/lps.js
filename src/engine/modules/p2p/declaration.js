@@ -15,7 +15,7 @@ const joinLiteral3 = ProgramFactory.literal('p2pJoin(NetworkId, Address, Port)')
 const defaultPort = 4100;
 const defaultAddress = '127.0.0.1';
 
-function P2PDeclarationProcessor(engine, program) {
+function P2PDeclarationProcessor(engine) {
   this.processListenDeclarations = function processListenDeclarations() {
     let result = [];
     result = result.concat(engine.query(listenLiteral));

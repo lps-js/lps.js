@@ -429,11 +429,16 @@ function LiteralTreeMap() {
     return result;
   }; // unifyForValue
 
-  let unifyForComplexTerm = (term, path, node, recursiveCall, externalThetaArg, internalThetaArg) => {
+  let unifyForComplexTerm = (
+    term,
+    path,
+    node,
+    recursiveCall,
+    externalThetaArg,
+    internalThetaArg
+  ) => {
     let externalTheta = externalThetaArg;
     let internalTheta = internalThetaArg;
-    let clonedInternalTheta;
-    let clonedExternalTheta;
 
     let result = [];
     let subResult;
@@ -465,7 +470,7 @@ function LiteralTreeMap() {
             let matchingTailExternalTheta = Object.assign({}, tempExternalTheta);
 
             matchingTailExternalTheta[entry.tailVariable.evaluate()] = new List(list);
-            subResult = recursiveUnification(
+            subResult = recursiveCall(
               path,
               node._tree[symbol],
               matchingTailExternalTheta,
