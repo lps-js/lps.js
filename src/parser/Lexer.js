@@ -298,9 +298,6 @@ function Lexer(source, pathname) {
       return _extractVariable(chars);
     }
 
-    if (Lexicon.unquotedConstantStartTest.test(c1)) {
-      return _extractUnquotedConstant(chars);
-    }
 
     if (Lexicon.constantDelimiters.indexOf(c1) > -1) {
       return _extractQuotedString(chars);
@@ -312,6 +309,10 @@ function Lexer(source, pathname) {
 
     if (Lexicon.singleSymbols.indexOf(c1) > -1) {
       return _extractSingleSymbol(chars);
+    }
+
+    if (Lexicon.unquotedConstantStartTest.test(c1)) {
+      return _extractUnquotedConstant(chars);
     }
 
     return _makeErrorToken('Invalid character \'' + c1 + '\'', chars[2].line, chars[2].col);

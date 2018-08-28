@@ -55,8 +55,8 @@ module.exports = {
     'at'
   ],
   constantDelimiterEscapeChar: '\\',
-  unquotedConstantStartTest: /^[a-z]$/,
-  unquotedConstantBodyTest: /^[a-zA-Z0-9-_]$/,
+  unquotedConstantStartTest: /^[^A-Z\_\(\)\[\],.\s]$/,
+  unquotedConstantBodyTest: /^[^\(\)\[\]\\+*/\-,.\s]$/,
   variableStartTest: /^[A-Z_]$/,
   variableBodyTest: /^[0-9a-zA-Z_]$/,
   numberStartTest: /^[0-9]$/,
