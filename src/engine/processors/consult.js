@@ -44,6 +44,8 @@ const builtinModules = [
   'p2p'
 ];
 
+let consultCache = {};
+
 const processLoadModules = function processLoadModules(
   currentProgram,
   targetProgram,
@@ -86,7 +88,10 @@ const handleConsultEntry = function handleConsultEntry(
     // work path from the current working directory given
     filepath = path.resolve(workingDirectory, filepath);
   }
-  if (theta.Id === undefined || !(theta.Id instanceof Functor || theta.Id instanceof Value)) {
+
+  if (theta.Id === undefined
+      || !(theta.Id instanceof Functor
+      || theta.Id instanceof Value)) {
     promise = consultFile(filepath);
   } else {
     promise = consultFile(filepath, theta.Id);
@@ -146,8 +151,16 @@ function consultProcessor(engine, targetProgram) {
   };
 
   const consultFile = function consultFile(file, id) {
-    return ProgramFactory.fromFile(file)
+    let promise;
+    if (consultCache[file] === undefined) {
+      promise = ProgramFactory.fromFile(file);
+    } else {
+      promise = Promise.resolve(consultCache[file]);
+    }
+    return promise
       .then((loadedProgram) => {
+        // cache loaded program
+        consultCache[file] = loadedProgram.clone();
         if (id !== undefined) {
           processProgramWithId(loadedProgram, id);
         }
