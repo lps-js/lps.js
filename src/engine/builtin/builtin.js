@@ -17,16 +17,23 @@ const builtinFiles = [
 
 const consultTerm = ProgramFactory.literal('consult(File)');
 
+let builtInCache = {};
+
 // loads a set of built-in clauses
 function builtinProcessor(engine, program) {
   let loadingPromises = [];
 
   let loadFile = (filename) => {
+    if (builtInCache[filename] !== undefined) {
+      program.augment(builtInCache[filename]);
+      return;
+    }
     let promise;
     if (process.browser) {
       let source = require(`${__dirname}/${filename}.lps`);
       promise = Program.fromString(source)
         .then((p) => {
+          builtInCache[filename] = p;
           program.augment(p);
           return Promise.resolve();
         });
