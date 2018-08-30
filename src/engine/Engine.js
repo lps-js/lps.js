@@ -22,6 +22,7 @@ const initiallyProcessor = lpsRequire('engine/processors/initially');
 const ruleAntecedentProcessor = lpsRequire('engine/processors/ruleAntecedent');
 const settingsProcessor = lpsRequire('engine/processors/settings');
 const timableProcessor = lpsRequire('engine/processors/timable');
+const coreModule = lpsRequire('engine/modules/core');
 
 const forEachToString = (arr) => {
   return (item) => {
@@ -644,7 +645,6 @@ function Engine(programArg) {
       return Promise.reject(stringLiterals.error('engine.loadingLoadedEngine'));
     }
     _loaded = true;
-    let coreModule = require('./modules/core');
     coreModule(this, _program);
 
     return builtinProcessor(this, _program)
