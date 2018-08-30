@@ -16,6 +16,7 @@ const sortTimables = lpsRequire('utility/sortTimables');
 const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming');
 const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const expandLiteral = lpsRequire('utility/expandLiteral');
+const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 
 const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, renameTheta) {
   return expandLiteral(conjunct, program, renameTheta);
@@ -63,8 +64,6 @@ let resolveStateConditions = function resolveStateConditions(
 
     let otherConjuncts = remainingConjuncts.slice(1);
 
-    // console.log(mode);
-    // console.log(conjunct + ' - ' + isConjunctFluent);
     if (mode === 'state' && isConjunctAction) {
       return processConjuncts(
         otherConjuncts,
@@ -478,7 +477,12 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
 
   let _leafNodes = [_root];
   let _evaluateQueue = [_root];
+  let _rootNodeMap = new ConjunctionMap();
+  _rootNodeMap.add(goalClause, null);
 
+  this.isSameRootConjunction = function isSameRootConjunction(otherGoal) {
+    return _rootNodeMap.get(otherGoal) === null;
+  };
 
   this.getEarliestDeadline = function getEarliestDeadline(currentTime) {
     let earliestDeadline = null;
