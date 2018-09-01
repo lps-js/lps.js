@@ -48,13 +48,13 @@ module.exports = function processRules(engine, program, state, goals, currentTim
     }
     if (containsTimables(rule)) {
       // preserve a rule if it has timeable in its antecedent
+      profiler.increment('lastCycleNumNewRules');
       newRules.push(rule);
     }
     let resolutions = Resolutor.reduceRuleAntecedent(engine, state, rule, currentTime);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
-        profiler.increment('lastCycleNumRulesDiscarded');
         return;
       }
       let substitutedConsequentLiterals = consequentLiterals
@@ -73,8 +73,10 @@ module.exports = function processRules(engine, program, state, goals, currentTim
         let newRule = new Clause(substitutedConsequentLiterals, body);
         newRules.push(newRule);
         profiler.increment('lastCycleNumNewRules');
+        return;
       }
     });
+    profiler.increment('lastCycleNumDiscardedRules');
   });
   program.setRules(newRules);
   profiler.increaseBy('lastCycleNumFiredRules', newGoals.length);
