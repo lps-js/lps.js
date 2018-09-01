@@ -8,6 +8,7 @@ const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
 const Functor = lpsRequire('engine/Functor');
 const Timable = lpsRequire('engine/Timable');
+const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const variableArrayRename = lpsRequire('utility/variableArrayRename');
 const compactTheta = lpsRequire('utility/compactTheta');
@@ -22,12 +23,11 @@ const reduceCompositeEvent = function reduceCompositeEvent(conjunct, program, re
   return expandLiteral(conjunct, program, renameTheta);
 };
 
-let resolveStateConditions = function resolveStateConditions(
+const resolveStateConditions = function resolveStateConditions(
   engine,
   program,
   earlyConjuncts,
-  forTime,
-  mode
+  forTime
 ) {
   let nodes = [];
 
@@ -63,15 +63,6 @@ let resolveStateConditions = function resolveStateConditions(
     let isConjunctAction = program.isAction(goal);
 
     let otherConjuncts = remainingConjuncts.slice(1);
-
-    if (mode === 'state' && isConjunctAction) {
-      // in state mode, we skip over actions
-      return processConjuncts(
-        otherConjuncts,
-        residueConjuncts.concat([conjunct]),
-        thetaSoFar
-      );
-    }
 
     let conjunctVariables = conjunct.getVariables();
 
@@ -176,6 +167,22 @@ const resolveSimpleActions = function resolveSimpleActions(
 
   return numAdded;
 };
+
+const hasExpiredCandidateAction = function(conjuncts, forTime) {
+  let result = false;
+  for(let i = 0; i < conjuncts.length; i += 1) {
+    let conjunct = conjuncts[i];
+    if (!(conjunct instanceof Timable)) {
+      continue;
+    }
+    let startTime = conjunct.getStartTime();
+    if (startTime instanceof Value && startTime.evaluate() < forTime) {
+      result = true;
+      break;
+    }
+  }
+  return result;
+}
 
 const processArgumentFunctorsInClause = function processArgumentFunctorsInClause(
   functorProvider,
@@ -314,8 +321,7 @@ function GoalNode(engine, program, conjunctsArg, theta) {
     forTime,
     leafNodes,
     evaluationQueue,
-    processedNodes,
-    mode
+    processedNodes
   ) {
     if (this.conjuncts.length === 0) {
       return [[this.theta]];
@@ -391,13 +397,12 @@ function GoalNode(engine, program, conjunctsArg, theta) {
     let isFirstConjunctUntimed = earlyConjuncts[0] instanceof Timable
       && earlyConjuncts[0].isAnytime();
 
-    if (!hasMacroExpansion && !(mode === 'actions' && this.children.length > 0)) {
+    if (!hasMacroExpansion) {
       let stateConditionResolutionResult = resolveStateConditions(
         engine,
         program,
         earlyConjuncts,
-        forTime,
-        mode
+        forTime
       );
       if (stateConditionResolutionResult === null
           && !isFirstConjunctUntimed) {
@@ -428,8 +433,7 @@ function GoalNode(engine, program, conjunctsArg, theta) {
         forTime,
         leafNodes,
         evaluationQueue,
-        processedNodes,
-        mode
+        processedNodes
       );
 
       if (result === null || result.length === 0) {
@@ -501,7 +505,7 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
     return _root.conjuncts.map(l => '' + l);
   };
 
-  this.evaluate = function evaluate(forTime, processedNodes, mode) {
+  this.evaluate = function evaluate(forTime, processedNodes) {
     return new Promise((resolve) => {
       if (_evaluateQueue.length === 0) {
         resolve(null);
@@ -519,8 +523,7 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
             forTime,
             _leafNodes,
             newEvaluateQueue,
-            processedNodes,
-            mode
+            processedNodes
           );
           if (nodeResult !== null && nodeResult.length !== 0) {
             result = nodeResult;
@@ -544,9 +547,12 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
       let candidateActionSets = [];
       let unresolvedSets = [];
 
+      // later conjuncts are ignored
       let pair = sortTimables(node.conjuncts, currentTime);
       let earlyConjuncts = pair[0];
-      // later conjuncts are ignored
+      if (hasExpiredCandidateAction(earlyConjuncts, currentTime)) {
+        return;
+      }
 
       let numCandidateActionsAdded = resolveSimpleActions(
         earlyConjuncts,
@@ -562,9 +568,6 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
 
       for (let i = 0; i < candidateActionSets.length; i += 1) {
         let unresolved = unresolvedSets[i];
-        if (hasExpiredTimable(unresolved, currentTime)) {
-          continue;
-        }
         let candidateActions = candidateActionSets[i];
         callback(candidateActions);
       }
