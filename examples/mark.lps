@@ -21,7 +21,9 @@ location(glass, right).
 container(glass).
 container(mug).
 
-thirsty(P, T) -> container(C), drink(P, C, T, T2).
+thirsty(P, T),
+  not drinking(P) at T ->
+    container(C), drink(P, C, T, T2).
 
 drink(Person, C, T1, T6) <-
   hand(Person, H),
