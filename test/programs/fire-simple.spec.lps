@@ -1,21 +1,42 @@
-expect(maxTime(5)).
-
+% --- Specification generated for test/programs/fire-simple.lps
+% --- Start of cycle 1 ---
 expect_num_of(fluent, 1, 1).
-expect_num_of(action, 1, 0).
-expect(fluent, 1, fire).
+  expect(fluent, 1, fire).
 
-expect_num_of(firedRules,  1, 1).
-expect_num_of(firedRules,  2, _, 0).
-
+% --- Start of cycle 2 ---
 expect_num_of(fluent, 2, 0).
-expect_num_of(action, 2, 1).
-expect(action, 1, 2, eliminate).
+expect_num_of(action, 1, 2, 1).
+  expect(action, 1, 2, eliminate).
+expect_num_of(observation, 1, 2, 0).
+expect_num_of(firedRules, 2, 1).
+expect_num_of(resolvedGoals, 2, 0).
+expect_num_of(unresolvedGoals, 2, 1).
+expect_num_of(failedGoals, 2, 0).
 
+% --- Start of cycle 3 ---
 expect_num_of(fluent, 3, 0).
-expect_num_of(action, 3, 0).
+expect_num_of(action, 2, 3, 0).
+expect_num_of(observation, 2, 3, 0).
+expect_num_of(firedRules, 3, 0).
+expect_num_of(resolvedGoals, 3, 1).
+expect_num_of(unresolvedGoals, 3, 0).
+expect_num_of(failedGoals, 3, 0).
 
+% --- Start of cycle 4 ---
 expect_num_of(fluent, 4, 0).
-expect_num_of(action, 4, 0).
+expect_num_of(action, 3, 4, 0).
+expect_num_of(observation, 3, 4, 0).
+expect_num_of(firedRules, 4, 0).
+expect_num_of(resolvedGoals, 4, 0).
+expect_num_of(unresolvedGoals, 4, 0).
+expect_num_of(failedGoals, 4, 0).
 
+% --- Start of cycle 5 ---
 expect_num_of(fluent, 5, 0).
-expect_num_of(action, 5, 0).
+expect_num_of(action, 4, 5, 0).
+expect_num_of(observation, 4, 5, 0).
+expect_num_of(firedRules, 5, 0).
+expect_num_of(resolvedGoals, 5, 0).
+expect_num_of(unresolvedGoals, 5, 0).
+expect_num_of(failedGoals, 5, 0).
+

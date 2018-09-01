@@ -7,6 +7,6 @@ randomInt(2, 5, A) ->
   add(A) from T1 to T2.
 
 f(T) at T ->
-  lpsHalt.
+  lpsHalt from T.
 
 initiates(add(V), f(V)).

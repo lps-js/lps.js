@@ -11,4 +11,4 @@ expect_num_of(action, 2, 3, 0).
 expect_num_of(observation, 2, 3, 1).
   expect(observation, 2, 3, requestHalt).
 
-expect_num_cycles(3).
+expect_num_cycles(4).

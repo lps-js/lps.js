@@ -1,5 +1,3 @@
-expect(maxTime(10)).
-
 % --- Specification generated for test/programs/fire-recurrent.lps
 % --- Start of cycle 1 ---
 expect_num_of(fluent, 1, 1).
@@ -12,9 +10,9 @@ expect_num_of(fluent, 2, 2).
 expect_num_of(action, 1, 2, 0).
 expect_num_of(observation, 1, 2, 1).
   expect(observation, 1, 2, ignite(sofa)).
-expect_num_of(firedRules, 2, 1).
+expect_num_of(firedRules, 2, 0).
 expect_num_of(resolvedGoals, 2, 0).
-expect_num_of(unresolvedGoals, 2, 1).
+expect_num_of(unresolvedGoals, 2, 0).
 expect_num_of(failedGoals, 2, 0).
 
 % --- Start of cycle 3 ---
@@ -22,9 +20,9 @@ expect_num_of(fluent, 3, 0).
 expect_num_of(action, 2, 3, 1).
   expect(action, 2, 3, eliminate).
 expect_num_of(observation, 2, 3, 0).
-expect_num_of(firedRules, 3, 0).
-expect_num_of(resolvedGoals, 3, 1).
-expect_num_of(unresolvedGoals, 3, 0).
+expect_num_of(firedRules, 3, 1).
+expect_num_of(resolvedGoals, 3, 0).
+expect_num_of(unresolvedGoals, 3, 1).
 expect_num_of(failedGoals, 3, 0).
 
 % --- Start of cycle 4 ---
@@ -32,7 +30,7 @@ expect_num_of(fluent, 4, 0).
 expect_num_of(action, 3, 4, 0).
 expect_num_of(observation, 3, 4, 0).
 expect_num_of(firedRules, 4, 0).
-expect_num_of(resolvedGoals, 4, 0).
+expect_num_of(resolvedGoals, 4, 1).
 expect_num_of(unresolvedGoals, 4, 0).
 expect_num_of(failedGoals, 4, 0).
 
@@ -42,9 +40,9 @@ expect_num_of(fluent, 5, 1).
 expect_num_of(action, 4, 5, 0).
 expect_num_of(observation, 4, 5, 1).
   expect(observation, 4, 5, ignite(bed)).
-expect_num_of(firedRules, 5, 1).
+expect_num_of(firedRules, 5, 0).
 expect_num_of(resolvedGoals, 5, 0).
-expect_num_of(unresolvedGoals, 5, 1).
+expect_num_of(unresolvedGoals, 5, 0).
 expect_num_of(failedGoals, 5, 0).
 
 % --- Start of cycle 6 ---
@@ -54,7 +52,7 @@ expect_num_of(action, 5, 6, 1).
   expect(action, 5, 6, escape).
 expect_num_of(observation, 5, 6, 0).
 expect_num_of(firedRules, 6, 1).
-expect_num_of(resolvedGoals, 6, 1).
+expect_num_of(resolvedGoals, 6, 0).
 expect_num_of(unresolvedGoals, 6, 1).
 expect_num_of(failedGoals, 6, 0).
 
@@ -87,9 +85,9 @@ expect_num_of(fluent, 9, 0).
 expect_num_of(action, 8, 9, 1).
   expect(action, 8, 9, eliminate).
 expect_num_of(observation, 8, 9, 0).
-expect_num_of(firedRules, 9, 0).
+expect_num_of(firedRules, 9, 1).
 expect_num_of(resolvedGoals, 9, 1).
-expect_num_of(unresolvedGoals, 9, 0).
+expect_num_of(unresolvedGoals, 9, 1).
 expect_num_of(failedGoals, 9, 0).
 
 % --- Start of cycle 10 ---
@@ -97,6 +95,7 @@ expect_num_of(fluent, 10, 0).
 expect_num_of(action, 9, 10, 0).
 expect_num_of(observation, 9, 10, 0).
 expect_num_of(firedRules, 10, 0).
-expect_num_of(resolvedGoals, 10, 0).
+expect_num_of(resolvedGoals, 10, 1).
 expect_num_of(unresolvedGoals, 10, 0).
 expect_num_of(failedGoals, 10, 0).
+
