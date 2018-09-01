@@ -20,6 +20,7 @@ const unexpectedTokenErrorMessage = lpsRequire('parser/unexpectedTokenErrorMessa
 const fs = require('fs');
 
 let processArguments;
+let processLiteral;
 
 let processBinaryOperator = function processBinaryOperator(node, singleUnderscoreVariableSet) {
   let operator = node.getToken().value;
@@ -109,18 +110,34 @@ processArguments = function (nodes, singleUnderscoreVariableSetArg) {
   return result;
 };
 
+let processNegatableTerm = function processNegatableTerm(nodeArg, singleUnderscoreVariableSet) {
+  let node = nodeArg;
+  let isNegated = false;
+  while (node.getType() === NodeTypes.Negation) {
+    node = node.getChildren()[0];
+    isNegated = !isNegated;
+  }
+  let term = processLiteral(node, singleUnderscoreVariableSet);
+  if (isNegated) {
+    term = new Functor('!', [term]);
+  }
+  return term;
+};
+
 let processTimable = function processTimable(node, singleUnderscoreVariableSet) {
-  let parameters = processArguments(node.getChildren(), singleUnderscoreVariableSet);
-  let goal = parameters[0];
-  let startTime = parameters[1];
-  let endTime = parameters[1];
-  if (parameters.length > 2) {
-    endTime = parameters[2];
+  let children = node.getChildren();
+  let goal = children.shift();
+  goal = processNegatableTerm(goal, singleUnderscoreVariableSet);
+  let parameters = processArguments(children, singleUnderscoreVariableSet);
+  let startTime = parameters[0];
+  let endTime = parameters[0];
+  if (parameters.length > 1) {
+    endTime = parameters[1];
   }
   return new Timable(goal, startTime, endTime);
 };
 
-let processLiteral = function processLiteral(node, singleUnderscoreVariableSet) {
+processLiteral = function (node, singleUnderscoreVariableSet) {
   switch (node.getType()) {
     case NodeTypes.Timable:
       return processTimable(node, singleUnderscoreVariableSet);
@@ -140,17 +157,8 @@ let processLiteral = function processLiteral(node, singleUnderscoreVariableSet) 
 
 let processLiteralSet = function processLiteralSet(literals, singleUnderscoreVariableSet) {
   let result = [];
-  literals.forEach((nodeArg) => {
-    let node = nodeArg;
-    let isNegated = false;
-    while (node.getType() === NodeTypes.Negation) {
-      node = node.getChildren()[0];
-      isNegated = !isNegated;
-    }
-    let term = processLiteral(node, singleUnderscoreVariableSet);
-    if (isNegated) {
-      term = new Functor('!', [term]);
-    }
+  literals.forEach((node) => {
+    let term = processNegatableTerm(node, singleUnderscoreVariableSet);
     result.push(term);
   });
   return result;
@@ -273,6 +281,12 @@ ProgramFactory.fromString = function fromString(source) {
       resolve(program);
     } catch (err) {
       let errorToken = err.token;
+      if (errorToken === undefined
+          || errorToken.line === undefined
+          || errorToken.col === undefined) {
+        reject(err);
+        return;
+      }
       errorToken.file = '(string)';
       let errorMessage = unexpectedTokenErrorMessage(source, errorToken, err.likelyMissing);
       reject(new Error(errorMessage));
@@ -299,6 +313,12 @@ ProgramFactory.fromFile = function fromFile(pathname) {
         resolve(program);
       } catch (err) {
         let errorToken = err.token;
+        if (errorToken === undefined
+            || errorToken.line === undefined
+            || errorToken.col === undefined) {
+          reject(err);
+          return;
+        }
         let errorMessage = unexpectedTokenErrorMessage(source, errorToken, err.likelyMissing);
         errorMessage = stringLiterals('parser.loadFileErrorHeader', [pathname, errorMessage]);
         reject(new Error(errorMessage));
