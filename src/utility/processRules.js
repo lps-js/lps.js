@@ -16,16 +16,19 @@ module.exports = function processRules(engine, program, state, goals, currentTim
   let newGoals = [];
 
   const containsTimables = function containsTimables(rule) {
-    let firstConjunct = rule.getBodyLiterals()[0];
-    // unfold negation
-    while (firstConjunct instanceof Functor
-        && firstConjunct.getId() === '!/1') {
-      firstConjunct = firstConjunct.getArguments()[0];
+    let conjuncts = rule.getBodyLiterals();
+    for (let i = 0; i < conjuncts.length; i += 1) {
+      let conjunct = conjuncts[i];
+      while (conjunct instanceof Functor
+          && conjunct.getId() === '!/1') {
+        conjunct = conjunct.getArguments()[0];
+      }
+      if (!(conjunct instanceof Timable)) {
+        continue;
+      }
+      return !conjunct.hasExpired(currentTime);
     }
-    if (!(firstConjunct instanceof Timable)) {
-      return false;
-    }
-    return !firstConjunct.hasExpired(currentTime);
+    return false;
   };
 
   const fireRule = function fireRule(consequent) {
