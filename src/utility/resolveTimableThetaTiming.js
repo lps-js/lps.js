@@ -16,23 +16,27 @@ const resolveTimableThetaTiming = function resolveTimableThetaTiming(conjunct, t
   let theta = thetaArg;
   let conjunctStartTime = conjunct.getStartTime();
   let conjunctEndTime = conjunct.getEndTime();
-  if (conjunctStartTime instanceof Variable) {
+  let isConjunctStartTimeVariable = conjunctStartTime instanceof Variable;
+  let isConjunctEndTimeVariable = conjunctEndTime instanceof Variable;
+
+  if (isConjunctStartTimeVariable && isConjunctEndTimeVariable) {
     let startTimeVarName = conjunctStartTime.evaluate();
-    theta[startTimeVarName] = new Value(forTime);
-    thetaDelta[startTimeVarName] = new Value(forTime);
-  }
-  if (conjunctEndTime instanceof Variable) {
     let endTimeVarName = conjunctEndTime.evaluate();
-    if (!(conjunctStartTime instanceof Variable)
-        || endTimeVarName !== conjunctStartTime.evaluate()) {
-      if (conjunctStartTime instanceof Value) {
-        theta[endTimeVarName] = new Value(conjunctStartTime.evaluate() + 1);
-        thetaDelta[endTimeVarName] = new Value(conjunctStartTime.evaluate() + 1);
-      } else {
-        theta[endTimeVarName] = new Value(forTime + 1);
-        thetaDelta[endTimeVarName] = new Value(forTime + 1);
-      }
+    if (startTimeVarName === endTimeVarName) {
+      // fluent
+      theta[startTimeVarName] = new Value(forTime);
+      thetaDelta[startTimeVarName] = new Value(forTime);
+    } else {
+      // action or event
+      theta[startTimeVarName] = new Value(forTime - 1);
+      thetaDelta[startTimeVarName] = new Value(forTime - 1);
+      theta[endTimeVarName] = new Value(forTime);
+      thetaDelta[endTimeVarName] = new Value(forTime);
     }
+  } else if (isConjunctEndTimeVariable) {
+    let endTimeVarName = conjunctEndTime.evaluate();
+    theta[endTimeVarName] = new Value(conjunctStartTime.evaluate() + 1);
+    thetaDelta[endTimeVarName] = new Value(conjunctStartTime.evaluate() + 1);
   }
   return thetaDelta;
 };
