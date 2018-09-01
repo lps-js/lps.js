@@ -445,7 +445,7 @@ function Engine(programArg) {
     _profiler.set('lastCycleNumFailedGoals', 0);
     _profiler.set('lastCycleNumResolvedGoals', 0);
     _profiler.set('lastCycleNumNewRules', 0);
-    _profiler.set('lastCycleNumRulesDiscarded', 0);
+    _profiler.set('lastCycleNumDiscardedRules', 0);
 
     _isInCycle = true;
     let startTime = Date.now();
