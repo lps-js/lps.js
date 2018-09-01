@@ -5,15 +5,14 @@
 
 const lpsRequire = require('../lpsRequire');
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
-const goalTreeSorter = lpsRequire('utility/goalTreeSorter');
 
-module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler, mode) {
+module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler) {
   let goalTreeProcessingPromises = [];
   let newGoals = [];
   let processedNodes = new ConjunctionMap();
   goalTrees.forEach((goalTree) => {
     let treePromise = goalTree
-      .evaluate(currentTime, processedNodes, mode)
+      .evaluate(currentTime, processedNodes)
       .then((evaluationResult) => {
         if (evaluationResult === null) {
           // goal tree failed
@@ -40,7 +39,6 @@ module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler, mo
   return Promise.all(goalTreeProcessingPromises)
     .then(() => {
       // ensure goal trees are sorted by their deadlines
-      newGoals.sort(goalTreeSorter(currentTime));
       return Promise.resolve(newGoals);
     });
 };
