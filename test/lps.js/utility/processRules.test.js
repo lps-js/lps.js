@@ -11,6 +11,7 @@ const Value = lpsRequire('engine/Value');
 const Program = lpsRequire('engine/Program');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Engine = lpsRequire('engine/Engine');
+const Profiler = lpsRequire('utility/profiler/Profiler');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -25,7 +26,7 @@ describe('processRules', () => {
         new Functor('<=', [new Functor('abs', [new Functor('-', [new Variable('T2'), new Variable('T4')])]), new Value(60)])
       ]
     );
-
+    let profiler = new Profiler();
     let events = new LiteralTreeMap();
     events.add(new Functor('smoke_detected', [new Value('kitchen'), new Value(14), new Value(15)]));
 
@@ -36,7 +37,7 @@ describe('processRules', () => {
     program.setExecutedActions(events);
 
     let goals = [];
-    let result = processRules(engine, program, goals, 15);
+    let result = processRules(engine, program, [events], goals, 15, profiler);
     expect(result).to.be.instanceof(Array);
     expect(result).to.be.length(0);
   });
