@@ -65,6 +65,7 @@ let resolveStateConditions = function resolveStateConditions(
     let otherConjuncts = remainingConjuncts.slice(1);
 
     if (mode === 'state' && isConjunctAction) {
+      // in state mode, we skip over actions
       return processConjuncts(
         otherConjuncts,
         residueConjuncts.concat([conjunct]),

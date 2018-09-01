@@ -26,6 +26,10 @@ function sortTimables(conjunction, forTime) {
 
     if (!(conjunct instanceof Timable)) {
       // skip over non-Timables
+      conjunct.getVariables()
+        .forEach((v) => {
+          dependentTimeVariables[v] = true;
+        });
       continue;
     }
 
