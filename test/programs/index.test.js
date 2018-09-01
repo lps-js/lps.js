@@ -65,6 +65,7 @@ describe('Programs Test', function () {
     'turing',
     'randomHalt',
     'goat',
+    'mark',
     'mark-hiccup',
     'findall',
     'trash',
