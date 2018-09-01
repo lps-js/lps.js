@@ -9,6 +9,7 @@ const Resolutor = lpsRequire('engine/Resolutor');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
 
 const processRules = lpsRequire('utility/processRules');
+const goalTreeSorter = lpsRequire('utility/goalTreeSorter');
 const EventManager = lpsRequire('utility/observer/Manager');
 const Profiler = lpsRequire('utility/profiler/Profiler');
 const constraintCheck = lpsRequire('utility/constraintCheck');
@@ -201,27 +202,48 @@ function Engine(programArg) {
     Perform Cycle
   */
   const performCycle = function performCycle() {
-    let updatedState = _program.getState().clone();
+    let promise = Promise.resolve();
+    if (_currentTime === 0) {
+      return Promise.resolve()
+        .then(() => {
+          _currentTime += 1;
+          _lastCycleActions = new LiteralTreeMap();
+          _lastCycleObservations = new LiteralTreeMap();
+          return Promise.resolve();
+        });
+    }
 
-    // update with observations
-    // observation needs to take precedence in processing over
-    // action selection so that we "cleverly" do not select
-    // actions for exection that has been observed in the same cycle.
-    // the idea of "someone else has done something I needed to do, thanks anyway"
-    let executedActions = new LiteralTreeMap();
-    let cycleObservations = processCycleObservations.call(this);
-    cycleObservations.forEach((observation) => {
-      executedActions.add(observation);
-    });
+    return evaluateGoalTrees(_currentTime, _goals, _profiler)
+      .then((newGoals) => {
+        // preparation for next cycle
+        _goals = newGoals;
+        let state = [
+          _program.getFacts(),
+          _program.getState(),
+          _program.getExecutedActions()
+        ];
+        let newFiredGoals = processRules(this, _program, state, _goals, _currentTime, _profiler);
 
-    // to handle time for this iteration
-    _program.setExecutedActions(executedActions);
-
-    // decide which actions from set of candidate actions to execute
-    return actionsSelector.call(this, _goals)
+        _program.setExecutedActions(new LiteralTreeMap());
+        return evaluateGoalTrees(_currentTime, newFiredGoals, _profiler);
+      })
+      .then((newRemainingFiredGoals) => {
+        _goals = _goals.concat(newRemainingFiredGoals);
+        _goals.sort(goalTreeSorter(_currentTime));
+        return actionsSelector.call(this, _goals);
+      })
       .then((selectedActions) => {
+        // update with observations
+        // observation needs to take precedence in processing over
+        // action selection so that we "cleverly" do not select
+        // actions for exection that has been observed in the same cycle.
+        // the idea of "someone else has done something I needed to do, thanks anyway"
         let selectedAndExecutedActions = new LiteralTreeMap();
-        // process selected actions
+        let executedActions = _program.getExecutedActions();
+        let cycleObservations = processCycleObservations.call(this);
+        cycleObservations.forEach((observation) => {
+          executedActions.add(observation);
+        });
         selectedActions.forEach((l) => {
           if (executedActions.contains(l)) {
             return;
@@ -234,47 +256,16 @@ function Engine(programArg) {
           });
         });
 
-        let promise = Promise.resolve(_goals);
-        let newFiredGoals = [];
+        let updatedState = _program.getState().clone();
+        updatedState = updateStateWithFluentActors(this, executedActions, updatedState);
+        _program.setState(updatedState);
 
-        if (_currentTime > 0) {
-          let preState = [
-            _program.getFacts(),
-            _program.getExecutedActions()
-          ];
-          newFiredGoals = processRules(this, _program, preState, _goals, _currentTime, _profiler);
-          _goals = _goals.concat(newFiredGoals);
-          promise = evaluateGoalTrees(_currentTime, _goals, _profiler, 'actions');
-        }
+        _currentTime += 1;
 
-        return promise
-          .then((newGoals) => {
-            _goals = newGoals;
+        _lastCycleActions = selectedAndExecutedActions;
+        _lastCycleObservations = cycleObservations;
 
-            // preparation for next cycle
-            _currentTime += 1;
-            updatedState = updateStateWithFluentActors(this, executedActions, updatedState);
-            _program.setState(updatedState);
-            _program.setExecutedActions(new LiteralTreeMap());
-
-            let postState = [
-              _program.getFacts(),
-              _program.getState()
-            ];
-            // build goal clauses for each rule
-            // we need to derive the partially executed rule here too
-            newFiredGoals = processRules(this, _program, postState, _goals, _currentTime, _profiler);
-            _goals = _goals.concat(newFiredGoals);
-            return evaluateGoalTrees(_currentTime, _goals, _profiler, 'state');
-          })
-          .then((newGoals) => {
-            _goals = newGoals;
-
-            _lastCycleActions = selectedAndExecutedActions;
-            _lastCycleObservations = cycleObservations;
-
-            return Promise.resolve();
-          });
+        return Promise.resolve();
       });
   };
 
