@@ -181,7 +181,7 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
     });
 
     if (literalThetas.length === 0) {
-      if (!(conjunct instanceof Timable)) {
+      if (!(conjunct instanceof Timable) || conjunct.isInRange(forTime)) {
         return;
       }
       result.push({
