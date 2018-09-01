@@ -44,8 +44,6 @@ const builtinModules = [
   'p2p'
 ];
 
-let consultCache = {};
-
 const processLoadModules = function processLoadModules(
   currentProgram,
   targetProgram,
@@ -151,16 +149,11 @@ function consultProcessor(engine, targetProgram) {
   };
 
   const consultFile = function consultFile(file, id) {
-    let promise;
-    if (consultCache[file] === undefined) {
-      promise = ProgramFactory.fromFile(file);
-    } else {
-      promise = Promise.resolve(consultCache[file]);
-    }
-    return promise
+    // we removed caching because of sometimes augmented files are updated
+    // but we still load the cached version
+    return ProgramFactory.fromFile(file)
       .then((loadedProgram) => {
         // cache loaded program
-        consultCache[file] = loadedProgram.clone();
         if (id !== undefined) {
           processProgramWithId(loadedProgram, id);
         }
