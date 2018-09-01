@@ -26,6 +26,10 @@ function Timable(goal, startTimeArg, endTimeArg) {
     return 3;
   };
 
+  this.getId = function getId() {
+    return 'occurs/3';
+  };
+
   this.getGoal = function getGoal() {
     return goal;
   };
@@ -41,7 +45,7 @@ function Timable(goal, startTimeArg, endTimeArg) {
   this.isInRange = function isInRange(currentTime) {
     return (startTime instanceof Variable)
         || (startTime instanceof Value
-          && startTime.evaluate() === currentTime);
+          && startTime.evaluate() <= currentTime);
   };
 
   this.hasExpired = function hasExpired(currentTime) {
