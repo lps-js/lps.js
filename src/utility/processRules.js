@@ -11,7 +11,7 @@ const Functor = lpsRequire('engine/Functor');
 const Timable = lpsRequire('engine/Timable');
 const Resolutor = lpsRequire('engine/Resolutor');
 
-module.exports = function processRules(engine, program, state, goals, currentTime) {
+module.exports = function processRules(engine, program, state, goals, currentTime, profiler) {
   let rules = program.getRules();
   let newGoals = [];
 
@@ -57,6 +57,7 @@ module.exports = function processRules(engine, program, state, goals, currentTim
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
+        profiler.increment('lastCycleNumRulesDiscarded');
         return;
       }
       let substitutedConsequentLiterals = consequentLiterals
@@ -74,9 +75,11 @@ module.exports = function processRules(engine, program, state, goals, currentTim
       if (acceptNewRule) {
         let newRule = new Clause(substitutedConsequentLiterals, body);
         newRules.push(newRule);
+        profiler.increment('lastCycleNumNewRules');
       }
     });
   });
   program.setRules(newRules);
+  profiler.increaseBy('lastCycleNumFiredRules', newGoals.length);
   return newGoals;
 };

@@ -242,8 +242,7 @@ function Engine(programArg) {
             _program.getFacts(),
             _program.getExecutedActions()
           ];
-          newFiredGoals = processRules(this, _program, preState, _goals, _currentTime);
-          _profiler.increaseBy('lastCycleNumFiredRules', newFiredGoals.length);
+          newFiredGoals = processRules(this, _program, preState, _goals, _currentTime, _profiler);
           _goals = _goals.concat(newFiredGoals);
           promise = evaluateGoalTrees(_currentTime, _goals, _profiler, 'actions');
         }
@@ -264,8 +263,7 @@ function Engine(programArg) {
             ];
             // build goal clauses for each rule
             // we need to derive the partially executed rule here too
-            newFiredGoals = processRules(this, _program, postState, _goals, _currentTime);
-            _profiler.increaseBy('lastCycleNumFiredRules', newFiredGoals.length);
+            newFiredGoals = processRules(this, _program, postState, _goals, _currentTime, _profiler);
             _goals = _goals.concat(newFiredGoals);
             return evaluateGoalTrees(_currentTime, _goals, _profiler, 'state');
           })
@@ -442,9 +440,13 @@ function Engine(programArg) {
       return Promise.resolve();
     }
     _engineEventManager.notify('preCycle', this);
+
     _profiler.set('lastCycleNumFiredRules', 0);
     _profiler.set('lastCycleNumFailedGoals', 0);
     _profiler.set('lastCycleNumResolvedGoals', 0);
+    _profiler.set('lastCycleNumNewRules', 0);
+    _profiler.set('lastCycleNumRulesDiscarded', 0);
+
     _isInCycle = true;
     let startTime = Date.now();
     return performCycle.call(this)
