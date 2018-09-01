@@ -22,13 +22,10 @@ module.exports = function processRules(engine, program, state, goals, currentTim
         && firstConjunct.getId() === '!/1') {
       firstConjunct = firstConjunct.getArguments()[0];
     }
-    if (program.isTimable(firstConjunct)) {
-      return true;
-    }
     if (!(firstConjunct instanceof Timable)) {
       return false;
     }
-    return firstConjunct.isAnytime();
+    return !firstConjunct.hasExpired(currentTime);
   };
 
   const fireRule = function fireRule(consequent) {
