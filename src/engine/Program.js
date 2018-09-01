@@ -13,9 +13,22 @@ const stringLiterals = lpsRequire('utility/strings');
 
 function _ProgramCloneType() {}
 
+const sortClauses = (clauseSet, sortedSet) => {
+  clauseSet.forEach((clause) => {
+    let headLiteral = clause.getHeadLiterals()[0];
+    let list = sortedSet[headLiteral.getId()];
+    if (list === undefined) {
+      list = [];
+      sortedSet[headLiteral.getId()] = list;
+    }
+    list.push(clause);
+  });
+};
+
 function Program() {
   let _rules = [];
   let _clauses = [];
+  let _sortedClauses = {};
   let _constraints = [];
   let _facts = new LiteralTreeMap();
   let _currentState = new LiteralTreeMap();
@@ -37,6 +50,7 @@ function Program() {
 
         _rules = program.rules.concat();
         _clauses = program.clauses.concat();
+        _sortedClauses = program.sortedClauses;
         _constraints = program.constraints.concat();
 
         _currentState = program.state.clone();
@@ -54,6 +68,7 @@ function Program() {
       facts: _facts,
       rules: _rules,
       clauses: _clauses,
+      sortedClauses: _sortedClauses,
       constraints: _constraints,
       state: _currentState,
       executedActions: _executedActions,
@@ -173,6 +188,8 @@ function Program() {
 
   this.setClauses = function setClauses(clauses) {
     _clauses = clauses;
+    _sortedClauses = {};
+    sortClauses(_clauses, _sortedClauses);
   };
 
   this.getConstraints = function getConstraints() {
@@ -215,8 +232,11 @@ function Program() {
     let result = [];
     let literalMap = new LiteralTreeMap();
     literalMap.add(literal);
-
-    _clauses.forEach((clause) => {
+    let set = _sortedClauses[literal.getId()];
+    if (set === undefined) {
+      return [];
+    }
+    set.forEach((clause) => {
       // horn clause guarantees only one literal
       let headLiterals = clause.getHeadLiterals();
       let headLiteral = headLiterals[0];
@@ -259,6 +279,7 @@ function Program() {
 
     _rules = _rules.concat(program.getRules());
     _clauses = _clauses.concat(programClauses);
+    sortClauses(programClauses, _sortedClauses);
     _constraints = _constraints.concat(program.getConstraints());
     program
       .getFacts()
