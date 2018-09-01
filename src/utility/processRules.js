@@ -46,9 +46,10 @@ module.exports = function processRules(engine, program, state, goals, currentTim
       fireRule(rule.getHeadLiterals());
       return;
     }
+    let isRulePreserved = false;
     if (containsTimables(rule)) {
+      isRulePreserved = true;
       // preserve a rule if it has timeable in its antecedent
-      profiler.increment('lastCycleNumNewRules');
       newRules.push(rule);
     }
     let resolutions = Resolutor.reduceRuleAntecedent(engine, state, rule, currentTime);
@@ -76,8 +77,11 @@ module.exports = function processRules(engine, program, state, goals, currentTim
         return;
       }
     });
-    profiler.increment('lastCycleNumDiscardedRules');
+    if (!isRulePreserved) {
+      profiler.increment('lastCycleNumDiscardedRules');
+    }
   });
+  profiler.set('numRules', newRules.length);
   program.setRules(newRules);
   profiler.increaseBy('lastCycleNumFiredRules', newGoals.length);
   return newGoals;
