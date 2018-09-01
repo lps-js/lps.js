@@ -5,8 +5,17 @@
 
 const lpsRequire = require('../lpsRequire');
 const Variable = lpsRequire('engine/Variable');
+const Functor = lpsRequire('engine/Functor');
 const Value = lpsRequire('engine/Value');
 const Timable = lpsRequire('engine/Timable');
+
+const comparisonTerms = [
+  '</2',
+  '>/2',
+  '<=/2',
+  '>=/2',
+  '=/2'
+]
 
 /**
  * Sort timables into set of earlyConjuncts and laterConjuncts
@@ -26,10 +35,13 @@ function sortTimables(conjunction, forTime) {
 
     if (!(conjunct instanceof Timable)) {
       // skip over non-Timables
-      conjunct.getVariables()
-        .forEach((v) => {
-          dependentTimeVariables[v] = true;
-        });
+      if (conjunct instanceof Functor
+          && comparisonTerms.indexOf(conjunct.getId()) !== -1) {
+        conjunct.getVariables()
+          .forEach((v) => {
+            dependentTimeVariables[v] = true;
+          });
+      }
       continue;
     }
 
