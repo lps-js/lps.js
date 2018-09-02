@@ -388,20 +388,26 @@ function Engine(programArg) {
   };
 
   this.query = function query(literalArg, type) {
-    let literal = literalArg;
-    if (type === 'fluent') {
-      return _program.getState().unifies(literal);
-    }
+    try {
+      let literal = literalArg;
+      if (type === 'fluent') {
+        return _program.getState().unifies(literal);
+      }
 
-    if (type === 'action') {
-      return _lastCycleActions.unifies(literal);
-    }
+      if (type === 'action') {
+        return _lastCycleActions.unifies(literal);
+      }
 
-    if (type === 'observation') {
-      return _lastCycleObservations.unifies(literal);
-    }
+      if (type === 'observation') {
+        return _lastCycleObservations.unifies(literal);
+      }
 
-    return _program.query(literal, this);
+      return _program.query(literal, this);
+    } catch (err) {
+      this.halt();
+      _engineEventManager.notify('error', err);
+    }
+    return [];
   };
 
   this.hasHalted = function hasHalted() {
