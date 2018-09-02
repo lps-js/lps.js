@@ -1,4 +1,4 @@
-maxTime(8).
+maxTime(12).
 
 loadModule(p2p).
 
