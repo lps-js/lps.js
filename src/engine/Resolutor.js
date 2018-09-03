@@ -96,18 +96,7 @@ Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
       .substitute(thetaSoFar);
     let literal = conjunct.getGoal();
 
-    let literalThetas = [];
-    let substitutedInstances = Resolutor
-      .handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
-    substitutedInstances.forEach((l) => {
-      if (functorProvider.has(l.getId())) {
-        literalThetas = literalThetas.concat(functorProvider.execute(l));
-      }
-      literalThetas = literalThetas.concat(Resolutor.findUnifications(l, facts));
-    });
-
-    let literalMap = new LiteralTreeMap();
-    literalMap.add(conjunct);
+    let literalThetas = Resolutor.queryState(literal, functorProvider, facts);
 
     program
       .getDefinitions(conjunct)
@@ -147,6 +136,19 @@ Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
   return result;
 };
 
+Resolutor.queryState = function queryState(literal, functorProvider, state) {
+  let literalThetas = [];
+  let substitutedInstances = Resolutor
+    .handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
+  substitutedInstances.forEach((l) => {
+    if (functorProvider.has(l.getId())) {
+      literalThetas = literalThetas.concat(functorProvider.execute(l));
+    }
+    literalThetas = literalThetas.concat(Resolutor.findUnifications(l, state));
+  });
+  return literalThetas;
+};
+
 Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
   engine,
   state,
@@ -170,15 +172,7 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
     let literal = conjunct
       .getGoal()
       .substitute(thetaDelta);
-    let literalThetas = [];
-    let substitutedInstances = Resolutor
-      .handleBuiltInFunctorArgumentInLiteral(functorProvider, literal);
-    substitutedInstances.forEach((l) => {
-      if (functorProvider.has(l.getId())) {
-        literalThetas = literalThetas.concat(functorProvider.execute(l));
-      }
-      literalThetas = literalThetas.concat(Resolutor.findUnifications(l, state));
-    });
+    let literalThetas = Resolutor.queryState(literal, functorProvider, state);
 
     if (literalThetas.length === 0) {
       if (!(conjunct instanceof Timable) || conjunct.isInRange(forTime)) {
