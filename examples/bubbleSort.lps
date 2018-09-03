@@ -13,8 +13,8 @@ location(X, N1, T1), location(Y, N1 + 1, T1), Y @< X ->
   swapped(X, N1, Y, N1 + 1, T2, T3).
 
 % swapped does not work if the order of the two clauses below is
-% reversed. Perhaps for good reasons, 
-% namely in the hope that positions will become swapped in the future 
+% reversed. Perhaps for good reasons,
+% namely in the hope that positions will become swapped in the future
 % without the need to swap them explicitly.
 
 swapped(X, N1, Y, N2, T1, T2) <-
@@ -24,7 +24,7 @@ swapped(X, N1, Y, N2, T1, T2) <-
   swap(X, N1, Y, N2, T1, T2).
 
 
-swapped(X, N1, Y, N2, T, T) <- 
+swapped(X, N1, Y, N2, T, T) <-
   location(X, N1, T),
   location(Y, N2, T),
   X @< Y.
@@ -35,5 +35,5 @@ initiates(swap(X, N1, Y, N2), location(Y, N1)).
 terminates(swap(X, N1, Y, N2), location(X, N1)).
 terminates(swap(X, N1, Y, N2), location(Y, N2)).
 
-<- swap(X, N1, Y, N2, T1, T2), swap(Y, N2, Z, N3, T1, T2).
+<- swap(X, N1, Y, N2), swap(Y, N2, Z, N3).
 % <- swap(X, N1, Y, N2, T1, T2), swap(A, N3, B, N4, T1, T2), X != A, Y != B.
