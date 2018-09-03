@@ -50,6 +50,7 @@ describe('Programs Test', function () {
     'bank-terse',
     'badlight2',
     'ballot',
+    'bubbleSort',
     'binary-search',
     'binary-search2',
     'fire-simple',
