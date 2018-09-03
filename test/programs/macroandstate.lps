@@ -1,0 +1,8 @@
+action(act/1).
+
+continuousExecution(1).
+
+f(X) <- X = 2.
+f(1).
+
+true -> f(X), act(X) from T1 to T2, act(X) from T2 to T3.
