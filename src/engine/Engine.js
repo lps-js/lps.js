@@ -91,7 +91,12 @@ function Engine(programArg) {
       let postCloneProgram = cloneProgram.clone();
       let postState = postCloneProgram.getState();
       postCloneProgram.setExecutedActions(new LiteralTreeMap());
-      postState = updateStateWithFluentActors(this, tempTreeMap, _fluentActorDeclarations, postState);
+      updateStateWithFluentActors(
+        this,
+        tempTreeMap,
+        _fluentActorDeclarations,
+        postState
+      );
       postCloneProgram.setState(postState);
 
       // only perform pre-checks
@@ -164,7 +169,12 @@ function Engine(programArg) {
         let clonePostProgram = programSoFar.clone();
         clonePostProgram.setExecutedActions(new LiteralTreeMap());
         let postState = clonePostProgram.getState();
-        postState = updateStateWithFluentActors(this, candidateActions, _fluentActorDeclarations, postState);
+        updateStateWithFluentActors(
+          this,
+          candidateActions,
+          _fluentActorDeclarations,
+          postState
+        );
         clonePostProgram.setState(postState);
 
         if (!checkConstraintSatisfaction.call(this, clonePostProgram)) {
@@ -207,7 +217,6 @@ function Engine(programArg) {
     Perform Cycle
   */
   const performCycle = function performCycle() {
-    let promise = Promise.resolve();
     if (_currentTime === 0) {
       return Promise.resolve()
         .then(() => {
@@ -262,7 +271,12 @@ function Engine(programArg) {
         });
 
         let updatedState = _program.getState().clone();
-        updatedState = updateStateWithFluentActors(this, executedActions, _fluentActorDeclarations, updatedState);
+        updateStateWithFluentActors(
+          this,
+          executedActions,
+          _fluentActorDeclarations,
+          updatedState
+        );
         _program.setState(updatedState);
 
         _currentTime += 1;
