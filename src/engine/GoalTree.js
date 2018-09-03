@@ -29,6 +29,12 @@ const resolveStateConditions = function resolveStateConditions(
   earlyConjuncts,
   forTime
 ) {
+  let state = [
+    program.getFacts(),
+    program.getState(),
+    program.getExecutedActions()
+  ];
+  let functorProvider = engine.getFunctorProvider();
   let nodes = [];
 
   let processConjuncts = function processConjuncts(
@@ -66,7 +72,7 @@ const resolveStateConditions = function resolveStateConditions(
 
     let conjunctVariables = conjunct.getVariables();
 
-    let literalThetas = engine.query(goal);
+    let literalThetas = Resolutor.queryState(goal, functorProvider, state);
 
     if (literalThetas.length === 0) {
       if (isConjunctAction) {
@@ -397,30 +403,33 @@ function GoalNode(engine, program, conjunctsArg, theta) {
     let isFirstConjunctUntimed = earlyConjuncts[0] instanceof Timable
       && earlyConjuncts[0].isAnytime();
 
-    if (!hasMacroExpansion) {
-      let stateConditionResolutionResult = resolveStateConditions(
-        engine,
-        program,
-        earlyConjuncts,
-        forTime
-      );
-      if (stateConditionResolutionResult === null
-          && !isFirstConjunctUntimed) {
-        this.hasBranchFailed = true;
-        processedNodes.add(this.conjuncts, null);
-        return null;
-      }
-      if (stateConditionResolutionResult !== null) {
-        stateConditionResolutionResult.forEach((tuple) => {
-          let substitutedLaterConjuncts = laterConjuncts
-            .map((conjunct) => {
-              return conjunct.substitute(tuple.theta);
-            });
-          let newNodeConjuncts = tuple.conjuncts
-            .concat(substitutedLaterConjuncts);
-          reductionResult.push([newNodeConjuncts, tuple.theta]);
-        });
-      }
+    // resolve state condition for the first early conjunct
+    let stateConditionResolutionResult = resolveStateConditions(
+      engine,
+      program,
+      earlyConjuncts,
+      forTime
+    );
+    if (!hasMacroExpansion
+        && stateConditionResolutionResult === null
+        && !isFirstConjunctUntimed) {
+      // if there were no macro expansion and the processed conjunct was not untimed, and it failed
+      // then this node has failed indefinitely
+      this.hasBranchFailed = true;
+      processedNodes.add(this.conjuncts, null);
+      return null;
+    }
+    if (stateConditionResolutionResult !== null) {
+      // process successful results
+      stateConditionResolutionResult.forEach((tuple) => {
+        let substitutedLaterConjuncts = laterConjuncts
+          .map((conjunct) => {
+            return conjunct.substitute(tuple.theta);
+          });
+        let newNodeConjuncts = tuple.conjuncts
+          .concat(substitutedLaterConjuncts);
+        reductionResult.push([newNodeConjuncts, tuple.theta]);
+      });
     }
 
     let newChildren = processArgumentFunctorsInClause(engine.getFunctorProvider(), reductionResult)
