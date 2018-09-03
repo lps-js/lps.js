@@ -10,19 +10,15 @@ const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const compactTheta = lpsRequire('utility/compactTheta');
 const Resolutor = lpsRequire('engine/Resolutor');
 
-const fluentActorDeclarationLiteral = ProgramFactory
-  .literal('fluentActorDeclare(T, A, Old, New, Conds)');
-
-const updateStateWithFluentActors = function updateStateWithFluentActors(engine, actions, state) {
+const updateStateWithFluentActors = function updateStateWithFluentActors(engine, executedActions, fluentActorDeclarations, state) {
   let newState = state.clone();
   let fluentActors = [];
 
   // query has to be done on the spot as some of the declarations
   // may be intensional instead of static
-  let result = engine.query(fluentActorDeclarationLiteral);
   let functorProvider = engine.getFunctorProvider();
 
-  result.forEach((r) => {
+  fluentActorDeclarations.forEach((r) => {
     let type = r.theta.T;
     let action = r.theta.A;
     let oldFluent = r.theta.Old;
@@ -68,7 +64,7 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(engine,
 
   fluentActors.forEach((actor) => {
     let thetaSets = [];
-    actions.unifies(actor.a)
+    executedActions.unifies(actor.a)
       .forEach((node) => {
         let substitutedCondition = actor.c.substitute(node.theta);
         let subQueryResult = engine.query(substitutedCondition.flatten());

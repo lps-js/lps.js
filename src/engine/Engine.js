@@ -6,6 +6,7 @@
 const lpsRequire = require('../lpsRequire');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
 
 const processRules = lpsRequire('utility/processRules');
@@ -24,6 +25,9 @@ const ruleAntecedentProcessor = lpsRequire('engine/processors/ruleAntecedent');
 const settingsProcessor = lpsRequire('engine/processors/settings');
 const timableProcessor = lpsRequire('engine/processors/timable');
 const coreModule = lpsRequire('engine/modules/core');
+
+const fluentActorDeclarationLiteral = ProgramFactory
+  .literal('fluentActorDeclare(T, A, Old, New, Conds)');
 
 const forEachToString = (arr) => {
   return (item) => {
@@ -53,6 +57,7 @@ function Engine(programArg) {
   let _lastCycleObservations = null;
 
   let _functorProvider = new FunctorProvider(this);
+  let _fluentActorDeclarations = [];
 
   let checkConstraintSatisfaction = function checkConstraintSatisfaction(otherProgram) {
     let originalProgram = _program;
@@ -86,7 +91,7 @@ function Engine(programArg) {
       let postCloneProgram = cloneProgram.clone();
       let postState = postCloneProgram.getState();
       postCloneProgram.setExecutedActions(new LiteralTreeMap());
-      postState = updateStateWithFluentActors(this, tempTreeMap, postState);
+      postState = updateStateWithFluentActors(this, tempTreeMap, _fluentActorDeclarations, postState);
       postCloneProgram.setState(postState);
 
       // only perform pre-checks
@@ -159,7 +164,7 @@ function Engine(programArg) {
         let clonePostProgram = programSoFar.clone();
         clonePostProgram.setExecutedActions(new LiteralTreeMap());
         let postState = clonePostProgram.getState();
-        postState = updateStateWithFluentActors(this, candidateActions, postState);
+        postState = updateStateWithFluentActors(this, candidateActions, _fluentActorDeclarations, postState);
         clonePostProgram.setState(postState);
 
         if (!checkConstraintSatisfaction.call(this, clonePostProgram)) {
@@ -257,7 +262,7 @@ function Engine(programArg) {
         });
 
         let updatedState = _program.getState().clone();
-        updatedState = updateStateWithFluentActors(this, executedActions, updatedState);
+        updatedState = updateStateWithFluentActors(this, executedActions, _fluentActorDeclarations, updatedState);
         _program.setState(updatedState);
 
         _currentTime += 1;
@@ -657,6 +662,7 @@ function Engine(programArg) {
         return consultProcessor(this, _program);
       })
       .then(() => {
+        _fluentActorDeclarations = this.query(fluentActorDeclarationLiteral);
         return _engineEventManager.notify('loaded', this);
       })
       .then(() => {
