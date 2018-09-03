@@ -168,9 +168,9 @@ const resolveSimpleActions = function resolveSimpleActions(
   return numAdded;
 };
 
-const hasExpiredCandidateAction = function(conjuncts, forTime) {
+const hasExpiredCandidateAction = function (conjuncts, forTime) {
   let result = false;
-  for(let i = 0; i < conjuncts.length; i += 1) {
+  for (let i = 0; i < conjuncts.length; i += 1) {
     let conjunct = conjuncts[i];
     if (!(conjunct instanceof Timable)) {
       continue;
@@ -182,7 +182,7 @@ const hasExpiredCandidateAction = function(conjuncts, forTime) {
     }
   }
   return result;
-}
+};
 
 const processArgumentFunctorsInClause = function processArgumentFunctorsInClause(
   functorProvider,
@@ -567,7 +567,6 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
       }
 
       for (let i = 0; i < candidateActionSets.length; i += 1) {
-        let unresolved = unresolvedSets[i];
         let candidateActions = candidateActionSets[i];
         callback(candidateActions);
       }

@@ -15,7 +15,7 @@ const comparisonTerms = [
   '<=/2',
   '>=/2',
   '=/2'
-]
+];
 
 /**
  * Sort timables into set of earlyConjuncts and laterConjuncts

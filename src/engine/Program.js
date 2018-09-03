@@ -13,7 +13,8 @@ const stringLiterals = lpsRequire('utility/strings');
 
 function _ProgramCloneType() {}
 
-const sortClauses = (clauseSet, sortedSet) => {
+const sortClauses = (clauseSet, sortedSetArg) => {
+  let sortedSet = sortedSetArg;
   clauseSet.forEach((clause) => {
     let headLiteral = clause.getHeadLiterals()[0];
     let list = sortedSet[headLiteral.getId()];

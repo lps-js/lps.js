@@ -6,12 +6,15 @@
 const lpsRequire = require('../lpsRequire');
 const Functor = lpsRequire('engine/Functor');
 const List = lpsRequire('engine/List');
-const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const compactTheta = lpsRequire('utility/compactTheta');
 const Resolutor = lpsRequire('engine/Resolutor');
 
-const updateStateWithFluentActors = function updateStateWithFluentActors(engine, executedActions, fluentActorDeclarations, state) {
-  let newState = state.clone();
+const updateStateWithFluentActors = function updateStateWithFluentActors(
+  engine,
+  executedActions,
+  fluentActorDeclarations,
+  state
+) {
   let fluentActors = [];
 
   // query has to be done on the spot as some of the declarations
@@ -83,7 +86,7 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(engine,
       // in case we are performing an update
       if (actor.t) {
         let terminatedGroundFluent = actor.t.substitute(node.theta);
-        let stateThetaSet = newState.unifies(terminatedGroundFluent);
+        let stateThetaSet = state.unifies(terminatedGroundFluent);
         initiateThetaSet = [];
         stateThetaSet.forEach((terminatedNode) => {
           let currentTheta = compactTheta(node.theta, terminatedNode.theta);
@@ -94,7 +97,7 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(engine,
               terminatedGroundFluent.substitute(currentTheta)
             );
           terminatedFluentSet.forEach((fluent) => {
-            newState.remove(fluent);
+            state.remove(fluent);
           });
         });
       }
@@ -110,14 +113,12 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(engine,
               initiatedGroundFluent
             );
           initiatedFluentSet.forEach((fluent) => {
-            newState.add(fluent);
+            state.add(fluent);
           });
         });
       }
     });
   });
-
-  return newState;
 };
 
 module.exports = updateStateWithFluentActors;

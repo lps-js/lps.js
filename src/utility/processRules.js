@@ -77,7 +77,6 @@ module.exports = function processRules(engine, program, state, goals, currentTim
         let newRule = new Clause(substitutedConsequentLiterals, body);
         newRules.push(newRule);
         profiler.increment('lastCycleNumNewRules');
-        return;
       }
     });
     if (!isRulePreserved) {
