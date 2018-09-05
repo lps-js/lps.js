@@ -218,13 +218,10 @@ function Engine(programArg) {
   */
   const performCycle = function performCycle() {
     if (_currentTime === 0) {
-      return Promise.resolve()
-        .then(() => {
-          _currentTime += 1;
-          _lastCycleActions = new LiteralTreeMap();
-          _lastCycleObservations = new LiteralTreeMap();
-          return Promise.resolve();
-        });
+      _currentTime += 1;
+      _lastCycleActions = new LiteralTreeMap();
+      _lastCycleObservations = new LiteralTreeMap();
+      return Promise.resolve();
     }
 
     return evaluateGoalTrees(_currentTime, _goals, _profiler)
