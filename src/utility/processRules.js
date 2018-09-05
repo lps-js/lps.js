@@ -11,7 +11,7 @@ const Functor = lpsRequire('engine/Functor');
 const Timable = lpsRequire('engine/Timable');
 const Resolutor = lpsRequire('engine/Resolutor');
 
-module.exports = function processRules(engine, program, state, goals, currentTime, profiler) {
+module.exports = function processRules(engine, program, state, currentTime, profiler) {
   let rules = program.getRules();
   let newGoals = [];
 
