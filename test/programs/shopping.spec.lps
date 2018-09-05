@@ -70,23 +70,7 @@ expect_num_of(action, 4, 5, 1).
   expect(action, 4, 5, checkout).
 expect_num_of(observation, 4, 5, 0).
 expect_num_of(firedRules, 5, 0).
-expect_num_of(resolvedGoals, 5, 0).
-expect_num_of(unresolvedGoals, 5, 1).
+expect_num_of(resolvedGoals, 5, 1).
+expect_num_of(unresolvedGoals, 5, 0).
 expect_num_of(failedGoals, 5, 0).
-
-% --- Start of cycle 6 ---
-expect_num_of(fluent, 6, 7).
-  expect(fluent, 6, shopQuantity(hat, 2)).
-  expect(fluent, 6, shopQuantity(shirt, 2)).
-  expect(fluent, 6, shopQuantity(boots, 1)).
-  expect(fluent, 6, shopQuantity(trekkingPants, 0)).
-  expect(fluent, 6, cartQuantity(boots, 1)).
-  expect(fluent, 6, cartQuantity(trekkingPants, 2)).
-  expect(fluent, 6, money(0)).
-expect_num_of(action, 5, 6, 0).
-expect_num_of(observation, 5, 6, 0).
-expect_num_of(firedRules, 6, 0).
-expect_num_of(resolvedGoals, 6, 1).
-expect_num_of(unresolvedGoals, 6, 0).
-expect_num_of(failedGoals, 6, 0).
 

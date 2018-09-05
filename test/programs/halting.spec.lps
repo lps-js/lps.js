@@ -1,14 +1,23 @@
-expect(maxTime(5)).
-
+% --- Specification generated for test/programs/halting.lps
+% --- Start of cycle 1 ---
 expect_num_of(fluent, 1, 0).
 
+% --- Start of cycle 2 ---
 expect_num_of(fluent, 2, 0).
 expect_num_of(action, 1, 2, 0).
 expect_num_of(observation, 1, 2, 0).
+expect_num_of(firedRules, 2, 0).
+expect_num_of(resolvedGoals, 2, 0).
+expect_num_of(unresolvedGoals, 2, 0).
+expect_num_of(failedGoals, 2, 0).
 
+% --- Start of cycle 3 ---
 expect_num_of(fluent, 3, 0).
 expect_num_of(action, 2, 3, 0).
 expect_num_of(observation, 2, 3, 1).
   expect(observation, 2, 3, requestHalt).
+expect_num_of(firedRules, 3, 1).
+expect_num_of(resolvedGoals, 3, 1).
+expect_num_of(unresolvedGoals, 3, 0).
+expect_num_of(failedGoals, 3, 0).
 
-expect_num_cycles(4).

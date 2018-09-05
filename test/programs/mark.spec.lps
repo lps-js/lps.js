@@ -57,8 +57,8 @@ expect_num_of(action, 5, 6, 1).
   expect(action, 5, 6, putdown(mark, glass)).
 expect_num_of(observation, 5, 6, 0).
 expect_num_of(firedRules, 6, 0).
-expect_num_of(resolvedGoals, 6, 0).
-expect_num_of(unresolvedGoals, 6, 1).
+expect_num_of(resolvedGoals, 6, 1).
+expect_num_of(unresolvedGoals, 6, 0).
 expect_num_of(failedGoals, 6, 0).
 
 % --- Start of cycle 7 ---
@@ -67,7 +67,7 @@ expect_num_of(fluent, 7, 1).
 expect_num_of(action, 6, 7, 0).
 expect_num_of(observation, 6, 7, 0).
 expect_num_of(firedRules, 7, 0).
-expect_num_of(resolvedGoals, 7, 1).
+expect_num_of(resolvedGoals, 7, 0).
 expect_num_of(unresolvedGoals, 7, 0).
 expect_num_of(failedGoals, 7, 0).
 

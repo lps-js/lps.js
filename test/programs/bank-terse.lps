@@ -11,14 +11,14 @@ initially([
 fluent(balance(_Person, _Value)).
 action(transfer(From, To, Amount)).
 
-updates(transfer(F, T, A), balance(T, Old), balance(T, Old + A)).
-updates(transfer(F, T, A), balance(F, Old), balance(F, Old - A)).
-
 observe(transfer(fariba, bob, 10), 2).
 
 transfer(fariba, bob, _, T1, T2) -> transfer(bob, fariba, 10, T2, T3).
 transfer(bob, fariba, _, T1, T2) -> transfer(fariba, bob, 20, T2, T3).
 
-<-	transfer(From, To, Amount), balance(From, Old), Old < Amount.
-<-	transfer(From, To1, Amount1), transfer(From, To2, Amount2),  To1 != To2.
-<-	transfer(From1, To, Amount1), transfer(From2, To, Amount2),  From1 != From2.
+updates(transfer(F, T, A), balance(T, Old), balance(T, Old + A)).
+updates(transfer(F, T, A), balance(F, Old), balance(F, Old - A)).
+
+% <-	transfer(From, To, Amount), balance(From, Old), Old < Amount.
+% <-	transfer(From, To1, Amount1), transfer(From, To2, Amount2),  To1 != To2.
+% <-	transfer(From1, To, Amount1), transfer(From2, To, Amount2),  From1 != From2.
