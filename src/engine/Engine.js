@@ -226,10 +226,9 @@ function Engine(programArg) {
 
     let selectedAndExecutedActions = new LiteralTreeMap();
     let cycleObservations = processCycleObservations.call(this);
-    let executedActions = _program.getExecutedActions();
-
-    executedActions = new LiteralTreeMap();
+    let executedActions = new LiteralTreeMap();
     _program.setExecutedActions(executedActions);
+
     let state = [
       _program.getFacts(),
       _program.getState(),
