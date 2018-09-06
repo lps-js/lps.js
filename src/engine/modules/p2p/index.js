@@ -17,6 +17,24 @@ const receiveEventLiteral = ProgramFactory.literal('p2pReceive(NetworkId, Peer, 
 const connectedEventLiteral = ProgramFactory.literal('p2pConnected(NetworkId)');
 const peerConnectedEventLiteral = ProgramFactory.literal('p2pPeerConnected(NetworkId, node(Address, Port))');
 
+const isPeerIdentifier = function isPeerIdentifier(peer) {
+  if (!(peer instanceof Functor)) {
+    return false;
+  }
+
+  if (peer.getId() !== 'node/2') {
+    return false;
+  }
+
+  let functorArgs = peer.getArguments();
+  if (!(functorArgs[0] instanceof Value)
+      || !(functorArgs[1] instanceof Value)) {
+    return false;
+  }
+
+  return true;
+};
+
 // eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
   if (process.browser) {
@@ -137,26 +155,9 @@ module.exports = (engine, program) => {
     server.close();
   };
 
+  // assign engine event handlers to ensure clean up of connections
   engine.on('error', cleanUpConnections);
   engine.on('done', cleanUpConnections);
-
-  let isPeerIdentifier = function isPeerIdentifier(peer) {
-    if (!(peer instanceof Functor)) {
-      return false;
-    }
-
-    if (peer.getId() !== 'node/2') {
-      return false;
-    }
-
-    let functorArgs = peer.getArguments();
-    if (!(functorArgs[0] instanceof Value)
-        || !(functorArgs[1] instanceof Value)) {
-      return false;
-    }
-
-    return true;
-  };
 
   let functors = {
     'p2pPeer/2': (networkIdArg, peer) => {
