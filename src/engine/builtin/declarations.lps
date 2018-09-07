@@ -17,19 +17,6 @@ observe(F, T, T2) <-
   observe(F, T),
   T2 = T + 1.
 
-loadModule(F) <- loadModules(L), member(F, L).
-
-fluentActorDeclare(update, A, Old, New, []) <-
-  updates(A, Old, New).
-fluentActorDeclare(update, A, Old, New, Conds) <-
-  updates(A, Old, New, Conds).
-
-fluentActorDeclare(terminate, A, F, 0, []) <-
-  terminates(A, F).
-fluentActorDeclare(terminate, A, F, 0, Conds) <-
-  terminates(A, F, Conds).
-
-fluentActorDeclare(initiate, A, 0, F, []) <-
-  initiates(A, F).
-fluentActorDeclare(initiate, A, 0, F, Conds) <-
-  initiates(A, F, Conds).
+loadModule(F) <-
+  loadModules(L),
+  member(F, L).
