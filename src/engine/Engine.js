@@ -6,7 +6,6 @@
 const lpsRequire = require('../lpsRequire');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const Resolutor = lpsRequire('engine/Resolutor');
-const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
 
 const processRules = lpsRequire('utility/processRules');
@@ -25,9 +24,7 @@ const ruleAntecedentProcessor = lpsRequire('engine/processors/ruleAntecedent');
 const settingsProcessor = lpsRequire('engine/processors/settings');
 const timableProcessor = lpsRequire('engine/processors/timable');
 const coreModule = lpsRequire('engine/modules/core');
-
-const fluentActorDeclarationLiteral = ProgramFactory
-  .literal('fluentActorDeclare(T, A, Old, New, Conds)');
+const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 
 const forEachToString = (arr) => {
   return (item) => {
@@ -46,6 +43,7 @@ function Engine(programArg) {
 
   let _engineEventManager = new EventManager();
   let _profiler = new Profiler();
+  let _processedNodes = new ConjunctionMap();
 
   let _observations = {};
 
@@ -94,7 +92,6 @@ function Engine(programArg) {
       updateStateWithFluentActors(
         this,
         tempTreeMap,
-        _fluentActorDeclarations,
         postState
       );
       postCloneProgram.setState(postState);
@@ -172,7 +169,6 @@ function Engine(programArg) {
         updateStateWithFluentActors(
           this,
           candidateActions,
-          _fluentActorDeclarations,
           postState
         );
         clonePostProgram.setState(postState);
@@ -234,10 +230,11 @@ function Engine(programArg) {
       _program.getState(),
       _program.getExecutedActions()
     ];
+    _processedNodes = new ConjunctionMap();
     let newFiredGoals = [];
     newFiredGoals = processRules(this, _program, state, _currentTime, _profiler);
     _goals = _goals.concat(newFiredGoals);
-    return evaluateGoalTrees(_currentTime, _goals, _profiler)
+    return evaluateGoalTrees(_currentTime, _goals, _processedNodes, _profiler)
       .then((newGoals) => {
         _goals = newGoals;
 
@@ -271,7 +268,6 @@ function Engine(programArg) {
         updateStateWithFluentActors(
           this,
           _program.getExecutedActions(),
-          _fluentActorDeclarations,
           updatedState
         );
         _program.setState(updatedState);
@@ -282,7 +278,7 @@ function Engine(programArg) {
         ];
         newFiredGoals = processRules(this, _program, state, _currentTime, _profiler);
         _goals = _goals.concat(newFiredGoals);
-        return evaluateGoalTrees(_currentTime, _goals, _profiler)
+        return evaluateGoalTrees(_currentTime, _goals, _processedNodes, _profiler)
       })
       .then((newGoals) => {
         // preparation for next cycle
@@ -683,7 +679,6 @@ function Engine(programArg) {
         return consultProcessor(this, _program);
       })
       .then(() => {
-        _fluentActorDeclarations = this.query(fluentActorDeclarationLiteral);
         return _engineEventManager.notify('loaded', this);
       })
       .then(() => {

@@ -4,12 +4,10 @@
  */
 
 const lpsRequire = require('../lpsRequire');
-const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 
-module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler) {
+module.exports = function evaluateGoalTrees(currentTime, goalTrees, processedNodes, profiler) {
   let goalTreeProcessingPromises = [];
   let newGoals = [];
-  let processedNodes = new ConjunctionMap();
   goalTrees.forEach((goalTree) => {
     let treePromise = goalTree
       .evaluate(currentTime, processedNodes)
