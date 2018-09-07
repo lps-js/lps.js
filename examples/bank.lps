@@ -11,8 +11,10 @@ transfer(fariba, bob, X, T1, T2), balance(bob, A, T2), A >= 10 ->
 transfer(bob, fariba, X, T1, T2), balance(fariba, A, T2), A >= 20 ->
 	transfer(fariba, bob, 20, T2, T3).
 
-updates(transfer(F, T, A), balance(T, Old), balance(T, Old + A)).
-updates(transfer(F, T, A), balance(F, Old), balance(F, Old - A)).
+updates(transfer(F, T, A), balance(T, Old), balance(T, New)) <-
+  New = Old + A.
+updates(transfer(F, T, A), balance(F, Old), balance(F, New)) <-
+  New = Old - A.
 
 % <- transfer(From, To, Amount), balance(From, Old), Old < Amount.
 % <- transfer(From, To1, Amount1), transfer(From, To2, Amount2), To1 != To2.

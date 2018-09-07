@@ -39,5 +39,12 @@ do_sample(T1, T2) <-
 % it is nested inside the negation, which LPS needs to recognise and handle.
 not found(I) at T -> do_sample(T1, T2).
 
-updates(sample(Pos), left(_), left(Mid), [searching(X), a(Pos, AX), AX < X, Mid = Pos + 1]).
-updates(sample(Pos), right(_), right(Pos), [searching(X), a(Pos, AX), AX >= X]).
+updates(sample(Pos), left(_), left(Mid)) <-
+  searching(X, T),
+  a(Pos, AX),
+  AX < X,
+  Mid = Pos + 1.
+updates(sample(Pos), right(_), right(Pos)) <-
+  searching(X),
+  a(Pos, AX),
+  AX >= X.

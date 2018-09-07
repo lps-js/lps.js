@@ -35,14 +35,21 @@ shop(T1, T3) <-
   shop(T2, T3).
 
 % till you drop!
-shop(T1, T2) <- checkout(T1, T2), money(A, T1), lpsHalt from T2.
+shop(T1, T2) <-
+  checkout(T1, T2),
+  money(A, T1),
+  lpsHalt from T2.
 
 % checkout(T1, T2) -> lpsHalt.
 
-updates(addToCart(I), money(V), money(V - A), [item(I, A)]).
-initiates(addToCart(I), cartQuantity(I, 1), [not cartQuantity(I, _)]).
-updates(addToCart(I), cartQuantity(I, O), cartQuantity(I, O + 1)).
-updates(addToCart(I), shopQuantity(I, O), shopQuantity(I, O - 1)).
+updates(addToCart(I), money(V), money(NV)) <-
+  item(I, A),
+  NV = V - A.
+initiates(addToCart(I), cartQuantity(I, 1)) <- not cartQuantity(I, _).
+updates(addToCart(I), cartQuantity(I, O), cartQuantity(I, N)) <-
+  N = O + 1.
+updates(addToCart(I), shopQuantity(I, O), shopQuantity(I, N)) <-
+  N = O - 1.
 
 <- shopQuantity(_, Q), Q < 0.
 <- money(V), V < 0.

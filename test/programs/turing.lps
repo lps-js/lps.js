@@ -51,6 +51,14 @@ saying(Agent, noun, T1, T2) <-
 saying(Agent, verb, T1, T2) <-
   say(Agent, is, T1, T2).
 
-updates(say(Agent, Word), said(Agent, OldPhrase), said(Agent, append(OldPhrase, [Word]))).
+updates(
+  say(Agent, Word),
+  said(Agent, OldPhrase),
+  said(Agent, NewPhrase)
+) <-
+  NewPhrase = append(OldPhrase, [Word]).
 
-<- say(Agent, Word1), say(Agent, Word2), Word1 != Word2.
+<-
+  say(Agent, Word1),
+  say(Agent, Word2),
+  Word1 != Word2.

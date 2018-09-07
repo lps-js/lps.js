@@ -24,19 +24,19 @@ observe(delegate(jacinto, bob), 1).
 updates(
   delegate(Voter1, Voter2),
   voteCount(Candidate, OldVotes),
-  voteCount(Candidate, OldVotes + N),
-  [
-    delegateOf(Voter2, Voter3),
-    voted(Voter3, Candidate),
-    voter(Voter1, N)
-  ]
-).
+  voteCount(Candidate, NewVotes)
+) <-
+  delegateOf(Voter2, Voter3),
+  voted(Voter3, Candidate, T),
+  voter(Voter1, N, T),
+  NewVotes = OldVotes + N.
 
 updates(delegate(Voter1, Voter2), voter(Voter1, Old), voter(Voter1, 0)).
-updates(delegate(Voter1, Voter2), voter(Voter3, Old), voter(Voter3, N1 + Old), [
+updates(delegate(Voter1, Voter2), voter(Voter3, Old), voter(Voter3, New)) <-
   delegateOf(Voter2, Voter3),
-  voter(Voter1, N1)
-]).
+  voter(Voter1, N1, T),
+  New = N1 + Old.
+
 initiates(delegate(Voter1, Voter2), voted(Voter1, delegated(Voter2))).
 
 delegateOf(Voter, Voter) <-

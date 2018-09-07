@@ -28,29 +28,31 @@ action(initiateVoting(_Candidate)).
 
 initiates(ballot(Chairman, _Proposals), voter(Chairman, 1)).
 initiates(ballot(Chairman, _Proposals), chairman(Chairman)).
-initiates(ballot(_Chairman, Proposals), voteCount(Candidate, 0), [member(Candidate, Proposals)]).
+initiates(ballot(_Chairman, Proposals), voteCount(Candidate, 0)) <-
+  member(Candidate, Proposals).
 
 <- ballot(_, _), voteCount(_, _).
 
-initiates(giveRightToVote(Chairman, Voter), voter(Voter, 1), [chairman(Chairman), not voter(Voter, _)]).
+initiates(giveRightToVote(Chairman, Voter), voter(Voter, 1)) <-
+  chairman(Chairman, T),
+  not voter(Voter, _, T).
 
 % The next clause deals with the case a delegate has already voted when a delegation is made:
 updates(
   delegate(Voter1, Voter2),
   voteCount(Candidate, OldVotes),
-  voteCount(Candidate, OldVotes + N),
-  [
-    delegateOf(Voter2, Voter3),
-    voted(Voter3, Candidate),
-    voter(Voter1, N)
-  ]
-).
+  voteCount(Candidate, NewVotes)
+) <-
+  delegateOf(Voter2, Voter3),
+  voted(Voter3, Candidate, T),
+  voter(Voter1, N, T),
+  NewVotes = OldVotes + N.
 
 updates(delegate(Voter1, Voter2), voter(Voter1, Old), voter(Voter1, 0)).
-updates(delegate(Voter1, Voter2), voter(Voter3, Old), voter(Voter3, N1 + Old), [
+updates(delegate(Voter1, Voter2), voter(Voter3, Old), voter(Voter3, New)) <-
   delegateOf(Voter2, Voter3),
-  voter(Voter1, N1)
-]).
+  voter(Voter1, N1, T),
+  New = N1 + Old.
 
 initiates(delegate(Voter1, Voter2), voted(Voter1, delegated(Voter2))).
 
@@ -78,8 +80,14 @@ intitates(vote(Voter, Candidate), voted(Voter, Candidate)).
 
 /* This allows only one weighted vote for the same candidate at a time.
  * We need to extend LPS to have several votes for the same candidate simultaneously. */
-updates(vote(Voter, Candidate), voteCount(Candidate, OldVotes), voteCount(Candidate, OldVotes + Weight), [voter(Voter, Weight)]).
-  
+updates(
+  vote(Voter, Candidate),
+  voteCount(Candidate, OldVotes),
+  voteCount(Candidate, NewVotes)
+) <-
+  voter(Voter, Weight, T),
+  NewVotes = OldVotes + Weight.
+
 % no two voters can vote in the same cycle
 <- vote(Voter1, Candidate), vote(Voter2, Candidate), Voter1 != Voter2.
 % a voter cannot vote if the voter has already voted
@@ -103,5 +111,5 @@ observe(delegate(fariba, miguel), 7).
 %   findall(pair(N, Candidate), voteCount(Candidate, N, T), L),
 %   sort(L, SL),
 %   append(_, pair(N, Candidate), SL).
-% 
+%
 % winningProposal(_Candidate, 4, _) -> selectCandidate(_Candate, T1).

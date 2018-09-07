@@ -21,7 +21,7 @@ askForMoney(T1, T2) <-
   parent(bob, X),
   money(X, T1),
   askMoney(bob, X, T1, T2).
-  
+
 askForMoney(T1, T1) <- money(bob, T).
 
 updates(askMoney(X, Y), money(Y), money(X)).

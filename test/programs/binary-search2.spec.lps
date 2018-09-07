@@ -28,8 +28,8 @@ expect_num_of(action, 2, 3, 1).
 expect_num_of(observation, 2, 3, 0).
 expect_num_of(firedRules, 3, 2).
 expect_num_of(resolvedGoals, 3, 1).
-expect_num_of(unresolvedGoals, 3, 2).
-expect_num_of(failedGoals, 3, 0).
+expect_num_of(unresolvedGoals, 3, 1).
+expect_num_of(failedGoals, 3, 1).
 
 % --- Start of cycle 4 ---
 expect_num_of(fluent, 4, 3).
@@ -41,27 +41,26 @@ expect_num_of(action, 3, 4, 1).
 expect_num_of(observation, 3, 4, 0).
 expect_num_of(firedRules, 4, 1).
 expect_num_of(resolvedGoals, 4, 1).
-expect_num_of(unresolvedGoals, 4, 2).
-expect_num_of(failedGoals, 4, 0).
+expect_num_of(unresolvedGoals, 4, 0).
+expect_num_of(failedGoals, 4, 1).
 
 % --- Start of cycle 5 ---
 expect_num_of(fluent, 5, 3).
   expect(fluent, 5, searching(60)).
-  expect(fluent, 5, left(7)).
   expect(fluent, 5, right(7)).
-expect_num_of(action, 4, 5, 1).
-  expect(action, 4, 5, sample(7)).
+  expect(fluent, 5, left(7)).
+expect_num_of(action, 4, 5, 0).
 expect_num_of(observation, 4, 5, 0).
 expect_num_of(firedRules, 5, 0).
-expect_num_of(resolvedGoals, 5, 2).
+expect_num_of(resolvedGoals, 5, 0).
 expect_num_of(unresolvedGoals, 5, 0).
 expect_num_of(failedGoals, 5, 0).
 
 % --- Start of cycle 6 ---
 expect_num_of(fluent, 6, 3).
   expect(fluent, 6, searching(60)).
-  expect(fluent, 6, left(7)).
   expect(fluent, 6, right(7)).
+  expect(fluent, 6, left(7)).
 expect_num_of(action, 5, 6, 0).
 expect_num_of(observation, 5, 6, 0).
 expect_num_of(firedRules, 6, 0).
@@ -72,8 +71,8 @@ expect_num_of(failedGoals, 6, 0).
 % --- Start of cycle 7 ---
 expect_num_of(fluent, 7, 3).
   expect(fluent, 7, searching(60)).
-  expect(fluent, 7, left(7)).
   expect(fluent, 7, right(7)).
+  expect(fluent, 7, left(7)).
 expect_num_of(action, 6, 7, 0).
 expect_num_of(observation, 6, 7, 0).
 expect_num_of(firedRules, 7, 0).
@@ -84,8 +83,8 @@ expect_num_of(failedGoals, 7, 0).
 % --- Start of cycle 8 ---
 expect_num_of(fluent, 8, 3).
   expect(fluent, 8, searching(60)).
-  expect(fluent, 8, left(7)).
   expect(fluent, 8, right(7)).
+  expect(fluent, 8, left(7)).
 expect_num_of(action, 7, 8, 0).
 expect_num_of(observation, 7, 8, 0).
 expect_num_of(firedRules, 8, 0).
@@ -96,8 +95,8 @@ expect_num_of(failedGoals, 8, 0).
 % --- Start of cycle 9 ---
 expect_num_of(fluent, 9, 3).
   expect(fluent, 9, searching(60)).
-  expect(fluent, 9, left(7)).
   expect(fluent, 9, right(7)).
+  expect(fluent, 9, left(7)).
 expect_num_of(action, 8, 9, 0).
 expect_num_of(observation, 8, 9, 0).
 expect_num_of(firedRules, 9, 0).
@@ -108,8 +107,8 @@ expect_num_of(failedGoals, 9, 0).
 % --- Start of cycle 10 ---
 expect_num_of(fluent, 10, 3).
   expect(fluent, 10, searching(60)).
-  expect(fluent, 10, left(7)).
   expect(fluent, 10, right(7)).
+  expect(fluent, 10, left(7)).
 expect_num_of(action, 9, 10, 0).
 expect_num_of(observation, 9, 10, 0).
 expect_num_of(firedRules, 10, 0).
@@ -120,8 +119,8 @@ expect_num_of(failedGoals, 10, 0).
 % --- Start of cycle 11 ---
 expect_num_of(fluent, 11, 3).
   expect(fluent, 11, searching(60)).
-  expect(fluent, 11, left(7)).
   expect(fluent, 11, right(7)).
+  expect(fluent, 11, left(7)).
 expect_num_of(action, 10, 11, 0).
 expect_num_of(observation, 10, 11, 0).
 expect_num_of(firedRules, 11, 0).
@@ -132,8 +131,8 @@ expect_num_of(failedGoals, 11, 0).
 % --- Start of cycle 12 ---
 expect_num_of(fluent, 12, 3).
   expect(fluent, 12, searching(60)).
-  expect(fluent, 12, left(7)).
   expect(fluent, 12, right(7)).
+  expect(fluent, 12, left(7)).
 expect_num_of(action, 11, 12, 0).
 expect_num_of(observation, 11, 12, 0).
 expect_num_of(firedRules, 12, 0).
@@ -144,8 +143,8 @@ expect_num_of(failedGoals, 12, 0).
 % --- Start of cycle 13 ---
 expect_num_of(fluent, 13, 3).
   expect(fluent, 13, searching(60)).
-  expect(fluent, 13, left(7)).
   expect(fluent, 13, right(7)).
+  expect(fluent, 13, left(7)).
 expect_num_of(action, 12, 13, 0).
 expect_num_of(observation, 12, 13, 0).
 expect_num_of(firedRules, 13, 0).
@@ -156,8 +155,8 @@ expect_num_of(failedGoals, 13, 0).
 % --- Start of cycle 14 ---
 expect_num_of(fluent, 14, 3).
   expect(fluent, 14, searching(60)).
-  expect(fluent, 14, left(7)).
   expect(fluent, 14, right(7)).
+  expect(fluent, 14, left(7)).
 expect_num_of(action, 13, 14, 0).
 expect_num_of(observation, 13, 14, 0).
 expect_num_of(firedRules, 14, 0).
@@ -168,8 +167,8 @@ expect_num_of(failedGoals, 14, 0).
 % --- Start of cycle 15 ---
 expect_num_of(fluent, 15, 3).
   expect(fluent, 15, searching(60)).
-  expect(fluent, 15, left(7)).
   expect(fluent, 15, right(7)).
+  expect(fluent, 15, left(7)).
 expect_num_of(action, 14, 15, 0).
 expect_num_of(observation, 14, 15, 0).
 expect_num_of(firedRules, 15, 0).
@@ -180,8 +179,8 @@ expect_num_of(failedGoals, 15, 0).
 % --- Start of cycle 16 ---
 expect_num_of(fluent, 16, 3).
   expect(fluent, 16, searching(60)).
-  expect(fluent, 16, left(7)).
   expect(fluent, 16, right(7)).
+  expect(fluent, 16, left(7)).
 expect_num_of(action, 15, 16, 0).
 expect_num_of(observation, 15, 16, 0).
 expect_num_of(firedRules, 16, 0).
@@ -192,8 +191,8 @@ expect_num_of(failedGoals, 16, 0).
 % --- Start of cycle 17 ---
 expect_num_of(fluent, 17, 3).
   expect(fluent, 17, searching(60)).
-  expect(fluent, 17, left(7)).
   expect(fluent, 17, right(7)).
+  expect(fluent, 17, left(7)).
 expect_num_of(action, 16, 17, 0).
 expect_num_of(observation, 16, 17, 0).
 expect_num_of(firedRules, 17, 0).
@@ -204,8 +203,8 @@ expect_num_of(failedGoals, 17, 0).
 % --- Start of cycle 18 ---
 expect_num_of(fluent, 18, 3).
   expect(fluent, 18, searching(60)).
-  expect(fluent, 18, left(7)).
   expect(fluent, 18, right(7)).
+  expect(fluent, 18, left(7)).
 expect_num_of(action, 17, 18, 0).
 expect_num_of(observation, 17, 18, 0).
 expect_num_of(firedRules, 18, 0).
@@ -216,8 +215,8 @@ expect_num_of(failedGoals, 18, 0).
 % --- Start of cycle 19 ---
 expect_num_of(fluent, 19, 3).
   expect(fluent, 19, searching(60)).
-  expect(fluent, 19, left(7)).
   expect(fluent, 19, right(7)).
+  expect(fluent, 19, left(7)).
 expect_num_of(action, 18, 19, 0).
 expect_num_of(observation, 18, 19, 0).
 expect_num_of(firedRules, 19, 0).
@@ -228,8 +227,8 @@ expect_num_of(failedGoals, 19, 0).
 % --- Start of cycle 20 ---
 expect_num_of(fluent, 20, 3).
   expect(fluent, 20, searching(60)).
-  expect(fluent, 20, left(7)).
   expect(fluent, 20, right(7)).
+  expect(fluent, 20, left(7)).
 expect_num_of(action, 19, 20, 0).
 expect_num_of(observation, 19, 20, 0).
 expect_num_of(firedRules, 20, 0).

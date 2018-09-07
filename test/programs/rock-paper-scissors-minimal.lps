@@ -14,8 +14,8 @@ fluents([
 
 % These or others could be suggested:
 observe(player_input(miguel, paper, 1000), 2, 3).
-observe(player_input(fariba, rock, 1000), 2, 3). 
-observe(player_input(bob, rock, 1000), 3, 4). 
+observe(player_input(fariba, rock, 1000), 2, 3).
+observe(player_input(bob, rock, 1000), 3, 4).
 
 beats(scissors, paper). % scissors beats paper, ....
 beats(paper, rock).
@@ -27,7 +27,8 @@ initially(reward(0)). % initially the reward is 0
 initiates(player_input(Player, Choice, Value), played(Player, Choice)).
 
 % a play with a value increases the reward by that value
-updates(player_input(Player, Choice, Value), reward(Old), reward(Old + Value)).
+updates(player_input(Player, Choice, Value), reward(Old), reward(New)) <-
+  New = Old + Value.
 
 num_players(N) <- findall(P, played(P, _), L), length(L, N).
 
@@ -46,7 +47,7 @@ played(Player1, Choice1, T1),
   reward(R, T1),
   R > 0 ->
     send(Player1, R, T2, T3).
-    
+
 % if both players choose the same choice, send half of the reward to each
 played(Player1, Choice, T1),
   played(Player2, Choice, T1),
@@ -59,11 +60,12 @@ played(Player1, Choice, T1),
     send(Player2, Prize, T2, T3).
 
 % After sending prizes terminate the contract
-% if send(_,_Prize) to T2 
+% if send(_,_Prize) to T2
 % then lps_terminate from T2.
 
 % When sending a prize subtract it from the reward
-updates(send(Player, Prize), reward(Old), reward(Old - Prize)).
+updates(send(Player, Prize), reward(Old), reward(New)) <-
+  New = Old - Prize.
 
 % after sending a prize the reward must not become negative
 <- send(_, P), reward(V), V < 0.
