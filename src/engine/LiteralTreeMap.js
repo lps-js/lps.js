@@ -335,16 +335,14 @@ function LiteralTreeMap() {
     let result = [];
 
     let recursiveBuild = (node) => {
-      if (node instanceof Functor
-          || node instanceof Timable
-          || node instanceof Array) {
+      if (!(node instanceof _TreeNode)) {
         result.push(node);
         return;
       }
-      let indices = node.indices();
-      indices.forEach((key) => {
-        recursiveBuild(node._tree[key]);
-      });
+      node.indices()
+        .forEach((key) => {
+          recursiveBuild(node._tree[key]);
+        });
     };
     recursiveBuild(_root);
     return result;
