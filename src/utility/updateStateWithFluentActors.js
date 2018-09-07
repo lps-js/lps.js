@@ -7,12 +7,16 @@ const lpsRequire = require('../lpsRequire');
 const Functor = lpsRequire('engine/Functor');
 const List = lpsRequire('engine/List');
 const compactTheta = lpsRequire('utility/compactTheta');
+const ProgramFactory = lpsRequire('parser/ProgramFactory');
 const Resolutor = lpsRequire('engine/Resolutor');
+
+const updatesLiteral = ProgramFactory.literal('updates(Act, Old, New)');
+const initiatesLiteral = ProgramFactory.literal('initiates(Act, New)');
+const terminatesLiteral = ProgramFactory.literal('terminates(Act, Old)');
 
 const updateStateWithFluentActors = function updateStateWithFluentActors(
   engine,
   executedActions,
-  fluentActorDeclarations,
   state
 ) {
   let fluentActors = [];
@@ -21,104 +25,53 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(
   // may be intensional instead of static
   let functorProvider = engine.getFunctorProvider();
 
-  fluentActorDeclarations.forEach((r) => {
-    let type = r.theta.T;
-    let action = r.theta.A;
-    let oldFluent = r.theta.Old;
-    let newFluent = r.theta.New;
-    let conditions = r.theta.Conds;
-    if (type === undefined
-        || action === undefined
-        || !(action instanceof Functor)
-        || newFluent === undefined
-        || oldFluent === undefined
-        || !(conditions instanceof List)) {
-      return;
-    }
-    type = type.evaluate();
+  executedActions.forEach((action) => {
+    // console.log('act \t ' + action);
+    let queryResult = [];
+    let theta = {
+      Act: action
+    };
+    let updatedInitiatesLiteral = initiatesLiteral.substitute(theta);
+    let initiatesQueryResult = engine.query(updatedInitiatesLiteral);
+    queryResult = queryResult.concat(initiatesQueryResult);
 
-    switch (type) {
-      case 'update':
-        fluentActors.push({
-          a: action,
-          i: newFluent,
-          t: oldFluent,
-          c: conditions
-        });
-        break;
-      case 'initiate':
-        fluentActors.push({
-          a: action,
-          i: newFluent,
-          c: conditions
-        });
-        break;
-      case 'terminate':
-        fluentActors.push({
-          a: action,
-          t: oldFluent,
-          c: conditions
-        });
-        break;
-      default:
-        break;
-    }
-  });
+    state.forEach((fluent) => {
+      theta = {
+        Act: action,
+        Old: fluent
+      };
 
-  fluentActors.forEach((actor) => {
-    let thetaSets = [];
-    executedActions.unifies(actor.a)
-      .forEach((node) => {
-        let substitutedCondition = actor.c.substitute(node.theta);
-        let subQueryResult = engine.query(substitutedCondition.flatten());
-        subQueryResult.forEach((tuple) => {
-          thetaSets.push({
-            theta: compactTheta(node.theta, tuple.theta)
-          });
-        });
+      // console.log('f\t'+fluent);
+
+      let updatedUpdatesLiteral = updatesLiteral.substitute(theta);
+      let updatedTerminatesLiteral = terminatesLiteral.substitute(theta);
+
+      // console.log('UP\t' + updatedUpdatesLiteral);
+
+      let stateQueryResult = [];
+      stateQueryResult = stateQueryResult.concat(engine.query(updatedUpdatesLiteral));
+      stateQueryResult = stateQueryResult.concat(engine.query(updatedTerminatesLiteral));
+      stateQueryResult = stateQueryResult.map((t) => {
+        t.theta.Old = fluent;
+        return t;
       });
 
-    thetaSets.forEach((node) => {
-      let initiateThetaSet = [node.theta];
+      queryResult = queryResult.concat(stateQueryResult);
+    });
 
-      // start processing terminate.
-      // when terminating, we also take note of the appropriate theta sets
-      // in case we are performing an update
-      if (actor.t) {
-        let terminatedGroundFluent = actor.t.substitute(node.theta);
-        let stateThetaSet = state.unifies(terminatedGroundFluent);
-        initiateThetaSet = [];
-        stateThetaSet.forEach((terminatedNode) => {
-          let currentTheta = compactTheta(node.theta, terminatedNode.theta);
-          initiateThetaSet.push(currentTheta);
-          let terminatedFluentSet = Resolutor
-            .handleBuiltInFunctorArgumentInLiteral(
-              functorProvider,
-              terminatedGroundFluent.substitute(currentTheta)
-            );
-          terminatedFluentSet.forEach((fluent) => {
-            state.remove(fluent);
-          });
-        });
+    queryResult.forEach((r) => {
+      // console.log('Old \\ ' + r.theta.Old);
+      // console.log('New \\ ' + r.theta.New);
+      if (r.theta.Old !== undefined) {
+        state.remove(r.theta.Old);
       }
-
-      if (actor.i) {
-        // perform initiate
-        // take note of theta sets given by termination
-        initiateThetaSet.forEach((theta) => {
-          let initiatedGroundFluent = actor.i.substitute(theta);
-          let initiatedFluentSet = Resolutor
-            .handleBuiltInFunctorArgumentInLiteral(
-              functorProvider,
-              initiatedGroundFluent
-            );
-          initiatedFluentSet.forEach((fluent) => {
-            state.add(fluent);
-          });
-        });
+      if (r.theta.New !== undefined) {
+        state.add(r.theta.New);
       }
     });
   });
+
+  // console.log(queryResult);
 };
 
 module.exports = updateStateWithFluentActors;
