@@ -512,6 +512,18 @@ function LiteralTreeMap() {
       let treeVarName = symName.substring(11, symName.length - 1);
       if (internalTheta[treeVarName] !== undefined) {
         // previously internally substituted.
+        if (!(internalTheta[treeVarName] instanceof Functor)
+            && !(internalTheta[treeVarName] instanceof List)
+            && !(internalTheta[treeVarName] instanceof Timable)) {
+          return;
+        }
+        let unifyTree = new LiteralTreeMap();
+        unifyTree.add(internalTheta[treeVarName]);
+        subResult = unifyTree.unifies(term);
+        if (subResult.length > 0) {
+          subResult = recursiveCall(path, node._tree[index], externalTheta, internalTheta);
+          result = result.concat(subResult);
+        }
         return;
       }
       clonedInternalTheta = Object.assign({}, internalTheta);
@@ -586,7 +598,7 @@ function LiteralTreeMap() {
           externalTheta,
           internalTheta
         );
-      } // value
+      } // previously substituted
 
       node.indices().forEach((index) => {
         let subtree = node._tree[index];
@@ -643,7 +655,11 @@ function LiteralTreeMap() {
         // variable vs complex terms
         let term = _argumentClauses[index];
         clonedExternalTheta = Object.assign({}, externalTheta);
-        clonedExternalTheta[varName] = term;
+        let substitutedTerm = term;
+        if (term instanceof Functor || term instanceof List) {
+          substitutedTerm = substitutedTerm.substitute(internalTheta);
+        }
+        clonedExternalTheta[varName] = substitutedTerm;
         subResult = recursiveUnification(path, subtree, clonedExternalTheta, internalTheta);
         result = result.concat(subResult);
       });
