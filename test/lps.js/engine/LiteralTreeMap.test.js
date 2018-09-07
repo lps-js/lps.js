@@ -166,7 +166,7 @@ describe('LiteralTreeMap', () => {
 
       expect(result[0].theta).to.have.property('X');
       expect(result[0].theta.X).to.be.instanceof(Functor);
-      expect(result[0].theta.X).to.be.equal(args[0]);
+      expect(result[0].theta.X.toString()).to.be.equal(args[0].toString());
 
       expect(result[0].theta).to.have.property('Y');
       expect(result[0].theta.Y).to.be.instanceof(Value);
@@ -311,7 +311,7 @@ describe('LiteralTreeMap', () => {
 
       expect(result[0].theta).to.have.property('A');
       expect(result[0].theta.A).to.be.instanceof(List);
-      expect(result[0].theta.A).to.be.equal(list);
+      expect(result[0].theta.A.toString()).to.be.equal(list.toString());
 
       expect(result[0]).to.have.property('leaf');
       expect(result[0].leaf).to.be.equal(functor);
@@ -371,7 +371,7 @@ describe('LiteralTreeMap', () => {
 
       expect(result[0].theta).to.have.property('X');
       expect(result[0].theta.X).to.be.instanceof(List);
-      expect(result[0].theta.X).to.be.equal(list);
+      expect(result[0].theta.X.toString()).to.be.equal(list.toString());
 
       expect(result[0].theta).to.have.property('T1');
       expect(result[0].theta.T1).to.be.instanceof(Value);
