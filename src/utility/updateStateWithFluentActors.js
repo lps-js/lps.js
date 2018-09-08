@@ -4,11 +4,7 @@
  */
 
 const lpsRequire = require('../lpsRequire');
-const Functor = lpsRequire('engine/Functor');
-const List = lpsRequire('engine/List');
-const compactTheta = lpsRequire('utility/compactTheta');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
-const Resolutor = lpsRequire('engine/Resolutor');
 
 const updatesLiteral = ProgramFactory.literal('updates(Act, Old, New)');
 const initiatesLiteral = ProgramFactory.literal('initiates(Act, New)');
@@ -19,12 +15,6 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(
   executedActions,
   state
 ) {
-  let fluentActors = [];
-
-  // query has to be done on the spot as some of the declarations
-  // may be intensional instead of static
-  let functorProvider = engine.getFunctorProvider();
-
   executedActions.forEach((action) => {
     // console.log('act \t ' + action);
     let queryResult = [];
@@ -41,17 +31,14 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(
         Old: fluent
       };
 
-      // console.log('f\t'+fluent);
-
       let updatedUpdatesLiteral = updatesLiteral.substitute(theta);
       let updatedTerminatesLiteral = terminatesLiteral.substitute(theta);
-
-      // console.log('UP\t' + updatedUpdatesLiteral);
 
       let stateQueryResult = [];
       stateQueryResult = stateQueryResult.concat(engine.query(updatedUpdatesLiteral));
       stateQueryResult = stateQueryResult.concat(engine.query(updatedTerminatesLiteral));
-      stateQueryResult = stateQueryResult.map((t) => {
+      stateQueryResult = stateQueryResult.map((tArg) => {
+        let t = tArg;
         t.theta.Old = fluent;
         return t;
       });
@@ -60,8 +47,6 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(
     });
 
     queryResult.forEach((r) => {
-      // console.log('Old \\ ' + r.theta.Old);
-      // console.log('New \\ ' + r.theta.New);
       if (r.theta.Old !== undefined) {
         state.remove(r.theta.Old);
       }

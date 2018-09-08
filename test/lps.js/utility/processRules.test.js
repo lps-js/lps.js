@@ -36,7 +36,6 @@ describe('processRules', () => {
 
     program.setExecutedActions(events);
 
-    let goals = [];
     let result = processRules(engine, program, [events], 15, profiler);
     expect(result).to.be.instanceof(Array);
     expect(result).to.be.length(0);

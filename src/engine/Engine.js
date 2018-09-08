@@ -55,7 +55,6 @@ function Engine(programArg) {
   let _lastCycleObservations = null;
 
   let _functorProvider = new FunctorProvider(this);
-  let _fluentActorDeclarations = [];
 
   let checkConstraintSatisfaction = function checkConstraintSatisfaction(otherProgram) {
     let originalProgram = _program;
@@ -271,14 +270,14 @@ function Engine(programArg) {
           updatedState
         );
         _program.setState(updatedState);
-        let state = [
+        state = [
           _program.getFacts(),
           _program.getState(),
           _program.getExecutedActions()
         ];
         newFiredGoals = processRules(this, _program, state, _currentTime, _profiler);
         _goals = _goals.concat(newFiredGoals);
-        return evaluateGoalTrees(_currentTime, _goals, _processedNodes, _profiler)
+        return evaluateGoalTrees(_currentTime, _goals, _processedNodes, _profiler);
       })
       .then((newGoals) => {
         // preparation for next cycle
