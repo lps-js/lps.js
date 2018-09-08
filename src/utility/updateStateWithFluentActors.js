@@ -16,7 +16,6 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(
   state
 ) {
   executedActions.forEach((action) => {
-    // console.log('act \t ' + action);
     let queryResult = [];
     let theta = {
       Act: action
@@ -55,8 +54,6 @@ const updateStateWithFluentActors = function updateStateWithFluentActors(
       }
     });
   });
-
-  // console.log(queryResult);
 };
 
 module.exports = updateStateWithFluentActors;

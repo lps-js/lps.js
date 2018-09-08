@@ -67,7 +67,6 @@ module.exports = function unexpectedTokenErrorMessage(source, currentToken, like
   let lines = getLines(source, lineNumbers);
   let lineOutput = '';
   lines.forEach((line, idx) => {
-    // console.log('"'+line+'"')
     lineOutput += '\t' + (lineNumbers[idx] + 1) + ' | ' + line + '\n';
     if (lineNumbers[idx] === lineIndex) {
       lineOutput += '\t    ' + ' '.repeat(currentToken.col) + '^\n';
