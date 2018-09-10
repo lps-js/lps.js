@@ -151,23 +151,43 @@ Resolutor.queryState = function queryState(literal, functorProvider, state) {
 
 Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
   engine,
+  program,
   state,
   rule,
   forTime
 ) {
   let functorProvider = engine.getFunctorProvider();
 
-  let recursiveResolution = function (result, remainingLiterals, theta, laterAntecedent) {
+  let recursiveResolution = function (result, remainingLiterals, theta) {
     if (remainingLiterals.length === 0) {
       result.push({
         theta: theta,
-        unresolved: laterAntecedent
+        unresolved: []
       });
       return;
     }
+
+    let pair = sortTimables(remainingLiterals, forTime);
+    let earlyConjuncts = pair[0];
+    let laterConjuncts = pair[1];
+
+    if (earlyConjuncts.length === 0) {
+      let mappedConjuncts = laterConjuncts.map((c) => {
+        return c.substitute(theta);
+      });
+      result.push({
+        theta: theta,
+        unresolved: mappedConjuncts
+      });
+      return;
+    }
+
     let newTheta = Object.assign({}, theta);
-    let conjunct = remainingLiterals[0]
+    let conjunct = earlyConjuncts[0]
       .substitute(newTheta);
+    let otherConjuncts = earlyConjuncts
+      .slice(1, earlyConjuncts.length)
+      .concat(laterConjuncts);
     let thetaDelta = resolveTimableThetaTiming(conjunct, newTheta, forTime);
     let literal = conjunct
       .getGoal()
@@ -175,31 +195,32 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
     let literalThetas = Resolutor.queryState(literal, functorProvider, state);
 
     if (literalThetas.length === 0) {
-      if (!(conjunct instanceof Timable) || conjunct.isInRange(forTime)) {
+      if (!(conjunct instanceof Timable) || conjunct.isInRange(forTime - 1)) {
         return;
       }
       result.push({
         theta: theta,
-        unresolved: remainingLiterals.concat(laterAntecedent)
+        unresolved: remainingLiterals
       });
       return;
     }
 
     literalThetas.forEach((t) => {
       let updatedTheta = compactTheta(newTheta, t.theta);
+      let mappedConjuncts = otherConjuncts.map((c) => {
+        return c.substitute(updatedTheta);
+      });
       recursiveResolution(
         result,
-        remainingLiterals.slice(1, remainingLiterals.length),
-        updatedTheta,
-        laterAntecedent
+        mappedConjuncts,
+        updatedTheta
       );
     });
   };
 
   let literals = rule.getBodyLiterals();
-  let pair = sortTimables(literals, forTime);
   let thetaSet = [];
-  recursiveResolution(thetaSet, pair[0], {}, pair[1]);
+  recursiveResolution(thetaSet, literals, {});
   return thetaSet;
 };
 

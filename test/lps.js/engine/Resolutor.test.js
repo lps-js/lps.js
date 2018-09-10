@@ -29,7 +29,7 @@ describe('Resolutor', () => {
       let engine = new Engine(program);
       program.setState(state);
 
-      let result = Resolutor.reduceRuleAntecedent(engine, [state], rule, 1);
+      let result = Resolutor.reduceRuleAntecedent(engine, program, [state], rule, 1);
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(result[0].theta).to.be.not.undefined;
@@ -51,7 +51,7 @@ describe('Resolutor', () => {
       let engine = new Engine(program);
       // program.setState(state);
 
-      let result = Resolutor.reduceRuleAntecedent(engine, [state], rule, 1);
+      let result = Resolutor.reduceRuleAntecedent(engine, program, [state], rule, 1);
       expect(result).to.be.instanceof(Array);
       expect(result).to.be.length(1);
       expect(result[0].theta).to.be.not.undefined;

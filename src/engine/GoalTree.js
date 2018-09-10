@@ -57,35 +57,37 @@ const resolveStateConditions = function resolveStateConditions(
         theta: thetaSoFar
       });
       return true;
-    }
+    } // empty conjunct list
 
     let newTheta = Object.assign({}, thetaSoFar);
-    let conjunct = remainingConjuncts[0]
-      .substitute(newTheta);
+    let conjunct = remainingConjuncts[0].substitute(newTheta);
     let thetaDelta = resolveTimableThetaTiming(conjunct, newTheta, forTime);
     let goal = conjunct
       .getGoal()
       .substitute(thetaDelta);
     let isConjunctAction = program.isAction(goal);
-
     let otherConjuncts = remainingConjuncts.slice(1);
 
-    let conjunctVariables = conjunct.getVariables();
-
-    let literalThetas = Resolutor.queryState(goal, functorProvider, state);
-
-    if (literalThetas.length === 0) {
-      if (isConjunctAction) {
+    if (isConjunctAction) {
+      let timableStartTime = conjunct.getStartTime();
+      if (timableStartTime instanceof Value && timableStartTime.evaluate() === forTime) {
+        // action to be executed later
         return processConjuncts(
           otherConjuncts,
           residueConjuncts.concat([conjunct]),
           thetaSoFar
         );
       }
+    }
+
+    let literalThetas = Resolutor.queryState(goal, functorProvider, state);
+    if (literalThetas.length === 0) {
       return false;
     }
 
+    let conjunctVariables = conjunct.getVariables();
     let numFailures = 0;
+    // process all branches
     literalThetas.forEach((tupleArg) => {
       let tuple = tupleArg;
       let updatedTheta = {};
@@ -98,6 +100,7 @@ const resolveStateConditions = function resolveStateConditions(
       tuple.theta = updatedTheta;
       let newThetaSoFar = compactTheta(newTheta, tuple.theta);
 
+      // for now, we only immediately end processing
       let subResult = processConjuncts(
         [],
         residueConjuncts.concat(otherConjuncts),
@@ -107,11 +110,12 @@ const resolveStateConditions = function resolveStateConditions(
         numFailures += 1;
       }
     });
+
+    // returns true if not all branches failed
     return numFailures < literalThetas.length;
   };
 
   let hasSucceeded = processConjuncts(earlyConjuncts, [], {}, {});
-
   if (!hasSucceeded) {
     return null;
   }
@@ -552,15 +556,17 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
   ) {
     let functorProvider = engine.getFunctorProvider();
 
-    _leafNodes.forEach((node) => {
+    let result = false;
+    for (let j = 0; j < _leafNodes.length; j += 1) {
+      let node = _leafNodes[j];
       let candidateActionSets = [];
       let unresolvedSets = [];
 
       // later conjuncts are ignored
       let pair = sortTimables(node.conjuncts, currentTime);
       let earlyConjuncts = pair[0];
-      if (hasExpiredCandidateAction(earlyConjuncts, currentTime)) {
-        return;
+      if (hasExpiredCandidateAction(earlyConjuncts, currentTime - 1)) {
+        continue;
       }
 
       let numCandidateActionsAdded = resolveSimpleActions(
@@ -572,14 +578,20 @@ function GoalTree(engine, program, goalClause, birthTimestamp) {
       );
 
       if (numCandidateActionsAdded === 0) {
-        return;
+        continue;
       }
 
       for (let i = 0; i < candidateActionSets.length; i += 1) {
         let candidateActions = candidateActionSets[i];
-        callback(candidateActions);
+        result = callback(candidateActions);
+        if (result) {
+          break;
+        }
       }
-    });
+      if (result) {
+        break;
+      }
+    }
   };
 
   this.toJSON = function toJSON() {

@@ -55,7 +55,7 @@ module.exports = function processRules(engine, program, state, currentTime, prof
       // preserve a rule if it has timeable in its antecedent
       newRules.push(rule);
     }
-    let resolutions = Resolutor.reduceRuleAntecedent(engine, state, rule, currentTime);
+    let resolutions = Resolutor.reduceRuleAntecedent(engine, program, state, rule, currentTime);
     let consequentLiterals = rule.getHeadLiterals();
     resolutions.forEach((pair) => {
       if (pair.unresolved.length === rule.getBodyLiteralsCount()) {
@@ -69,7 +69,7 @@ module.exports = function processRules(engine, program, state, currentTime, prof
       }
 
       // remember partially resolved antecedent
-      let body = pair.unresolved.map(l => l.substitute(pair.theta));
+      let body = pair.unresolved;
       let acceptNewRule = !hasExpiredTimable(body, currentTime);
 
       // reject if any antecedent conjunct has expired
