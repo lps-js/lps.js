@@ -35,6 +35,16 @@ const isPeerIdentifier = function isPeerIdentifier(peer) {
   return true;
 };
 
+const isPeerInNetwork = function isPeerInNetwork(network, address, port) {
+  for (let i = 0; i < network.peers.length; i += 1) {
+    let p = network.peers[i];
+    if (p[0] === address && p[1] === port) {
+      return true;
+    }
+  }
+  return false;
+};
+
 // eslint-disable-next-line no-unused-vars
 module.exports = (engine, program) => {
   if (process.browser) {
@@ -194,12 +204,8 @@ module.exports = (engine, program) => {
       let address = functorArgs[0].evaluate();
       let port = functorArgs[1].evaluate();
 
-      for (let i = 0; i < network.peers.length; i += 1) {
-        let p = network.peers[i];
-        if (p[0] === address && p[1] === port) {
-          result.push({ theta: {} });
-          break;
-        }
+      if (isPeerInNetwork(network, address, port)) {
+        result.push({ theta: {} });
       }
       return result;
     },
