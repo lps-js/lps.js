@@ -51,6 +51,9 @@ function Engine(programArg) {
 
   let _currentTime = 0;
 
+  let _nextCycleObservations = new LiteralTreeMap();
+  let _nextCycleActions = new LiteralTreeMap();
+
   let _lastCycleActions = null;
   let _lastCycleObservations = null;
 
@@ -138,17 +141,11 @@ function Engine(programArg) {
         });
         selectionDone = true;
         selection = actions;
-        return Promise.resolve(actions);
-      }
-      if (selectionDone) {
-        return Promise.resolve(selection);
+        return actions;
       }
       let goalTree = goalTrees[l];
-      let promises = [];
-      goalTree.forEachCandidateActions(_currentTime - 1, (candidateActions) => {
-        if (selectionDone) {
-          return;
-        }
+      let resultSet = null;
+      goalTree.forEachCandidateActions(_currentTime, (candidateActions) => {
         let cloneProgram = programSoFar.clone();
 
         let cloneExecutedActions = cloneProgram.getExecutedActions();
@@ -158,7 +155,7 @@ function Engine(programArg) {
 
         // pre-condition check
         if (!checkConstraintSatisfaction.call(this, cloneProgram)) {
-          return;
+          return false;
         }
 
         // post condition checks
@@ -173,36 +170,26 @@ function Engine(programArg) {
         clonePostProgram.setState(postState);
 
         if (!checkConstraintSatisfaction.call(this, clonePostProgram)) {
-          return;
+          return false;
         }
 
-        let promise = recursiveActionsSelector(
+        resultSet = recursiveActionsSelector(
           actionsSoFar.concat([candidateActions]),
           cloneProgram,
           l + 1
         );
-        promises.push(promise);
+        return true;
       });
 
-      // race for any first resolve
-      let mappedPromises = promises.map((p) => {
-        return p.then(
-          (val) => Promise.reject(val),
-          (err) => Promise.resolve(err)
-        );
-      });
-      return Promise
-        .all(mappedPromises)
-        .then(
-          () => {
-            return recursiveActionsSelector(
-              actionsSoFar,
-              programSoFar,
-              l + 1
-            );
-          },
-          (val) => Promise.resolve(val)
-        );
+      if (resultSet !== null) {
+        return resultSet;
+      }
+
+      return recursiveActionsSelector(
+        actionsSoFar,
+        programSoFar,
+        l + 1
+      );
     };
 
     return recursiveActionsSelector([], _program, 0);
@@ -212,79 +199,65 @@ function Engine(programArg) {
     Perform Cycle
   */
   const performCycle = function performCycle() {
-    if (_currentTime === 0) {
-      _currentTime += 1;
-      _lastCycleActions = new LiteralTreeMap();
-      _lastCycleObservations = new LiteralTreeMap();
-      return Promise.resolve();
-    }
+    _currentTime += 1;
 
     let selectedAndExecutedActions = new LiteralTreeMap();
-    let cycleObservations = processCycleObservations.call(this);
-    let executedActions = new LiteralTreeMap();
-    _program.setExecutedActions(executedActions);
+    let executedObservations = new LiteralTreeMap();
+    _processedNodes = new ConjunctionMap();
+
+    let updatedState = _program.getState().clone();
+    updateStateWithFluentActors(
+      this,
+      _program.getExecutedActions(),
+      updatedState
+    );
+    _program.setState(updatedState);
+
+    _nextCycleObservations.forEach((obs) => {
+      executedObservations.add(obs);
+    });
+    _nextCycleActions.forEach((act) => {
+      selectedAndExecutedActions.add(act);
+    });
 
     let state = [
       _program.getFacts(),
       _program.getState(),
       _program.getExecutedActions()
     ];
-    _processedNodes = new ConjunctionMap();
-    let newFiredGoals = [];
-    newFiredGoals = processRules(this, _program, state, _currentTime, _profiler);
+    let newFiredGoals = processRules(this, _program, state, _currentTime, _profiler);
     _goals = _goals.concat(newFiredGoals);
     return evaluateGoalTrees(_currentTime, _goals, _processedNodes, _profiler)
       .then((newGoals) => {
         _goals = newGoals;
 
-        _currentTime += 1;
-        // preparation for next cycle
+        _program.setExecutedActions(new LiteralTreeMap());
 
+        // preparation for next cycle
         _goals.sort(goalTreeSorter(_currentTime));
         return actionsSelector.call(this, _goals);
       })
-      .then((selectedActions) => {
+      .then((nextCycleActions) => {
+        _nextCycleActions = new LiteralTreeMap();
+        nextCycleActions.forEach((l) => {
+          _nextCycleActions.add(l);
+        });
+        _nextCycleObservations = new LiteralTreeMap();
+        let cycleObservations = processCycleObservations.call(this);
+        cycleObservations.forEach((observation) => {
+          nextCycleActions.add(observation);
+          _nextCycleObservations.add(observation);
+        });
+
+        _program.setExecutedActions(nextCycleActions);
         // update with observations
         // observation needs to take precedence in processing over
         // action selection so that we "cleverly" do not select
         // actions for exection that has been observed in the same cycle.
         // the idea of "someone else has done something I needed to do, thanks anyway"
-        cycleObservations.forEach((observation) => {
-          executedActions.add(observation);
-        });
-        selectedActions.forEach((l) => {
-          if (executedActions.contains(l)) {
-            return;
-          }
-          let selectedLiterals = Resolutor
-            .handleBuiltInFunctorArgumentInLiteral(_functorProvider, l);
-          selectedLiterals.forEach((literal) => {
-            executedActions.add(literal);
-            selectedAndExecutedActions.add(literal);
-          });
-        });
-        let updatedState = _program.getState().clone();
-        updateStateWithFluentActors(
-          this,
-          _program.getExecutedActions(),
-          updatedState
-        );
-        _program.setState(updatedState);
-        state = [
-          _program.getFacts(),
-          _program.getState(),
-          _program.getExecutedActions()
-        ];
-        newFiredGoals = processRules(this, _program, state, _currentTime, _profiler);
-        _goals = _goals.concat(newFiredGoals);
-        return evaluateGoalTrees(_currentTime, _goals, _processedNodes, _profiler);
-      })
-      .then((newGoals) => {
-        // preparation for next cycle
-        _goals = newGoals;
 
         _lastCycleActions = selectedAndExecutedActions;
-        _lastCycleObservations = cycleObservations;
+        _lastCycleObservations = executedObservations;
 
         return Promise.resolve();
       });
