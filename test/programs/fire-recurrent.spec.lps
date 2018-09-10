@@ -20,8 +20,8 @@ expect_num_of(fluent, 3, 0).
 expect_num_of(action, 2, 3, 1).
   expect(action, 2, 3, eliminate).
 expect_num_of(observation, 2, 3, 0).
-expect_num_of(firedRules, 3, 1).
-expect_num_of(resolvedGoals, 3, 2).
+expect_num_of(firedRules, 3, 0).
+expect_num_of(resolvedGoals, 3, 1).
 expect_num_of(unresolvedGoals, 3, 0).
 expect_num_of(failedGoals, 3, 0).
 
@@ -51,9 +51,9 @@ expect_num_of(fluent, 6, 1).
 expect_num_of(action, 5, 6, 1).
   expect(action, 5, 6, escape).
 expect_num_of(observation, 5, 6, 0).
-expect_num_of(firedRules, 6, 2).
-expect_num_of(resolvedGoals, 6, 3).
-expect_num_of(unresolvedGoals, 6, 0).
+expect_num_of(firedRules, 6, 1).
+expect_num_of(resolvedGoals, 6, 1).
+expect_num_of(unresolvedGoals, 6, 1).
 expect_num_of(failedGoals, 6, 0).
 
 % --- Start of cycle 7 ---
@@ -62,9 +62,9 @@ expect_num_of(fluent, 7, 1).
 expect_num_of(action, 6, 7, 1).
   expect(action, 6, 7, escape).
 expect_num_of(observation, 6, 7, 0).
-expect_num_of(firedRules, 7, 2).
-expect_num_of(resolvedGoals, 7, 2).
-expect_num_of(unresolvedGoals, 7, 0).
+expect_num_of(firedRules, 7, 1).
+expect_num_of(resolvedGoals, 7, 1).
+expect_num_of(unresolvedGoals, 7, 1).
 expect_num_of(failedGoals, 7, 0).
 
 % --- Start of cycle 8 ---
@@ -75,9 +75,9 @@ expect_num_of(action, 7, 8, 1).
   expect(action, 7, 8, escape).
 expect_num_of(observation, 7, 8, 1).
   expect(observation, 7, 8, refill).
-expect_num_of(firedRules, 8, 2).
-expect_num_of(resolvedGoals, 8, 2).
-expect_num_of(unresolvedGoals, 8, 0).
+expect_num_of(firedRules, 8, 1).
+expect_num_of(resolvedGoals, 8, 1).
+expect_num_of(unresolvedGoals, 8, 1).
 expect_num_of(failedGoals, 8, 0).
 
 % --- Start of cycle 9 ---
@@ -85,7 +85,7 @@ expect_num_of(fluent, 9, 0).
 expect_num_of(action, 8, 9, 1).
   expect(action, 8, 9, eliminate).
 expect_num_of(observation, 8, 9, 0).
-expect_num_of(firedRules, 9, 1).
+expect_num_of(firedRules, 9, 0).
 expect_num_of(resolvedGoals, 9, 1).
 expect_num_of(unresolvedGoals, 9, 0).
 expect_num_of(failedGoals, 9, 0).

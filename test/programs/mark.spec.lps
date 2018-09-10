@@ -10,7 +10,7 @@ expect_num_of(fluent, 2, 2).
 expect_num_of(action, 1, 2, 1).
   expect(action, 1, 2, reach(mark, glass, right)).
 expect_num_of(observation, 1, 2, 0).
-expect_num_of(firedRules, 2, 1).
+expect_num_of(firedRules, 2, 0).
 expect_num_of(resolvedGoals, 2, 0).
 expect_num_of(unresolvedGoals, 2, 1).
 expect_num_of(failedGoals, 2, 0).

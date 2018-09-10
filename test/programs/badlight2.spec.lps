@@ -1,3 +1,5 @@
+% --- Specification generated for test/programs/badlight2.lps
+% --- Start of cycle 1 ---
 expect_num_of(fluent, 1, 6).
   expect(fluent, 1, light(livingroom, off)).
   expect(fluent, 1, light(kitchen, on)).
@@ -6,6 +8,7 @@ expect_num_of(fluent, 1, 6).
   expect(fluent, 1, location(bob, livingroom)).
   expect(fluent, 1, location(dad, kitchen)).
 
+% --- Start of cycle 2 ---
 expect_num_of(fluent, 2, 6).
   expect(fluent, 2, light(bedroom, on)).
   expect(fluent, 2, light(bathroom, on)).
@@ -17,7 +20,12 @@ expect_num_of(action, 1, 2, 2).
   expect(action, 1, 2, switch(bob, livingroom, on)).
   expect(action, 1, 2, switch(dad, kitchen, off)).
 expect_num_of(observation, 1, 2, 0).
+expect_num_of(firedRules, 2, 3).
+expect_num_of(resolvedGoals, 2, 2).
+expect_num_of(unresolvedGoals, 2, 5).
+expect_num_of(failedGoals, 2, 0).
 
+% --- Start of cycle 3 ---
 expect_num_of(fluent, 3, 6).
   expect(fluent, 3, light(bedroom, on)).
   expect(fluent, 3, light(bathroom, on)).
@@ -28,7 +36,12 @@ expect_num_of(fluent, 3, 6).
 expect_num_of(action, 2, 3, 1).
   expect(action, 2, 3, goto(dad, bedroom)).
 expect_num_of(observation, 2, 3, 0).
+expect_num_of(firedRules, 3, 4).
+expect_num_of(resolvedGoals, 3, 2).
+expect_num_of(unresolvedGoals, 3, 7).
+expect_num_of(failedGoals, 3, 0).
 
+% --- Start of cycle 4 ---
 expect_num_of(fluent, 4, 6).
   expect(fluent, 4, light(bathroom, on)).
   expect(fluent, 4, light(livingroom, on)).
@@ -39,7 +52,12 @@ expect_num_of(fluent, 4, 6).
 expect_num_of(action, 3, 4, 1).
   expect(action, 3, 4, switch(dad, bedroom, off)).
 expect_num_of(observation, 3, 4, 0).
+expect_num_of(firedRules, 4, 2).
+expect_num_of(resolvedGoals, 4, 1).
+expect_num_of(unresolvedGoals, 4, 7).
+expect_num_of(failedGoals, 4, 1).
 
+% --- Start of cycle 5 ---
 expect_num_of(fluent, 5, 6).
   expect(fluent, 5, light(bathroom, on)).
   expect(fluent, 5, light(livingroom, on)).
@@ -50,7 +68,12 @@ expect_num_of(fluent, 5, 6).
 expect_num_of(action, 4, 5, 1).
   expect(action, 4, 5, goto(dad, bathroom)).
 expect_num_of(observation, 4, 5, 0).
+expect_num_of(firedRules, 5, 3).
+expect_num_of(resolvedGoals, 5, 4).
+expect_num_of(unresolvedGoals, 5, 6).
+expect_num_of(failedGoals, 5, 0).
 
+% --- Start of cycle 6 ---
 expect_num_of(fluent, 6, 6).
   expect(fluent, 6, light(livingroom, on)).
   expect(fluent, 6, light(kitchen, off)).
@@ -61,7 +84,12 @@ expect_num_of(fluent, 6, 6).
 expect_num_of(action, 5, 6, 1).
   expect(action, 5, 6, switch(dad, bathroom, off)).
 expect_num_of(observation, 5, 6, 0).
+expect_num_of(firedRules, 6, 1).
+expect_num_of(resolvedGoals, 6, 1).
+expect_num_of(unresolvedGoals, 6, 5).
+expect_num_of(failedGoals, 6, 1).
 
+% --- Start of cycle 7 ---
 expect_num_of(fluent, 7, 6).
   expect(fluent, 7, light(livingroom, on)).
   expect(fluent, 7, light(kitchen, off)).
@@ -72,7 +100,12 @@ expect_num_of(fluent, 7, 6).
 expect_num_of(action, 6, 7, 1).
   expect(action, 6, 7, goto(dad, livingroom)).
 expect_num_of(observation, 6, 7, 0).
+expect_num_of(firedRules, 7, 2).
+expect_num_of(resolvedGoals, 7, 5).
+expect_num_of(unresolvedGoals, 7, 2).
+expect_num_of(failedGoals, 7, 0).
 
+% --- Start of cycle 8 ---
 expect_num_of(fluent, 8, 6).
   expect(fluent, 8, light(kitchen, off)).
   expect(fluent, 8, light(bedroom, off)).
@@ -83,7 +116,12 @@ expect_num_of(fluent, 8, 6).
 expect_num_of(action, 7, 8, 1).
   expect(action, 7, 8, switch(dad, livingroom, off)).
 expect_num_of(observation, 7, 8, 0).
+expect_num_of(firedRules, 8, 2).
+expect_num_of(resolvedGoals, 8, 1).
+expect_num_of(unresolvedGoals, 8, 2).
+expect_num_of(failedGoals, 8, 1).
 
+% --- Start of cycle 9 ---
 expect_num_of(fluent, 9, 6).
   expect(fluent, 9, light(kitchen, off)).
   expect(fluent, 9, light(bedroom, off)).
@@ -94,7 +132,12 @@ expect_num_of(fluent, 9, 6).
 expect_num_of(action, 8, 9, 1).
   expect(action, 8, 9, switch(bob, livingroom, on)).
 expect_num_of(observation, 8, 9, 0).
+expect_num_of(firedRules, 9, 1).
+expect_num_of(resolvedGoals, 9, 1).
+expect_num_of(unresolvedGoals, 9, 1).
+expect_num_of(failedGoals, 9, 1).
 
+% --- Start of cycle 10 ---
 expect_num_of(fluent, 10, 6).
   expect(fluent, 10, light(kitchen, off)).
   expect(fluent, 10, light(bedroom, off)).
@@ -105,7 +148,12 @@ expect_num_of(fluent, 10, 6).
 expect_num_of(action, 9, 10, 1).
   expect(action, 9, 10, switch(dad, livingroom, off)).
 expect_num_of(observation, 9, 10, 0).
+expect_num_of(firedRules, 10, 2).
+expect_num_of(resolvedGoals, 10, 1).
+expect_num_of(unresolvedGoals, 10, 2).
+expect_num_of(failedGoals, 10, 0).
 
+% --- Start of cycle 11 ---
 expect_num_of(fluent, 11, 6).
   expect(fluent, 11, light(kitchen, off)).
   expect(fluent, 11, light(bedroom, off)).
@@ -116,7 +164,12 @@ expect_num_of(fluent, 11, 6).
 expect_num_of(action, 10, 11, 1).
   expect(action, 10, 11, switch(bob, livingroom, on)).
 expect_num_of(observation, 10, 11, 0).
+expect_num_of(firedRules, 11, 1).
+expect_num_of(resolvedGoals, 11, 1).
+expect_num_of(unresolvedGoals, 11, 1).
+expect_num_of(failedGoals, 11, 1).
 
+% --- Start of cycle 12 ---
 expect_num_of(fluent, 12, 6).
   expect(fluent, 12, light(kitchen, off)).
   expect(fluent, 12, light(bedroom, off)).
@@ -127,4 +180,8 @@ expect_num_of(fluent, 12, 6).
 expect_num_of(action, 11, 12, 1).
   expect(action, 11, 12, switch(dad, livingroom, off)).
 expect_num_of(observation, 11, 12, 0).
+expect_num_of(firedRules, 12, 2).
+expect_num_of(resolvedGoals, 12, 1).
+expect_num_of(unresolvedGoals, 12, 2).
+expect_num_of(failedGoals, 12, 0).
 
