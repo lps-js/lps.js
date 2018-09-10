@@ -5,7 +5,6 @@
 
 const lpsRequire = require('../lpsRequire');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
-const Resolutor = lpsRequire('engine/Resolutor');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
 
 const processRules = lpsRequire('utility/processRules');
@@ -129,8 +128,6 @@ function Engine(programArg) {
   };
 
   let actionsSelector = function actionsSelector(goalTrees) {
-    let selectionDone = false;
-    let selection;
     let recursiveActionsSelector = (actionsSoFar, programSoFar, l) => {
       if (l >= goalTrees.length) {
         let actions = new LiteralTreeMap();
@@ -139,8 +136,6 @@ function Engine(programArg) {
             actions.add(literal);
           });
         });
-        selectionDone = true;
-        selection = actions;
         return actions;
       }
       let goalTree = goalTrees[l];
@@ -220,12 +215,7 @@ function Engine(programArg) {
       selectedAndExecutedActions.add(act);
     });
 
-    let state = [
-      _program.getFacts(),
-      _program.getState(),
-      _program.getExecutedActions()
-    ];
-    let newFiredGoals = processRules(this, _program, state, _currentTime, _profiler);
+    let newFiredGoals = processRules(this, _program, _currentTime, _profiler);
     _goals = _goals.concat(newFiredGoals);
     return evaluateGoalTrees(_currentTime, _goals, _processedNodes, _profiler)
       .then((newGoals) => {

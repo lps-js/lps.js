@@ -11,25 +11,31 @@ const Functor = lpsRequire('engine/Functor');
 const Timable = lpsRequire('engine/Timable');
 const Resolutor = lpsRequire('engine/Resolutor');
 
-module.exports = function processRules(engine, program, state, currentTime, profiler) {
+const containsTimables = function containsTimables(rule, currentTime) {
+  let conjuncts = rule.getBodyLiterals();
+  for (let i = 0; i < conjuncts.length; i += 1) {
+    let conjunct = conjuncts[i];
+    while (conjunct instanceof Functor
+        && conjunct.getId() === '!/1') {
+      conjunct = conjunct.getArguments()[0];
+    }
+    if (!(conjunct instanceof Timable)) {
+      continue;
+    }
+    return !conjunct.hasExpired(currentTime);
+  }
+  return false;
+};
+
+module.exports = function processRules(engine, program, currentTime, profiler) {
   let rules = program.getRules();
   let newGoals = [];
 
-  const containsTimables = function containsTimables(rule) {
-    let conjuncts = rule.getBodyLiterals();
-    for (let i = 0; i < conjuncts.length; i += 1) {
-      let conjunct = conjuncts[i];
-      while (conjunct instanceof Functor
-          && conjunct.getId() === '!/1') {
-        conjunct = conjunct.getArguments()[0];
-      }
-      if (!(conjunct instanceof Timable)) {
-        continue;
-      }
-      return !conjunct.hasExpired(currentTime);
-    }
-    return false;
-  };
+  let state = [
+    program.getFacts(),
+    program.getState(),
+    program.getExecutedActions()
+  ];
 
   const fireRule = function fireRule(consequent) {
     let newGoalsTemp = [];
@@ -50,7 +56,7 @@ module.exports = function processRules(engine, program, state, currentTime, prof
       return;
     }
     let isRulePreserved = false;
-    if (containsTimables(rule)) {
+    if (containsTimables(rule, currentTime)) {
       isRulePreserved = true;
       // preserve a rule if it has timeable in its antecedent
       newRules.push(rule);
