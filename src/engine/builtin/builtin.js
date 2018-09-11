@@ -31,7 +31,7 @@ function builtinProcessor(engine, program) {
     let promise;
     if (process.browser) {
       let source = require(`${__dirname}/${filename}.lps`);
-      promise = Program.fromString(source)
+      promise = ProgramFactory.fromString(source)
         .then((p) => {
           builtInCache[filename] = p;
           program.augment(p);
