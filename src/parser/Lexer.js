@@ -9,9 +9,9 @@ const Lexicon = lpsRequire('parser/Lexicon');
 const TokenTypes = lpsRequire('parser/TokenTypes');
 
 function Lexer(source, pathname) {
-  let _scanner = new Scanner(source);
+  const _scanner = new Scanner(source);
 
-  let _nextChar = function _nextChar() {
+  const _nextChar = function _nextChar() {
     let c1 = _scanner.get();
     // lookahead to construct the next two characters for processing two char
     let c2 = null;
@@ -24,7 +24,7 @@ function Lexer(source, pathname) {
 
   let lastChars = _nextChar();
 
-  let _skipWhitespaces = function _skipWhitespaces(charsArg) {
+  const _skipWhitespaces = function _skipWhitespaces(charsArg) {
     let chars = charsArg;
     let c1 = chars[0];
     while (Lexicon.whitespaces.indexOf(c1) > -1) {
@@ -34,7 +34,7 @@ function Lexer(source, pathname) {
     return chars;
   };
 
-  let _skipComments = function _skipComments(charsArg) {
+  const _skipComments = function _skipComments(charsArg) {
     let chars = charsArg;
     let c1 = chars[0];
     let c2 = chars[1];
@@ -75,7 +75,7 @@ function Lexer(source, pathname) {
     return chars;
   };
 
-  let _skipWhitespaceAndComments = function _skipWhitespaceAndComments(charsArg) {
+  const _skipWhitespaceAndComments = function _skipWhitespaceAndComments(charsArg) {
     let chars = charsArg;
     let newChars = chars;
     do {
@@ -86,7 +86,7 @@ function Lexer(source, pathname) {
     return chars;
   };
 
-  let _makeToken = function _makeToken(type, content, line, col) {
+  const _makeToken = function _makeToken(type, content, line, col) {
     return {
       type: type,
       value: content,
@@ -96,7 +96,7 @@ function Lexer(source, pathname) {
     };
   };
 
-  let _makeErrorToken = function _makeErrorToken(message, line, col) {
+  const _makeErrorToken = function _makeErrorToken(message, line, col) {
     return {
       type: TokenTypes.Error,
       value: message,
@@ -106,7 +106,7 @@ function Lexer(source, pathname) {
     };
   };
 
-  let _extractContentByRegexTest = function _extractContentByTest(charsArg, regex) {
+  const _extractContentByRegexTest = function _extractContentByTest(charsArg, regex) {
     let chars = charsArg;
     let buffer = chars[0];
     while (chars[1] !== null && regex.test(chars[1][1])) {
@@ -116,7 +116,33 @@ function Lexer(source, pathname) {
     return buffer;
   };
 
-  let _extractNumber = function _extractNumber(charsArg) {
+  const testHexadecimalNumber = (chars) => {
+    if (chars[1] === null) {
+      return false;
+    }
+
+    // lookahead check
+    if (Lexicon.hexadecimalTest.test(chars[1][1])) {
+      // accept the number
+      return true;
+    }
+    return false;
+  };
+
+  const testBinaryNumber = (chars) => {
+    if (chars[1] === null) {
+      return false;
+    }
+
+    // lookahead check
+    if (Lexicon.binaryTest.test(chars[1][1])) {
+      // accept the number
+      return true;
+    }
+    return false;
+  };
+
+  const _extractNumber = function _extractNumber(charsArg) {
     // keep record of where the token starts
     let chars = charsArg;
     let line = chars[2].line;
@@ -156,39 +182,13 @@ function Lexer(source, pathname) {
       return false;
     };
 
-    let testHexadecimalNumber = () => {
-      if (chars[1] === null) {
-        return false;
-      }
-
-      // lookahead check
-      if (/[0-9a-fA-F]/.test(chars[1][1])) {
-        // accept the number
-        return true;
-      }
-      return false;
-    };
-
-    let testBinaryNumber = () => {
-      if (chars[1] === null) {
-        return false;
-      }
-
-      // lookahead check
-      if (/[01]/.test(chars[1][1])) {
-        // accept the number
-        return true;
-      }
-      return false;
-    };
-
     if (isFirstDigitZero && chars[1][1] === Lexicon.numberHexadecimalMarker) {
       // hexadecimal number
       buffer = '';
       // skip over the hexadecimal marker
       chars = _nextChar();
 
-      while (testHexadecimalNumber()) {
+      while (testHexadecimalNumber(chars)) {
         chars = _nextChar();
         buffer += chars[0];
       }
@@ -199,7 +199,7 @@ function Lexer(source, pathname) {
       // skip over the hexadecimal marker
       chars = _nextChar();
 
-      while (testBinaryNumber()) {
+      while (testBinaryNumber(chars)) {
         chars = _nextChar();
         buffer += chars[0];
       }
@@ -218,7 +218,7 @@ function Lexer(source, pathname) {
     return result;
   };
 
-  let _extractVariable = function _extractVariable(chars) {
+  const _extractVariable = function _extractVariable(chars) {
     // keep record of where the token starts
     let line = chars[2].line;
     let col = chars[2].col;
@@ -228,7 +228,7 @@ function Lexer(source, pathname) {
     return result;
   };
 
-  let _extractUnquotedConstant = function _extractUnquotedConstant(chars) {
+  const _extractUnquotedConstant = function _extractUnquotedConstant(chars) {
     // keep record of where the token starts
     let line = chars[2].line;
     let col = chars[2].col;
@@ -242,7 +242,19 @@ function Lexer(source, pathname) {
     return result;
   };
 
-  let _extractQuotedString = function _extractQuotedString(charsArg) {
+  const _extractFixedLengthHexadecimal = function _extractFixedLengthHexadecimal(length) {
+    let result = '';
+    for (let i = 0; i < length; i += 1) {
+      chars = _nextChar();
+      if (!Lexicon.hexadecimalTest.test(chars[0])) {
+        return null;
+      }
+      result += chars[0];
+    }
+    return parseInt(result, 16);
+  }
+
+  const _extractQuotedString = function _extractQuotedString(charsArg) {
     let buffer = '';
     let chars = charsArg;
     let line = chars[2].line;
@@ -254,10 +266,27 @@ function Lexer(source, pathname) {
         return _makeErrorToken('Invalid character', chars[2].line, chars[2].col);
       }
       if (chars[0] === Lexicon.constantDelimiterEscapeChar) {
-        if (chars[1][1] !== delimiter && chars[1][1] !== Lexicon.constantDelimiterEscapeChar) {
+        // skip over the escape character
+        chars = _nextChar();
+        if (chars[0] === Lexicon.constantHexadecimalMarker) {
+          // hexadecimal sequence
+          let hexValue = _extractFixedLengthHexadecimal(2);
+          if (hexValue === null) {
+            return _makeErrorToken('Invalid hexadecimal value', chars[2].line, chars[2].col);
+          }
+          chars[0] = String.fromCharCode(hexValue);
+        } else if (chars[0] === Lexicon.constantUnicodeMarker) {
+          // unicode sequence
+          let unicodeValue = _extractFixedLengthHexadecimal(4);
+          if (unicodeValue === null) {
+            return _makeErrorToken('Invalid hexadecimal value', chars[2].line, chars[2].col);
+          }
+          chars[0] = String.fromCharCode(unicodeValue);
+        } else if (Lexicon.singleCharacterMarkers[chars[0]] !== undefined) {
+          chars[0] = Lexicon.singleCharacterMarkers[chars[0]];
+        } else {
           return _makeErrorToken('Invalid escape character', chars[2].line, chars[2].col);
         }
-        chars = _nextChar();
       }
       buffer += chars[0];
     }
@@ -270,14 +299,14 @@ function Lexer(source, pathname) {
     return result;
   };
 
-  let _extractDoubleSymbol = function _extractDoubleSymbol(charsArg) {
+  const _extractDoubleSymbol = function _extractDoubleSymbol(charsArg) {
     _nextChar();
     let result = _makeToken(TokenTypes.Symbol, charsArg[1], charsArg[2].line, charsArg[2].col);
     lastChars = _nextChar();
     return result;
   };
 
-  let _extractSingleSymbol = function _extractSingleSymbol(charsArg) {
+  const _extractSingleSymbol = function _extractSingleSymbol(charsArg) {
     let result = _makeToken(TokenTypes.Symbol, charsArg[0], charsArg[2].line, charsArg[2].col);
     lastChars = _nextChar();
     return result;
