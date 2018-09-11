@@ -4,7 +4,7 @@
  */
 
 module.exports = {
-  whitespaces: '\n\t '.split(''),
+  whitespaces: '\n\r\t '.split(''),
   comments: [
     ['/*', '*/'],
     ['%', '\n'],
