@@ -1,0 +1,10 @@
+maxTime(2).
+fact('testing').
+fact('test\n\nnewlines').
+fact('test\r\nnewlines').
+fact('test\ttabs').
+fact('test\u000Aunicode').
+fact('test\x22hex').
+fact('test\\escape').
+fact('test\'escape').
+fact('test\"escape').

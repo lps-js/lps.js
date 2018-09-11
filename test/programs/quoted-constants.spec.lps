@@ -1,0 +1,10 @@
+expect(maxTime(2)).
+expect(fact('testing')).
+expect(fact('test\n\nnewlines')).
+expect(fact('test\r\nnewlines')).
+expect(fact('test\ttabs')).
+expect(fact('test\u000Aunicode')).
+expect(fact('test\x22hex')).
+expect(fact('test\\escape')).
+expect(fact('test\'escape')).
+expect(fact('test\"escape')).

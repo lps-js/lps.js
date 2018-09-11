@@ -63,6 +63,7 @@ describe('Programs Test', function () {
     'numeric-notation',
     'rain',
     'shopping',
+    'quoted-constants',
     'turing',
     'randomHalt',
     'macroandstate',
