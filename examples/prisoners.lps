@@ -23,4 +23,5 @@ refuses(O, T1, T2), other(I, O) -> refuses(I, T2, T3).
 
 bears_witness(O, T1, T2), other(I, O) -> bears_witness(I, T2, T3).
 
-updates(gets(P, Y), total_years_in_jail(P, OY), total_years_in_jail(P, OY+Y)).
+updates(gets(P, Y), total_years_in_jail(P, OY), total_years_in_jail(P, NY)) <-
+  NY = OY + Y.
