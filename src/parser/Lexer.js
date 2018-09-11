@@ -250,6 +250,9 @@ function Lexer(source, pathname) {
     let delimiter = chars[0];
     while (chars[1] !== null && chars[1][1] !== delimiter) {
       chars = _nextChar();
+      if (Lexicon.constantInvalidCharacters.indexOf(chars[0]) !== -1) {
+        return _makeErrorToken('Invalid character', chars[2].line, chars[2].col);
+      }
       if (chars[0] === Lexicon.constantDelimiterEscapeChar) {
         if (chars[1][1] !== delimiter && chars[1][1] !== Lexicon.constantDelimiterEscapeChar) {
           return _makeErrorToken('Invalid escape character', chars[2].line, chars[2].col);
