@@ -1,5 +1,5 @@
 # lps.js
-[![Build Status](https://travis-ci.com/mauris/lps.js.svg?token=nG8zWvvk7DtqtXkE8Tff&branch=master)](https://travis-ci.com/mauris/lps.js)
+[![Build Status](https://travis-ci.com/mauris/lps.js.svg?token=nG8zWvvk7DtqtXkE8Tff&branch=master)](https://travis-ci.com/mauris/lps.js) [![lps.js package on npm](https://img.shields.io/npm/v/lps.svg)](https://npmjs.com/package/lps) ![lps.js Dependencies](https://img.shields.io/david/mauris/lps.js.svg)
 
 [LPS](http://lps.doc.ic.ac.uk/) is a logic-based programming language and production system developed by [Robert Kowalski](https://www.doc.ic.ac.uk/~rak/) and [Fariba Sadri](https://www.doc.ic.ac.uk/~fs/) at [Imperial College London](https://www.imperial.ac.uk/). [lps.js](https://github.com/mauris/lps.js) is the LPS runtime implemented in JavaScript.
 
