@@ -26,7 +26,7 @@
     "prepublishOnly": "npm test",
     "publish:alpha": "npm publish --tag alpha",
     "publish:beta": "npm publish --tag beta",
-    "publish:stable": "npm publish --tag stable"
+    "publish:latest": "npm publish"
   },
   "author": {
     "name": "Sam Yong",
