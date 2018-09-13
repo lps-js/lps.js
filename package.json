@@ -1,6 +1,6 @@
 {
   "name": "lps",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Logic Production System (LPS) runtime implementation in JS for building browser or Node.js-based AI applications",
   "main": "index.js",
   "repository": "https://github.com/mauris/lps.js.git",
