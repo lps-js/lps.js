@@ -557,6 +557,35 @@ describe('math.lps', () => {
     });
   }); // ceil/2
 
+  describe('round/2', () => {
+    it('should return correct result for variable replacement', () => {
+      let result = engine.query(ProgramFactory.literal('round(2.6, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(Math.round(2.6));
+    });
+
+    it('should return correct result for matching output', () => {
+      let result = engine.query(ProgramFactory.literal('round(2.6, ' + Math.round(2.6) + ')'));
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.empty;
+    });
+
+    it('should return empty array for non-match', () => {
+      let result = engine.query(ProgramFactory.literal('round(2.6, 2)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // round/2
+
   describe('succ/2', () => {
     it('should return correct result for variable replacement 1', () => {
       let result = engine.query(ProgramFactory.literal('succ(5, A)'));
