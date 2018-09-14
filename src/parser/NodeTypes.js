@@ -14,6 +14,7 @@ module.exports = {
   ListHead: Symbol('ListHead'),
   List: Symbol('List'),
   Negation: Symbol('Negation'),
+  Cut: Symbol('Cut'),
   Timable: Symbol('Timable'),
   BinaryOperator: Symbol('BinaryOperator'),
   UnaryOperator: Symbol('UnaryOperator'),
