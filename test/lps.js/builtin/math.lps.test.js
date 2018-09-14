@@ -238,6 +238,93 @@ describe('math.lps', () => {
     });
   }); // tan/2
 
+  describe('asin/2', () => {
+    it('should return correct result for variable replacement', () => {
+      let result = engine.query(ProgramFactory.literal('asin(0, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(Math.asin(0));
+    });
+
+    it('should return correct result for matching output', () => {
+      let result = engine.query(ProgramFactory.literal('asin(0, ' + Math.asin(0) + ')'));
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.empty;
+    });
+
+    it('should return empty array for non-match', () => {
+      let result = engine.query(ProgramFactory.literal('asin(0, 2)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // asin/2
+
+  describe('acos/2', () => {
+    it('should return correct result for variable replacement', () => {
+      let result = engine.query(ProgramFactory.literal('acos(1, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(Math.acos(1));
+    });
+
+    it('should return correct result for matching output', () => {
+      let result = engine.query(ProgramFactory.literal('acos(1, ' + Math.acos(1) + ')'));
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.empty;
+    });
+
+    it('should return empty array for non-match', () => {
+      let result = engine.query(ProgramFactory.literal('acos(1, 2)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // acos/2
+
+  describe('atan/2', () => {
+    it('should return correct result for variable replacement', () => {
+      let result = engine.query(ProgramFactory.literal('atan(1, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(Math.atan(1));
+    });
+
+    it('should return correct result for matching output', () => {
+      let result = engine.query(ProgramFactory.literal('atan(1, ' + Math.atan(1) + ')'));
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.empty;
+    });
+
+    it('should return empty array for non-match', () => {
+      let result = engine.query(ProgramFactory.literal('atan(1, 2)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // atan/2
+
   describe('succ/2', () => {
     it('should return correct result for variable replacement 1', () => {
       let result = engine.query(ProgramFactory.literal('succ(5, A)'));
