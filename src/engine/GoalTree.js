@@ -15,7 +15,6 @@ const compactTheta = lpsRequire('utility/compactTheta');
 const dedupeConjunction = lpsRequire('utility/dedupeConjunction');
 const sortTimables = lpsRequire('utility/sortTimables');
 const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming');
-const hasExpiredTimable = lpsRequire('utility/hasExpiredTimable');
 const expandLiteral = lpsRequire('utility/expandLiteral');
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 
@@ -343,12 +342,6 @@ function GoalNode(engine, program, conjunctsArg, theta) {
         this.hasBranchFailed = true;
       }
       return cachedValue;
-    }
-
-    if (hasExpiredTimable(this.conjuncts, forTime)) {
-      this.hasBranchFailed = true;
-      processedNodes.add(this.conjuncts, null);
-      return null;
     }
 
     let pair = sortTimables(this.conjuncts, forTime);
