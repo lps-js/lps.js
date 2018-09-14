@@ -11,7 +11,9 @@ const compactTheta = lpsRequire('utility/compactTheta');
 const sortTimables = lpsRequire('utility/sortTimables');
 const resolveTimableThetaTiming = lpsRequire('utility/resolveTimableThetaTiming');
 
-let Resolutor = {};
+const Resolutor = {};
+
+const CUT_ID = 'cut/0';
 
 Resolutor.handleBuiltInFunctorArgumentInLiteral = function handleBuiltInFunctorArgumentInLiteral(
   functorProvider,
@@ -89,12 +91,20 @@ Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
       result.push({
         theta: thetaSoFar
       });
-      return result;
+      return { hasCut: false, list: result };
     }
 
     let conjunct = remainingLiterals[0]
       .substitute(thetaSoFar);
     let literal = conjunct.getGoal();
+
+    let newRemainingLiterals = remainingLiterals.slice(1, remainingLiterals.length);
+
+    if (conjunct instanceof Functor && conjunct.getId() === CUT_ID) {
+      result = recursiveResolution(newRemainingLiterals, thetaSoFar);
+      result.hasCut = true;
+      return result;
+    }
 
     let literalThetas = Resolutor.queryState(literal, functorProvider, facts);
 
@@ -107,7 +117,7 @@ Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
         // perform resolution on the subgoal
         let subResult = recursiveResolution(bodyLiterals, {});
         let updatedHeadLiteralMap = new LiteralTreeMap();
-        subResult.forEach((r) => {
+        subResult.list.forEach((r) => {
           let updatedHeadLiteral = headLiteral.substitute(r.theta);
           updatedHeadLiteralMap.add(updatedHeadLiteral);
         });
@@ -119,21 +129,25 @@ Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
       });
 
     if (literalThetas.length === 0) {
-      return [];
+      return { hasCut: false, list: [] };
     }
 
-    let newRemainingLiterals = remainingLiterals.slice(1, remainingLiterals.length);
-
-    literalThetas.forEach((t) => {
-      let compactedTheta = compactTheta(thetaSoFar, t.theta);
+    let hasCut = false;
+    for (let i = 0; i < literalThetas.length; i += 1) {
+      let tuple = literalThetas[i];
+      let compactedTheta = compactTheta(thetaSoFar, tuple.theta);
       let subResult = recursiveResolution(newRemainingLiterals, compactedTheta);
-      result = result.concat(subResult);
-    });
-    return result;
+      result = result.concat(subResult.list);
+      if (subResult.hasCut) {
+        hasCut = true;
+        break;
+      }
+    }
+    return { hasCut : hasCut, list: result };
   };
 
   let result = recursiveResolution(query, {}, []);
-  return result;
+  return result.list;
 };
 
 Resolutor.queryState = function queryState(literal, functorProvider, state) {
@@ -179,7 +193,21 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
         theta: theta,
         unresolved: mappedConjuncts
       });
-      return;
+      return true;
+    }
+
+    if (earlyConjuncts[0] instanceof Functor
+        && earlyConjuncts[0].getId() === CUT_ID) {
+      let otherConjuncts = earlyConjuncts
+        .slice(1, earlyConjuncts.length)
+        .concat(laterConjuncts);
+      // handle cut
+      recursiveResolution(
+        result,
+        otherConjuncts,
+        theta
+      );
+      return false;
     }
 
     let newTheta = Object.assign({}, theta);
@@ -202,20 +230,25 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
         theta: theta,
         unresolved: remainingLiterals
       });
-      return;
+      return true;
     }
 
-    literalThetas.forEach((t) => {
-      let updatedTheta = compactTheta(newTheta, t.theta);
+    for (let i = 0; i < literalThetas.length; i += 1) {
+      let tuple = literalThetas[i];
+      let updatedTheta = compactTheta(newTheta, tuple.theta);
       let mappedConjuncts = otherConjuncts.map((c) => {
         return c.substitute(updatedTheta);
       });
-      recursiveResolution(
+      let subResolutionContinue = recursiveResolution(
         result,
         mappedConjuncts,
         updatedTheta
       );
-    });
+      if (!subResolutionContinue) {
+        return false;
+      }
+    }
+    return true;
   };
 
   let literals = rule.getBodyLiterals();
