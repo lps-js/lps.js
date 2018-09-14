@@ -31,10 +31,13 @@ const forEachToString = (arr) => {
   };
 };
 
+const DEFAULT_MAX_TIME = 20;
+const DEFAULT_CYCLE_INTERVAL = 100;
+
 function Engine(programArg) {
   let _program = programArg;
-  let _maxTime = 20;
-  let _cycleInterval = 100; // milliseconds
+  let _maxTime = DEFAULT_MAX_TIME;
+  let _cycleInterval = DEFAULT_CYCLE_INTERVAL; // milliseconds
   let _isContinuousExecution = false;
   let _isInCycle = false;
   let _isPaused = false;
