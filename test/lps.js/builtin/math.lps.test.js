@@ -37,7 +37,7 @@ describe('math.lps', () => {
       expect(result[0].theta.A.evaluate()).to.be.equal(Math.sin(60));
     });
 
-    it('should return correct result for variable replacement', () => {
+    it('should return correct result for matching output', () => {
       let result = engine.query(ProgramFactory.literal('sin(60, ' + Math.sin(60) + ')'));
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -66,7 +66,7 @@ describe('math.lps', () => {
       expect(result[0].theta.A.evaluate()).to.be.equal(Math.cos(60));
     });
 
-    it('should return correct result for variable replacement', () => {
+    it('should return correct result for matching output', () => {
       let result = engine.query(ProgramFactory.literal('cos(60, ' + Math.cos(60) + ')'));
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
@@ -95,7 +95,7 @@ describe('math.lps', () => {
       expect(result[0].theta.A.evaluate()).to.be.equal(Math.tan(60));
     });
 
-    it('should return correct result for variable replacement', () => {
+    it('should return correct result for matching output', () => {
       let result = engine.query(ProgramFactory.literal('tan(60, ' + Math.tan(60) + ')'));
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
