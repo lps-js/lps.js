@@ -5,10 +5,20 @@
 
 const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 
+/**
+ * Perform evaluation on all given goal trees
+ * @param  {number} currentTime The current time in execution at pre-cycle
+ * @param  {Array<GoalTree>} goalTrees   The array of goal trees to process
+ * @param  {Profiler} profiler   The engine profiler
+ * @return {Promise}             Returns a promise that when fulfilled, provides the new set
+ *                               of goal trees.
+ */
 module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler) {
   let processedNodes = new ConjunctionMap();
   let goalTreeProcessingPromises = [];
   let newGoals = [];
+
+  // perform evaluation on all the goal trees
   goalTrees.forEach((goalTree) => {
     let treePromise = goalTree
       .evaluate(currentTime, processedNodes)
