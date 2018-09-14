@@ -7,6 +7,10 @@ const lpsRequire = require('../../../lpsRequire');
 const Value = lpsRequire('engine/Value');
 const Functor = lpsRequire('engine/Functor');
 
+/**
+ * Throw an error if the given argument is not a value or nullary functor
+ * @param  {any} val A given piece of data
+ */
 module.exports = function assertIsValue(val) {
   if (!(val instanceof Value)
       && !(val instanceof Functor && val.getArgumentCount() === 0)) {

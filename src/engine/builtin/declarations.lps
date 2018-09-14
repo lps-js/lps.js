@@ -3,6 +3,7 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
+% Syntactic sugar for the list version
 fluent(F) <-
   fluents(L),
   member(F, L).
@@ -13,10 +14,12 @@ event(F) <-
   events(L),
   member(F, L).
 
+% Enable querying of observe/2 through observe/3
 observe(F, T, T2) <-
   observe(F, T),
   T2 = T + 1.
 
+% syntactic sugar for list version
 loadModule(F) <-
   loadModules(L),
   member(F, L).

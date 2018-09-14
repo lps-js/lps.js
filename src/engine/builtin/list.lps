@@ -3,6 +3,8 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
+% predicate definition length/2
+% through the function length/1
 length(L, N) <-
   is_variable(N),
   N = length(L).
@@ -10,25 +12,33 @@ length(L, N) <-
   not is_variable(N),
   N == length(L).
 
+% predicate definition of append
+% through the function append/2
 append(A, B, C) <-
   is_variable(C),
   C = append(A, B).
 
+% base case of max_list/2
 max_list([A], A).
+% perform recursive max_list processing
 max_list([H|T], Max) <-
-  length([H|T], N),
-  N > 1,
+  length(T, N),
+  N > 0,
   max_list(T, M1),
   Max = max(M1, H).
 
+% base case of min_list/2
 min_list([A], A).
+% perform recursive min_list processing
 min_list([H|T], Max) <-
-  length([H|T], N),
-  N > 1,
+  length(T, N),
+  N > 0,
   min_list(T, M1),
   min(M1, H, Max).
 
+% base case for sum_list/2
 sum_list([], 0).
+% perform recursive sum_list processing
 sum_list([H|T], S) <-
   sum_list(T, S1),
   S = S1 + H.
