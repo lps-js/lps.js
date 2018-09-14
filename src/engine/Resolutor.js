@@ -108,25 +108,29 @@ Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
 
     let literalThetas = Resolutor.queryState(literal, functorProvider, facts);
 
-    program
-      .getDefinitions(conjunct)
-      .forEach((tuple) => {
-        let bodyLiterals = tuple.definition;
-        let headLiteral = tuple.headLiteral;
+    let definitions = program.getDefinitions(conjunct);
+    for (let i = 0; i < definitions.length; i += 1) {
+      let tuple = definitions[i];
+      let bodyLiterals = tuple.definition;
+      let headLiteral = tuple.headLiteral;
 
-        // perform resolution on the subgoal
-        let subResult = recursiveResolution(bodyLiterals, {});
-        let updatedHeadLiteralMap = new LiteralTreeMap();
-        subResult.list.forEach((r) => {
-          let updatedHeadLiteral = headLiteral.substitute(r.theta);
-          updatedHeadLiteralMap.add(updatedHeadLiteral);
-        });
-        let unifications = updatedHeadLiteralMap.unifies(conjunct);
-
-        unifications.forEach((t) => {
-          literalThetas.push({ theta: t.theta });
-        });
+      // perform resolution on the subgoal
+      let subResult = recursiveResolution(bodyLiterals, {});
+      let updatedHeadLiteralMap = new LiteralTreeMap();
+      subResult.list.forEach((r) => {
+        let updatedHeadLiteral = headLiteral.substitute(r.theta);
+        updatedHeadLiteralMap.add(updatedHeadLiteral);
       });
+      let unifications = updatedHeadLiteralMap.unifies(conjunct);
+
+      unifications.forEach((t) => {
+        literalThetas.push({ theta: t.theta });
+      });
+
+      if (subResult.hasCut) {
+        break;
+      }
+    }
 
     if (literalThetas.length === 0) {
       return { hasCut: false, list: [] };
