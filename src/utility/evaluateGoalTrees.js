@@ -3,7 +3,10 @@
   the BSD 3-Clause license. For more info, please see https://github.com/mauris/lps.js
  */
 
-module.exports = function evaluateGoalTrees(currentTime, goalTrees, processedNodes, profiler) {
+const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
+
+module.exports = function evaluateGoalTrees(currentTime, goalTrees, profiler) {
+  let processedNodes = new ConjunctionMap();
   let goalTreeProcessingPromises = [];
   let newGoals = [];
   goalTrees.forEach((goalTree) => {

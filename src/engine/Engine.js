@@ -23,7 +23,6 @@ const ruleAntecedentProcessor = lpsRequire('engine/processors/ruleAntecedent');
 const settingsProcessor = lpsRequire('engine/processors/settings');
 const timableProcessor = lpsRequire('engine/processors/timable');
 const coreModule = lpsRequire('engine/modules/core');
-const ConjunctionMap = lpsRequire('engine/ConjunctionMap');
 
 const forEachToString = (arr) => {
   return (item) => {
@@ -200,7 +199,6 @@ function Engine(programArg) {
 
     let selectedAndExecutedActions = new LiteralTreeMap();
     let executedObservations = new LiteralTreeMap();
-    let _processedNodes = new ConjunctionMap();
 
     let updatedState = _program.getState().clone();
     updateStateWithFluentActors(
@@ -219,7 +217,7 @@ function Engine(programArg) {
 
     let newFiredGoals = processRules(this, _program, _currentTime, _profiler);
     _goals = _goals.concat(newFiredGoals);
-    return evaluateGoalTrees(_currentTime, _goals, _processedNodes, _profiler)
+    return evaluateGoalTrees(_currentTime, _goals, _profiler)
       .then((newGoals) => {
         _goals = newGoals;
 
