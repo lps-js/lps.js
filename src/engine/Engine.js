@@ -43,9 +43,8 @@ function Engine(programArg) {
   let _isPaused = false;
   let _isRunning = false;
 
-  let _engineEventManager = new EventManager();
-  let _profiler = new Profiler();
-  let _processedNodes = new ConjunctionMap();
+  const _engineEventManager = new EventManager();
+  const _profiler = new Profiler();
 
   let _observations = {};
 
@@ -201,7 +200,7 @@ function Engine(programArg) {
 
     let selectedAndExecutedActions = new LiteralTreeMap();
     let executedObservations = new LiteralTreeMap();
-    _processedNodes = new ConjunctionMap();
+    let _processedNodes = new ConjunctionMap();
 
     let updatedState = _program.getState().clone();
     updateStateWithFluentActors(
