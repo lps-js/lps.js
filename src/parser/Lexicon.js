@@ -52,7 +52,8 @@ module.exports = {
     'fail',
     'from',
     'to',
-    'at'
+    'at',
+    'cut'
   ],
   constantDelimiterEscapeChar: '\\',
   constantInvalidCharacters: '\r\n\f\b\v'.split(''),
