@@ -15,6 +15,8 @@ const ARGUMENT_SEPARATOR_SYMBOL = ',';
 const IF_SYMBOL = '<-';
 const RULE_SYMBOL = '->';
 const NOT_KEYWORD = 'not';
+const LIST_START_SYMBOL = '[';
+const LIST_END_SYMBOL = ']';
 
 function Parser(source, pathname) {
   let _lexer = new Lexer(source, pathname);
@@ -208,7 +210,7 @@ function Parser(source, pathname) {
   let _arrayExpression = function _arrayExpression() {
     let node = new AstNode(NodeTypes.List, currentToken);
     _expect(TokenTypes.Symbol); // opening [
-    if (_foundToBe(TokenTypes.Symbol, ']')) {
+    if (_foundToBe(TokenTypes.Symbol, LIST_END_SYMBOL)) {
       // case of empty array
       _expect(TokenTypes.Symbol);
       return node;
@@ -228,7 +230,7 @@ function Parser(source, pathname) {
       // a tail of the list exists
       _expect(TokenTypes.Symbol);
       // check if tail is a list
-      if (_foundToBe(TokenTypes.Symbol, '[')) {
+      if (_foundToBe(TokenTypes.Symbol, LIST_START_SYMBOL)) {
         node.addChild(_arrayExpression());
       } else { // otherwise we expect only a variable
         let tailNode = new AstNode(NodeTypes.Variable, currentToken);
@@ -237,12 +239,12 @@ function Parser(source, pathname) {
       }
     }
     // the ending ']'
-    _expectToBe(TokenTypes.Symbol, ']');
+    _expectToBe(TokenTypes.Symbol, LIST_END_SYMBOL);
     return node;
   };
 
   _expression = function () {
-    if (_foundToBe(TokenTypes.Symbol, '[')) {
+    if (_foundToBe(TokenTypes.Symbol, LIST_START_SYMBOL)) {
       return _arrayExpression();
     }
     return _assignmentExpression();
