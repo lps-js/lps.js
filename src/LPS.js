@@ -16,21 +16,41 @@ const List = lpsRequire('engine/List');
 const Program = lpsRequire('engine/Program');
 const stringLiterals = lpsRequire('utility/strings');
 
-const programArgsPredicate = ProgramFactory.literal('lpsArgs(L)');
+const programArgsPredicate = ProgramFactory.literal('lpsArgs(List)');
 
+/**
+ * The LPS type
+ * @constructor
+ */
 function LPS() {
 
 }
 
+/**
+ * Parse a string of a single literal into its appropriate type for lps.js
+ * @param  {string} str The literal in string representation
+ * @return {Functor}    Returns the functor representation
+ */
 LPS.literal = function literal(str) {
   return ProgramFactory.literal(str);
 };
 
+/**
+ * Parse a string of literal conjunction into its appropriate type for lps.js
+ * @param  {string} str The conjunction in string representation
+ * @return {Array<Functor>}    Returns the array of functors.
+ */
 LPS.literalSet = function literalSet(str) {
   return ProgramFactory.literalSet(str);
 };
 
-let buildProgramArgsPredicate = function (programArgs) {
+/**
+ * Construct the program arguments predicate
+ * @private
+ * @param  {array} programArgs The array of program arguments
+ * @return {Functor}             The constructed predicate that contains the program arguments
+ */
+const buildProgramArgsPredicate = function (programArgs) {
   let _programArgs = programArgs;
   if (programArgs === undefined) {
     _programArgs = [];
@@ -39,12 +59,17 @@ let buildProgramArgsPredicate = function (programArgs) {
   _programArgs = _programArgs.map(arg => new Value(arg));
   let argsList = new List(_programArgs);
   let theta = {
-    L: argsList
+    List: argsList
   };
   return programArgsPredicate.substitute(theta);
 };
 
-const updateProgramArgs = function updateProgramArgs(programArgs) {
+/**
+ * Create a function to update a given program with the given program arguments
+ * @param  {array} programArgs Array of program arguments
+ * @return {[type]}             [description]
+ */
+const createProgramArgsUpdaterFunc = function createProgramArgsUpdaterFunc(programArgs) {
   return (program) => {
     let programArgsFact = buildProgramArgsPredicate(programArgs);
     program.getFacts().add(programArgsFact);
@@ -54,7 +79,7 @@ const updateProgramArgs = function updateProgramArgs(programArgs) {
 
 LPS.createFromString = function createFromString(source, programArgs) {
   return ProgramFactory.fromString(source)
-    .then(updateProgramArgs(programArgs))
+    .then(createProgramArgsUpdaterFunc(programArgs))
     .then((program) => {
       let engine = new Engine(program);
       return Promise.resolve(engine);
@@ -76,7 +101,7 @@ LPS.createFromFile = function createFromFile(fileArg, programArgs) {
   file = path.resolve(file);
 
   return ProgramFactory.fromFile(file)
-    .then(updateProgramArgs(programArgs))
+    .then(createProgramArgsUpdaterFunc(programArgs))
     .then((program) => {
       program.setWorkingDirectory(path.dirname(file));
       let engine = new Engine(program);
@@ -91,12 +116,46 @@ LPS.loadFile = function loadFile(fileArg, programArgs) {
     });
 };
 
+/**
+ * The lps.js Value type
+ * @type {Value}
+ */
 LPS.Value = Value;
+
+/**
+ * The lps.js Variable type
+ * @type {Variable}
+ */
 LPS.Variable = Variable;
+
+/**
+ * The lps.js List type
+ * @type {List}
+ */
 LPS.List = List;
+
+/**
+ * The lps.js Functor type
+ * @type {Functor}
+ */
 LPS.Functor = Functor;
+
+/**
+ * The Tester class for access to testing API
+ * @type {Tester}
+ */
 LPS.Tester = Tester;
+
+/**
+ * The lps.js Program data structure
+ * @type {Program}
+ */
 LPS.Program = Program;
+
+/**
+ * The lps.js ProgramFactory API
+ * @type {ProgramFactory}
+ */
 LPS.ProgramFactory = ProgramFactory;
 
 module.exports = LPS;
