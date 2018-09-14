@@ -142,7 +142,6 @@ randomInt(X, Y, A) <-
 
 pi(V) <-
   is_variable(V),
-  cut,
   V = pi.
 
 between(A, A, A).
