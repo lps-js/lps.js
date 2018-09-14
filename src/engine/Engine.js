@@ -67,7 +67,10 @@ function Engine(programArg) {
     return result;
   };
 
-  // Process observations at each cycle
+  /**
+   * Process observations for the current cycle
+   * @return {LiteralTreeMap} Returns the set of observed event for the current time.
+   */
   const processCycleObservations = function processCycleObservations() {
     let activeObservations = new LiteralTreeMap();
 
@@ -76,10 +79,11 @@ function Engine(programArg) {
       return activeObservations;
     }
     let cloneProgram = _program.clone();
-
     cloneProgram.setExecutedActions(activeObservations);
 
-    // process observations
+    const nextTime = _currentTime + 1;
+
+    // process observations for the current time
     _observations[_currentTime].forEach((ob) => {
       let action = ob.action;
 
@@ -98,25 +102,27 @@ function Engine(programArg) {
       );
       postCloneProgram.setState(postState);
 
-      // only perform pre-checks
+      // perform pre-check and post-check
       if (!checkConstraintSatisfaction.call(this, cloneProgram)
           || !checkConstraintSatisfaction.call(this, postCloneProgram)) {
-        // reject incoming observation
+        // reject the observed event
+        // to keep model true
         activeObservations.remove(action);
 
-        // notify
+        // warning
         _engineEventManager.notify('warning', {
           type: 'observation.reject',
           message: stringLiterals(
             'engine.rejectObservationWarning',
             action,
             _currentTime,
-            _currentTime + 1
+            nextTime
           )
         });
       }
 
-      let nextTime = _currentTime + 1;
+      // if the given observation endTime has not ended
+      // propagate to the next cycle's
       if (ob.endTime > nextTime) {
         if (_observations[nextTime] === undefined) {
           _observations[nextTime] = [];
@@ -128,6 +134,12 @@ function Engine(programArg) {
     return activeObservations;
   };
 
+  /**
+   * Select the appropriate set of actions from the given goal trees such that
+   * constraints are not violated for the current cycle.
+   * @param  {Array<GoalTree>} goalTrees The goal trees to choose actions from
+   * @return {LiteralTreeMap}            The set of actions chosen to execute
+   */
   const actionsSelector = function actionsSelector(goalTrees) {
     const recursiveActionsSelector = (actionsSoFar, programSoFar, l) => {
       if (l >= goalTrees.length) {
@@ -191,9 +203,11 @@ function Engine(programArg) {
     return recursiveActionsSelector([], _program, 0);
   };
 
-  /*
-    Perform Cycle
-  */
+  /**
+   * Performs the state transition for a single cycle.
+   * @return {Promise} Returns a promise that when fulfilled, indicates the completion of the
+   *                   cycle processing.
+   */
   const performCycle = function performCycle() {
     _currentTime += 1;
 
@@ -240,11 +254,6 @@ function Engine(programArg) {
         });
 
         _program.setExecutedActions(nextCycleActions);
-        // update with observations
-        // observation needs to take precedence in processing over
-        // action selection so that we "cleverly" do not select
-        // actions for exection that has been observed in the same cycle.
-        // the idea of "someone else has done something I needed to do, thanks anyway"
 
         _lastCycleActions = selectedAndExecutedActions;
         _lastCycleObservations = executedObservations;
@@ -415,13 +424,16 @@ function Engine(programArg) {
       return Promise.reject(error);
     }
     if (_isPaused) {
+      // cancel execution since engine is paused.
       return Promise.resolve();
     }
     if (this.hasHalted()) {
+      // cancel exection since engine has halted.
       return Promise.resolve();
     }
     _engineEventManager.notify('preCycle', this);
 
+    // reset statistics
     _profiler.set('lastCycleNumFiredRules', 0);
     _profiler.set('lastCycleNumFailedGoals', 0);
     _profiler.set('lastCycleNumResolvedGoals', 0);
@@ -445,8 +457,8 @@ function Engine(programArg) {
       });
   };
 
-  let _startContinuousExecution = () => {
-    let continuousExecutionFunc = () => {
+  const _startContinuousExecution = () => {
+    const continuousExecutionFunc = () => {
       if (_isPaused || this.hasHalted()) {
         return;
       }
@@ -472,7 +484,7 @@ function Engine(programArg) {
     setImmediate(continuousExecutionFunc);
   };
 
-  let _startNormalExecution = () => {
+  const _startNormalExecution = () => {
     let timer = setInterval(() => {
       if (this.hasHalted()) {
         clearInterval(timer);
