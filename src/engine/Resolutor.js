@@ -147,7 +147,7 @@ Resolutor.explain = function explain(queryArg, program, engine, otherFacts) {
         break;
       }
     }
-    return { hasCut : hasCut, list: result };
+    return { hasCut: hasCut, list: result };
   };
 
   let result = recursiveResolution(query, {}, []);
