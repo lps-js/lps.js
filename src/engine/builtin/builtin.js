@@ -23,12 +23,12 @@ function builtinProcessor(engine, program) {
   let loadingPromises = [];
 
   let loadFile = (filename) => {
-    if (builtInCache[filename] !== undefined) {
-      program.augment(builtInCache[filename]);
-      return;
-    }
     let promise;
     if (process.browser) {
+      if (builtInCache[filename] !== undefined) {
+        program.augment(builtInCache[filename]);
+        return;
+      }
       let source = require(`${__dirname}/${filename}.lps`);
       promise = ProgramFactory.fromString(source)
         .then((p) => {
