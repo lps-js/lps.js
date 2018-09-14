@@ -59,7 +59,7 @@ function Engine(programArg) {
   let _lastCycleActions = null;
   let _lastCycleObservations = null;
 
-  let _functorProvider = new FunctorProvider(this);
+  const _functorProvider = new FunctorProvider(this);
 
   const checkConstraintSatisfaction = function checkConstraintSatisfaction(otherProgram) {
     let originalProgram = _program;
