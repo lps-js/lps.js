@@ -79,6 +79,14 @@ const resolveStateConditions = function resolveStateConditions(
       }
     }
 
+    if (goal.getId() === 'cut/0') {
+      return processConjuncts(
+        [],
+        residueConjuncts.concat(otherConjuncts),
+        thetaSoFar
+      );
+    }
+
     let literalThetas = Resolutor.queryState(goal, functorProvider, state);
     if (literalThetas.length === 0) {
       return false;
