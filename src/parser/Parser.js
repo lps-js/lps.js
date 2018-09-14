@@ -15,6 +15,7 @@ const ARGUMENT_SEPARATOR_SYMBOL = ',';
 const IF_SYMBOL = '<-';
 const RULE_SYMBOL = '->';
 const NOT_KEYWORD = 'not';
+const CUT_KEYWORD = 'cut';
 const LIST_START_SYMBOL = '[';
 const LIST_END_SYMBOL = ']';
 
@@ -261,8 +262,14 @@ function Parser(source, pathname) {
   };
 
   let _literal = function _literal() {
+    let node;
+    if (_foundToBe(TokenTypes.Keyword, CUT_KEYWORD)) {
+      node = new AstNode(NodeTypes.Cut, currentToken);
+      _expect(TokenTypes.Keyword);
+      return node;
+    }
     if (_foundToBe(TokenTypes.Keyword, NOT_KEYWORD)) {
-      let node = new AstNode(NodeTypes.Negation, currentToken);
+      node = new AstNode(NodeTypes.Negation, currentToken);
       _expect(TokenTypes.Keyword);
       node.addChild(_literal());
       return node;

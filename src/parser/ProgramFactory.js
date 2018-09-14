@@ -112,6 +112,10 @@ processArguments = function (nodes, singleUnderscoreVariableSetArg) {
 
 let processNegatableTerm = function processNegatableTerm(nodeArg, singleUnderscoreVariableSet) {
   let node = nodeArg;
+  if (node.getType() === NodeTypes.Cut) {
+    // it's a cut
+    return new Functor('cut', []);
+  }
   let isNegated = false;
   while (node.getType() === NodeTypes.Negation) {
     node = node.getChildren()[0];
