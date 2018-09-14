@@ -84,12 +84,12 @@ pow(X, Y, V) <-
 pow(X, Y, V) <-
   V == pow(X, Y).
 
-mod(X, V) <-
+mod(X, Y, V) <-
   is_variable(V),
   cut,
-  V = mod(X).
-mod(X, V) <-
-  V == mod(X).
+  V = mod(X, Y).
+mod(X, Y, V) <-
+  V == mod(X, Y).
 
 exp(X, V) <-
   is_variable(V),
