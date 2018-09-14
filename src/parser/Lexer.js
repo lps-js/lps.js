@@ -245,14 +245,14 @@ function Lexer(source, pathname) {
   const _extractFixedLengthHexadecimal = function _extractFixedLengthHexadecimal(length) {
     let result = '';
     for (let i = 0; i < length; i += 1) {
-      chars = _nextChar();
+      let chars = _nextChar();
       if (!Lexicon.hexadecimalTest.test(chars[0])) {
         return null;
       }
       result += chars[0];
     }
     return parseInt(result, 16);
-  }
+  };
 
   const _extractQuotedString = function _extractQuotedString(charsArg) {
     let buffer = '';
