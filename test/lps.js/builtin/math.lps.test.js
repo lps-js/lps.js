@@ -354,6 +354,35 @@ describe('math.lps', () => {
     });
   }); // sqrt/2
 
+  describe('pow/3', () => {
+    it('should return correct result for variable replacement', () => {
+      let result = engine.query(ProgramFactory.literal('pow(5, 2, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(25);
+    });
+
+    it('should return correct result for matching output', () => {
+      let result = engine.query(ProgramFactory.literal('pow(5, 2, 25)'));
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.empty;
+    });
+
+    it('should return empty array for non-match', () => {
+      let result = engine.query(ProgramFactory.literal('pow(5, 2, 2)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // pow/3
+
   describe('succ/2', () => {
     it('should return correct result for variable replacement 1', () => {
       let result = engine.query(ProgramFactory.literal('succ(5, A)'));
