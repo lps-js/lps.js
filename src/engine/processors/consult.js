@@ -123,7 +123,7 @@ function consultProcessor(engine, targetProgram) {
     };
   };
 
-  let processProgramWithId = function processProgramWithId(program, id) {
+  const processProgramWithId = function processProgramWithId(program, id) {
     let treeMap = new LiteralTreeMap();
     let theta = {
       Id: id
@@ -162,7 +162,7 @@ function consultProcessor(engine, targetProgram) {
       });
   };
 
-  let processConsultDeclarations = function processConsultDeclarations(
+  const processConsultDeclarations = function processConsultDeclarations(
     currentProgram,
     workingDirectory
   ) {
