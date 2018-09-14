@@ -77,6 +77,14 @@ const createProgramArgsUpdaterFunc = function createProgramArgsUpdaterFunc(progr
   };
 };
 
+/**
+ * Create an Engine instance from a string representation of a LPS program without initialisation.
+ * @param  {string} source      The LPS program source code
+ * @param  {array} programArgs  Optional, the array of program arguments to pass to the LPS program.
+ *                              Defaults to an empty list
+ * @return {Promise}            Returns a promise that when fulfilled, provides the Engine instance
+ *                              that was created.
+ */
 LPS.createFromString = function createFromString(source, programArgs) {
   return ProgramFactory.fromString(source)
     .then(createProgramArgsUpdaterFunc(programArgs))
@@ -86,6 +94,14 @@ LPS.createFromString = function createFromString(source, programArgs) {
     });
 };
 
+/**
+ * Create and initialise an Engine instance from a string representation of a LPS program
+ * @param  {string} source      The LPS program source code
+ * @param  {array} programArgs  Optional, the array of program arguments to pass to the LPS program.
+ *                              Defaults to an empty list
+ * @return {Promise}            Returns a promise that when fulfilled, provides the Engine instance
+ *                              that was created.
+ */
 LPS.loadString = function loadString(source, programArgs) {
   return LPS.createFromString(source, programArgs)
     .then((engine) => {
@@ -93,6 +109,14 @@ LPS.loadString = function loadString(source, programArgs) {
     });
 };
 
+/**
+ * Create an Engine instance from a LPS program file without initialisation.
+ * @param  {string} fileArg     Pathname to the LPS program file on the file system.
+ * @param  {array} programArgs  Optional, the array of program arguments to pass to the LPS program.
+ *                              Defaults to an empty list
+ * @return {Promise}            Returns a promise that when fulfilled, provides the Engine instance
+ *                              that was created.
+ */
 LPS.createFromFile = function createFromFile(fileArg, programArgs) {
   if (process.browser) {
     return Promise.reject(new Error(stringLiterals('browserContext.loadProgramFromFile')));
@@ -109,6 +133,14 @@ LPS.createFromFile = function createFromFile(fileArg, programArgs) {
     });
 };
 
+/**
+ * Create and initialise an Engine instance from a LPS program file.
+ * @param  {string} fileArg     Pathname to the LPS program file on the file system.
+ * @param  {array} programArgs  Optional, the array of program arguments to pass to the LPS program.
+ *                              Defaults to an empty list
+ * @return {Promise}            Returns a promise that when fulfilled, provides the Engine instance
+ *                              that was created.
+ */
 LPS.loadFile = function loadFile(fileArg, programArgs) {
   return LPS.createFromFile(fileArg, programArgs)
     .then((engine) => {
