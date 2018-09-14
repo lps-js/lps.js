@@ -178,7 +178,7 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
         theta: theta,
         unresolved: []
       });
-      return;
+      return true;
     }
 
     let pair = sortTimables(remainingLiterals, forTime);
@@ -224,7 +224,7 @@ Resolutor.reduceRuleAntecedent = function reduceRuleAntecedent(
 
     if (literalThetas.length === 0) {
       if (!(conjunct instanceof Timable) || conjunct.isInRange(forTime - 1)) {
-        return;
+        return true;
       }
       result.push({
         theta: theta,
