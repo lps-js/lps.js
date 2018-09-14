@@ -58,7 +58,7 @@ function Engine(programArg) {
 
   let _functorProvider = new FunctorProvider(this);
 
-  let checkConstraintSatisfaction = function checkConstraintSatisfaction(otherProgram) {
+  const checkConstraintSatisfaction = function checkConstraintSatisfaction(otherProgram) {
     let originalProgram = _program;
     _program = otherProgram;
     let result = constraintCheck(this, otherProgram);
@@ -67,7 +67,7 @@ function Engine(programArg) {
   };
 
   // Process observations at each cycle
-  let processCycleObservations = function processCycleObservations() {
+  const processCycleObservations = function processCycleObservations() {
     let activeObservations = new LiteralTreeMap();
 
     if (_observations[_currentTime] === undefined) {
@@ -127,8 +127,8 @@ function Engine(programArg) {
     return activeObservations;
   };
 
-  let actionsSelector = function actionsSelector(goalTrees) {
-    let recursiveActionsSelector = (actionsSoFar, programSoFar, l) => {
+  const actionsSelector = function actionsSelector(goalTrees) {
+    const recursiveActionsSelector = (actionsSoFar, programSoFar, l) => {
       if (l >= goalTrees.length) {
         let actions = new LiteralTreeMap();
         actionsSoFar.forEach((map) => {
