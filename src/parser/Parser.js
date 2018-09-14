@@ -9,11 +9,12 @@ const AstNode = lpsRequire('parser/AstNode');
 const NodeTypes = lpsRequire('parser/NodeTypes');
 const TokenTypes = lpsRequire('parser/TokenTypes');
 
-const END_OF_CLAUSE_SYMBOL = '.';
+const END_OF_SENTENCE_SYMBOL = '.';
 const CONJUNCT_SEPARATOR_SYMBOL = ',';
 const ARGUMENT_SEPARATOR_SYMBOL = ',';
 const IF_SYMBOL = '<-';
 const RULE_SYMBOL = '->';
+const NOT_KEYWORD = 'not';
 
 function Parser(source, pathname) {
   let _lexer = new Lexer(source, pathname);
@@ -130,7 +131,7 @@ function Parser(source, pathname) {
   };
 
   let _unaryExpression = function _unaryExpression() {
-    if (_foundToBe(TokenTypes.Keyword, 'not')) {
+    if (_foundToBe(TokenTypes.Keyword, NOT_KEYWORD)) {
       let node = new AstNode(NodeTypes.UnaryOperator, currentToken);
       _expect(TokenTypes.Keyword);
       node.addChild(_unaryExpression());
@@ -236,7 +237,7 @@ function Parser(source, pathname) {
       }
     }
     // the ending ']'
-    _expect(TokenTypes.Symbol);
+    _expectToBe(TokenTypes.Symbol, ']');
     return node;
   };
 
@@ -258,7 +259,7 @@ function Parser(source, pathname) {
   };
 
   let _literal = function _literal() {
-    if (_foundToBe(TokenTypes.Keyword, 'not')) {
+    if (_foundToBe(TokenTypes.Keyword, NOT_KEYWORD)) {
       let node = new AstNode(NodeTypes.Negation, currentToken);
       _expect(TokenTypes.Keyword);
       node.addChild(_literal());
@@ -309,7 +310,7 @@ function Parser(source, pathname) {
     if (hasImplicationSymbol) {
       sentenceNode.addChild(_conjunction());
     }
-    _expect(TokenTypes.Symbol, END_OF_CLAUSE_SYMBOL);
+    _expectToBe(TokenTypes.Symbol, END_OF_SENTENCE_SYMBOL);
     return sentenceNode;
   };
 
