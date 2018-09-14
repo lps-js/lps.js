@@ -4,6 +4,7 @@
  */
 
 const Value = lpsRequire('engine/Value');
+const List = lpsRequire('engine/List');
 const Engine = lpsRequire('engine/Engine');
 const Program = lpsRequire('engine/Program');
 const ProgramFactory = lpsRequire('parser/ProgramFactory');
@@ -52,6 +53,42 @@ describe('list.lps', () => {
       expect(result).to.have.length(0);
     });
   }); // length/2
+
+  describe('append/3', () => {
+    it('should return correct result for appending two arrays', () => {
+      let result = engine.query(ProgramFactory.literal('append([a, b], [c], A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(List);
+      let list = result[0].theta.A.flatten().map(value => value.evaluate());
+      expect(list).to.include.members(['a', 'b', 'c']);
+    });
+
+    it('should return correct result for invalid input 1', () => {
+      let result = engine.query(ProgramFactory.literal('append([a, b], c, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+
+    it('should return correct result for invalid input 2', () => {
+      let result = engine.query(ProgramFactory.literal('append(a, [c], A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+
+    it('should return correct result for invalid input 3', () => {
+      let result = engine.query(ProgramFactory.literal('append([a, b], [c], [a, b, c])'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // append/3
 
   describe('max_list/3', () => {
     it('should return correct value for list of 2 elements', () => {
