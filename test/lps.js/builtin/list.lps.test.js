@@ -23,6 +23,36 @@ describe('list.lps', () => {
       });
   });
 
+  describe('length/2', () => {
+    it('should return correct result for variable replacement', () => {
+      let result = engine.query(ProgramFactory.literal('length([a, b, c], A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(3);
+    });
+
+    it('should return correct result for matching output', () => {
+      let result = engine.query(ProgramFactory.literal('length([a, b, c], 3)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.empty;
+    });
+
+    it('should return empty array for incorrect result', () => {
+      let result = engine.query(ProgramFactory.literal('length([a, b, c], 2)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // length/2
+
   describe('max_list/3', () => {
     it('should return correct value for list of 2 elements', () => {
       let result = engine.query(ProgramFactory.literal('max_list([5, 8], A)'));
@@ -66,7 +96,7 @@ describe('list.lps', () => {
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
-  });
+  }); // max_list/3
 
   describe('min_list/3', () => {
     it('should return correct value for list of 2 elements', () => {
@@ -111,7 +141,7 @@ describe('list.lps', () => {
       expect(result).to.be.an('array');
       expect(result).to.have.length(0);
     });
-  });
+  }); // min_list/3
 
   describe('sum_list/3', () => {
     it('should return correct value for list of 2 elements', () => {
@@ -161,5 +191,5 @@ describe('list.lps', () => {
       expect(result[0].theta.A).to.be.instanceof(Value);
       expect(result[0].theta.A.evaluate()).to.be.equal(0);
     });
-  });
+  }); // sum_list/3
 });
