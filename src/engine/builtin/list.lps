@@ -7,9 +7,9 @@
 % through the function length/1
 length(L, N) <-
   is_variable(N),
+  cut,
   N = length(L).
 length(L, N) <-
-  not is_variable(N),
   N == length(L).
 
 % predicate definition of append

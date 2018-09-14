@@ -5,128 +5,132 @@
 
 max(X, Y, Z) <-
   is_variable(Z),
+  cut,
   Z = max(X, Y).
 max(X, Y, Z) <-
   not is_variable(Z),
+  cut,
   Z == max(X, Y).
 
 min(X, Y, Z) <-
   is_variable(Z),
+  cut,
   Z = min(X, Y).
 min(X, Y, Z) <-
   not is_variable(Z),
+  cut,
   Z == min(X, Y).
 
 abs(X, V) <-
   is_variable(V),
+  cut,
   V = abs(X).
 abs(X, V) <-
-  not is_variable(V),
   V == abs(X).
 
 sin(X, V) <-
   is_variable(V),
+  cut,
   V = sin(X).
 sin(X, V) <-
-  not is_variable(V),
   V == sin(X).
 
 cos(X, V) <-
   is_variable(V),
+  cut,
   V = cos(X).
 cos(X, V) <-
-  not is_variable(V),
   V == cos(X).
 
 tan(X, V) <-
   is_variable(V),
+  cut,
   V = tan(X).
 tan(X, V) <-
-  not is_variable(V),
   V == tan(X).
 
 asin(X, V) <-
   is_variable(V),
+  cut,
   V = asin(X).
 asin(X, V) <-
-  not is_variable(V),
   V == asin(X).
 
 acos(X, V) <-
   is_variable(V),
+  cut,
   V = acos(X).
 acos(X, V) <-
-  not is_variable(V),
   V == acos(X).
 
 atan(X, V) <-
   is_variable(V),
+  cut,
   V = atan(X).
 atan(X, V) <-
-  not is_variable(V),
   V == atan(X).
 
 sqrt(X, V) <-
   is_variable(V),
+  cut,
   V = sqrt(X).
 sqrt(X, V) <-
-  not is_variable(V),
   V == sqrt(X).
 
 pow(X, Y, V) <-
   is_variable(V),
+  cut,
   V = pow(X, Y).
 pow(X, Y, V) <-
-  not is_variable(V),
   V == pow(X, Y).
 
 mod(X, V) <-
   is_variable(V),
+  cut,
   V = mod(X).
 mod(X, V) <-
-  not is_variable(V),
   V == mod(X).
 
 exp(X, V) <-
   is_variable(V),
+  cut,
   V = exp(X).
 exp(X, V) <-
-  not is_variable(V),
   V == exp(X).
 
 log(X, V) <-
   is_variable(V),
+  cut,
   V = log(X).
 log(X, V) <-
-  not is_variable(V),
   V == log(X).
 
 log2(X, V) <-
   is_variable(V),
+  cut,
   V = log2(X).
 log2(X, V) <-
-  not is_variable(V),
   V == log2(X).
 
 floor(X, V) <-
   is_variable(V),
+  cut,
   V = floor(X).
 floor(X, V) <-
-  not is_variable(V),
   V == floor(X).
 
 ceil(X, V) <-
   is_variable(V),
+  cut,
   V = ceil(X).
 ceil(X, V) <-
-  not is_variable(V),
   V == ceil(X).
 
 round(X, V) <-
   is_variable(V),
+  cut,
   V = round(X).
 round(X, V) <-
-  not is_variable(V),
   V == round(X).
 
 random(A) <-
@@ -138,6 +142,7 @@ randomInt(X, Y, A) <-
 
 pi(V) <-
   is_variable(V),
+  cut,
   V = pi.
 
 between(A, A, A).
