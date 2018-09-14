@@ -66,6 +66,48 @@ describe('math.lps', () => {
     });
   }); // max/3
 
+  describe('min/3', () => {
+    it('should return correct result for variable replacement', () => {
+      let result = engine.query(ProgramFactory.literal('min(1, 2, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(1);
+    });
+
+    it('should return correct result for variable replacement 2', () => {
+      let result = engine.query(ProgramFactory.literal('min(2, 1, A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(1);
+    });
+
+    it('should return correct result for matching output', () => {
+      let result = engine.query(ProgramFactory.literal('min(2, 1, 1)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+      expect(result[0].theta).to.be.empty;
+    });
+
+    it('should return empty array for no result', () => {
+      let result = engine.query(ProgramFactory.literal('min(2, 1, 2)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // min/3
+
   describe('sin/2', () => {
     it('should return correct result for variable replacement', () => {
       let result = engine.query(ProgramFactory.literal('sin(60, A)'));
@@ -84,7 +126,7 @@ describe('math.lps', () => {
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
       expect(result[0]).to.have.property('theta');
-      expect(result[0].theta).to.have.be.empty;
+      expect(result[0].theta).to.be.empty;
     });
 
     it('should return empty array for non-match', () => {
@@ -113,7 +155,7 @@ describe('math.lps', () => {
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
       expect(result[0]).to.have.property('theta');
-      expect(result[0].theta).to.have.be.empty;
+      expect(result[0].theta).to.be.empty;
     });
 
     it('should return empty array for non-match', () => {
@@ -142,7 +184,7 @@ describe('math.lps', () => {
       expect(result).to.be.an('array');
       expect(result).to.have.length(1);
       expect(result[0]).to.have.property('theta');
-      expect(result[0].theta).to.have.be.empty;
+      expect(result[0].theta).to.be.empty;
     });
 
     it('should return empty array for non-match', () => {
