@@ -54,6 +54,7 @@
       "dist",
       "examples",
       "test",
+      "loaders/*.js",
       "webpack.config.js"
     ],
     "lines": 90,
