@@ -586,6 +586,27 @@ describe('math.lps', () => {
     });
   }); // round/2
 
+  describe('pi/1', () => {
+    it('should return correct result for variable replacement', () => {
+      let result = engine.query(ProgramFactory.literal('pi(A)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(1);
+      expect(result[0]).to.have.property('theta');
+
+      expect(result[0].theta).to.have.property('A');
+      expect(result[0].theta.A).to.be.instanceof(Value);
+      expect(result[0].theta.A.evaluate()).to.be.equal(Math.PI);
+    });
+
+    it('should return empty array for non-match', () => {
+      let result = engine.query(ProgramFactory.literal('pi(2)'));
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.length(0);
+    });
+  }); // ceil/2
+
   describe('succ/2', () => {
     it('should return correct result for variable replacement 1', () => {
       let result = engine.query(ProgramFactory.literal('succ(5, A)'));
