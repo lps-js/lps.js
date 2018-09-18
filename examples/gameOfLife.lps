@@ -1,13 +1,12 @@
 % Conway's game of life.
 % cells assumed dead by default
 % x-y represents that the cell at column x and row y is alive
-% XSB requires: :- use_module(basics, [member/2]).
 
 maxTime(8).
 fluent(living(X, Y)).
 actions([
-  die(X, Y), 
-  ive(X, Y)
+  die(X, Y),
+  live(X, Y)
 ]).
 
 initially([
@@ -16,26 +15,27 @@ initially([
   living(4, 3)
 ]).
 
-%initially 6-3,7-3,8-3. % another
-%initially 6-6,7-6,8-6. % yet another
+% initially 6-3,7-3,8-3. % another
+% initially 6-6,7-6,8-6. % yet another
 
-%Notice that times can sometimes be omitted, as in these rules:
+% Notice that times can sometimes be omitted, as in these rules:
 
-living(X, Y, T),
-  aliveNeighbours(X, Y, N, T),
+living(X, Y) at T,
+  aliveNeighbours(X, Y, N) at T,
   N < 2 ->
     die(X, Y, T1, T2).
-living(X, Y, T),
-  aliveNeighbours(X, Y, N, T),
+
+living(X, Y) at T,
+  aliveNeighbours(X, Y, N) at T,
   N > 3 ->
     die(X, Y, T1, T2).
 
-cell(X, Y), 
-  aliveNeighbours(X, Y, 3, T) ->
-    live(X, Y, T, T1).
+cell(X, Y),
+  aliveNeighbours(X, Y, 3) at T ->
+    live(X, Y, T1, T2).
 
 % The following two clauses, which are time-independent, are in Prolog.
-cell(X, Y) <- 
+cell(X, Y) <-
   Range = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   member(X, Range),
   member(Y, Range).
@@ -47,28 +47,28 @@ bothZeros(X, Y) <-
 neighbourOffset(X, Y, A, B) <-
   member(Dx, [-1, 0, 1]),
   member(Dy, [-1, 0, 1]),
-  not(bothZeros(Dx, Dy)),
+  not bothZeros(Dx, Dy),
   A = X + Dx,
   B = Y + Dy.
 
-adjacent(X, Y, L) <-
+adjacent(X, Y, L) at T <-
   findall([Ax, Ay], neighbourOffset(X, Y, Ax, Ay), L).
 
 % The following four clauses define predicates that depend on the state at time T.
-aliveNeighbours(X, Y, N, T) <-
+aliveNeighbours(X, Y, N) at T <-
   adjacent(X, Y, L) at T,
-  countLivingNeighbours(L, N, T).
+  countLivingNeighbours(L, N) at T.
 
-countLivingNeighbours([], 0, _).
+countLivingNeighbours([], 0).
 
-countLivingNeighbours([[X, Y]|Cells], N, T) <-
+countLivingNeighbours([[X, Y]|Cells], N) at T <-
   living(X, Y, T),
-  countLivingNeighbours(Cells, N1),
+  countLivingNeighbours(Cells, N1) at T,
   N = N1 + 1.
-  
-countLivingNeighbours([[X, Y]|Cells], N, T) <-
+
+countLivingNeighbours([[X, Y]|Cells], N) at T <-
   not living(X, Y, T),
-  countLivingNeighbours(Cells, N).
+  countLivingNeighbours(Cells, N) at T.
 
 initiates(live(X, Y), living(X, Y)).
 terminates(die(X, Y), living(X, Y)).
