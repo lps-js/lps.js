@@ -20,9 +20,9 @@ A typical production system that uses IF-THEN rules provides forward reasoning: 
 
 ### What is LPS then?
 
-LPS extends the notion of a production system by unifying both production rules and [logic programming](https://en.wikipedia.org/wiki/Logic_programming) into one single system. LPS also provides backward reasoning through the use of [SLD resolution](https://en.wikipedia.org/wiki/SLD_resolution), and logical clauses is in the form of `conclusion IF conditions`. In addition, facts and actions in LPS are timestamped. 
+LPS extends the notion of a production system by unifying both reactive rules and [logic programming](https://en.wikipedia.org/wiki/Logic_programming) into one single system. The logic programming aspect of LPS uses backward reasoning through [SLD resolution](https://en.wikipedia.org/wiki/SLD_resolution), and logic clauses is in the form of `conclusion IF conditions`. In addition, facts and actions in LPS are timestamped. 
 
-In LPS, the production rules can be seen as the goals of an agent while the logic program forms the beliefs of the agent. LPS can be used to model system dynamics, run simulations and build agent-oriented systems, multi-agent systems and teleo-reactive programs. 
+In LPS, the reactive rules can be seen as the goals of an agent while the logic program forms the beliefs of the agent. LPS can be used to model system dynamics, run simulations and build agent-oriented systems, multi-agent systems and teleo-reactive programs. 
 
 ### Atom Language Package
 
@@ -88,12 +88,15 @@ The lps.js implementation is open source and licensed under the BSD 3-Clause. Th
 
 lps.js was implemented as part of [Sam Yong's](http://mauris.sg) MSc Computer Science Individual Project and thesis at Imperial College London in 2018.
 
-# Resources
+# Links and Resources
 
-- [LPS Imperial College London DoC Website](http://lps.doc.ic.ac.uk/)
+- [LPS Official Website at Imperial College London](http://lps.doc.ic.ac.uk/)
 - [LPS Prolog Interpreter](https://bitbucket.org/lpsmasters/lps_corner)
+- [lps.js Website](https://lps.js.org/)
 - [Notes on how Parsers and Compilers work](http://parsingintro.sourceforge.net)
-- [Computational Logic for Use in Teaching (CLOUT) with LPS](https://www.doc.ic.ac.uk/~rak/papers/LPS%20with%20CLOUT.pdf)
+- [Kernel of LPS on RuleML wiki](http://wiki.ruleml.org/index.php/KELPS)
+- [LPS Interpreter written in Prolog](https://bitbucket.org/lpsmasters/lps_corner)
+- Presentation Slides at the 1st CLOUT Workshop: [Computational Logic for Use in Teaching (CLOUT) with LPS](https://www.doc.ic.ac.uk/~rak/papers/LPS%20with%20CLOUT.pdf)
 - Robert Kowalski and Fariba Sadri. Reactive Computing as Model Generation. New Generation Computing, 33(1):33–67, 2015 [link](http://www.doc.ic.ac.uk/~rak/papers/LPS%20revision.pdf)
 - Robert Kowalski and Fariba Sadri. Programming in logic without logic programming. Theory and Practice of Logic Programming, 16:269–295, 2016. [link](http://www.doc.ic.ac.uk/~rak/papers/KELPS%202015.pdf)
 - Robert Kowalski and Marek Sergot. A logic-based calculus of events. New Generation Computing, 4:67–94, 1986. [link](https://www.doc.ic.ac.uk/~rak/papers/event%20calculus.pdf)
