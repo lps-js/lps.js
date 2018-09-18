@@ -19,16 +19,18 @@ const consultTerm = ProgramFactory.literal('consult(File)');
 let builtInCache = {};
 
 // loads a set of built-in clauses
-function builtinProcessor(engine, program) {
+module.exports = function builtinProcessor(engine, program) {
   let loadingPromises = [];
 
   let loadFile = (filename) => {
     let promise;
     if (process.browser) {
+      // in browser
       if (builtInCache[filename] !== undefined) {
         program.augment(builtInCache[filename]);
         return;
       }
+      // load by require
       let source = require(`${__dirname}/${filename}.lps`);
       promise = ProgramFactory.fromString(source)
         .then((p) => {
@@ -37,6 +39,7 @@ function builtinProcessor(engine, program) {
           return Promise.resolve();
         });
     } else {
+      // in Node.js, load by consult/1
       let filepath = path.join(__dirname, filename + '.lps');
       let theta = {
         File: new Value(filepath)
@@ -52,5 +55,3 @@ function builtinProcessor(engine, program) {
 
   return Promise.all(loadingPromises);
 }
-
-module.exports = builtinProcessor;
