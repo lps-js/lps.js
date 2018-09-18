@@ -30,6 +30,58 @@ const forEachToString = (arr) => {
   };
 };
 
+/**
+ * Start a continuous execution that will start the next cycle as soon as the current cycle ends.
+ */
+const startContinuousExecution = (engine, eventManager, cycleInterval) => {
+  const continuousExecutionFunc = () => {
+    if (engine.isPaused() || engine.hasHalted()) {
+      return;
+    }
+
+    // schedule next cycle ahead
+    let timer = setTimeout(continuousExecutionFunc, cycleInterval);
+
+    engine.step()
+      .then(() => {
+        if (engine.hasHalted()) {
+          eventManager.notify('done', engine);
+          return;
+        }
+        clearTimeout(timer);
+        setImmediate(continuousExecutionFunc);
+      })
+      .catch((err) => {
+        engine.halt();
+        clearTimeout(timer);
+        eventManager.notify('error', err);
+      });
+  };
+  setImmediate(continuousExecutionFunc);
+};
+
+/**
+ * Start a normal execution that starts the cycle using the specified cycle interval.
+ */
+const startNormalExecution = (engine, eventManager, cycleInterval) => {
+  let timer = setInterval(() => {
+    if (engine.hasHalted()) {
+      clearInterval(timer);
+      eventManager.notify('done', engine);
+      return;
+    }
+    if (engine.isPaused()) {
+      clearInterval(timer);
+      return;
+    }
+    engine.step()
+      .catch((err) => {
+        clearInterval(timer);
+        eventManager.notify('error', err);
+      });
+  }, cycleInterval);
+};
+
 const DEFAULT_MAX_TIME = 20;
 const DEFAULT_CYCLE_INTERVAL = 100;
 
@@ -514,58 +566,6 @@ function Engine(programArg) {
   };
 
   /**
-   * Start a continuous execution that will start the next cycle as soon as the current cycle ends.
-   */
-  const _startContinuousExecution = function () {
-    const continuousExecutionFunc = () => {
-      if (_isPaused || this.hasHalted()) {
-        return;
-      }
-
-      // schedule next cycle ahead
-      let timer = setTimeout(continuousExecutionFunc, _cycleInterval);
-
-      this.step()
-        .then(() => {
-          if (this.hasHalted()) {
-            _engineEventManager.notify('done', this);
-            return;
-          }
-          clearTimeout(timer);
-          setImmediate(continuousExecutionFunc);
-        })
-        .catch((err) => {
-          this.halt();
-          clearTimeout(timer);
-          _engineEventManager.notify('error', err);
-        });
-    };
-    setImmediate(continuousExecutionFunc);
-  };
-
-  /**
-   * Start a normal execution that starts the cycle using the specified cycle interval.
-   */
-  const _startNormalExecution = function () {
-    let timer = setInterval(() => {
-      if (this.hasHalted()) {
-        clearInterval(timer);
-        _engineEventManager.notify('done', this);
-        return;
-      }
-      if (_isPaused) {
-        clearInterval(timer);
-        return;
-      }
-      this.step()
-        .catch((err) => {
-          clearInterval(timer);
-          _engineEventManager.notify('error', err);
-        });
-    }, _cycleInterval);
-  };
-
-  /**
    * Start the execution of the LPS program
    */
   this.run = function run() {
@@ -579,10 +579,10 @@ function Engine(programArg) {
     _engineEventManager.notify('run', this);
 
     if (_isContinuousExecution) {
-      _startContinuousExecution();
+      startContinuousExecution(this, _engineEventManager, _cycleInterval);
       return;
     }
-    _startNormalExecution();
+    startNormalExecution(this, _engineEventManager, _cycleInterval);
   };
 
   this.define = function define(name, callback) {
@@ -632,10 +632,10 @@ function Engine(programArg) {
     _isPaused = false;
     _engineEventManager.notify('unpaused', this);
     if (_isContinuousExecution) {
-      _startContinuousExecution();
+      startContinuousExecution(this, _engineEventManager, _cycleInterval);
       return;
     }
-    _startNormalExecution();
+    startNormalExecution(this, _engineEventManager, _cycleInterval);
   };
 
   this.loadModule = function loadModule(module) {
