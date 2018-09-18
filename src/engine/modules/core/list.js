@@ -9,6 +9,9 @@ const Variable = lpsRequire('engine/Variable');
 const List = lpsRequire('engine/List');
 const resolveValue = lpsRequire('engine/modules/core/resolveValue');
 const assertIsValue = lpsRequire('engine/modules/core/assertIsValue');
+const returnResults = lpsRequire('engine/modules/core/returnResults');
+const singleReplacementArray = returnResults.singleReplacementArray;
+const createTheta = returnResults.createTheta;
 
 const assertIsList = function assertIsList(val) {
   if (!(val instanceof List)) {
@@ -26,12 +29,7 @@ const functors = {
     let newListArr = v1.flatten().concat(v2.flatten());
     let newList = new List(newListArr);
 
-    return [
-      {
-        theta: {},
-        replacement: newList
-      }
-    ];
+    return singleReplacementArray(newList);
   },
 
   'length/1': function (v1Arg) {
@@ -40,12 +38,7 @@ const functors = {
     assertIsList(v1);
 
     let value = new Value(v1.flatten().length);
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    return singleReplacementArray(value);
   },
 
   'member/2': function (v1Arg, v2Arg) {
@@ -66,9 +59,7 @@ const functors = {
       for (let i = 0; i < flattenedList.length; i += 1) {
         let theta = {};
         theta[variableName] = flattenedList[i];
-        result.push({
-          theta: theta
-        });
+        result.push(createTheta(theta));
       }
       return result;
     }
@@ -77,9 +68,7 @@ const functors = {
     for (let i = 0; i < flattenedList.length; i += 1) {
       if (flattenedList[i].evaluate() === v1.evaluate()) {
         // found an instance
-        result.push({
-          theta: {}
-        });
+        result.push(createTheta());
       }
     }
 

@@ -8,15 +8,20 @@ const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
 const resolveValue = lpsRequire('engine/modules/core/resolveValue');
 const assertIsValue = lpsRequire('engine/modules/core/assertIsValue');
+const returnResults = lpsRequire('engine/modules/core/returnResults');
+const singleReplacementArray = returnResults.singleReplacementArray;
+
+const STRING_TYPE = 'string';
 
 const functors = {
   '+/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '+/2';
     let result = [];
 
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['+/2'].call(this, instance, v2Arg));
+        result = result.concat(functors[selfFuncName].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -24,7 +29,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['+/2'].call(this, v1, instance));
+        result = result.concat(functors[selfFuncName].call(this, v1, instance));
       });
       return result;
     }
@@ -38,30 +43,23 @@ const functors = {
     let v1Value = v1.evaluate();
     let v2Value = v2.evaluate();
 
-    if (typeof v1Value === 'string' || typeof v2Value === 'string') {
+    if (typeof v1Value === STRING_TYPE || typeof v2Value === STRING_TYPE) {
       // string concatenation
-      return [
-        {
-          theta: {},
-          replacement: new Value(String(v1Value) + String(v2Value))
-        }
-      ];
+      let strResultValue = new Value(String(v1Value) + String(v2Value));
+      return singleReplacementArray(strResultValue);
     }
 
-    return [
-      {
-        theta: {},
-        replacement: new Value(Number(v1Value) + Number(v2Value))
-      }
-    ];
+    let numResultValue = new Value(Number(v1Value) + Number(v2Value));
+    return singleReplacementArray(numResultValue);
   },
 
   '-/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '-/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['-/2'].call(this, instance, v2Arg));
+        result = result.concat(functors[selfFuncName].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -69,7 +67,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['-/2'].call(this, v1, instance));
+        result = result.concat(functors[selfFuncName].call(this, v1, instance));
       });
       return result;
     }
@@ -80,20 +78,17 @@ const functors = {
     assertIsValue(v1);
     assertIsValue(v2);
 
-    return [
-      {
-        theta: {},
-        replacement: new Value(Number(v1.evaluate()) - Number(v2.evaluate()))
-      }
-    ];
+    const opResult = new Value(Number(v1.evaluate()) - Number(v2.evaluate()));
+    return singleReplacementArray(opResult);
   },
 
   '*/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '*/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['*/2'].call(this, instance, v2Arg));
+        result = result.concat(functors[selfFuncName].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -101,7 +96,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['*/2'].call(this, v1, instance));
+        result = result.concat(functors[selfFuncName].call(this, v1, instance));
       });
       return result;
     }
@@ -112,20 +107,17 @@ const functors = {
     assertIsValue(v1);
     assertIsValue(v2);
 
-    return [
-      {
-        theta: {},
-        replacement: new Value(Number(v1.evaluate()) * Number(v2.evaluate()))
-      }
-    ];
+    const opResult = new Value(Number(v1.evaluate()) * Number(v2.evaluate()));
+    return singleReplacementArray(opResult);
   },
 
   '//2': function (v1Arg, v2Arg) {
+    const selfFuncName = '//2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['//2'].call(this, instance, v2Arg));
+        result = result.concat(functors[selfFuncName].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -133,7 +125,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['//2'].call(this, v1, instance));
+        result = result.concat(functors[selfFuncName].call(this, v1, instance));
       });
       return result;
     }
@@ -145,20 +137,17 @@ const functors = {
     assertIsValue(v1);
     assertIsValue(v2);
 
-    return [
-      {
-        theta: {},
-        replacement: new Value(Number(v1.evaluate()) / Number(v2.evaluate()))
-      }
-    ];
+    const opResult = new Value(Number(v1.evaluate()) / Number(v2.evaluate()));
+    return singleReplacementArray(opResult);
   },
 
   'mod/2': function (v1Arg, v2Arg) {
+    const selfFuncName = 'mod/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['mod/2'].call(this, instance, v2Arg));
+        result = result.concat(functors[selfFuncName].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -166,7 +155,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['mod/2'].call(this, v1, instance));
+        result = result.concat(functors[selfFuncName].call(this, v1, instance));
       });
       return result;
     }
@@ -178,20 +167,17 @@ const functors = {
     assertIsValue(v1);
     assertIsValue(v2);
 
-    return [
-      {
-        theta: {},
-        replacement: new Value(Number(v1.evaluate()) % Number(v2.evaluate()))
-      }
-    ];
+    const opResult = new Value(Number(v1.evaluate()) % Number(v2.evaluate()));
+    return singleReplacementArray(opResult);
   },
 
   '**/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '**/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['**/2'].call(this, instance, v2Arg));
+        result = result.concat(functors[selfFuncName].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -199,7 +185,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['**/2'].call(this, v1, instance));
+        result = result.concat(functors[selfFuncName].call(this, v1, instance));
       });
       return result;
     }
@@ -211,12 +197,8 @@ const functors = {
     assertIsValue(v1);
     assertIsValue(v2);
 
-    return [
-      {
-        theta: {},
-        replacement: new Value(Math.pow(Number(v1.evaluate()), Number(v2.evaluate())))
-      }
-    ];
+    const opResult = new Value(Math.pow(Number(v1.evaluate()), Number(v2.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   '-/1': function (v1Arg) {
@@ -235,12 +217,8 @@ const functors = {
 
     assertIsValue(v1);
 
-    return [
-      {
-        theta: {},
-        replacement: new Value(-Number(v1.evaluate()))
-      }
-    ];
+    const opResult = new Value(-Number(v1.evaluate()));
+    return singleReplacementArray(opResult);
   },
 
   'abs/1': function (v1Arg) {
@@ -258,14 +236,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.abs(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.abs(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'sin/1': function (v1Arg) {
@@ -283,14 +255,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.sin(v1.evaluate()));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.sin(v1.evaluate()));
+    return singleReplacementArray(opResult);
   },
 
   'asin/1': function (v1Arg) {
@@ -308,14 +274,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.asin(v1.evaluate()));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.asin(v1.evaluate()));
+    return singleReplacementArray(opResult);
   },
 
   'cos/1': function (v1Arg) {
@@ -333,14 +293,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.cos(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.cos(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'acos/1': function (v1Arg) {
@@ -358,14 +312,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.acos(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.acos(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'tan/1': function (v1Arg) {
@@ -383,14 +331,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.tan(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.tan(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'atan/1': function (v1Arg) {
@@ -408,14 +350,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.atan(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.atan(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'sqrt/1': function (v1Arg) {
@@ -433,14 +369,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.sqrt(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.sqrt(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'pow/2': function (v1Arg, v2Arg) {
@@ -471,22 +401,17 @@ const functors = {
 
     assertIsValue(v1);
     assertIsValue(v2);
-    let value = new Value(Math.max(Number(v1.evaluate()), Number(v2.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.max(Number(v1.evaluate()), Number(v2.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'min/2': function (v1Arg, v2Arg) {
+    const selfFuncName = 'min/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['min/2'].call(this, instance, v2Arg));
+        result = result.concat(functors[selfFuncName].call(this, instance, v2Arg));
       });
       return result;
     }
@@ -494,7 +419,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['min/2'].call(this, v1, instance));
+        result = result.concat(functors[selfFuncName].call(this, v1, instance));
       });
       return result;
     }
@@ -505,14 +430,8 @@ const functors = {
 
     assertIsValue(v1);
     assertIsValue(v2);
-    let value = new Value(Math.min(Number(v1.evaluate()), Number(v2.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.min(Number(v1.evaluate()), Number(v2.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'exp/1': function (v1Arg) {
@@ -526,14 +445,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.exp(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.exp(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'log/1': function (v1Arg) {
@@ -551,14 +464,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.log(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.log(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'log2/1': function (v1Arg) {
@@ -576,14 +483,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.log2(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.log2(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'floor/1': function (v1Arg) {
@@ -601,14 +502,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.floor(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.floor(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'ceil/1': function (v1Arg) {
@@ -626,14 +521,8 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.ceil(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.ceil(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'round/1': function (v1Arg) {
@@ -651,32 +540,22 @@ const functors = {
     }
 
     assertIsValue(v1);
-    let value = new Value(Math.round(Number(v1.evaluate())));
-
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.round(Number(v1.evaluate())));
+    return singleReplacementArray(opResult);
   },
 
   'random/0': function () {
-    let value = new Value(Math.random());
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.random());
+    return singleReplacementArray(opResult);
   },
 
   'randomInt/2': function (v1Arg, v2Arg) {
+    const selfFuncName = 'randomInt/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((v) => {
-        result = result.concat(functors['randomInt/2'].call(this, v, v2Arg));
+        result = result.concat(functors[selfFuncName].call(this, v, v2Arg));
       });
       return result;
     }
@@ -684,35 +563,25 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((v) => {
-        result = result.concat(functors['randomInt/2'].call(this, v1, v));
+        result = result.concat(functors[selfFuncName].call(this, v1, v));
       });
       return result;
     }
 
     if (v1.evaluate() > v2.evaluate()) {
-      return functors['randomInt/2'].call(this, v2, v1);
+      return functors[selfFuncName].call(this, v2, v1);
     }
     assertIsValue(v1);
     assertIsValue(v2);
 
-    let randInt = Math.random() * (v2.evaluate() - v1.evaluate()) + v1.evaluate();
-    let value = new Value(Math.round(randInt));
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const randInt = Math.random() * (v2.evaluate() - v1.evaluate()) + v1.evaluate();
+    const opResult = new Value(Math.round(randInt));
+    return singleReplacementArray(opResult);
   },
 
   'pi/0': function () {
-    let value = new Value(Math.PI);
-    return [
-      {
-        theta: {},
-        replacement: value
-      }
-    ];
+    const opResult = new Value(Math.PI);
+    return singleReplacementArray(opResult);
   }
 
 };

@@ -7,6 +7,9 @@ const lpsRequire = require('../../../lpsRequire');
 const List = lpsRequire('engine/List');
 const Value = lpsRequire('engine/Value');
 const Variable = lpsRequire('engine/Variable');
+const returnResults = lpsRequire('engine/modules/core/returnResults');
+const singleReplacementArray = returnResults.singleReplacementArray;
+const createTheta = returnResults.createTheta;
 
 const functors = {
   'is_ground/1': function (term) {
@@ -14,7 +17,7 @@ const functors = {
 
     if (term.isGround !== undefined
         && term.isGround()) {
-      result.push({ theta: {} });
+      result.push(createTheta());
     }
     return result;
   },
@@ -22,7 +25,7 @@ const functors = {
   'is_variable/1': function (term) {
     let result = [];
     if (term instanceof Variable) {
-      result.push({ theta: {} });
+      result.push(createTheta());
     }
     return result;
   },
@@ -30,7 +33,7 @@ const functors = {
   'is_list/1': function (operand) {
     let result = [];
     if (operand instanceof List) {
-      result.push({ theta: {} });
+      result.push(createTheta());
     }
     return result;
   },
@@ -45,7 +48,7 @@ const functors = {
     let result = [];
     if (operand instanceof Value
         && typeof operand.evaluate() === 'number') {
-      result.push({ theta: {} });
+      result.push(createTheta());
     }
     return result;
   },
@@ -60,7 +63,7 @@ const functors = {
     let result = [];
     if (operand instanceof Value
         && Number.isInteger(operand.evaluate())) {
-      result.push({ theta: {} });
+      result.push(createTheta());
     }
     return result;
   },
@@ -76,7 +79,7 @@ const functors = {
     if (operand instanceof Value
         && Number(operand.evaluate()) === operand.evaluate()
         && operand.evaluate() % 1 !== 0) {
-      result.push({ theta: {} });
+      result.push(createTheta());
     }
     return result;
   },
@@ -87,22 +90,13 @@ const functors = {
       // NaN check required
       return [];
     }
-    let result = [
-      {
-        theta: {},
-        replacement: new Value(convertedNumber)
-      }
-    ];
-    return result;
+    const opResult = new Value(convertedNumber);
+    return singleReplacementArray(opResult);
   },
 
   'atom_string/1': function (operand) {
-    let result = [
-      {
-        theta: {},
-        replacement: new Value(String(operand.evaluate()))
-      }
-    ];
+    const opResult = new Value(String(operand.evaluate()));
+    return singleReplacementArray(opResult);
     return result;
   }
 };

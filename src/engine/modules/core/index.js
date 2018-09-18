@@ -10,6 +10,8 @@ const List = lpsRequire('engine/List');
 const Timable = lpsRequire('engine/Timable');
 const Functor = lpsRequire('engine/Functor');
 const resolveValue = lpsRequire('engine/modules/core/resolveValue');
+const returnResults = lpsRequire('engine/modules/core/returnResults');
+const createTheta = returnResults.createTheta;
 
 const mathFunctors = lpsRequire('engine/modules/core/math');
 const ioFunctors = lpsRequire('engine/modules/core/io');
@@ -29,9 +31,7 @@ module.exports = (engine, program) => {
 
       let queryResult = engine.query(literal);
       if (queryResult.length === 0) {
-        result.push({
-          theta: {}
-        });
+        result.push(createTheta());
       }
       return result;
     },
@@ -51,9 +51,7 @@ module.exports = (engine, program) => {
       }
       let theta = {};
       theta[lhs.evaluate()] = resolvedRHS;
-      result.push({
-        theta: theta
-      });
+      result.push(createTheta(theta));
       return result;
     },
 
@@ -68,7 +66,7 @@ module.exports = (engine, program) => {
       });
       let theta = {};
       theta[output.evaluate()] = new List(outputResult);
-      return [{ theta: theta }];
+      return [createTheta(theta)];
     },
 
     'functor/3': function (term, name, arity) {
@@ -89,12 +87,12 @@ module.exports = (engine, program) => {
         return [];
       }
 
-      return [{ theta: theta }];
+      return [createTheta(theta)];
     },
 
     'lpsHalt/0': function () {
       engine.halt();
-      return [{ theta: {} }];
+      return [createTheta()];
     }
   };
 

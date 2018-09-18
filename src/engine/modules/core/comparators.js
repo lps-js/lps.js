@@ -7,14 +7,16 @@ const lpsRequire = require('../../../lpsRequire');
 const Variable = lpsRequire('engine/Variable');
 const resolveValue = lpsRequire('engine/modules/core/resolveValue');
 const assertIsValue = lpsRequire('engine/modules/core/assertIsValue');
+const returnResults = lpsRequire('engine/modules/core/returnResults');
 
 const functors = {
   '>/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '>/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['>/2'](instance, v2Arg));
+        result = result.concat(functors[selfFuncName](instance, v2Arg));
       });
       return result;
     }
@@ -22,7 +24,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['>/2'](v1, instance));
+        result = result.concat(functors[selfFuncName](v1, instance));
       });
       return result;
     }
@@ -37,19 +39,18 @@ const functors = {
     let num2 = Number(v2.evaluate());
 
     if (num1 > num2) {
-      result.push({
-        theta: {}
-      });
+      result.push(returnResults.createTheta());
     }
     return result;
   },
 
   '>=/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '>=/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['>=/2'](instance, v2Arg));
+        result = result.concat(functors[selfFuncName](instance, v2Arg));
       });
       return result;
     }
@@ -57,7 +58,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['>=/2'](v1, instance));
+        result = result.concat(functors[selfFuncName](v1, instance));
       });
       return result;
     }
@@ -72,19 +73,18 @@ const functors = {
     let num2 = Number(v2.evaluate());
 
     if (num1 >= num2) {
-      result.push({
-        theta: {}
-      });
+      result.push(returnResults.createTheta());
     }
     return result;
   },
 
   '</2': function (v1Arg, v2Arg) {
+    const selfFuncName = '</2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['</2'](instance, v2Arg));
+        result = result.concat(functors[selfFuncName](instance, v2Arg));
       });
       return result;
     }
@@ -92,7 +92,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['</2'](v1, instance));
+        result = result.concat(functors[selfFuncName](v1, instance));
       });
       return result;
     }
@@ -107,19 +107,18 @@ const functors = {
     let num2 = Number(v2.evaluate());
 
     if (num1 < num2) {
-      result.push({
-        theta: {}
-      });
+      result.push(returnResults.createTheta());
     }
     return result;
   },
 
   '<=/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '<=/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['<=/2'](instance, v2Arg));
+        result = result.concat(functors[selfFuncName](instance, v2Arg));
       });
       return result;
     }
@@ -127,7 +126,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['<=/2'](v1, instance));
+        result = result.concat(functors[selfFuncName](v1, instance));
       });
       return result;
     }
@@ -143,19 +142,18 @@ const functors = {
     let num2 = Number(v2.evaluate());
 
     if (num1 <= num2) {
-      result.push({
-        theta: {}
-      });
+      result.push(returnResults.createTheta());
     }
     return result;
   },
 
   '==/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '==/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['==/2'](instance, v2Arg));
+        result = result.concat(functors[selfFuncName](instance, v2Arg));
       });
       return result;
     }
@@ -163,7 +161,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['==/2'](v1, instance));
+        result = result.concat(functors[selfFuncName](v1, instance));
       });
       return result;
     }
@@ -178,19 +176,18 @@ const functors = {
     let num2 = v2.evaluate();
 
     if (num1 === num2) {
-      result.push({
-        theta: {}
-      });
+      result.push(returnResults.createTheta());
     }
     return result;
   },
 
   '!=/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '!=/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['!=/2'](instance, v2Arg));
+        result = result.concat(functors[selfFuncName](instance, v2Arg));
       });
       return result;
     }
@@ -198,7 +195,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['!=/2'](v1, instance));
+        result = result.concat(functors[selfFuncName](v1, instance));
       });
       return result;
     }
@@ -214,19 +211,18 @@ const functors = {
 
     // eslint-disable-next-line eqeqeq
     if (num1 != num2) {
-      result.push({
-        theta: {}
-      });
+      result.push(returnResults.createTheta());
     }
     return result;
   },
 
   '@</2': function (v1Arg, v2Arg) {
+    const selfFuncName = '@</2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['@</2'](instance, v2Arg));
+        result = result.concat(functors[selfFuncName](instance, v2Arg));
       });
       return result;
     }
@@ -234,7 +230,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['@</2'](v1, instance));
+        result = result.concat(functors[selfFuncName](v1, instance));
       });
       return result;
     }
@@ -244,19 +240,18 @@ const functors = {
     let compareResult = String(v1.evaluate()).localeCompare(String(v2.evaluate()));
 
     if (compareResult === -1) {
-      result.push({
-        theta: {}
-      });
+      result.push(returnResults.createTheta());
     }
     return result;
   },
 
   '@=/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '@=/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['@=/2'](instance, v2Arg));
+        result = result.concat(functors[selfFuncName](instance, v2Arg));
       });
       return result;
     }
@@ -264,7 +259,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['@=/2'](v1, instance));
+        result = result.concat(functors[selfFuncName](v1, instance));
       });
       return result;
     }
@@ -274,19 +269,18 @@ const functors = {
     let compareResult = String(v1.evaluate()).localeCompare(String(v2.evaluate()));
 
     if (compareResult === 0) {
-      result.push({
-        theta: {}
-      });
+      result.push(returnResults.createTheta());
     }
     return result;
   },
 
   '@>/2': function (v1Arg, v2Arg) {
+    const selfFuncName = '@>/2';
     let result = [];
     let v1 = resolveValue.call(this, v1Arg);
     if (v1 instanceof Array) {
       v1.forEach((instance) => {
-        result = result.concat(functors['@>/2'](instance, v2Arg));
+        result = result.concat(functors[selfFuncName](instance, v2Arg));
       });
       return result;
     }
@@ -294,7 +288,7 @@ const functors = {
     let v2 = resolveValue.call(this, v2Arg);
     if (v2 instanceof Array) {
       v2.forEach((instance) => {
-        result = result.concat(functors['@>/2'](v1, instance));
+        result = result.concat(functors[selfFuncName](v1, instance));
       });
       return result;
     }
@@ -304,9 +298,7 @@ const functors = {
     let compareResult = String(v1.evaluate()).localeCompare(String(v2.evaluate()));
 
     if (compareResult === 1) {
-      result.push({
-        theta: {}
-      });
+      result.push(returnResults.createTheta());
     } // else result remains an empty array
     return result;
   }
