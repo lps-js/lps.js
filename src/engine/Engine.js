@@ -41,6 +41,7 @@ function Engine(programArg) {
   let _isInCycle = false;
   let _isPaused = false;
   let _isRunning = false;
+  let _isLoaded = false;
 
   const _engineEventManager = new EventManager();
   const _profiler = new Profiler();
@@ -466,6 +467,10 @@ function Engine(programArg) {
     _isPaused = false;
   };
 
+  /**
+   * Perform a single cycle processing / state transition
+   * @return {Promise} Returns a promise that when fulfilled indicates the processing completion
+   */
   this.step = function step() {
     if (_isInCycle) {
       // previous cycle has not ended.
@@ -492,6 +497,7 @@ function Engine(programArg) {
 
     _isInCycle = true;
     let startTime = Date.now();
+    // perform state transition using performCycle function
     return performCycle.call(this)
       .then(() => {
         _profiler.set('lastCycleExecutionTime', Date.now() - startTime);
@@ -507,7 +513,10 @@ function Engine(programArg) {
       });
   };
 
-  const _startContinuousExecution = () => {
+  /**
+   * Start a continuous execution that will start the next cycle as soon as the current cycle ends.
+   */
+  const _startContinuousExecution = function () {
     const continuousExecutionFunc = () => {
       if (_isPaused || this.hasHalted()) {
         return;
@@ -534,7 +543,10 @@ function Engine(programArg) {
     setImmediate(continuousExecutionFunc);
   };
 
-  const _startNormalExecution = () => {
+  /**
+   * Start a normal execution that starts the cycle using the specified cycle interval.
+   */
+  const _startNormalExecution = function () {
     let timer = setInterval(() => {
       if (this.hasHalted()) {
         clearInterval(timer);
@@ -553,6 +565,9 @@ function Engine(programArg) {
     }, _cycleInterval);
   };
 
+  /**
+   * Start the execution of the LPS program
+   */
   this.run = function run() {
     if (_maxTime <= 0) {
       throw stringLiterals.error('engine.maxTimeInvalid', _maxTime);
@@ -594,6 +609,10 @@ function Engine(programArg) {
     this.scheduleObservation(observation, scheduledTime);
   };
 
+  /**
+   * Pause the LPS program execution. If the program is in a cycle processing,
+   * it will pause after the cycle processing ends.
+   */
   this.pause = function pause() {
     if (this.hasHalted()) {
       return;
@@ -603,6 +622,9 @@ function Engine(programArg) {
     _profiler.increment('numPaused');
   };
 
+  /**
+   * Unpause and resume the LPS program execution from its current state.
+   */
   this.unpause = function unpause() {
     if (this.hasHalted()) {
       return;
@@ -643,10 +665,12 @@ function Engine(programArg) {
     }
 
     if (endTime === undefined) {
+      // default endTime is given by 1 after the startTime
       endTime = startTime + 1;
     }
 
     if (endTime <= startTime) {
+      // invalid endTime given
       throw stringLiterals.error(
         'engine.invalidObservationScheduling',
         [observation, startTime, endTime]
@@ -684,12 +708,12 @@ function Engine(programArg) {
     ruleAntecedentProcessor(this, _program);
   });
 
-  let _loaded = false;
   this.load = function load() {
-    if (_loaded) {
+    if (_isLoaded) {
       return Promise.reject(stringLiterals.error('engine.loadingLoadedEngine'));
     }
-    _loaded = true;
+    // load once only
+    _isLoaded = true;
     coreModule(this, _program);
 
     return builtinProcessor(this, _program)
