@@ -214,6 +214,7 @@ function Engine(programArg) {
     let selectedAndExecutedActions = new LiteralTreeMap();
     let executedObservations = new LiteralTreeMap();
 
+    // Step 0 - Updating database
     let updatedState = _program.getState().clone();
     updateStateWithFluentActors(
       this,
@@ -229,16 +230,22 @@ function Engine(programArg) {
       selectedAndExecutedActions.add(act);
     });
 
+    // Step 1 - Processing rules
     let newFiredGoals = processRules(this, _program, _currentTime, _profiler);
     _goals = _goals.concat(newFiredGoals);
+
+    // Step 3 - Processing
     return evaluateGoalTrees(_currentTime, _goals, _profiler)
       .then((newGoals) => {
         _goals = newGoals;
 
-        _program.setExecutedActions(new LiteralTreeMap());
+        // Start preparation for next cycle
 
-        // preparation for next cycle
+        // reset the set of executed actions
+        _program.setExecutedActions(new LiteralTreeMap());
         _goals.sort(goalTreeSorter(_currentTime));
+
+        // select actions from candidate actions
         return actionsSelector.call(this, _goals);
       })
       .then((nextCycleActions) => {
@@ -258,22 +265,42 @@ function Engine(programArg) {
         _lastCycleActions = selectedAndExecutedActions;
         _lastCycleObservations = executedObservations;
 
+        // done with cycle
         return Promise.resolve();
       });
   };
 
+  /**
+   * Get the profiler object keeping track of statistics for this engine
+   * @return {Profiler} Returns the profiler object
+   */
   this.getProfiler = function getProfiler() {
     return _profiler;
   };
 
+  /**
+   * Get the current time of the LPS program under execution
+   * @return {number} Returns the current time
+   */
   this.getCurrentTime = function getCurrentTime() {
     return _currentTime;
   };
 
+  /**
+   * Get the maximum execution time for the LPS program
+   * @return {number} Returns the maximum execution time.
+   */
   this.getMaxTime = function getMaxTime() {
     return _maxTime;
   };
 
+  /**
+   * Set the maximum execution time for the LPS program.
+   * Can only be set before the execution of the LPS program starts.
+   * @param {number} newMaxTime The new maximum execution time. Must be positive non-zero integer.
+   * @throws Throws an error when an invalid new maximum execution time is given or trying to set
+   *         the maximum execution time after execution has started.
+   */
   this.setMaxTime = function setMaxTime(newMaxTime) {
     if (_isRunning) {
       throw stringLiterals.error(
@@ -289,22 +316,45 @@ function Engine(programArg) {
     _maxTime = newMaxTime;
   };
 
+  /**
+   * Check if the program execution is in cycle.
+   * @return {Boolean} Returns true if cycle processing is in progress.
+   */
   this.isInCycle = function isInCycle() {
     return _isInCycle;
   };
 
+  /**
+   * Check if the LPS program is running.
+   * @return {Boolean} Returns true if the program has started running, but not halted yet.
+   */
   this.isRunning = function isRunning() {
     return _isRunning;
   };
 
+  /**
+   * Check if the LPS program is currently paused in execution.
+   * @return {Boolean} Returns true if the program is currently paused.
+   */
   this.isPaused = function isPaused() {
     return _isPaused;
   };
 
+  /**
+   * Get the amount of set time between start of cycles
+   * @return {number} Returns the cycle interval in milliseconds.
+   */
   this.getCycleInterval = function getCycleInterval() {
     return _cycleInterval;
   };
 
+  /**
+   * Set the cycle interval between start of cycles for the LPS program.
+   * Can only be set before the execution of the LPS program starts.
+   * @param {number} newCycleInterval The new cycle interval. Must be positive non-zero integer.
+   * @throws Throws an error when an invalid new cycle interval is given or trying to set
+   *         the cycle interval after execution has started.
+   */
   this.setCycleInterval = function setCycleInterval(newCycleInterval) {
     if (_isRunning) {
       throw stringLiterals.error('engine.updatingParametersWhileRunning', 'cycle interval');
