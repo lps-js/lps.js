@@ -30,6 +30,9 @@ const forEachToString = (arr) => {
   };
 };
 
+const ERROR_EVENT = 'error';
+const DONE_EVENT = 'done';
+
 /**
  * Start a continuous execution that will start the next cycle as soon as the current cycle ends.
  */
@@ -45,7 +48,7 @@ const startContinuousExecution = (engine, eventManager, cycleInterval) => {
     engine.step()
       .then(() => {
         if (engine.hasHalted()) {
-          eventManager.notify('done', engine);
+          eventManager.notify(DONE_EVENT, engine);
           return;
         }
         clearTimeout(timer);
@@ -54,7 +57,7 @@ const startContinuousExecution = (engine, eventManager, cycleInterval) => {
       .catch((err) => {
         engine.halt();
         clearTimeout(timer);
-        eventManager.notify('error', err);
+        eventManager.notify(ERROR_EVENT, err);
       });
   };
   setImmediate(continuousExecutionFunc);
@@ -67,7 +70,7 @@ const startNormalExecution = (engine, eventManager, cycleInterval) => {
   let timer = setInterval(() => {
     if (engine.hasHalted()) {
       clearInterval(timer);
-      eventManager.notify('done', engine);
+      eventManager.notify(DONE_EVENT, engine);
       return;
     }
     if (engine.isPaused()) {
@@ -77,7 +80,7 @@ const startNormalExecution = (engine, eventManager, cycleInterval) => {
     engine.step()
       .catch((err) => {
         clearInterval(timer);
-        eventManager.notify('error', err);
+        eventManager.notify(ERROR_EVENT, err);
       });
   }, cycleInterval);
 };
@@ -501,7 +504,7 @@ function Engine(programArg) {
       return _program.query(literal, this);
     } catch (err) {
       this.halt();
-      _engineEventManager.notify('error', err);
+      _engineEventManager.notify(ERROR_EVENT, err);
     }
     return [];
   };
@@ -514,7 +517,7 @@ function Engine(programArg) {
   this.halt = function halt() {
     _maxTime = _currentTime;
     if (_isPaused) {
-      _engineEventManager.notify('done', this);
+      _engineEventManager.notify(DONE_EVENT, this);
     }
     _isPaused = false;
   };
