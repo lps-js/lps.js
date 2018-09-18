@@ -6,6 +6,7 @@
 const lpsRequire = require('../lpsRequire');
 const LiteralTreeMap = lpsRequire('engine/LiteralTreeMap');
 const FunctorProvider = lpsRequire('engine/FunctorProvider');
+const StaticAnalyzer = lpsRequire('engine/StaticAnalyzer');
 
 const processRules = lpsRequire('utility/processRules');
 const goalTreeSorter = lpsRequire('utility/goalTreeSorter');
@@ -704,6 +705,7 @@ function Engine(programArg) {
   // we preprocess some of the built-in processors by looking at the facts
   // of the _program.
   this.on('loaded', () => {
+    StaticAnalyzer.analyze(_program, _engineEventManager);
     settingsProcessor(this, _program);
     timableProcessor(this, _program);
     initiallyProcessor(this, _program);
